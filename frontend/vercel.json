@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://REPLACE_WITH_RAILWAY_URL/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://vybe-q164.onrender.com/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
