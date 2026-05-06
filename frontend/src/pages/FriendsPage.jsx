@@ -1,0 +1,523 @@
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowLeft, Search, UserPlus, Users, Clock, Send, X, Check, MessageCircle } from 'lucide-react'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
+import { useAuth } from '../context/AuthContext'
+import { useSocket } from '../context/SocketContext'
+import axios from 'axios'
+
+
+function Avatar({ name, size = 9, online }) {
+  return (
+    <div className="relative flex-shrink-0">
+      <div
+        className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-purple-600 to-blue-900 flex items-center justify-center text-white font-black`}
+        style={{ fontSize: size > 8 ? 16 : 13 }}
+      >
+        {name?.[0]?.toUpperCase() || '?'}
+      </div>
+      {online !== undefined && (
+        <span
+          className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-black ${online ? 'bg-green-400' : 'bg-gray-600'}`}
+        />
+      )}
+    </div>
+  )
+}
+
+export default function FriendsPage() {
+  const { user, token, loading: authLoading } = useAuth()
+  const { socket } = useSocket()
+  const navigate = useNavigate()
+
+  const [tab, setTab] = useState('friends')
+  const [friends, setFriends] = useState([])
+  const [requests, setRequests] = useState([])
+  const [selectedFriend, setSelectedFriend] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [msgInput, setMsgInput] = useState('')
+  const [searchQ, setSearchQ] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searching, setSearching] = useState(false)
+  const [loadingFriends, setLoadingFriends] = useState(true)
+  const [loadingMsgs, setLoadingMsgs] = useState(false)
+  const [actionLoading, setActionLoading] = useState('')
+  const [toast, setToast] = useState('')
+  const [unreadCounts, setUnreadCounts] = useState({})
+
+  const messagesEndRef = useRef(null)
+  const inputRef = useRef(null)
+  const searchTimeout = useRef(null)
+  const selectedFriendRef = useRef(null)
+  selectedFriendRef.current = selectedFriend
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!user) { navigate('/auth'); return }
+    fetchAll()
+  }, [user, authLoading])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  useEffect(() => {
+    if (!socket) return
+    const handler = (msg) => {
+      const current = selectedFriendRef.current
+      if (current && String(msg.from) === String(current.friend._id)) {
+        setMessages(prev => [...prev, { ...msg, fromMe: false }])
+        axios.patch(`/api/dm/${current.friend._id}/read`, {}, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {})
+      } else {
+        setUnreadCounts(prev => ({ ...prev, [msg.from]: (prev[msg.from] || 0) + 1 }))
+      }
+    }
+    socket.on('dm-receive', handler)
+    return () => socket.off('dm-receive', handler)
+  }, [socket, token])
+
+  const fetchAll = async () => {
+    setLoadingFriends(true)
+    try {
+      const [fr, rq, conv] = await Promise.all([
+        axios.get(`/api/friends`,          { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`/api/friends/requests`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`/api/dm/conversations`, { headers: { Authorization: `Bearer ${token}` } }),
+      ])
+      setFriends(fr.data.friends || [])
+      setRequests(rq.data.requests || [])
+      const counts = {}
+      for (const c of (conv.data.conversations || [])) {
+        if (c.unread > 0) counts[c.userId] = c.unread
+      }
+      setUnreadCounts(counts)
+    } catch {}
+    setLoadingFriends(false)
+  }
+
+  const openChat = async (friendship) => {
+    setSelectedFriend(friendship)
+    setMsgInput('')
+    setLoadingMsgs(true)
+    setUnreadCounts(prev => ({ ...prev, [friendship.friend._id]: 0 }))
+    try {
+      const { data } = await axios.get(`/api/dm/${friendship.friend._id}`, { headers: { Authorization: `Bearer ${token}` } })
+      setMessages(data.messages || [])
+      await axios.patch(`/api/dm/${friendship.friend._id}/read`, {}, { headers: { Authorization: `Bearer ${token}` } })
+    } catch {}
+    setLoadingMsgs(false)
+    setTimeout(() => inputRef.current?.focus(), 100)
+  }
+
+  const sendMessage = () => {
+    const content = msgInput.trim()
+    if (!content || !selectedFriend || !socket) return
+    setMsgInput('')
+    setMessages(prev => [...prev, { _id: Date.now(), content, fromMe: true, createdAt: new Date().toISOString() }])
+    socket.emit('dm-send', { toUserId: selectedFriend.friend._id, content })
+  }
+
+  const respondToRequest = async (friendshipId, action) => {
+    setActionLoading(friendshipId + action)
+    try {
+      await axios.post(`/api/friends/respond/${friendshipId}`, { action }, { headers: { Authorization: `Bearer ${token}` } })
+      setRequests(prev => prev.filter(r => r._id !== friendshipId))
+      if (action === 'accept') {
+        showToast('Friend added!')
+        const [fr] = await Promise.all([axios.get(`/api/friends`, { headers: { Authorization: `Bearer ${token}` } })])
+        setFriends(fr.data.friends || [])
+      } else {
+        showToast('Request declined.')
+      }
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Action failed.')
+    }
+    setActionLoading('')
+  }
+
+  const removeFriend = async (friendshipId) => {
+    if (!confirm('Remove this friend?')) return
+    try {
+      await axios.delete(`/api/friends/${friendshipId}`, { headers: { Authorization: `Bearer ${token}` } })
+      if (selectedFriend?.friendshipId === friendshipId) setSelectedFriend(null)
+      setFriends(prev => prev.filter(f => f.friendshipId !== friendshipId))
+      showToast('Friend removed.')
+    } catch {}
+  }
+
+  const handleSearch = (q) => {
+    setSearchQ(q)
+    clearTimeout(searchTimeout.current)
+    if (!q.trim()) { setSearchResults([]); return }
+    searchTimeout.current = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const { data } = await axios.get(`/api/users/search?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${token}` } })
+        setSearchResults(data.users || [])
+      } catch {}
+      setSearching(false)
+    }, 350)
+  }
+
+  const sendRequest = async (recipientId) => {
+    setActionLoading('req_' + recipientId)
+    try {
+      await axios.post(`/api/friends/request`, { recipientId }, { headers: { Authorization: `Bearer ${token}` } })
+      showToast('Friend request sent!')
+      setSearchResults(prev => prev.map(u => u._id === recipientId ? { ...u, requestSent: true } : u))
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Could not send request.')
+    }
+    setActionLoading('')
+  }
+
+  const showToast = (msg) => {
+    setToast(msg)
+    setTimeout(() => setToast(''), 3000)
+  }
+
+  const totalUnread = Object.values(unreadCounts).reduce((a, b) => a + b, 0)
+
+  return (
+    <div className="min-h-screen font-space" style={{ background: '#07090f' }}>
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+        <div style={{ position: 'absolute', top: '-5%', left: '20%', width: '500px', height: '500px', background: 'radial-gradient(ellipse at 50% 50%, rgba(27,98,245,0.06) 0%, transparent 65%)' }} />
+        <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '400px', height: '400px', background: 'radial-gradient(ellipse at 50% 50%, rgba(168,85,247,0.04) 0%, transparent 65%)' }} />
+      </div>
+
+      <Navbar />
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-white text-sm font-semibold"
+            style={{ background: '#0d1428', border: '1px solid rgba(27,98,245,0.4)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.96 }}
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-24 pb-16">
+        <div className="mb-6 flex items-center gap-4">
+          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-sm transition-colors" style={{ color: '#6b7280' }}>
+            <ArrowLeft size={15} />
+          </button>
+          <div>
+            <h1 className="text-3xl font-black text-white tracking-tight">Friends</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>
+              {friends.length} friend{friends.length !== 1 ? 's' : ''}
+              {totalUnread > 0 && <span className="ml-2 text-blue-400 font-semibold">{totalUnread} unread</span>}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-4" style={{ height: 'calc(100vh - 200px)', minHeight: '540px' }}>
+
+          {/* ── Left panel ── hidden on mobile when chat is open */}
+          <div
+            className={`${selectedFriend ? 'hidden sm:flex' : 'flex'} w-full sm:w-72 flex-shrink-0 flex-col rounded-2xl overflow-hidden`}
+            style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}
+          >
+            {/* Tabs */}
+            <div className="flex flex-shrink-0 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+              {[
+                { id: 'friends',  label: 'Friends',  icon: <Users size={12} /> },
+                { id: 'requests', label: 'Requests', icon: <Clock size={12} />, badge: requests.length },
+                { id: 'add',      label: 'Add',      icon: <UserPlus size={12} /> },
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className="flex-1 relative flex items-center justify-center gap-1.5 py-3 text-[11px] font-extrabold uppercase tracking-wide transition-colors"
+                  style={{
+                    color: tab === t.id ? '#fff' : '#4b5563',
+                    borderBottom: tab === t.id ? '2px solid #1B62F5' : '2px solid transparent',
+                  }}
+                >
+                  {t.icon}
+                  {t.label}
+                  {t.badge > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-purple-600 text-[9px] font-black flex items-center justify-center text-white">
+                      {t.badge > 9 ? '9+' : t.badge}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Panel content */}
+            <div className="flex-1 overflow-y-auto">
+
+              {/* ── Friends list ── */}
+              {tab === 'friends' && (
+                loadingFriends ? (
+                  <div className="py-16 text-center text-sm" style={{ color: '#6b7280' }}>Loading…</div>
+                ) : friends.length === 0 ? (
+                  <div className="py-16 text-center px-6">
+                    <Users size={32} className="mx-auto mb-3 opacity-20 text-white" />
+                    <p className="text-sm font-semibold text-white mb-1">No friends yet</p>
+                    <p className="text-xs mb-4" style={{ color: '#6b7280' }}>Add people you meet in video chat</p>
+                    <button
+                      onClick={() => setTab('add')}
+                      className="text-xs font-bold px-4 py-2 rounded-xl transition-colors"
+                      style={{ background: 'rgba(27,98,245,0.15)', color: '#4b88f7', border: '1px solid rgba(27,98,245,0.25)' }}
+                    >
+                      Find friends
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    {friends.map(f => {
+                      const unread = unreadCounts[f.friend._id] || 0
+                      const isSelected = selectedFriend?.friendshipId === f.friendshipId
+                      return (
+                        <button
+                          key={f.friendshipId}
+                          onClick={() => openChat(f)}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5 border-b"
+                          style={{
+                            borderColor: 'rgba(255,255,255,0.04)',
+                            background: isSelected ? 'rgba(27,98,245,0.1)' : 'transparent',
+                          }}
+                        >
+                          <Avatar name={f.friend.username} size={9} online={f.isOnline} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-white truncate">{f.friend.username}</p>
+                            <p className="text-[11px]" style={{ color: f.isOnline ? '#4ade80' : '#6b7280' }}>
+                              {f.isOnline ? 'Online' : 'Offline'}
+                            </p>
+                          </div>
+                          {unread > 0 && (
+                            <span className="w-5 h-5 rounded-full bg-purple-600 text-[10px] font-black flex items-center justify-center text-white flex-shrink-0">
+                              {unread > 9 ? '9+' : unread}
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )
+              )}
+
+              {/* ── Requests ── */}
+              {tab === 'requests' && (
+                requests.length === 0 ? (
+                  <div className="py-16 text-center px-6">
+                    <Clock size={32} className="mx-auto mb-3 opacity-20 text-white" />
+                    <p className="text-sm font-semibold text-white mb-1">No pending requests</p>
+                    <p className="text-xs" style={{ color: '#6b7280' }}>Friend requests you receive will appear here</p>
+                  </div>
+                ) : (
+                  <div>
+                    {requests.map(r => (
+                      <div
+                        key={r._id}
+                        className="flex items-center gap-3 px-4 py-3 border-b"
+                        style={{ borderColor: 'rgba(255,255,255,0.04)' }}
+                      >
+                        <Avatar name={r.requester.username} size={9} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-white truncate">{r.requester.username}</p>
+                          <p className="text-[11px]" style={{ color: '#6b7280' }}>wants to be friends</p>
+                        </div>
+                        <div className="flex gap-1.5 flex-shrink-0">
+                          <button
+                            onClick={() => respondToRequest(r._id, 'accept')}
+                            disabled={!!actionLoading}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-green-500/20 disabled:opacity-50"
+                            style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80' }}
+                            title="Accept"
+                          >
+                            <Check size={13} />
+                          </button>
+                          <button
+                            onClick={() => respondToRequest(r._id, 'decline')}
+                            disabled={!!actionLoading}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-red-500/20 disabled:opacity-50"
+                            style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}
+                            title="Decline"
+                          >
+                            <X size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+
+              {/* ── Add friend ── */}
+              {tab === 'add' && (
+                <div className="p-4">
+                  <div className="relative mb-4">
+                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6b7280' }} />
+                    <input
+                      type="text"
+                      value={searchQ}
+                      onChange={e => handleSearch(e.target.value)}
+                      placeholder="Search by username…"
+                      className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    />
+                  </div>
+                  {searching ? (
+                    <div className="text-center text-sm py-6" style={{ color: '#6b7280' }}>Searching…</div>
+                  ) : searchResults.length > 0 ? (
+                    <div className="space-y-2">
+                      {searchResults.map(u => (
+                        <div
+                          key={u._id}
+                          className="flex items-center gap-3 p-3 rounded-xl"
+                          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                        >
+                          <Avatar name={u.username} size={8} />
+                          <p className="text-sm font-semibold text-white flex-1 truncate">{u.username}</p>
+                          <button
+                            onClick={() => !u.requestSent && !u.isFriend && sendRequest(u._id)}
+                            disabled={u.requestSent || u.isFriend || actionLoading === 'req_' + u._id}
+                            className="text-xs font-bold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60 flex-shrink-0"
+                            style={{
+                              background: u.isFriend || u.requestSent ? 'rgba(255,255,255,0.05)' : 'rgba(27,98,245,0.15)',
+                              color: u.isFriend || u.requestSent ? '#6b7280' : '#4b88f7',
+                              border: '1px solid rgba(27,98,245,0.2)',
+                            }}
+                          >
+                            {u.isFriend ? 'Friends' : u.requestSent ? 'Sent ✓' : 'Add'}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : searchQ && !searching ? (
+                    <div className="text-center text-sm py-6" style={{ color: '#6b7280' }}>No users found</div>
+                  ) : (
+                    <p className="text-center text-xs py-6 leading-relaxed" style={{ color: '#6b7280' }}>
+                      Search for someone's username to send them a friend request
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── Right panel: DM chat ── hidden on mobile when no friend selected */}
+          <div
+            className={`${selectedFriend ? 'flex' : 'hidden sm:flex'} flex-1 flex-col rounded-2xl overflow-hidden`}
+            style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}
+          >
+            {selectedFriend ? (
+              <>
+                {/* Header */}
+                <div className="flex items-center gap-3 px-5 py-4 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                  {/* Back button — mobile only */}
+                  <button
+                    onClick={() => setSelectedFriend(null)}
+                    className="sm:hidden flex-shrink-0 text-gray-500 hover:text-white transition-colors"
+                  >
+                    <ArrowLeft size={18} />
+                  </button>
+                  <Avatar name={selectedFriend.friend.username} size={9} online={selectedFriend.isOnline} />
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-white">{selectedFriend.friend.username}</p>
+                    <p className="text-[11px]" style={{ color: selectedFriend.isOnline ? '#4ade80' : '#6b7280' }}>
+                      {selectedFriend.isOnline ? '● Online' : '○ Offline'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => removeFriend(selectedFriend.friendshipId)}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                    style={{ color: '#6b7280', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    Unfriend
+                  </button>
+                </div>
+
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-3">
+                  {loadingMsgs ? (
+                    <div className="h-full flex items-center justify-center text-sm" style={{ color: '#6b7280' }}>Loading…</div>
+                  ) : messages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center">
+                      <MessageCircle size={36} className="mb-3 opacity-15 text-white" />
+                      <p className="text-sm font-semibold text-white mb-1">Say hello!</p>
+                      <p className="text-xs" style={{ color: '#6b7280' }}>Start your conversation with {selectedFriend.friend.username}</p>
+                    </div>
+                  ) : (
+                    messages.map((msg, i) => (
+                      <motion.div
+                        key={msg._id || i}
+                        className={`flex ${msg.fromMe ? 'justify-end' : 'justify-start'}`}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div
+                          className="max-w-xs px-4 py-2.5 text-sm text-white"
+                          style={{
+                            background: msg.fromMe ? 'linear-gradient(135deg, #1B62F5, #4B88F7)' : 'rgba(255,255,255,0.07)',
+                            borderRadius: msg.fromMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                          }}
+                        >
+                          {msg.content}
+                          <p className="text-[10px] mt-1 opacity-50 text-right">
+                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Input */}
+                <div className="px-4 py-4 border-t flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                  <div className="flex gap-3 items-center">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={msgInput}
+                      onChange={e => setMsgInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
+                      placeholder={`Message ${selectedFriend.friend.username}…`}
+                      maxLength={500}
+                      className="flex-1 px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    />
+                    <motion.button
+                      onClick={sendMessage}
+                      disabled={!msgInput.trim()}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-11 h-11 rounded-xl flex items-center justify-center transition-all disabled:opacity-40"
+                      style={{ background: 'linear-gradient(135deg, #1B62F5, #4B88F7)', boxShadow: '0 0 18px rgba(27,98,245,0.35)' }}
+                    >
+                      <Send size={16} className="text-white" />
+                    </motion.button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
+                  style={{ background: 'rgba(27,98,245,0.1)', border: '1px solid rgba(27,98,245,0.2)' }}>
+                  <MessageCircle size={28} style={{ color: '#4b88f7' }} />
+                </div>
+                <p className="text-base font-black text-white mb-2">Your messages</p>
+                <p className="text-sm leading-relaxed" style={{ color: '#6b7280' }}>
+                  Select a friend from the list to start chatting.<br />Messages are private between friends only.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  )
+}

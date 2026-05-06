@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(Get-Command node -ErrorAction SilentlyContinue)",
+      "PowerShell($nodePaths = @\\(\"C:\\\\Program Files\\\\nodejs\", \"C:\\\\Program Files \\(x86\\)\\\\nodejs\", \"$env:APPDATA\\\\npm\", \"$env:LOCALAPPDATA\\\\Programs\\\\nodejs\"\\); foreach \\($p in $nodePaths\\) { if \\(Test-Path \"$p\\\\node.exe\"\\) { Write-Output \"Found: $p\" } })",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:APPDATA\\\\npm;$env:PATH\"; & \"C:\\\\Program Files\\\\nodejs\\\\npx.cmd\" skills add pbakaus/impeccable 2>&1 | Select-Object -First 30)",
+      "PowerShell($gitPaths = @\\(\"C:\\\\Program Files\\\\Git\\\\cmd\", \"C:\\\\Program Files \\(x86\\)\\\\Git\\\\cmd\", \"C:\\\\Git\\\\cmd\"\\); foreach \\($p in $gitPaths\\) { if \\(Test-Path \"$p\\\\git.exe\"\\) { Write-Output \"Found git: $p\" } })"
+    ]
+  }
+}
