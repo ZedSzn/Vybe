@@ -38,6 +38,9 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  'https://vybelivechat.com',
+  'https://www.vybelivechat.com',
+  'https://vybe-ebon-delta.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000',
 ].filter(Boolean)
