@@ -516,15 +516,16 @@ export default function MainPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.08, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            {cameraOn && !cameraErr ? (
-              <video
-                ref={videoRef}
-                autoPlay
-                muted
-                playsInline
-                className="w-full h-full object-cover"
-              />
-            ) : (
+            {/* Always mounted so srcObject assignment works on iOS */}
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              playsInline
+              className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`}
+            />
+
+            {!cameraOn || cameraErr ? (
               <div
                 className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
                 style={{ background: 'radial-gradient(ellipse at 50% 35%, rgba(124,58,237,0.14) 0%, transparent 68%)' }}
@@ -621,7 +622,7 @@ export default function MainPage() {
                   </div>
                 )}
               </div>
-            )}
+            ) : null}
 
             {/* Vignette */}
             <div
