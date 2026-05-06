@@ -6,6 +6,22 @@ import {
   Crown, Loader2, X as XIcon, Video, VideoOff, Shield,
   Camera, DollarSign,
 } from 'lucide-react'
+
+const FEATURE_CARDS = [
+  { key: 'private', title: 'Private',         desc: 'Anonymous sessions. No data stored, no tracking.' },
+  { key: 'instant', title: 'Instant Match',   desc: 'Connect with someone new in under 2 seconds.' },
+  { key: 'global',  title: 'Global',          desc: 'Meet people from 150+ countries worldwide.' },
+  { key: 'safe',    title: 'Safe & Moderated',desc: 'Human moderation with instant ban enforcement.' },
+]
+
+function FeatureIcon({ k }) {
+  const cls = 'text-vybe-purple-light'
+  if (k === 'private') return <Lock   size={20} className={cls} />
+  if (k === 'instant') return <Video  size={20} className={cls} />
+  if (k === 'global')  return <Globe  size={20} className={cls} />
+  if (k === 'safe')    return <Shield size={20} className={cls} />
+  return null
+}
 import Navbar from '../components/Navbar'
 import PremiumModal from '../components/PremiumModal'
 import Footer from '../components/Footer'
@@ -1083,6 +1099,32 @@ export default function MainPage() {
               )}
             </AnimatePresence>
           </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════════ FEATURES ROW ══════════════ */}
+      <section className="relative z-10 px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          {FEATURE_CARDS.map(({ key, title, desc }, i) => (
+            <motion.div
+              key={key}
+              className="flex flex-col gap-3 p-5 rounded-2xl"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ delay: i * 0.07, duration: 0.45 }}
+              whileHover={{ borderColor: 'rgba(27,98,245,0.28)', background: 'rgba(27,98,245,0.04)' }}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(27,98,245,0.12)' }}>
+                <FeatureIcon k={key} />
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm mb-1">{title}</p>
+                <p className="text-xs leading-relaxed" style={{ color: '#6b7280' }}>{desc}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
