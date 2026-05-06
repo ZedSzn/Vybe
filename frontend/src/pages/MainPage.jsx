@@ -833,7 +833,10 @@ export default function MainPage() {
                 border: '1px solid rgba(255,255,255,0.06)',
               }}
             >
-              <span className="text-xs font-semibold" style={{ color: '#9ca3af' }}>Auto match</span>
+              <div>
+                <span className="text-xs font-semibold" style={{ color: '#9ca3af' }}>Auto match</span>
+                <p className="text-[10px] mt-0.5" style={{ color: 'rgba(107,114,128,0.6)' }}>Skip to next person automatically</p>
+              </div>
               <div
                 className="relative transition-all duration-200"
                 style={{
