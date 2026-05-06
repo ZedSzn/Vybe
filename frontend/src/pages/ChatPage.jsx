@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
-  MessageSquare, X, ChevronRight, User, Shield, Loader2, Ban, Gift, UserX,
+  MessageSquare, X, ChevronRight, User, Shield, Loader2, Ban, Gift, UserX, Camera,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -70,6 +70,7 @@ export default function ChatPage() {
   const [skipQueueLoading, setSkipQueueLoading] = useState(false)
   const [hasCamera,      setHasCamera]        = useState(true)
   const [noCamDismissed, setNoCamDismissed]   = useState(false)
+  const [facingMode,     setFacingMode]       = useState('user')
 
   const searchTimerRef   = useRef(null)
   const searchTextTimer  = useRef(null)
@@ -268,6 +269,11 @@ export default function ChatPage() {
         if (localVideoRef.current) localVideoRef.current.srcObject = stream
       }
 
+      // Progress past 'init' immediately — don't wait for socket to connect.
+      // On Render free tier, the socket may take 50 s to wake; staying on
+      // "Starting camera…" the whole time is confusing.
+      if (mounted) setStatus('searching')
+
       const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['websocket', 'polling'] })
       socketRef.current = socket
 
@@ -281,7 +287,7 @@ export default function ChatPage() {
           isPremium: user?.isPremium || false,
           isVip:     user?.isVip    || false,
         })
-        setStatus('searching')
+        if (mounted) setStatus('searching')
         const p = prefsRef.current
         if (p.mode === 'private') {
           if (p.joining) socket.emit('join-private-room',  { code: p.privateCode })
@@ -434,6 +440,30 @@ export default function ChatPage() {
       clearInterval(timerRef.current)
     }
   }, []) // eslint-disable-line
+
+  const flipCamera = async () => {
+    const newFacing = facingMode === 'user' ? 'environment' : 'user'
+    setFacingMode(newFacing)
+    localStreamRef.current?.getTracks().forEach((t) => t.stop())
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: newFacing, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: { echoCancellation: true, noiseSuppression: true },
+      })
+      localStreamRef.current = stream
+      if (localVideoRef.current) localVideoRef.current.srcObject = stream
+      // Replace the video track in all active peer connections
+      const videoTrack = stream.getVideoTracks()[0]
+      if (videoTrack) {
+        Object.values(peersRef.current).forEach((peer) => {
+          const sender = peer._pc?.getSenders().find((s) => s.track?.kind === 'video')
+          if (sender) sender.replaceTrack(videoTrack).catch(() => {})
+        })
+      }
+    } catch {
+      setFacingMode(facingMode)
+    }
+  }
 
   const handleSkip = () => {
     destroyAllPeers()
@@ -1175,6 +1205,18 @@ export default function ChatPage() {
                     You
                   </span>
                 </div>
+
+                {/* Flip camera — mobile only */}
+                {hasCamera && !videoOff && (
+                  <button
+                    onClick={flipCamera}
+                    className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center z-10"
+                    style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}
+                    title="Flip camera"
+                  >
+                    <Camera size={16} className="text-white" />
+                  </button>
+                )}
               </div>
 
               {/* Squad mate video(s) */}
