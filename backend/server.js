@@ -24,13 +24,18 @@ async function sendEmail({ to, subject, html }) {
     console.warn('[email] RESEND_API_KEY not set — skipping email to', to);
     return;
   }
-  const { error } = await resend.emails.send({
-    from: 'Vybe <onboarding@resend.dev>',
+  const fromDomain = process.env.EMAIL_FROM_DOMAIN || 'vybelivechat.com';
+  const { data, error } = await resend.emails.send({
+    from: `Vybe <noreply@${fromDomain}>`,
     to,
     subject,
     html,
   });
-  if (error) console.error('[email] Resend error:', error);
+  if (error) {
+    console.error('[email] Resend error:', error);
+    throw new Error(error.message || 'Failed to send email');
+  }
+  return data;
 }
 
 const app = express();
@@ -1816,15 +1821,12 @@ app.post('/api/contact', async (req, res) => {
     if (!name || !email || !message) return res.status(400).json({ error: 'All fields are required.' });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email address.' });
     if (message.length > 2000) return res.status(400).json({ error: 'Message too long (max 2000 chars).' });
-    const to = process.env.ADMIN_EMAIL || process.env.SMTP_USER;
-    if (to && process.env.SMTP_PASS && process.env.SMTP_PASS !== 'PASTE_YOUR_EMAIL_APP_PASSWORD_HERE') {
-      await mailer.sendMail({
-        from: `"Vybe Contact" <${process.env.EMAIL_FROM || process.env.SMTP_USER}>`,
+    const to = process.env.ADMIN_EMAIL;
+    if (to) {
+      await sendEmail({
         to,
-        replyTo: email,
         subject: `[Vybe Contact] ${name}`,
-        text: `From: ${name} <${email}>\n\n${message}`,
-        html: `<p><strong>From:</strong> ${name} &lt;${email}&gt;</p><p>${message.replace(/\n/g, '<br>')}</p>`,
+        html: `<p><strong>From:</strong> ${name} &lt;${email}&gt;</p><p style="color:#aaa;font-size:12px;">Reply-to: ${email}</p><p>${message.replace(/\n/g, '<br>')}</p>`,
       });
     }
     res.json({ success: true });
