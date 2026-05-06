@@ -877,38 +877,59 @@ export default function ChatPage() {
               style={{ background: '#0a0a0f' }}>
 
               {status === 'init' && (
-                <div className="text-center">
-                  <Loader2 size={40} className="text-vybe-purple animate-spin mx-auto mb-4" />
+                <div className="flex flex-col items-center text-center">
+                  <div className="relative flex items-center justify-center mb-8" style={{ width: 200, height: 200 }}>
+                    <div className="absolute rounded-full animate-ping border border-purple-500/40" style={{ width: 152, height: 152, animationDuration: '2s' }} />
+                    <div className="absolute rounded-full animate-ping border border-purple-500/25" style={{ width: 152, height: 152, animationDuration: '2s', animationDelay: '0.67s' }} />
+                    <div className="absolute rounded-full animate-ping border border-purple-500/15" style={{ width: 152, height: 152, animationDuration: '2s', animationDelay: '1.33s' }} />
+                    <div className="rounded-full flex items-center justify-center" style={{ width: 152, height: 152, background: '#0d0d18', border: '2px solid rgba(124,58,237,0.4)', boxShadow: '0 0 30px rgba(124,58,237,0.2)', zIndex: 1, position: 'relative' }}>
+                      <Loader2 size={32} className="text-vybe-purple animate-spin" />
+                    </div>
+                  </div>
                   <p className="text-white font-semibold">Starting camera…</p>
                 </div>
               )}
 
               {status === 'searching' && searchElapsed < 30 && (
-                <div className="text-center max-w-sm">
-                  <div className="relative w-24 h-24 mx-auto mb-8">
-                    <div className="absolute inset-0 rounded-full border-2 border-vybe-purple/60 animate-ping" style={{ animationDuration: '1.5s' }} />
-                    <div className="absolute inset-2 rounded-full border border-vybe-purple/30 animate-pulse" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-lg font-black tracking-widest">
-                        <span style={{ background: 'linear-gradient(135deg,#2572ff,#70a8ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>VY</span>
-                        <span className="text-white">BE</span>
-                      </div>
+                <div className="flex flex-col items-center text-center w-full px-4">
+                  {/* Radar pulse + camera circle */}
+                  <div className="relative flex items-center justify-center mb-10" style={{ width: 200, height: 200 }}>
+                    <div className="absolute rounded-full animate-ping border border-purple-500/45" style={{ width: 152, height: 152, animationDuration: '2.2s', animationDelay: '0s' }} />
+                    <div className="absolute rounded-full animate-ping border border-purple-500/28" style={{ width: 152, height: 152, animationDuration: '2.2s', animationDelay: '0.73s' }} />
+                    <div className="absolute rounded-full animate-ping border border-purple-500/15" style={{ width: 152, height: 152, animationDuration: '2.2s', animationDelay: '1.46s' }} />
+                    <div className="relative rounded-full overflow-hidden" style={{ width: 152, height: 152, background: '#0d0d18', border: '2px solid rgba(124,58,237,0.5)', boxShadow: '0 0 36px rgba(124,58,237,0.25), 0 0 72px rgba(124,58,237,0.1)', zIndex: 1 }}>
+                      <video
+                        ref={(el) => {
+                          if (el && localStreamRef.current && el.srcObject !== localStreamRef.current) {
+                            el.srcObject = localStreamRef.current
+                            el.play().catch(() => {})
+                          }
+                        }}
+                        autoPlay muted playsInline
+                        className="w-full h-full object-cover"
+                        style={{ display: hasCamera ? 'block' : 'none', transform: 'scaleX(-1)' }}
+                      />
+                      {!hasCamera && (
+                        <div className="w-full h-full flex items-center justify-center" style={{ background: 'radial-gradient(circle at 50% 45%, rgba(124,58,237,0.18) 0%, transparent 70%)' }}>
+                          <User size={48} className="text-white/20" />
+                        </div>
+                      )}
                     </div>
                   </div>
+
                   <AnimatePresence mode="wait">
-                    <motion.h2 key={prefs.mode==='private'?'private':searchTextIdx} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }} className="text-xl sm:text-2xl font-black text-white mb-2">
+                    <motion.h2 key={prefs.mode==='private'?'private':searchTextIdx} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }} className="text-xl font-bold text-white mb-2 tracking-tight">
                       {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
                     </motion.h2>
                   </AnimatePresence>
-                  <p className="text-vybe-muted text-sm mb-2">{onlineCount > 0 && <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />{onlineCount} {onlineCount===1?'person':'people'} online</span>}</p>
-                  <div className="loading-dots flex justify-center mb-8"><span /><span /><span /></div>
-                  {user && (
-                    <div className="flex gap-2 mb-5 w-full max-w-xs">
-                      <motion.button onClick={handleBoost} disabled={boostLoading||boostActive} whileTap={{ scale: 0.96 }} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50" style={{ background: boostActive?'rgba(251,191,36,0.15)':'rgba(27,98,245,0.12)', border: `1px solid ${boostActive?'rgba(251,191,36,0.3)':'rgba(27,98,245,0.25)'}`, color: boostActive?'#fbbf24':'#4b88f7' }}><span>⚡</span><span>{boostActive?'Boosted!':'Boost'}</span></motion.button>
-                      <motion.button onClick={handleSkipQueue} disabled={skipQueueLoading} whileTap={{ scale: 0.96 }} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white disabled:opacity-50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}><span>⏭️</span><span>{skipQueueLoading?'…':'Skip'}</span></motion.button>
-                    </div>
-                  )}
-                  <button onClick={handleEnd} className="px-6 py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white hover:border-vybe-purple/40 transition-all text-sm">Cancel &amp; Leave</button>
+
+                  <p className="text-sm mb-8 flex items-center gap-1.5" style={{ color: '#6b7280', minHeight: '20px' }}>
+                    {onlineCount > 0 && <><span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />{onlineCount} {onlineCount===1?'person':'people'} online</>}
+                  </p>
+
+                  <button onClick={handleEnd} className="px-8 py-2.5 rounded-xl text-sm font-medium transition-all hover:text-white" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.45)' }}>
+                    Cancel &amp; Leave
+                  </button>
                 </div>
               )}
 
