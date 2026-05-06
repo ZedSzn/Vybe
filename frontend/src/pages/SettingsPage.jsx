@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Loader2, Trash2, UserX, Download, AlertTriangle, Check, Play } from 'lucide-react'
+import { ArrowLeft, Loader2, Trash2, UserX, Download, AlertTriangle, Check, Play, Mail, ShieldCheck } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -423,6 +423,74 @@ function StreakTab() {
   )
 }
 
+// ─── Email Verification Section ───────────────────────────────────────────────
+function EmailVerificationSection({ user }) {
+  const [sending,  setSending]  = useState(false)
+  const [sent,     setSent]     = useState(false)
+  const [errMsg,   setErrMsg]   = useState('')
+
+  const resend = async () => {
+    setSending(true)
+    setErrMsg('')
+    try {
+      await axios.post('/api/auth/resend-verification', { email: user?.email })
+      setSent(true)
+    } catch (err) {
+      setErrMsg(err.response?.data?.error || 'Failed to send. Try again.')
+    }
+    setSending(false)
+  }
+
+  if (user?.emailVerified) {
+    return (
+      <div className="glass-card rounded-2xl p-4 border border-green-500/25 bg-green-500/5 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
+          <ShieldCheck size={18} className="text-green-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-white text-sm font-bold">Email verified</p>
+          <p className="text-vybe-muted text-xs truncate">{user?.email}</p>
+        </div>
+        <span className="text-green-400 text-xs font-bold bg-green-500/10 border border-green-500/25 px-2 py-1 rounded-lg flex-shrink-0">✓ Verified</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="glass-card rounded-2xl p-5 border border-amber-500/25 bg-amber-500/5">
+      <div className="flex items-start gap-3 mb-4">
+        <div className="w-9 h-9 rounded-full bg-amber-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Mail size={18} className="text-amber-400" />
+        </div>
+        <div>
+          <p className="text-white text-sm font-bold">Verify your email</p>
+          <p className="text-vybe-muted text-xs mt-0.5 leading-relaxed">
+            A verification link will be sent to <span className="text-white/70">{user?.email}</span>.
+            Click it to confirm your address and unlock your verified badge.
+          </p>
+        </div>
+      </div>
+
+      {sent ? (
+        <div className="flex items-center gap-2 text-green-400 text-sm py-1">
+          <Check size={15} /> Verification email sent — check your inbox!
+        </div>
+      ) : (
+        <>
+          <button
+            onClick={resend}
+            disabled={sending}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-sm font-bold transition-all disabled:opacity-50"
+          >
+            {sending ? <><Loader2 size={13} className="animate-spin" /> Sending…</> : <><Mail size={13} /> Send Verification Email</>}
+          </button>
+          {errMsg && <p className="text-red-400 text-xs mt-2">{errMsg}</p>}
+        </>
+      )}
+    </div>
+  )
+}
+
 // ─── Account Tab ──────────────────────────────────────────────────────────────
 function AccountTab({ logout, navigate }) {
   const { user } = useAuth()
@@ -457,16 +525,8 @@ function AccountTab({ logout, navigate }) {
 
   return (
     <div className="space-y-4">
-      {/* Email verification banner */}
-      {!user?.emailVerified && (
-        <div className="glass-card rounded-2xl p-4 border border-blue-500/30 bg-blue-500/5 flex items-start gap-3">
-          <span className="text-lg">📧</span>
-          <div>
-            <p className="text-white text-sm font-bold">Email not verified</p>
-            <p className="text-vybe-muted text-xs mt-0.5">Verify to get a badge and unlock all features.</p>
-          </div>
-        </div>
-      )}
+      {/* Email verification */}
+      <EmailVerificationSection user={user} />
 
       {/* Data export */}
       <div className="glass-card rounded-2xl p-5">
