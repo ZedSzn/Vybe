@@ -832,7 +832,7 @@ export default function MainPage() {
                 border: '1px solid rgba(255,255,255,0.06)',
               }}
             >
-              <div>
+              <div className="text-left">
                 <span className="text-xs font-semibold" style={{ color: '#9ca3af' }}>Auto match</span>
                 <p className="text-[10px] mt-0.5" style={{ color: 'rgba(107,114,128,0.6)' }}>Skip to next person automatically</p>
               </div>
@@ -912,8 +912,15 @@ export default function MainPage() {
                         >
                           {squadLoading
                             ? <><Loader2 size={11} className="animate-spin" /> Creating…</>
+                            : !isConnected
+                            ? <><Loader2 size={11} className="animate-spin" /> Connecting…</>
                             : <><UserPlus size={11} /> Create Duo Room</>}
                         </button>
+                        {!isConnected && (
+                          <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>
+                            Waking up server, please wait…
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <div className="space-y-2.5">
@@ -1058,8 +1065,15 @@ export default function MainPage() {
                         >
                           {privateLoading
                             ? <><Loader2 size={11} className="animate-spin" /> Creating…</>
+                            : !isConnected
+                            ? <><Loader2 size={11} className="animate-spin" /> Connecting…</>
                             : <><Lock size={11} /> Create Private Room</>}
                         </button>
+                        {!isConnected && (
+                          <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>
+                            Waking up server, please wait…
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <div className="space-y-2.5">
