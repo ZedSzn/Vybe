@@ -869,94 +869,47 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* ── Status overlay (searching / init) ───────────────────── */}
+        {/* ── Init overlay (camera starting) ───────────────────────── */}
         <AnimatePresence>
-          {status !== 'matched' && (
+          {status === 'init' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-20 flex flex-col items-center justify-center px-6"
+              className="fixed inset-0 z-20 flex flex-col items-center justify-center"
               style={{ background: '#0a0a0f' }}>
-
-              {status === 'init' && (
-                <div className="flex flex-col items-center text-center">
-                  <div className="relative flex items-center justify-center mb-8" style={{ width: 200, height: 200 }}>
-                    <div className="absolute rounded-full animate-ping border border-purple-500/40" style={{ width: 152, height: 152, animationDuration: '2s' }} />
-                    <div className="absolute rounded-full animate-ping border border-purple-500/25" style={{ width: 152, height: 152, animationDuration: '2s', animationDelay: '0.67s' }} />
-                    <div className="absolute rounded-full animate-ping border border-purple-500/15" style={{ width: 152, height: 152, animationDuration: '2s', animationDelay: '1.33s' }} />
-                    <div className="rounded-full flex items-center justify-center" style={{ width: 152, height: 152, background: '#0d0d18', border: '2px solid rgba(124,58,237,0.4)', boxShadow: '0 0 30px rgba(124,58,237,0.2)', zIndex: 1, position: 'relative' }}>
-                      <Loader2 size={32} className="text-vybe-purple animate-spin" />
-                    </div>
-                  </div>
-                  <p className="text-white font-semibold">Starting camera…</p>
-                </div>
-              )}
-
-              {status === 'searching' && searchElapsed < 30 && (
-                <div className="flex flex-col items-center text-center w-full px-4">
-                  {/* Radar pulse + camera circle */}
-                  <div className="relative flex items-center justify-center mb-10" style={{ width: 200, height: 200 }}>
-                    <div className="absolute rounded-full animate-ping border border-purple-500/45" style={{ width: 152, height: 152, animationDuration: '2.2s', animationDelay: '0s' }} />
-                    <div className="absolute rounded-full animate-ping border border-purple-500/28" style={{ width: 152, height: 152, animationDuration: '2.2s', animationDelay: '0.73s' }} />
-                    <div className="absolute rounded-full animate-ping border border-purple-500/15" style={{ width: 152, height: 152, animationDuration: '2.2s', animationDelay: '1.46s' }} />
-                    <div className="relative rounded-full overflow-hidden" style={{ width: 152, height: 152, background: '#0d0d18', border: '2px solid rgba(124,58,237,0.5)', boxShadow: '0 0 36px rgba(124,58,237,0.25), 0 0 72px rgba(124,58,237,0.1)', zIndex: 1 }}>
-                      <video
-                        ref={(el) => {
-                          if (el && localStreamRef.current && el.srcObject !== localStreamRef.current) {
-                            el.srcObject = localStreamRef.current
-                            el.play().catch(() => {})
-                          }
-                        }}
-                        autoPlay muted playsInline
-                        className="w-full h-full object-cover"
-                        style={{ display: hasCamera ? 'block' : 'none', transform: 'scaleX(-1)' }}
-                      />
-                      {!hasCamera && (
-                        <div className="w-full h-full flex items-center justify-center" style={{ background: 'radial-gradient(circle at 50% 45%, rgba(124,58,237,0.18) 0%, transparent 70%)' }}>
-                          <User size={48} className="text-white/20" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <AnimatePresence mode="wait">
-                    <motion.h2 key={prefs.mode==='private'?'private':searchTextIdx} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }} className="text-xl font-bold text-white mb-2 tracking-tight">
-                      {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
-                    </motion.h2>
-                  </AnimatePresence>
-
-                  <p className="text-sm mb-8 flex items-center gap-1.5" style={{ color: '#6b7280', minHeight: '20px' }}>
-                    {onlineCount > 0 && <><span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />{onlineCount} {onlineCount===1?'person':'people'} online</>}
-                  </p>
-
-                  <button onClick={handleEnd} className="px-8 py-2.5 rounded-xl text-sm font-medium transition-all hover:text-white" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.45)' }}>
-                    Cancel &amp; Leave
-                  </button>
-                </div>
-              )}
-
-              {status === 'searching' && searchElapsed >= 30 && (
-                <div className="text-center max-w-sm">
-                  <div className="text-5xl mb-5">😴</div>
-                  <h2 className="text-2xl font-black text-white mb-3">No one available right now</h2>
-                  <p className="text-vybe-muted text-sm mb-4">Check back soon — Vybe gets busiest on evenings and weekends!</p>
-                  <div className="space-y-3">
-                    <button onClick={() => { setSearchElapsed(0); findMatch(socketRef.current) }} className="w-full py-3.5 rounded-xl btn-purple text-white font-black text-sm">Try Again</button>
-                    <button onClick={handleEnd} className="w-full py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-sm transition-colors">Back to Home</button>
-                  </div>
-                </div>
-              )}
-
-              {!hasCamera && !noCamDismissed && (
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2rem)] max-w-sm">
-                  <div className="flex items-start gap-3 px-4 py-3 rounded-2xl" style={{ background: 'rgba(10,10,22,0.92)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }}>
-                    <span className="text-xl flex-shrink-0 mt-0.5">📷</span>
-                    <div className="flex-1"><p className="text-white font-bold text-[13px]">No webcam detected</p><p className="text-white/50 text-[11px] mt-0.5">Adding a webcam gives you a <span className="text-blue-400 font-semibold">much better chance</span> of matching.</p></div>
-                    <button onClick={() => setNoCamDismissed(true)} className="text-white/30 hover:text-white/60 text-base leading-none">✕</button>
-                  </div>
-                </div>
-              )}
+              <Loader2 size={36} className="text-vybe-purple animate-spin mb-4" />
+              <p className="text-white/60 font-medium text-sm">Starting camera…</p>
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ── No one available overlay ──────────────────────────────── */}
+        <AnimatePresence>
+          {status === 'searching' && searchElapsed >= 30 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-20 flex flex-col items-center justify-center px-6"
+              style={{ background: '#0a0a0f' }}>
+              <div className="text-center max-w-sm">
+                <div className="text-5xl mb-5">😴</div>
+                <h2 className="text-2xl font-black text-white mb-3">No one available right now</h2>
+                <p className="text-vybe-muted text-sm mb-4">Check back soon — Vybe gets busiest on evenings and weekends!</p>
+                <div className="space-y-3">
+                  <button onClick={() => { setSearchElapsed(0); findMatch(socketRef.current) }} className="w-full py-3.5 rounded-xl btn-purple text-white font-black text-sm">Try Again</button>
+                  <button onClick={handleEnd} className="w-full py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-sm transition-colors">Back to Home</button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── No webcam banner ─────────────────────────────────────── */}
+        {!hasCamera && !noCamDismissed && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2rem)] max-w-sm">
+            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl" style={{ background: 'rgba(10,10,22,0.92)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }}>
+              <span className="text-xl flex-shrink-0 mt-0.5">📷</span>
+              <div className="flex-1"><p className="text-white font-bold text-[13px]">No webcam detected</p><p className="text-white/50 text-[11px] mt-0.5">Adding a webcam gives you a <span className="text-blue-400 font-semibold">much better chance</span> of matching.</p></div>
+              <button onClick={() => setNoCamDismissed(true)} className="text-white/30 hover:text-white/60 text-base leading-none">✕</button>
+            </div>
+          </div>
+        )}
 
         {/* ── VIDEO FEEDS ─────────────────────────────────────────── */}
         <div className="flex-1 flex flex-col min-h-0">
@@ -964,7 +917,32 @@ export default function ChatPage() {
 
             {/* Stranger video — dominant */}
             <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-[3] min-h-0">
-              {opponentSocketIds.length === 0 ? (
+              {status === 'searching' ? (
+                /* ── Radar pulse while searching ── */
+                <div className="w-full h-full flex flex-col items-center justify-center gap-6 px-4">
+                  <div className="relative flex items-center justify-center" style={{ width: 180, height: 180 }}>
+                    <div className="absolute rounded-full animate-ping border border-purple-500/45" style={{ width: 128, height: 128, animationDuration: '2.2s', animationDelay: '0s' }} />
+                    <div className="absolute rounded-full animate-ping border border-purple-500/28" style={{ width: 128, height: 128, animationDuration: '2.2s', animationDelay: '0.73s' }} />
+                    <div className="absolute rounded-full animate-ping border border-purple-500/14" style={{ width: 128, height: 128, animationDuration: '2.2s', animationDelay: '1.46s' }} />
+                    <div className="rounded-full flex items-center justify-center" style={{ width: 128, height: 128, background: '#0d0d18', border: '1.5px solid rgba(124,58,237,0.45)', boxShadow: '0 0 32px rgba(124,58,237,0.2)', zIndex: 1, position: 'relative' }}>
+                      <User size={40} className="text-white/20" />
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <AnimatePresence mode="wait">
+                      <motion.p key={prefs.mode==='private'?'private':searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-white font-bold text-base mb-1.5">
+                        {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
+                      </motion.p>
+                    </AnimatePresence>
+                    {onlineCount > 0 && (
+                      <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#6b7280' }}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+                        {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : opponentSocketIds.length === 0 ? (
                 <div className="w-full h-full flex items-center justify-center">
                   {status === 'matched' && <div className="loading-dots flex"><span /><span /><span /></div>}
                 </div>
@@ -1088,16 +1066,26 @@ export default function ChatPage() {
 
               {/* Center: primary actions */}
               <div className="flex items-center gap-3">
-                <motion.button onClick={handleSkip} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white/80 hover:text-white transition-all"
-                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  <SkipForward size={16} /> Next
-                </motion.button>
-                <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-all"
-                  style={{ boxShadow: '0 0 20px rgba(220,38,38,0.3)' }}>
-                  <PhoneOff size={16} /> End Chat
-                </motion.button>
+                {status === 'matched' ? (
+                  <>
+                    <motion.button onClick={handleSkip} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white/80 hover:text-white transition-all"
+                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                      <SkipForward size={16} /> Next
+                    </motion.button>
+                    <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-all"
+                      style={{ boxShadow: '0 0 20px rgba(220,38,38,0.3)' }}>
+                      <PhoneOff size={16} /> End Chat
+                    </motion.button>
+                  </>
+                ) : (
+                  <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                    className="flex items-center gap-2 px-8 py-2.5 rounded-xl font-bold text-sm transition-all"
+                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
+                    <PhoneOff size={16} /> Cancel &amp; Leave
+                  </motion.button>
+                )}
               </div>
 
               {/* Right: chat + report */}
@@ -1138,15 +1126,19 @@ export default function ChatPage() {
                   <span className="text-[9px] text-white/40">Flip</span>
                 </button>
               )}
-              {/* Next */}
-              <button onClick={handleSkip} className="flex flex-col items-center gap-1">
-                <div className="w-11 h-11 rounded-full border border-white/25 flex items-center justify-center"><SkipForward size={19} className="text-white/80" /></div>
-                <span className="text-[9px] text-white/40">Next</span>
-              </button>
-              {/* End */}
+              {/* Next / Cancel */}
+              {status === 'matched' ? (
+                <button onClick={handleSkip} className="flex flex-col items-center gap-1">
+                  <div className="w-11 h-11 rounded-full border border-white/25 flex items-center justify-center"><SkipForward size={19} className="text-white/80" /></div>
+                  <span className="text-[9px] text-white/40">Next</span>
+                </button>
+              ) : null}
+              {/* End / Cancel */}
               <button onClick={handleEnd} className="flex flex-col items-center gap-1">
-                <div className="w-11 h-11 rounded-full bg-red-600 flex items-center justify-center" style={{ boxShadow: '0 0 16px rgba(220,38,38,0.4)' }}><PhoneOff size={19} className="text-white" /></div>
-                <span className="text-[9px] text-white/40">End</span>
+                <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: status === 'matched' ? '#dc2626' : 'rgba(255,255,255,0.1)', boxShadow: status === 'matched' ? '0 0 16px rgba(220,38,38,0.4)' : 'none' }}>
+                  <PhoneOff size={19} className="text-white" />
+                </div>
+                <span className="text-[9px] text-white/40">{status === 'matched' ? 'End' : 'Cancel'}</span>
               </button>
               {/* Chat */}
               <button onClick={toggleChat} className="flex flex-col items-center gap-1">
