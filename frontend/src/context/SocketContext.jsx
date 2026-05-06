@@ -4,6 +4,13 @@ import { useAuth } from './AuthContext'
 
 const SocketContext = createContext(null)
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL || ''
+
+// Fire-and-forget HTTP ping so Render wakes up before the socket tries to connect
+function pingBackend() {
+  fetch(`${BACKEND}/api/online-count`).catch(() => {})
+}
+
 export function SocketProvider({ children }) {
   const { user } = useAuth()
   const [socket, setSocket] = useState(null)
@@ -11,10 +18,15 @@ export function SocketProvider({ children }) {
   const [onlineCount, setOnlineCount] = useState(0)
 
   useEffect(() => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || ''
-    const s = io(backendUrl, {
-      transports: ['websocket', 'polling'],
+    // Wake Render via HTTP first — much faster than a cold WebSocket handshake
+    pingBackend()
+
+    const s = io(BACKEND, {
+      transports: ['polling', 'websocket'], // polling first wakes Render, then upgrades
       withCredentials: true,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 8000,
+      reconnectionAttempts: 20,
     })
 
     s.on('connect', () => {
