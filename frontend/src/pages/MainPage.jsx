@@ -110,6 +110,7 @@ export default function MainPage() {
   const [cameraOn,           setCameraOn]           = useState(false)
   const [cameraErr,          setCameraErr]          = useState(false)
   const [cameraErrMsg,       setCameraErrMsg]       = useState('')
+  const [facingMode,         setFacingMode]         = useState('user')
   const [permissionAsked,    setPermissionAsked]    = useState(false)
   const [faqOpen,         setFaqOpen]         = useState(null)
   const [autoMatch,       setAutoMatch]       = useState(true)
@@ -124,6 +125,22 @@ export default function MainPage() {
   const [privateLoading, setPrivateLoading] = useState(false)
   const [privateError,   setPrivateError]   = useState('')
   const [privateCopied,  setPrivateCopied]  = useState(false)
+
+  const flipCamera = async () => {
+    const newFacing = facingMode === 'user' ? 'environment' : 'user'
+    setFacingMode(newFacing)
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: newFacing, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: true,
+      })
+      streamRef.current = stream
+      if (videoRef.current) videoRef.current.srcObject = stream
+    } catch {
+      setFacingMode(facingMode)
+    }
+  }
 
   const handleGender = (g) => {
     if (g !== 'both' && !user?.isPremium) { navigate('/subscription'); return }
@@ -608,11 +625,6 @@ export default function MainPage() {
                       {cameraErr ? 'Try Again' : 'Allow Camera'}
                     </motion.button>
 
-                    {!cameraErr && (
-                      <p className="text-[10px] mt-3" style={{ color: 'rgba(160,160,180,0.4)' }}>
-                        You can still browse without enabling
-                      </p>
-                    )}
                   </div>
                 ) : (
                   /* ── Loading state while waiting for permission dialog ── */
@@ -653,6 +665,19 @@ export default function MainPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 online-pulse" />
                 <span className="text-white text-[9px] font-extrabold tracking-[0.2em]">LIVE</span>
               </div>
+            )}
+
+            {/* Flip camera button */}
+            {cameraOn && (
+              <motion.button
+                onClick={flipCamera}
+                whileTap={{ scale: 0.9 }}
+                className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}
+                title="Flip camera"
+              >
+                <Camera size={16} className="text-white" />
+              </motion.button>
             )}
           </motion.div>
 

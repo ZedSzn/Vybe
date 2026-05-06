@@ -246,27 +246,40 @@ export default function ChatPage() {
     let mounted = true
 
     const init = async () => {
-      // Try video+audio → audio-only → nothing. Never hard-block on camera failure.
+      // Try video+audio with progressively simpler constraints, then audio-only, then nothing.
       let stream = null
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
-          audio: { echoCancellation: true, noiseSuppression: true },
-        })
-      } catch {
+      const audioConstraints = { echoCancellation: true, noiseSuppression: true }
+      if (navigator.mediaDevices?.getUserMedia) {
         try {
-          stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } })
+          // First try: facingMode only (avoids OverconstrainedError on older iOS)
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user' },
+            audio: audioConstraints,
+          })
         } catch {
-          // No media at all — still allow text-only chat
+          try {
+            // Second try: any video
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: audioConstraints })
+          } catch {
+            try {
+              // Third try: audio only
+              stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
+            } catch {
+              // No media at all — still allow text-only chat
+            }
+          }
         }
       }
       if (!mounted) { stream?.getTracks().forEach((t) => t.stop()); return }
       const camAvailable = !!(stream?.getVideoTracks().length)
-      if (!mounted) return
       setHasCamera(camAvailable)
       if (stream) {
         localStreamRef.current = stream
-        if (localVideoRef.current) localVideoRef.current.srcObject = stream
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream
+          // iOS Safari sometimes ignores autoPlay when srcObject is set programmatically
+          localVideoRef.current.play().catch(() => {})
+        }
       }
 
       // Progress past 'init' immediately — don't wait for socket to connect.
