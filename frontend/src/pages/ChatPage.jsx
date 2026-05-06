@@ -60,6 +60,7 @@ export default function ChatPage() {
   const [giftReceived,   setGiftReceived]     = useState(null)
   const [blockLoading,   setBlockLoading]     = useState(false)
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
+  const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
   const [floatingGifts,  setFloatingGifts]    = useState([]) // [{id, emoji, fromMe}]
   const [showTip,        setShowTip]          = useState(false)
   const [tipAmount,      setTipAmount]        = useState('50')
@@ -98,7 +99,15 @@ export default function ChatPage() {
 
   useEffect(() => {
     axios.get('/api/gifts').then(({ data }) => setGifts(data.gifts)).catch(() => {})
-    if (user?.coins !== undefined) setCoins(user.coins)
+    // Always fetch fresh balance — localStorage can be stale
+    if (user) {
+      axios.get('/api/coins').then(({ data }) => {
+        setCoins(data.coins ?? 0)
+        setCashableCoins(data.cashableCoins ?? 0)
+      }).catch(() => {
+        if (user?.coins !== undefined) setCoins(user.coins)
+      })
+    }
   }, []) // eslint-disable-line
 
   useEffect(() => { prefsRef.current  = prefs   }, [prefs])
@@ -414,9 +423,10 @@ export default function ChatPage() {
         setTimeout(() => setFloatingGifts((prev) => prev.filter((g) => g.id !== id)), 2800)
       })
 
-      socket.on('tip-received', ({ from, yourShare, coins: newCoins }) => {
+      socket.on('tip-received', ({ from, yourShare, coins: newCoins, cashableCoins: newCashable }) => {
         if (!mounted) return
-        setCoins(newCoins)
+        if (newCoins     !== undefined) setCoins(newCoins)
+        if (newCashable  !== undefined) setCashableCoins(newCashable)
         setTipFeedback({ type: 'success', msg: `💰 ${from} tipped you ${yourShare} coins!` })
         setTimeout(() => setTipFeedback(null), 4000)
       })
@@ -534,6 +544,7 @@ export default function ChatPage() {
   const handleSendTip = () => {
     const amount = parseInt(tipAmount, 10)
     if (!amount || amount < 10) { setTipFeedback({ type: 'error', msg: 'Minimum tip is 10 coins' }); return }
+    if (amount > coins) { setTipFeedback({ type: 'error', msg: `Not enough spendable coins. You have ${coins} coins.` }); return }
     if (!partnerSockRef.current) { setTipFeedback({ type: 'error', msg: 'No partner to tip' }); return }
     setTipLoading(true)
     socketRef.current?.emit('send-tip', { amount, recipientSocketId: partnerSockRef.current })
@@ -830,12 +841,34 @@ export default function ChatPage() {
                 className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#09091a)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div><h3 className="text-white font-black text-sm">Send a Tip 💰</h3><p className="text-white/40 text-xs mt-0.5">30% goes to Vybe · Min 10 coins</p></div>
-                  <div className="flex items-center gap-2"><span className="text-yellow-300 text-xs font-black">🪙 {coins.toLocaleString()}</span><button onClick={() => setShowTip(false)} className="text-white/40 hover:text-white"><X size={15} /></button></div>
+                  <button onClick={() => setShowTip(false)} className="text-white/40 hover:text-white"><X size={15} /></button>
                 </div>
-                <div className="flex gap-2 mb-3">{[10,50,100,250].map((v) => (<button key={v} onClick={() => setTipAmount(String(v))} className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${tipAmount===String(v)?'bg-blue-600 text-white':'bg-white/8 text-white/60 hover:bg-white/12'}`}>{v}</button>))}</div>
-                <div className="flex gap-2 mb-4"><input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" className="flex-1 bg-white/6 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500/60 transition-all" /></div>
-                {tipAmount && parseInt(tipAmount) >= 10 && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
-                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10} className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50 transition-all" style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 20px rgba(27,98,245,0.4)' }}>{tipLoading?'Sending…':`Send ${tipAmount||0} coins`}</button>
+                {/* Coin balance breakdown */}
+                <div className="flex gap-2 mb-4">
+                  <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
+                    <p className="text-yellow-300 font-black text-sm">🪙 {coins.toLocaleString()}</p>
+                    <p className="text-white/40 text-[10px] mt-0.5">Spendable</p>
+                  </div>
+                  {cashableCoins > 0 && (
+                    <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                      <p className="text-green-400 font-black text-sm">🪙 {cashableCoins.toLocaleString()}</p>
+                      <p className="text-white/40 text-[10px] mt-0.5">Earned (cashable)</p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2 mb-3">{[10,50,100,250].map((v) => {
+                  const canAfford = v <= coins
+                  return (
+                    <button key={v} onClick={() => canAfford && setTipAmount(String(v))} disabled={!canAfford}
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${tipAmount===String(v)?'bg-blue-600 text-white':canAfford?'bg-white/8 text-white/60 hover:bg-white/12':'bg-white/4 text-white/25 cursor-not-allowed'}`}>
+                      {v}
+                    </button>
+                  )
+                })}</div>
+                <div className="flex gap-2 mb-3"><input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" max={coins} className="flex-1 bg-white/6 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500/60 transition-all" /></div>
+                {tipAmount && parseInt(tipAmount) >= 10 && parseInt(tipAmount) <= coins && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
+                {tipAmount && parseInt(tipAmount) > coins && <p className="text-red-400 text-xs mb-3 text-center">You only have {coins} spendable coins</p>}
+                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins} className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50 transition-all" style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 20px rgba(27,98,245,0.4)' }}>{tipLoading?'Sending…':`Send ${tipAmount||0} coins`}</button>
               </motion.div>
             </motion.div>
           )}
