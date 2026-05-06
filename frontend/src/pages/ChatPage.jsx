@@ -728,236 +728,138 @@ export default function ChatPage() {
     )
   }
 
-  return (
-    <div className="h-screen bg-black overflow-hidden font-space">
-      <div className="h-full flex">
+  // ── Bottom-bar button helpers ────────────────────────────────────────────
+  const BarBtn = ({ onClick, children, label, active, red, disabled: dis, title: t }) => (
+    <button onClick={onClick} disabled={dis} title={t || label}
+      className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all select-none disabled:opacity-40 disabled:cursor-default
+        ${red ? 'text-red-400/80 hover:text-red-300' : active ? 'text-vybe-purple-light' : 'text-white/55 hover:text-white'}`}>
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all
+        ${red && active ? 'bg-red-600' : red ? 'bg-red-500/15 hover:bg-red-500/25' : active ? 'bg-vybe-purple/25' : 'bg-white/[0.06] hover:bg-white/10'}`}>
+        {children}
+      </div>
+      <span className="text-[9px] font-medium tracking-wide whitespace-nowrap">{label}</span>
+    </button>
+  )
 
-        {/* ── Connection lost overlay ───────────────────────────────── */}
+  return (
+    <div className="h-screen bg-black overflow-hidden font-space flex flex-col">
+      <div className="flex-1 flex overflow-hidden min-h-0">
+
+        {/* ── Fixed overlays ───────────────────────────────────────── */}
+
+        {/* Connection lost */}
         <AnimatePresence>
           {connectionLost && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 flex items-center justify-center px-6"
-              style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
-            >
+              style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}>
               <div className="text-center max-w-xs">
                 <Loader2 size={44} className="text-vybe-purple animate-spin mx-auto mb-5" />
-                <h2 className="text-xl font-black text-white mb-2">
-                  {reconnectCount < 3 ? 'Connection lost' : 'Could not reconnect'}
-                </h2>
-                <p className="text-vybe-muted text-sm leading-relaxed">
-                  {reconnectCount < 3
-                    ? `Trying to reconnect… (attempt ${reconnectCount + 1}/3)`
-                    : 'Finding you a new match…'}
-                </p>
-                {reconnectCount > 0 && reconnectCount < 3 && (
-                  <div className="mt-4 flex justify-center gap-1">
-                    {[0, 1, 2].map((i) => (
-                      <div key={i} className={`w-2 h-2 rounded-full ${i < reconnectCount ? 'bg-red-400' : 'bg-vybe-border'}`} />
-                    ))}
-                  </div>
-                )}
+                <h2 className="text-xl font-black text-white mb-2">{reconnectCount < 3 ? 'Connection lost' : 'Could not reconnect'}</h2>
+                <p className="text-vybe-muted text-sm">{reconnectCount < 3 ? `Reconnecting… (${reconnectCount + 1}/3)` : 'Finding you a new match…'}</p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ── Admin warning toast ───────────────────────────────────── */}
+        {/* Admin warning */}
         <AnimatePresence>
           {adminWarning && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-sm w-full px-4"
-            >
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+              className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-sm w-full px-4">
               <div className="bg-yellow-500/15 border border-yellow-500/40 rounded-2xl px-5 py-4 flex items-start gap-3 backdrop-blur-sm">
                 <Shield size={16} className="text-yellow-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-yellow-300 text-xs font-black uppercase tracking-wider mb-1">Admin Warning</p>
-                  <p className="text-white text-sm leading-relaxed">{adminWarning}</p>
-                </div>
-                <button onClick={() => setAdminWarning('')} className="text-white/40 hover:text-white ml-auto">
-                  <X size={14} />
-                </button>
+                <div><p className="text-yellow-300 text-xs font-black uppercase tracking-wider mb-1">Admin Warning</p><p className="text-white text-sm">{adminWarning}</p></div>
+                <button onClick={() => setAdminWarning('')} className="text-white/40 hover:text-white ml-auto"><X size={14} /></button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ── Email verification soft banner ───────────────────────── */}
+        {/* Email verification */}
         {user && !user.emailVerified && status === 'matched' && (
-          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm pointer-events-none">
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm pointer-events-none">
             <div className="bg-blue-500/15 border border-blue-500/30 rounded-2xl px-4 py-3 flex items-center gap-3 backdrop-blur-sm pointer-events-auto">
               <span className="text-sm">📧</span>
-              <p className="text-blue-300 text-xs flex-1">Verify your email to unlock badges &amp; all features</p>
+              <p className="text-blue-300 text-xs flex-1">Verify your email to unlock all features</p>
               <Link to="/settings?tab=account" className="text-blue-400 text-xs font-bold hover:underline flex-shrink-0">→ Settings</Link>
             </div>
           </div>
         )}
 
-        {/* ── Floating gift animations ──────────────────────────────── */}
+        {/* Floating gifts */}
         <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
           <AnimatePresence>
             {floatingGifts.map((g) => (
-              <motion.div
-                key={g.id}
-                initial={{ opacity: 1, y: 0, x: g.fromMe ? '-50%' : '-50%', scale: 1 }}
-                animate={{ opacity: 0, y: -280, scale: 1.6 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 2.4, ease: 'easeOut' }}
-                className="absolute text-6xl select-none"
-                style={{ left: g.fromMe ? '30%' : '70%', bottom: '25%' }}
-              >
-                {g.emoji}
-              </motion.div>
+              <motion.div key={g.id} initial={{ opacity: 1, y: 0, x: '-50%', scale: 1 }} animate={{ opacity: 0, y: -280, scale: 1.6 }} exit={{ opacity: 0 }}
+                transition={{ duration: 2.4, ease: 'easeOut' }} className="absolute text-6xl select-none"
+                style={{ left: g.fromMe ? '30%' : '70%', bottom: '25%' }}>{g.emoji}</motion.div>
             ))}
           </AnimatePresence>
         </div>
 
-        {/* ── Tip / gift feedback toast ─────────────────────────────── */}
+        {/* Tip/gift feedback toast */}
         <AnimatePresence>
           {tipFeedback && (
-            <motion.div
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
+            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
               className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-semibold backdrop-blur-sm whitespace-nowrap"
-              style={{
-                background: tipFeedback.type === 'success' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-                border: `1px solid ${tipFeedback.type === 'success' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
-                color:  tipFeedback.type === 'success' ? '#4ade80' : '#f87171',
-              }}
-            >
+              style={{ background: tipFeedback.type === 'success' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${tipFeedback.type === 'success' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`, color: tipFeedback.type === 'success' ? '#4ade80' : '#f87171' }}>
               {tipFeedback.msg}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ── Gift received toast ───────────────────────────────────── */}
+        {/* Gift received toast */}
         <AnimatePresence>
           {giftReceived && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl bg-vybe-card2 border border-blue-500/25 text-center backdrop-blur-sm"
-            >
+            <motion.div initial={{ opacity: 0, scale: 0.8, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8 }}
+              className="fixed bottom-28 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl bg-vybe-card2 border border-blue-500/25 text-center backdrop-blur-sm">
               <p className="text-3xl mb-1">{giftReceived.gift}</p>
               <p className="text-white text-sm font-bold">{giftReceived.from} sent you a gift!</p>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ── Tip modal ────────────────────────────────────────────── */}
+        {/* Tip modal */}
         <AnimatePresence>
           {showTip && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 z-40 flex items-end justify-center pb-24 px-4"
-              style={{ background: 'rgba(0,0,0,0.75)' }}
-              onClick={() => setShowTip(false)}
-            >
-              <motion.div
-                initial={{ y: 48 }}
-                animate={{ y: 0 }}
-                exit={{ y: 48 }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm rounded-3xl p-5 border border-white/10"
-                style={{ background: 'linear-gradient(160deg,#0d0d1c,#09091a)' }}
-              >
+              style={{ background: 'rgba(0,0,0,0.75)' }} onClick={() => setShowTip(false)}>
+              <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#09091a)' }}>
                 <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-white font-black text-sm">Send a Tip 💰</h3>
-                    <p className="text-white/40 text-xs mt-0.5">30% goes to Vybe · Min 10 coins</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-yellow-300 text-xs font-black">🪙 {coins.toLocaleString()}</span>
-                    <button onClick={() => setShowTip(false)} className="text-white/40 hover:text-white"><X size={15} /></button>
-                  </div>
+                  <div><h3 className="text-white font-black text-sm">Send a Tip 💰</h3><p className="text-white/40 text-xs mt-0.5">30% goes to Vybe · Min 10 coins</p></div>
+                  <div className="flex items-center gap-2"><span className="text-yellow-300 text-xs font-black">🪙 {coins.toLocaleString()}</span><button onClick={() => setShowTip(false)} className="text-white/40 hover:text-white"><X size={15} /></button></div>
                 </div>
-                <div className="flex gap-2 mb-3">
-                  {[10, 50, 100, 250].map((v) => (
-                    <button
-                      key={v}
-                      onClick={() => setTipAmount(String(v))}
-                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${tipAmount === String(v) ? 'bg-blue-600 text-white' : 'bg-white/8 text-white/60 hover:bg-white/12'}`}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-2 mb-4">
-                  <input
-                    type="number"
-                    value={tipAmount}
-                    onChange={(e) => setTipAmount(e.target.value)}
-                    placeholder="Custom amount"
-                    min="10"
-                    className="flex-1 bg-white/6 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500/60 transition-all"
-                  />
-                </div>
-                {tipAmount && parseInt(tipAmount) >= 10 && (
-                  <p className="text-white/40 text-xs mb-3 text-center">
-                    Partner receives {Math.floor(parseInt(tipAmount) * 0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount) * 0.30)}
-                  </p>
-                )}
-                <button
-                  onClick={handleSendTip}
-                  disabled={tipLoading || !tipAmount || parseInt(tipAmount) < 10}
-                  className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50 transition-all"
-                  style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 20px rgba(27,98,245,0.4)' }}
-                >
-                  {tipLoading ? 'Sending…' : `Send ${tipAmount || 0} coins`}
-                </button>
+                <div className="flex gap-2 mb-3">{[10,50,100,250].map((v) => (<button key={v} onClick={() => setTipAmount(String(v))} className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${tipAmount===String(v)?'bg-blue-600 text-white':'bg-white/8 text-white/60 hover:bg-white/12'}`}>{v}</button>))}</div>
+                <div className="flex gap-2 mb-4"><input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" className="flex-1 bg-white/6 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500/60 transition-all" /></div>
+                {tipAmount && parseInt(tipAmount) >= 10 && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
+                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10} className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50 transition-all" style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 20px rgba(27,98,245,0.4)' }}>{tipLoading?'Sending…':`Send ${tipAmount||0} coins`}</button>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ── Gift picker overlay ───────────────────────────────────── */}
+        {/* Gift picker */}
         <AnimatePresence>
           {showGifts && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 z-40 flex items-end justify-center pb-24 px-4"
-              style={{ background: 'rgba(0,0,0,0.75)' }}
-              onClick={() => { setShowGifts(false); setGiftError('') }}
-            >
-              <motion.div
-                initial={{ y: 40 }}
-                animate={{ y: 0 }}
-                exit={{ y: 40 }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm rounded-3xl p-5 border border-white/10"
-                style={{ background: 'linear-gradient(160deg,#0d0d1c,#09091a)' }}
-              >
+              style={{ background: 'rgba(0,0,0,0.75)' }} onClick={() => { setShowGifts(false); setGiftError('') }}>
+              <motion.div initial={{ y: 40 }} animate={{ y: 0 }} exit={{ y: 40 }} onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#09091a)' }}>
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="text-white font-black text-sm">Send a Gift 🎁</h3>
-                  <div className="flex items-center gap-3">
-                    <span className="text-yellow-300 text-xs font-black">🪙 {coins.toLocaleString()}</span>
-                    <button onClick={() => { setShowGifts(false); setGiftError('') }} className="text-white/40 hover:text-white"><X size={16} /></button>
-                  </div>
+                  <div className="flex items-center gap-3"><span className="text-yellow-300 text-xs font-black">🪙 {coins.toLocaleString()}</span><button onClick={() => { setShowGifts(false); setGiftError('') }} className="text-white/40 hover:text-white"><X size={16} /></button></div>
                 </div>
                 <p className="text-white/30 text-[10px] mb-4">Gift flies across both screens when sent</p>
-                {giftError && (
-                  <p className="text-red-400 text-xs mb-3 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">{giftError}</p>
-                )}
+                {giftError && <p className="text-red-400 text-xs mb-3 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">{giftError}</p>}
                 <div className="grid grid-cols-5 gap-2">
                   {Object.entries(gifts).map(([id, g]) => (
-                    <button
-                      key={id}
-                      onClick={() => handleSendGift(id)}
-                      disabled={giftSending || coins < g.cost}
-                      className="flex flex-col items-center gap-1 p-3 rounded-2xl bg-white/4 border border-white/8 hover:border-blue-500/40 hover:bg-blue-500/8 transition-all disabled:opacity-40"
-                    >
-                      <span className="text-2xl">{g.emoji || g.name.split(' ')[0]}</span>
+                    <button key={id} onClick={() => handleSendGift(id)} disabled={giftSending||coins<g.cost}
+                      className="flex flex-col items-center gap-1 p-3 rounded-2xl bg-white/4 border border-white/8 hover:border-blue-500/40 hover:bg-blue-500/8 transition-all disabled:opacity-40">
+                      <span className="text-2xl">{g.emoji||g.name.split(' ')[0]}</span>
                       <span className="text-yellow-300 text-[10px] font-black">{g.cost}🪙</span>
                     </button>
                   ))}
@@ -967,491 +869,328 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* ── Camera area ──────────────────────────────────────────── */}
-        <div className="flex-1 flex flex-col min-w-0 relative">
+        {/* ── Status overlay (searching / init) ───────────────────── */}
+        <AnimatePresence>
+          {status !== 'matched' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-20 flex flex-col items-center justify-center px-6"
+              style={{ background: '#0a0a0f' }}>
 
-          {/* Status overlay — covers both camera sections */}
-          <AnimatePresence>
-            {status !== 'matched' && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6"
-                style={{ background: '#0a0a0f' }}
-              >
-                {status === 'searching' && searchElapsed < 30 && (
-                  <div className="text-center max-w-sm">
-                    {/* Pulsing Vybe logo */}
-                    <div className="relative w-24 h-24 mx-auto mb-8">
-                      <div className="absolute inset-0 rounded-full border-2 border-vybe-purple/60 animate-ping" style={{ animationDuration: '1.5s' }} />
-                      <div className="absolute inset-2 rounded-full border border-vybe-purple/30 animate-pulse" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-lg font-black tracking-widest">
-                          <span style={{ background: 'linear-gradient(135deg,#2572ff,#70a8ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>VY</span>
-                          <span className="text-white">BE</span>
-                        </div>
+              {status === 'init' && (
+                <div className="text-center">
+                  <Loader2 size={40} className="text-vybe-purple animate-spin mx-auto mb-4" />
+                  <p className="text-white font-semibold">Starting camera…</p>
+                </div>
+              )}
+
+              {status === 'searching' && searchElapsed < 30 && (
+                <div className="text-center max-w-sm">
+                  <div className="relative w-24 h-24 mx-auto mb-8">
+                    <div className="absolute inset-0 rounded-full border-2 border-vybe-purple/60 animate-ping" style={{ animationDuration: '1.5s' }} />
+                    <div className="absolute inset-2 rounded-full border border-vybe-purple/30 animate-pulse" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-lg font-black tracking-widest">
+                        <span style={{ background: 'linear-gradient(135deg,#2572ff,#70a8ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>VY</span>
+                        <span className="text-white">BE</span>
                       </div>
                     </div>
-
-                    {/* Cycling search text */}
-                    <AnimatePresence mode="wait">
-                      <motion.h2
-                        key={prefs.mode === 'private' ? 'private' : searchTextIdx}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ duration: 0.3 }}
-                        className="text-xl sm:text-2xl font-black text-white mb-2"
-                      >
-                        {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
-                      </motion.h2>
-                    </AnimatePresence>
-
-                    <p className="text-vybe-muted text-sm mb-2">
-                      {onlineCount > 0 && (
-                        <span className="inline-flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                          {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
-                        </span>
-                      )}
-                    </p>
-
-                    <div className="loading-dots flex justify-center mb-8"><span /><span /><span /></div>
-
-                    {/* Coin actions while searching */}
-                    {user && (
-                      <div className="flex gap-2 mb-5 w-full max-w-xs">
-                        <motion.button
-                          onClick={handleBoost}
-                          disabled={boostLoading || boostActive}
-                          whileTap={{ scale: 0.96 }}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
-                          style={{ background: boostActive ? 'rgba(251,191,36,0.15)' : 'rgba(27,98,245,0.12)', border: `1px solid ${boostActive ? 'rgba(251,191,36,0.3)' : 'rgba(27,98,245,0.25)'}`, color: boostActive ? '#fbbf24' : '#4b88f7' }}
-                          title="Move to front of queue for 1 hour"
-                        >
-                          <span>⚡</span>
-                          <span>{boostActive ? 'Boosted!' : `Boost`}</span>
-                        </motion.button>
-                        <motion.button
-                          onClick={handleSkipQueue}
-                          disabled={skipQueueLoading}
-                          whileTap={{ scale: 0.96 }}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white transition-all disabled:opacity-50"
-                          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                          title="Instantly retry matching"
-                        >
-                          <span>⏭️</span>
-                          <span>{skipQueueLoading ? '…' : 'Skip'}</span>
-                        </motion.button>
-                      </div>
-                    )}
-
-                    <button
-                      onClick={handleEnd}
-                      className="px-6 py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white hover:border-vybe-purple/40 transition-all text-sm font-medium"
-                    >
-                      Cancel &amp; Leave
-                    </button>
                   </div>
-                )}
-
-                {status === 'searching' && searchElapsed >= 30 && (
-                  <div className="text-center max-w-sm">
-                    <div className="text-5xl mb-5">😴</div>
-                    <h2 className="text-2xl font-black text-white mb-3">No one available right now</h2>
-                    <p className="text-vybe-muted text-sm leading-relaxed mb-2">
-                      Check back soon — Vybe gets busiest on evenings and weekends!
-                    </p>
-                    <div className="bg-vybe-card border border-vybe-border rounded-2xl p-4 mb-6 text-left space-y-2">
-                      <p className="text-xs font-bold text-vybe-muted uppercase tracking-wider mb-3">Estimated busy times</p>
-                      {[
-                        { day: 'Weekday evenings', time: '7 PM – 11 PM' },
-                        { day: 'Weekends',         time: 'All day' },
-                        { day: 'Friday nights',    time: 'Peak traffic 🔥' },
-                      ].map(({ day, time }) => (
-                        <div key={day} className="flex justify-between text-sm">
-                          <span className="text-white/70">{day}</span>
-                          <span className="text-vybe-purple-light font-semibold">{time}</span>
-                        </div>
-                      ))}
+                  <AnimatePresence mode="wait">
+                    <motion.h2 key={prefs.mode==='private'?'private':searchTextIdx} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }} className="text-xl sm:text-2xl font-black text-white mb-2">
+                      {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
+                    </motion.h2>
+                  </AnimatePresence>
+                  <p className="text-vybe-muted text-sm mb-2">{onlineCount > 0 && <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />{onlineCount} {onlineCount===1?'person':'people'} online</span>}</p>
+                  <div className="loading-dots flex justify-center mb-8"><span /><span /><span /></div>
+                  {user && (
+                    <div className="flex gap-2 mb-5 w-full max-w-xs">
+                      <motion.button onClick={handleBoost} disabled={boostLoading||boostActive} whileTap={{ scale: 0.96 }} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50" style={{ background: boostActive?'rgba(251,191,36,0.15)':'rgba(27,98,245,0.12)', border: `1px solid ${boostActive?'rgba(251,191,36,0.3)':'rgba(27,98,245,0.25)'}`, color: boostActive?'#fbbf24':'#4b88f7' }}><span>⚡</span><span>{boostActive?'Boosted!':'Boost'}</span></motion.button>
+                      <motion.button onClick={handleSkipQueue} disabled={skipQueueLoading} whileTap={{ scale: 0.96 }} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white disabled:opacity-50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}><span>⏭️</span><span>{skipQueueLoading?'…':'Skip'}</span></motion.button>
                     </div>
-                    <div className="space-y-3">
-                      <button
-                        onClick={() => { setSearchElapsed(0); findMatch(socketRef.current) }}
-                        className="w-full py-3.5 rounded-xl btn-purple text-white font-black text-sm"
-                      >
-                        Try Again
-                      </button>
-                      <button
-                        onClick={handleEnd}
-                        className="w-full py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-sm transition-colors"
-                      >
-                        Back to Home
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {status === 'init' && (
-                  <div className="text-center">
-                    <Loader2 size={40} className="text-vybe-purple animate-spin mx-auto mb-4" />
-                    <p className="text-white font-semibold">Starting camera…</p>
-                  </div>
-                )}
-                {/* No-camera recommendation banner */}
-                {!hasCamera && !noCamDismissed && (status === 'searching' || status === 'matched') && (
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2rem)] max-w-sm">
-                    <div className="flex items-start gap-3 px-4 py-3 rounded-2xl text-sm"
-                      style={{ background: 'rgba(10,10,22,0.92)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }}>
-                      <span className="text-xl flex-shrink-0 mt-0.5">📷</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-bold text-[13px] leading-snug">No webcam detected</p>
-                        <p className="text-white/50 text-[11px] mt-0.5 leading-relaxed">
-                          You can still chat, but adding a webcam gives you a <span className="text-blue-400 font-semibold">much better chance</span> of finding someone.
-                        </p>
-                      </div>
-                      <button onClick={() => setNoCamDismissed(true)} className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0 mt-0.5 text-base leading-none">✕</button>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  )}
+                  <button onClick={handleEnd} className="px-6 py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white hover:border-vybe-purple/40 transition-all text-sm">Cancel &amp; Leave</button>
+                </div>
+              )}
 
-          {/* ── TOP 50%: Opponent camera(s) ───────────────────────── */}
-          <div className={`flex-1 relative overflow-hidden bg-[#0a0a0f] flex ${opponentSocketIds.length > 1 ? '' : ''}`}>
-            {opponentSocketIds.length === 0 ? (
-              /* Placeholder while connecting */
-              <div className="w-full h-full flex items-center justify-center">
-                {status === 'matched' && (
-                  <div className="loading-dots flex"><span /><span /><span /></div>
-                )}
-              </div>
-            ) : (
-              opponentSocketIds.map((sid, idx) => (
-                <div
-                  key={sid}
-                  className={`relative overflow-hidden bg-[#0a0a0f] flex-1 ${idx > 0 ? 'border-l border-white/10' : ''}`}
-                >
-                  <video
-                    ref={(el) => { remoteVideoRefs.current[sid] = el }}
-                    autoPlay
-                    playsInline
-                    className="w-full h-full object-cover no-mirror"
-                  />
-                  {/* Opponent label */}
-                  <div className="absolute bottom-3 left-4 z-10">
-                    <span className="text-[10px] font-black tracking-widest text-white/50 uppercase bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">
-                      {opponentSocketIds.length > 1 ? `Duo ${idx + 1}` : 'Stranger'}
-                    </span>
+              {status === 'searching' && searchElapsed >= 30 && (
+                <div className="text-center max-w-sm">
+                  <div className="text-5xl mb-5">😴</div>
+                  <h2 className="text-2xl font-black text-white mb-3">No one available right now</h2>
+                  <p className="text-vybe-muted text-sm mb-4">Check back soon — Vybe gets busiest on evenings and weekends!</p>
+                  <div className="space-y-3">
+                    <button onClick={() => { setSearchElapsed(0); findMatch(socketRef.current) }} className="w-full py-3.5 rounded-xl btn-purple text-white font-black text-sm">Try Again</button>
+                    <button onClick={handleEnd} className="w-full py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-sm transition-colors">Back to Home</button>
                   </div>
                 </div>
-              ))
-            )}
+              )}
 
-            {/* Top gradient bar — logo + timer + report */}
-            <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 pt-3 pb-10 bg-gradient-to-b from-black/70 to-transparent pointer-events-none z-10">
-              <button onClick={() => navigate('/')} className="text-base sm:text-lg font-black tracking-widest hover:opacity-75 transition-opacity pointer-events-auto">
-                <span style={{ background: 'linear-gradient(135deg,#2572ff,#70a8ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>VY</span>
-                <span className="text-white">BE</span>
-              </button>
-              <div className="flex items-center gap-2 pointer-events-auto">
-                {status === 'matched' && (
-                  <span className="text-white/70 text-xs font-medium bg-black/50 px-2.5 py-1 rounded-lg backdrop-blur-sm">
-                    {fmt(elapsed)}
-                  </span>
-                )}
-                {reportSent ? (
-                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 text-xs font-semibold">
-                    ✓ Reported
-                  </span>
-                ) : (
-                  <button
-                    onClick={() => status === 'matched' && setShowReport(true)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/50 text-xs font-semibold backdrop-blur-sm transition-all ${
-                      status === 'matched'
-                        ? 'text-red-400 hover:text-red-300 hover:bg-red-500/20'
-                        : 'text-white/30 cursor-not-allowed'
-                    }`}
-                  >
-                    <Flag size={11} />
-                    <span className="hidden sm:inline">Report</span>
-                  </button>
-                )}
-              </div>
+              {!hasCamera && !noCamDismissed && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2rem)] max-w-sm">
+                  <div className="flex items-start gap-3 px-4 py-3 rounded-2xl" style={{ background: 'rgba(10,10,22,0.92)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }}>
+                    <span className="text-xl flex-shrink-0 mt-0.5">📷</span>
+                    <div className="flex-1"><p className="text-white font-bold text-[13px]">No webcam detected</p><p className="text-white/50 text-[11px] mt-0.5">Adding a webcam gives you a <span className="text-blue-400 font-semibold">much better chance</span> of matching.</p></div>
+                    <button onClick={() => setNoCamDismissed(true)} className="text-white/30 hover:text-white/60 text-base leading-none">✕</button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── VIDEO FEEDS ─────────────────────────────────────────── */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col lg:flex-row gap-1.5 p-2 min-h-0">
+
+            {/* Stranger video — dominant */}
+            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-[3] min-h-0">
+              {opponentSocketIds.length === 0 ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  {status === 'matched' && <div className="loading-dots flex"><span /><span /><span /></div>}
+                </div>
+              ) : (
+                <div className="w-full h-full flex">
+                  {opponentSocketIds.map((sid, idx) => (
+                    <div key={sid} className={`relative flex-1 overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
+                      <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Stranger label */}
+              {status === 'matched' && (
+                <div className="absolute top-3 left-3 z-10">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
+                    <span className="text-white font-bold text-[13px]">Stranger</span>
+                    <span className="text-white/40 text-[11px]">• Online</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Timer — top right of stranger video */}
+              {status === 'matched' && (
+                <div className="absolute top-3 right-3 z-10 px-2.5 py-1.5 rounded-xl font-mono text-[12px] text-white/70" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
+                  {fmt(elapsed)}
+                </div>
+              )}
+
+              <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
             </div>
-          </div>
 
-          {/* Divider */}
-          <div className="h-px bg-white/10 flex-shrink-0 z-10" />
+            {/* Your video */}
+            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-[2] min-h-0">
+              <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
-          {/* ── BOTTOM 50%: Own camera + squad mates ──────────────── */}
-          <div className="flex-1 relative overflow-hidden bg-[#0a0a0f]">
-            <div className="h-full flex">
-              {/* Self video */}
-              <div className={`relative overflow-hidden ${mateSocketIds.length > 0 ? 'flex-1 border-r border-white/10' : 'w-full h-full'}`}>
-                <video
-                  ref={localVideoRef}
-                  autoPlay
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-                {/* No-camera placeholder */}
-                {!hasCamera && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a14] z-10 gap-2">
-                    <div className="w-14 h-14 rounded-full bg-white/8 border border-white/10 flex items-center justify-center">
-                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                      </svg>
-                    </div>
-                    <p className="text-white/25 text-[10px] font-semibold tracking-wider uppercase">No Camera</p>
+              {!hasCamera && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a14] gap-2">
+                  <div className="w-14 h-14 rounded-full bg-white/8 border border-white/10 flex items-center justify-center">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
-                )}
-                {videoOff && hasCamera && (
-                  <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-10">
-                    <VideoOff size={22} className="text-white/30" />
-                  </div>
-                )}
-                <div className="absolute top-3 left-4 z-10">
-                  <span className="text-[10px] font-black tracking-widest text-white/50 uppercase bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">
-                    You
-                  </span>
+                  <p className="text-white/25 text-[10px] font-semibold tracking-wider uppercase">No Camera</p>
                 </div>
+              )}
+              {videoOff && hasCamera && (
+                <div className="absolute inset-0 bg-black/80 flex items-center justify-center"><VideoOff size={26} className="text-white/30" /></div>
+              )}
 
-                {/* Flip camera — mobile only */}
+              {/* You label + HD badge */}
+              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
+                <div className="px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
+                  <span className="text-white font-bold text-[13px]">You</span>
+                </div>
                 {hasCamera && !videoOff && (
-                  <button
-                    onClick={flipCamera}
-                    className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center z-10"
-                    style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}
-                    title="Flip camera"
-                  >
-                    <Camera size={16} className="text-white" />
-                  </button>
+                  <div className="px-2 py-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
+                    <span className="text-white/55 text-[10px] font-black tracking-widest">HD</span>
+                  </div>
                 )}
               </div>
 
-              {/* Squad mate video(s) */}
-              {mateSocketIds.map((sid, idx) => (
-                <div key={sid} className={`flex-1 relative overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
-                  <video
-                    ref={(el) => { remoteVideoRefs.current[sid] = el }}
-                    autoPlay
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-3 left-4 z-10">
-                    <span className="text-[10px] font-black tracking-widest text-vybe-purple-light/80 uppercase bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">
-                      Duo
-                    </span>
-                  </div>
+              {/* Flip camera */}
+              {hasCamera && !videoOff && (
+                <button onClick={flipCamera} className="absolute top-3 right-3 z-10 w-9 h-9 rounded-xl flex items-center justify-center hover:bg-white/20 transition-all" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }} title="Flip camera">
+                  <Camera size={15} className="text-white" />
+                </button>
+              )}
+
+              {/* Squad mates */}
+              {mateSocketIds.map((sid) => (
+                <div key={sid} className="absolute inset-y-0 right-0 w-1/2 border-l border-white/10">
+                  <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                  <div className="absolute top-2 left-2 z-10"><span className="text-[9px] font-black tracking-widest text-vybe-purple-light/80 uppercase bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">Duo</span></div>
                 </div>
               ))}
+
+              <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
             </div>
 
-            {/* Controls pill — bottom center of bottom section */}
-            <div className="absolute bottom-5 left-0 right-0 flex justify-center px-4 z-10">
-              <div className="flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-5 py-3 rounded-full shadow-[0_8px_40px_rgba(0,0,0,0.7)]"
-                   style={{ background: 'rgba(6,6,16,0.82)', backdropFilter: 'blur(24px) saturate(1.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          </div>
 
-                <button
-                  onClick={toggleMute}
-                  className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
-                    isMuted ? 'bg-red-500 text-white' : 'text-white/80 hover:bg-white/15'
-                  }`}
-                >
-                  {isMuted ? <MicOff size={15} /> : <Mic size={15} />}
-                </button>
+          {/* ── BOTTOM CONTROL BAR ──────────────────────────────────── */}
+          <div className="flex-shrink-0 px-4 sm:px-6 py-3" style={{ background: '#0a0a0f', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
 
-                {hasCamera && (
-                  <button
-                    onClick={toggleVideo}
-                    className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
-                      videoOff ? 'bg-red-500 text-white' : 'text-white/80 hover:bg-white/15'
-                    }`}
-                  >
-                    {videoOff ? <VideoOff size={15} /> : <Video size={15} />}
-                  </button>
+            {/* Desktop */}
+            <div className="hidden lg:flex items-center justify-between max-w-5xl mx-auto">
+
+              {/* Left: secondary controls */}
+              <div className="flex items-center gap-1">
+                <BarBtn onClick={toggleMute} label={isMuted ? 'Unmute' : 'Mute'} red={isMuted} active={isMuted}>
+                  {isMuted ? <MicOff size={17} /> : <Mic size={17} />}
+                </BarBtn>
+                {hasCamera ? (
+                  <BarBtn onClick={toggleVideo} label={videoOff ? 'Camera On' : 'Camera'} red={videoOff} active={videoOff}>
+                    {videoOff ? <VideoOff size={17} /> : <Video size={17} />}
+                  </BarBtn>
+                ) : null}
+                {hasCamera && !videoOff && (
+                  <BarBtn onClick={flipCamera} label="Flip">
+                    <Camera size={17} />
+                  </BarBtn>
                 )}
-                {!hasCamera && (
-                  <button
-                    disabled
-                    title="No webcam detected"
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0 text-white/20 cursor-not-allowed"
-                  >
-                    <VideoOff size={15} />
-                  </button>
-                )}
-
-                <div className="w-px h-6 bg-white/15 mx-1 flex-shrink-0" />
-
-                {/* Gift + Tip buttons — logged-in only */}
                 {user && status === 'matched' && (
                   <>
-                    <motion.button
-                      onClick={() => { setShowGifts(true); setGiftError('') }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-yellow-400/80 hover:bg-white/15 transition-all flex-shrink-0"
-                      title="Send gift"
-                    >
-                      <Gift size={15} />
-                    </motion.button>
-                    <motion.button
-                      onClick={() => setShowTip(true)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-10 h-10 rounded-full flex items-center justify-center font-black transition-all flex-shrink-0 text-sm"
-                      style={{ color: 'rgba(250,204,21,0.8)' }}
-                      title="Send tip"
-                    >
-                      💰
-                    </motion.button>
+                    <div className="w-px h-6 bg-white/10 mx-1" />
+                    <BarBtn onClick={() => { setShowGifts(true); setGiftError('') }} label="Gift">
+                      <Gift size={17} />
+                    </BarBtn>
+                    <BarBtn onClick={() => setShowTip(true)} label="Tip">
+                      <span className="text-base leading-none">💰</span>
+                    </BarBtn>
                   </>
                 )}
-
-                {/* Block button — logged-in only */}
                 {user && partnerUid && status === 'matched' && (
-                  <motion.button
-                    onClick={handleBlock}
-                    disabled={blockLoading}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-red-400/60 hover:bg-red-500/15 hover:text-red-400 transition-all flex-shrink-0 disabled:opacity-40"
-                    title="Block & skip"
-                  >
-                    <UserX size={15} />
-                  </motion.button>
+                  <BarBtn onClick={handleBlock} disabled={blockLoading} label="Block" red>
+                    <UserX size={17} />
+                  </BarBtn>
                 )}
-
-                <motion.button
-                  onClick={handleSkip}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-full text-vybe-purple-light font-bold text-sm flex-shrink-0 transition-all hover:bg-vybe-purple/20"
-                  style={{ border: '1px solid rgba(75,136,247,0.45)' }}
-                >
-                  <SkipForward size={14} />
-                  <span>Skip</span>
-                </motion.button>
-
-                <motion.button
-                  onClick={handleEnd}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-full bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-all flex-shrink-0"
-                  style={{ boxShadow: '0 0 18px rgba(220,38,38,0.35)' }}
-                >
-                  <PhoneOff size={14} />
-                  <span className="hidden xs:inline">End</span>
-                </motion.button>
-
-                {/* Chat toggle — mobile only */}
-                <button
-                  onClick={toggleChat}
-                  className={`sm:hidden relative w-10 h-10 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
-                    showChat ? 'bg-vybe-purple text-white' : 'text-white/80 hover:bg-white/15'
-                  }`}
-                >
-                  <MessageSquare size={15} />
-                  {unread > 0 && !showChat && (
-                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-[9px] font-black flex items-center justify-center">
-                      {unread > 9 ? '9+' : unread}
-                    </span>
-                  )}
-                </button>
-
               </div>
+
+              {/* Center: primary actions */}
+              <div className="flex items-center gap-3">
+                <motion.button onClick={handleSkip} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white/80 hover:text-white transition-all"
+                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                  <SkipForward size={16} /> Next
+                </motion.button>
+                <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-all"
+                  style={{ boxShadow: '0 0 20px rgba(220,38,38,0.3)' }}>
+                  <PhoneOff size={16} /> End Chat
+                </motion.button>
+              </div>
+
+              {/* Right: chat + report */}
+              <div className="flex items-center gap-1">
+                <BarBtn onClick={toggleChat} label="Chat" active={showChat}>
+                  <span className="relative">
+                    <MessageSquare size={17} />
+                    {unread > 0 && !showChat && <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full text-[8px] font-black flex items-center justify-center">{unread > 9 ? '9+' : unread}</span>}
+                  </span>
+                </BarBtn>
+                {reportSent ? (
+                  <div className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl text-green-400">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-green-500/15"><span className="text-sm">✓</span></div>
+                    <span className="text-[9px] font-medium">Reported</span>
+                  </div>
+                ) : (
+                  <BarBtn onClick={() => status === 'matched' && setShowReport(true)} label="Report" red disabled={status !== 'matched'}>
+                    <Flag size={17} />
+                  </BarBtn>
+                )}
+              </div>
+
             </div>
+
+            {/* Mobile */}
+            <div className="flex lg:hidden items-center justify-around">
+              {/* Mute */}
+              <button onClick={toggleMute} className="flex flex-col items-center gap-1">
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center ${isMuted ? 'bg-red-500/25' : 'bg-white/10'}`}>
+                  {isMuted ? <MicOff size={19} className="text-red-400" /> : <Mic size={19} className="text-white/80" />}
+                </div>
+                <span className="text-[9px] text-white/40">{isMuted ? 'Unmute' : 'Mute'}</span>
+              </button>
+              {/* Flip */}
+              {hasCamera && (
+                <button onClick={flipCamera} className="flex flex-col items-center gap-1">
+                  <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center"><Camera size={19} className="text-white/80" /></div>
+                  <span className="text-[9px] text-white/40">Flip</span>
+                </button>
+              )}
+              {/* Next */}
+              <button onClick={handleSkip} className="flex flex-col items-center gap-1">
+                <div className="w-11 h-11 rounded-full border border-white/25 flex items-center justify-center"><SkipForward size={19} className="text-white/80" /></div>
+                <span className="text-[9px] text-white/40">Next</span>
+              </button>
+              {/* End */}
+              <button onClick={handleEnd} className="flex flex-col items-center gap-1">
+                <div className="w-11 h-11 rounded-full bg-red-600 flex items-center justify-center" style={{ boxShadow: '0 0 16px rgba(220,38,38,0.4)' }}><PhoneOff size={19} className="text-white" /></div>
+                <span className="text-[9px] text-white/40">End</span>
+              </button>
+              {/* Chat */}
+              <button onClick={toggleChat} className="flex flex-col items-center gap-1">
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center relative ${showChat ? 'bg-vybe-purple/30' : 'bg-white/10'}`}>
+                  <MessageSquare size={19} className={showChat ? 'text-vybe-purple-light' : 'text-white/80'} />
+                  {unread > 0 && !showChat && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-[8px] font-black flex items-center justify-center">{unread > 9 ? '9+' : unread}</span>}
+                </div>
+                <span className="text-[9px] text-white/40">Chat</span>
+              </button>
+              {/* Report */}
+              {reportSent ? (
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-11 h-11 rounded-full bg-green-500/20 flex items-center justify-center"><span className="text-green-400 text-sm">✓</span></div>
+                  <span className="text-[9px] text-green-400/60">Reported</span>
+                </div>
+              ) : (
+                <button onClick={() => status === 'matched' && setShowReport(true)} disabled={status !== 'matched'} className="flex flex-col items-center gap-1 disabled:opacity-40">
+                  <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center"><Flag size={19} className="text-white/70" /></div>
+                  <span className="text-[9px] text-white/40">Report</span>
+                </button>
+              )}
+            </div>
+
           </div>
-
-          {/* Chat tab — desktop only, right edge of camera area */}
-          <button
-            onClick={toggleChat}
-            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-30 flex-col items-center justify-center gap-1 w-5 h-16 bg-white/8 hover:bg-white/15 backdrop-blur-sm border-y border-l border-white/10 rounded-l-lg transition-all"
-          >
-            <ChevronRight
-              size={13}
-              className={`text-white/60 transition-transform duration-300 ${showChat ? 'rotate-180' : ''}`}
-            />
-            {unread > 0 && !showChat && (
-              <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-            )}
-          </button>
-
         </div>
 
-        {/* ── Desktop chat panel ───────────────────────────────────── */}
-        <motion.div
-          className="hidden sm:flex flex-col flex-shrink-0 overflow-hidden border-l border-white/10"
+        {/* ── Desktop chat sidebar ─────────────────────────────────── */}
+        <motion.div className="hidden lg:flex flex-col flex-shrink-0 overflow-hidden border-l border-white/[0.07]"
           style={{ background: '#0d0d18' }}
-          animate={{ width: showChat ? 340 : 0 }}
-          transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-        >
-          <div className="w-[340px] h-full flex flex-col">
-            <ChatContent />
-          </div>
+          animate={{ width: showChat ? 320 : 0 }}
+          transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
+          <div className="w-[320px] h-full flex flex-col"><ChatContent /></div>
         </motion.div>
 
       </div>
 
-      {/* ── Mobile chat panel — slides up from bottom ────────────── */}
-      <motion.div
-        className="sm:hidden fixed inset-x-0 bottom-0 flex flex-col rounded-t-2xl border-t border-white/10 z-50"
-        style={{ height: '72%', background: '#0d0d18' }}
+      {/* ── Mobile chat slide-up ─────────────────────────────────── */}
+      <motion.div className="lg:hidden fixed inset-x-0 bottom-0 flex flex-col rounded-t-2xl border-t border-white/10 z-40"
+        style={{ height: '65%', background: '#0d0d18' }}
         animate={{ y: showChat ? 0 : '100%' }}
-        transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-      >
-        <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0">
-          <div className="w-8 h-1 rounded-full bg-white/20" />
-        </div>
+        transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
+        <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0"><div className="w-8 h-1 rounded-full bg-white/20" /></div>
         <ChatContent />
       </motion.div>
 
-      {/* ── Report modal ──────────────────────────────────────────── */}
+      {/* ── Report modal ─────────────────────────────────────────── */}
       <AnimatePresence>
         {showReport && (
           <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/65 z-40"
-              onClick={() => setShowReport(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92 }}
-              transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[min(320px,90vw)] bg-vybe-bg2 border border-vybe-border rounded-2xl p-5 shadow-purple"
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/65 z-40" onClick={() => setShowReport(false)} />
+            <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }} transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[min(320px,90vw)] bg-vybe-bg2 border border-vybe-border rounded-2xl p-5 shadow-purple">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/25 flex items-center justify-center flex-shrink-0">
-                  <Shield size={16} className="text-red-400" />
-                </div>
-                <div>
-                  <h3 className="font-black text-white text-sm">Report User</h3>
-                  <p className="text-vybe-muted text-[11px]">Select a reason — you will not be identified</p>
-                </div>
+                <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/25 flex items-center justify-center flex-shrink-0"><Shield size={16} className="text-red-400" /></div>
+                <div><h3 className="font-black text-white text-sm">Report User</h3><p className="text-vybe-muted text-[11px]">Select a reason — you will not be identified</p></div>
               </div>
               <div className="space-y-1.5">
                 {REPORT_REASONS.map((r) => (
-                  <button
-                    key={r.id}
-                    onClick={() => handleReport(r.id)}
-                    className="w-full text-left px-4 py-3 rounded-xl text-[13px] text-gray-300 hover:bg-vybe-border hover:text-white transition-colors flex items-center justify-between group min-h-[44px]"
-                  >
-                    {r.label}
-                    <ChevronRight size={13} className="text-vybe-muted group-hover:text-white transition-colors flex-shrink-0" />
+                  <button key={r.id} onClick={() => handleReport(r.id)}
+                    className="w-full text-left px-4 py-3 rounded-xl text-[13px] text-gray-300 hover:bg-vybe-border hover:text-white transition-colors flex items-center justify-between group min-h-[44px]">
+                    {r.label}<ChevronRight size={13} className="text-vybe-muted group-hover:text-white transition-colors flex-shrink-0" />
                   </button>
                 ))}
               </div>
-              <button
-                onClick={() => setShowReport(false)}
-                className="w-full mt-3 py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-[13px] transition-colors"
-              >
-                Cancel
-              </button>
+              <button onClick={() => setShowReport(false)} className="w-full mt-3 py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-[13px] transition-colors">Cancel</button>
             </motion.div>
           </>
         )}
