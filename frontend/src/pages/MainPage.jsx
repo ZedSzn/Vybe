@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Lock, Globe, ChevronDown, UserPlus, Copy, Check,
   Crown, Loader2, X as XIcon, Video, VideoOff, Shield,
-  TrendingUp, Zap, Camera, MessageCircle, DollarSign,
+  Camera, DollarSign,
 } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import PremiumModal from '../components/PremiumModal'
@@ -62,37 +62,6 @@ function fmtTime(seconds) {
 
 const AVATARS = [11, 26, 44, 7, 65, 15, 37]
 
-const FEATURE_CARDS = [
-  {
-    key: 'private',
-    title: 'Private',
-    desc: 'Anonymous sessions. No data stored, no tracking.',
-  },
-  {
-    key: 'instant',
-    title: 'Instant Match',
-    desc: 'Connect with someone new in under 2 seconds.',
-  },
-  {
-    key: 'global',
-    title: 'Global',
-    desc: 'Meet people from 150+ countries worldwide.',
-  },
-  {
-    key: 'safe',
-    title: 'Safe & Moderated',
-    desc: 'Human moderation with instant ban enforcement.',
-  },
-]
-
-function FeatureIcon({ k }) {
-  const cls = 'text-vybe-purple-light'
-  if (k === 'private') return <Lock size={20} className={cls} />
-  if (k === 'instant')  return <Video size={20} className={cls} />
-  if (k === 'global')   return <Globe size={20} className={cls} />
-  if (k === 'safe')     return <Shield size={20} className={cls} />
-  return null
-}
 
 export default function MainPage() {
   const { user }                              = useAuth()
@@ -1115,72 +1084,6 @@ export default function MainPage() {
             </AnimatePresence>
           </motion.div>
         </div>
-      </section>
-
-      {/* ══════════════ FEATURES ROW ══════════════ */}
-      <section className="relative z-10 px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
-          {FEATURE_CARDS.map(({ key, title, desc }, i) => (
-            <motion.div
-              key={key}
-              className="flex flex-col gap-3 p-5 rounded-2xl"
-              style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ delay: i * 0.07, duration: 0.45 }}
-              whileHover={{ borderColor: 'rgba(27,98,245,0.28)', background: 'rgba(27,98,245,0.04)' }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(27,98,245,0.12)' }}
-              >
-                <FeatureIcon k={key} />
-              </div>
-              <div>
-                <p className="text-white font-bold text-sm mb-1">{title}</p>
-                <p className="text-xs leading-relaxed" style={{ color: '#6b7280' }}>{desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ══════════════ MATCH TIPS STRIP ══════════════ */}
-      <section className="relative z-10 max-w-4xl mx-auto w-full px-4 pb-16">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="text-center text-[11px] font-black tracking-[0.2em] uppercase mb-5" style={{ color: '#4b5563' }}>
-            Tips to get matched faster
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { Icon: Camera,         stat: '3×',    text: 'harder to match without a camera' },
-              { Icon: Zap,            stat: '2×',    text: 'faster matching with a Premium plan' },
-              { Icon: Globe,          stat: '150+',  text: 'countries actively chatting right now' },
-              { Icon: MessageCircle,  stat: '8 min', text: 'average chat length on Vybe' },
-            ].map(({ Icon, stat, text }) => (
-              <div
-                key={text}
-                className="flex flex-col items-center text-center p-4 rounded-2xl"
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
-              >
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.2)' }}>
-                  <Icon size={15} style={{ color: 'rgba(167,139,250,0.8)' }} />
-                </div>
-                <span className="text-white font-black text-lg leading-none mb-1">{stat}</span>
-                <span className="text-[11px] leading-relaxed" style={{ color: '#6b7280' }}>{text}</span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </section>
 
       {/* ══════════════ FAQ SECTION ══════════════ */}
