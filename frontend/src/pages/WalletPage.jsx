@@ -7,17 +7,17 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { VybeCoin } from '../components/VybeCoin'
 import {
-  Gift, CalendarDays, Flame, MessageCircle, Users, Play, TrendingUp, TrendingDown,
+  Gift, CalendarDays, Flame, MessageCircle, Users, TrendingUp, TrendingDown,
   Star, BadgeCheck, Crown, Gem, Sparkles, Music2, Globe, Zap, Target,
   ThumbsUp, Heart, DollarSign, Check,
 } from 'lucide-react'
 
 const PACKAGES = [
-  { id: 'coins_100',  coins: 100,  amountGbp: 1.49,  label: '100 Coins',   popular: false },
-  { id: 'coins_500',  coins: 500,  amountGbp: 5.99,  label: '500 Coins',   popular: false },
-  { id: 'coins_1200', coins: 1200, amountGbp: 11.99, label: '1,200 Coins', popular: true  },
-  { id: 'coins_3000', coins: 3000, amountGbp: 24.99, label: '3,000 Coins', popular: false },
-  { id: 'coins_7000', coins: 7000, amountGbp: 49.99, label: '7,000 Coins', popular: false },
+  { id: 'coins_100',  coins: 100,  amountUsd: 1.49,  label: '100 Coins',   popular: false },
+  { id: 'coins_500',  coins: 500,  amountUsd: 5.99,  label: '500 Coins',   popular: false },
+  { id: 'coins_1200', coins: 1200, amountUsd: 11.99, label: '1,200 Coins', popular: true  },
+  { id: 'coins_3000', coins: 3000, amountUsd: 24.99, label: '3,000 Coins', popular: false },
+  { id: 'coins_7000', coins: 7000, amountUsd: 49.99, label: '7,000 Coins', popular: false },
 ]
 
 const EARN_METHODS = [
@@ -28,7 +28,6 @@ const EARN_METHODS = [
   { Icon: Flame,         label: '30-day streak',  desc: '+500 bonus coins',                color: '#ef4444' },
   { Icon: MessageCircle, label: 'Every 10 chats', desc: '5 coins per milestone',           color: '#4ade80' },
   { Icon: Users,         label: 'Refer a friend', desc: '50 coins when they sign up',      color: '#38bdf8' },
-  { Icon: Play,          label: 'Watch an ad',    desc: '5 coins (up to 10/day)',          color: '#a3e635' },
   { Icon: TrendingUp,    label: 'Receive a tip',  desc: 'Goes to your Earn Balance only',  color: '#fbbf24' },
 ]
 
@@ -134,8 +133,6 @@ export default function WalletPage() {
   const [cashoutAmount, setCashoutAmount] = useState('')
   const [cashoutLoading, setCashoutLoading] = useState(false)
   const [buyLoading, setBuyLoading]     = useState(null)
-  const [adLoading, setAdLoading]       = useState(false)
-  const [adWatched, setAdWatched]       = useState(false)
   const [successMsg, setSuccessMsg]     = useState('')
   const [errorMsg, setErrorMsg]         = useState('')
   const [copied, setCopied]             = useState(false)
@@ -208,21 +205,6 @@ export default function WalletPage() {
     }
   }
 
-  const handleWatchAd = async () => {
-    setAdLoading(true)
-    setErrorMsg('')
-    try {
-      const { data } = await axios.post('/api/user/watch-ad')
-      setCoins(data.coins)
-      setAdWatched(true)
-      setSuccessMsg(`+5 coins earned from watching an ad!`)
-      setTimeout(() => setAdWatched(false), 3000)
-    } catch (e) {
-      setErrorMsg(e.response?.data?.error || 'Failed to watch ad')
-    }
-    setAdLoading(false)
-  }
-
   const handleSavePaypal = async () => {
     if (!paypalEmail) return
     setPaypalSaving(true)
@@ -242,7 +224,7 @@ export default function WalletPage() {
     setErrorMsg('')
     try {
       await axios.post('/api/cashout/request', { coinsAmount: amount })
-      setSuccessMsg(`Cash out request submitted for ${amount.toLocaleString()} coins (£${((amount / 1000) * 4.20).toFixed(2)})`)
+      setSuccessMsg(`Cash out request submitted for ${amount.toLocaleString()} coins ($${((amount / 1000) * 4.20).toFixed(2)})`)
       setCashoutAmount('')
       loadCashouts()
       refreshCoins()
@@ -369,7 +351,7 @@ export default function WalletPage() {
                   <Tooltip text="Tips received from other users. Can only be cashed out — cannot be spent on gifts or features." />
                 </div>
                 <p className="text-2xl font-extrabold text-yellow-300">{cashableCoins.toLocaleString()}</p>
-                <p className="text-yellow-400/50 text-[11px]">≈ £{((cashableCoins / 1000) * 4.20).toFixed(2)} cashable</p>
+                <p className="text-yellow-400/50 text-[11px]">≈ ${((cashableCoins / 1000) * 4.20).toFixed(2)} cashable</p>
               </div>
             </div>
           </div>
@@ -426,16 +408,6 @@ export default function WalletPage() {
                     </div>
                   </div>
                 ))}
-              </div>
-              <div className="mt-4 flex gap-3">
-                <button
-                  onClick={handleWatchAd}
-                  disabled={adLoading || adWatched}
-                  className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-50"
-                  style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 20px rgba(27,98,245,0.35)' }}
-                >
-                  {adWatched ? <span className="flex items-center justify-center gap-1.5"><Check size={14} /> Watched!</span> : adLoading ? 'Loading…' : <span className="flex items-center justify-center gap-1.5"><Play size={14} /> Watch Ad (+5 coins)</span>}
-                </button>
               </div>
             </div>
 
@@ -621,7 +593,7 @@ export default function WalletPage() {
                       className="px-4 py-2 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-60"
                       style={{ background: pkg.popular ? 'linear-gradient(135deg,#a855f7,#7c3aed)' : 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: pkg.popular ? '0 0 16px rgba(168,85,247,0.4)' : '0 0 16px rgba(27,98,245,0.4)' }}
                     >
-                      {buyLoading === pkg.id ? '…' : `£${pkg.amountGbp.toFixed(2)}`}
+                      {buyLoading === pkg.id ? '…' : `$${pkg.amountUsd.toFixed(2)}`}
                     </button>
                   </div>
                 </motion.div>
@@ -811,7 +783,7 @@ export default function WalletPage() {
                       className={inputCls}
                     />
                     {cashoutAmount && parseInt(cashoutAmount) >= 1000 && parseInt(cashoutAmount) <= cashableCoins && (
-                      <p className="text-green-400 text-xs mt-1">≈ £{((parseInt(cashoutAmount) / 1000) * 4.20).toFixed(2)} to your PayPal</p>
+                      <p className="text-green-400 text-xs mt-1">≈ ${((parseInt(cashoutAmount) / 1000) * 4.20).toFixed(2)} to your PayPal</p>
                     )}
                     {cashoutAmount && parseInt(cashoutAmount) > cashableCoins && (
                       <p className="text-red-400 text-xs mt-1">Exceeds your Earn Balance of {cashableCoins.toLocaleString()} coins</p>
@@ -843,7 +815,7 @@ export default function WalletPage() {
                   {cashouts.map((r) => (
                     <div key={r._id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/3">
                       <div>
-                        <p className="text-white text-sm font-semibold">{r.coinsAmount.toLocaleString()} coins → £{r.gbpAmount.toFixed(2)}</p>
+                        <p className="text-white text-sm font-semibold">{r.coinsAmount.toLocaleString()} coins → ${r.gbpAmount.toFixed(2)}</p>
                         <p className="text-vybe-muted text-xs">{r.paypalEmail} · {new Date(r.createdAt).toLocaleDateString()}</p>
                         {r.adminNote && <p className="text-white/40 text-xs mt-0.5">{r.adminNote}</p>}
                       </div>

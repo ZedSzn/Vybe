@@ -12,7 +12,7 @@ const PACKAGES = [
   {
     id:      'coins_100',
     coins:   100,
-    price:   '£1.49',
+    price:   '$1.49',
     label:   'Starter',
     icon:    '🪙',
     color:   '#6b7280',
@@ -23,7 +23,7 @@ const PACKAGES = [
   {
     id:      'coins_500',
     coins:   500,
-    price:   '£5.99',
+    price:   '$5.99',
     label:   'Popular',
     icon:    '⚡',
     color:   '#1B62F5',
@@ -34,7 +34,7 @@ const PACKAGES = [
   {
     id:      'coins_1200',
     coins:   1200,
-    price:   '£11.99',
+    price:   '$11.99',
     label:   'Best Value',
     icon:    '⭐',
     color:   '#a855f7',
@@ -45,7 +45,7 @@ const PACKAGES = [
   {
     id:      'coins_3000',
     coins:   3000,
-    price:   '£24.99',
+    price:   '$24.99',
     label:   'Mega',
     icon:    '👑',
     color:   '#f59e0b',
@@ -56,7 +56,7 @@ const PACKAGES = [
   {
     id:      'coins_7000',
     coins:   7000,
-    price:   '£49.99',
+    price:   '$49.99',
     label:   'Ultimate',
     icon:    '🚀',
     color:   '#22c55e',
@@ -74,7 +74,6 @@ const EARN_WAYS = [
   { icon: '🏆', label: '30-day streak',       amount: '+500',  note: 'Bonus' },
   { icon: '💬', label: 'Every 10 chats',      amount: '+5',    note: 'Repeatable' },
   { icon: '👥', label: 'Refer a friend',      amount: '+50',   note: 'Per referral' },
-  { icon: '📺', label: 'Watch an ad',         amount: '+5',    note: 'Up to 10/day' },
   { icon: '💰', label: 'Receive a tip',       amount: 'Varies', note: '70% of tip' },
 ]
 

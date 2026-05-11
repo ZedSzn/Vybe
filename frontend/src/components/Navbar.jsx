@@ -116,7 +116,7 @@ export default function Navbar({ onPremiumClick }) {
   const tier = user?.isVip
     ? <span className="flex items-center gap-1"><Crown size={11} /> VIP</span>
     : user?.isPremium
-    ? <span className="flex items-center gap-1"><Zap size={11} /> Premium</span>
+    ? <span className="flex items-center gap-1"><Zap size={11} /> Membership</span>
     : null
 
   const isActive = (path) => path && location.pathname === path

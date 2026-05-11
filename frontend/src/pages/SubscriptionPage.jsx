@@ -15,7 +15,7 @@ const PLANS = [
   {
     id:    'basic',
     name:  'Basic',
-    price: '£6.99',
+    price: '$6.99',
     per:   'per month',
     color: '#1B62F5',
     glow:  'rgba(27,98,245,0.3)',
@@ -31,7 +31,7 @@ const PLANS = [
   {
     id:    'vip',
     name:  'VIP',
-    price: '£12.99',
+    price: '$12.99',
     per:   'per month',
     color: '#f59e0b',
     glow:  'rgba(245,158,11,0.35)',
@@ -218,11 +218,11 @@ export default function SubscriptionPage() {
             Back
           </button>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-            {isActive ? 'Manage Subscription' : 'Upgrade to Premium'}
+            {isActive ? 'Manage Membership' : 'Upgrade to Membership'}
           </h1>
           <p style={{ color: '#6b7280' }} className="text-base max-w-md mx-auto">
             {isActive
-              ? 'You\'re on a premium plan. Manage your billing below.'
+              ? 'You\'re on a membership plan. Manage your billing below.'
               : 'Unlock filters, priority matching, and more.'}
           </p>
         </motion.div>

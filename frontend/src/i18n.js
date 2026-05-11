@@ -1,6 +1,6 @@
 const translations = {
   en: {
-    nav_home: 'Home', nav_community: 'Community', nav_safety: 'Safety', nav_premium: 'Premium', nav_faq: 'FAQ',
+    nav_home: 'Home', nav_community: 'Community', nav_safety: 'Safety', nav_premium: 'Membership', nav_faq: 'FAQ',
     login: 'Log in', signup: 'Sign up', logout: 'Sign out',
     wallet: 'Wallet & Coins', settings: 'Settings', profile: 'My Profile',
     coins: 'coins', buy_coins: '+ Buy Coins',

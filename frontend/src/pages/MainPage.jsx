@@ -48,8 +48,8 @@ const FAQ_ITEMS = [
     a: 'Yes — Vybe is free with full access to core random video chat. Upgrading to Basic or VIP unlocks advanced filters like gender and country matching, priority queues, and exclusive features.',
   },
   {
-    q: 'What is Vybe Premium?',
-    a: 'Premium comes in two tiers. Basic ($6.99/mo) unlocks gender filtering so you choose who you match with. VIP ($12.99/mo) adds country filtering, priority matching, and early access to new features.',
+    q: 'What is Vybe Membership?',
+    a: 'Membership comes in two tiers. Basic ($6.99/mo) unlocks gender filtering so you choose who you match with. VIP ($12.99/mo) adds country filtering, priority matching, and early access to new features.',
   },
   {
     q: 'How do I report someone?',
@@ -497,6 +497,34 @@ export default function MainPage() {
             >
               <Video size={17} strokeWidth={2.5} />
               Start Video Chat
+            </motion.button>
+
+            {/* Start without camera */}
+            <motion.button
+              onClick={() => {
+                streamRef.current?.getTracks().forEach((t) => t.stop())
+                streamRef.current = null
+                setCameraOn(false)
+                navigate('/chat', {
+                  state: {
+                    mode,
+                    filterGender: filterGender === 'both' ? null : filterGender,
+                    filterCountry,
+                    noCam: true,
+                  },
+                })
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold text-sm transition-all"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(156,163,175,0.9)',
+              }}
+            >
+              <VideoOff size={14} strokeWidth={2} />
+              Start Without Camera
             </motion.button>
 
             {/* Free forever */}
