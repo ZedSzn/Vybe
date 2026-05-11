@@ -111,7 +111,6 @@ export default function SubscriptionPage() {
   }
 
   const handleCancel = async () => {
-    if (!confirm('Cancel your subscription? You keep access until the end of the billing period.')) return
     setActionLoad('cancel'); setError('')
     try {
       await axios.post(`/api/subscription/cancel`, {}, { headers: { Authorization: `Bearer ${token}` } })
@@ -138,7 +137,6 @@ export default function SubscriptionPage() {
   }
 
   const handleChangePlan = async (planId) => {
-    if (!confirm(`Switch to the ${planId === 'vip' ? 'VIP' : 'Basic'} plan? You will be charged the difference immediately.`)) return
     setActionLoad('change'); setError('')
     try {
       await axios.post(

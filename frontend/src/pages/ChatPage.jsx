@@ -1246,7 +1246,7 @@ export default function ChatPage() {
               {/* You label */}
               <div className="absolute top-3 left-3 z-10">
                 <div className="px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
-                  <span className="text-white font-bold text-[13px]">You</span>
+                  <span className="text-white font-bold text-[13px]">{user ? `@${user.username}` : 'You'}</span>
                 </div>
               </div>
 

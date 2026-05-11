@@ -137,8 +137,6 @@ export default function WalletPage() {
   const [errorMsg, setErrorMsg]         = useState('')
   const [copied, setCopied]             = useState(false)
 
-  const initialTabSet = useRef(false)
-
   useEffect(() => {
     if (authLoading) return
     if (!user) { navigate('/auth'); return }
@@ -146,7 +144,7 @@ export default function WalletPage() {
     const purchasedCoins = searchParams.get('coins')
     if (success && purchasedCoins) setSuccessMsg(`${Number(purchasedCoins).toLocaleString()} coins added to your wallet!`)
     const tabParam = searchParams.get('tab')
-    if (tabParam && !initialTabSet.current) { setTab(tabParam); initialTabSet.current = true }
+    if (tabParam) setTab(tabParam)
   }, [user, authLoading, navigate, searchParams])
 
   // Stable refreshCoins — no user/updateUser dependency to avoid infinite loops
