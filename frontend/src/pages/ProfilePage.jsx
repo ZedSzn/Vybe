@@ -80,9 +80,9 @@ function Badge({ icon: Icon, label, color }) {
 
 export default function ProfilePage() {
   const { id }          = useParams()
-  const { user: me, updateUser } = useAuth()
+  const { user: me, updateUser, loading: authLoading } = useAuth()
   const navigate        = useNavigate()
-  const isOwn           = String(id) === String(me?.id) || String(id) === String(me?._id)
+  const isOwn           = !!me && (String(id) === String(me?.id) || String(id) === String(me?._id))
 
   const [profile,   setProfile]   = useState(null)
   const [loading,   setLoading]   = useState(true)
@@ -97,7 +97,10 @@ export default function ProfilePage() {
   const fileRef = useRef(null)
 
   useEffect(() => {
-    if (!me && isOwn) { navigate('/auth'); return }
+    // Wait until AuthContext has hydrated from localStorage before making any decisions
+    if (authLoading) return
+    if (!me) { navigate('/auth'); return }
+
     const fetchProfile = async () => {
       setLoading(true)
       try {
@@ -113,7 +116,6 @@ export default function ProfilePage() {
             accentColor:       data.user.accentColor || '',
             bannerGradient:    data.user.bannerGradient || '',
           })
-          // Secondary fetches — isolated so failures don't redirect away from profile
           axios.get('/api/referral/info').then(r => setReferral(r.data)).catch(() => {})
           axios.get('/api/badges/mine').then(r => setOwnedBadgeIds(r.data.owned || [])).catch(() => {})
         } else {
@@ -121,13 +123,14 @@ export default function ProfilePage() {
           setProfile(data.user)
         }
       } catch (err) {
-        if (err.response?.status === 401 || err.response?.status === 403) navigate('/auth')
+        if (err.response?.status === 404) navigate('/')
+        else if (err.response?.status === 401 || err.response?.status === 403) navigate('/auth')
         else navigate('/')
       }
       setLoading(false)
     }
     fetchProfile()
-  }, [id]) // eslint-disable-line
+  }, [id, authLoading]) // eslint-disable-line
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0]

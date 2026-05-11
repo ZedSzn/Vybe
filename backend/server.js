@@ -269,7 +269,7 @@ const userSchema = new mongoose.Schema({
   banExpiresAt:   { type: Date, default: null },
   bannedAt:       { type: Date },
   violationCount: { type: Number, default: 0 },
-  coins:          { type: Number, default: 100 },
+  coins:          { type: Number, default: 0 },
   cashableCoins:  { type: Number, default: 0 }, // tips received — can only be cashed out, never spent
   gender:         { type: String, enum: ['male', 'female', 'other'], default: 'other' },
   country:        { type: String, default: '' },
@@ -636,10 +636,6 @@ app.post('/api/auth/register', async (req, res) => {
       referredBy,
     });
 
-    // Log sign-up bonus in coin history
-    await User.findByIdAndUpdate(user._id, {
-      $push: { coinHistory: { $each: [{ amount: 100, reason: 'Sign-up welcome bonus', type: 'signup', timestamp: new Date() }], $slice: -200 } },
-    });
 
     // Award referral coins to both parties
     if (referredBy) {
