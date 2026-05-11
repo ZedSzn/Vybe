@@ -1253,12 +1253,14 @@ export default function ChatPage() {
                   </div>
                   <button
                     onClick={() => setStrangerHidden(h => !h)}
-                    title={strangerHidden ? 'Show camera' : 'Hide camera (streamer mode)'}
+                    title={strangerHidden ? 'Reveal camera (exit safe mode)' : 'Safe Mode — hide camera instantly'}
                     className="flex items-center justify-center w-7 h-7 rounded-lg transition-all"
-                    style={{ background: strangerHidden ? 'rgba(239,68,68,0.25)' : 'rgba(0,0,0,0.55)', backdropFilter: 'blur(12px)', border: strangerHidden ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(255,255,255,0.1)' }}>
-                    {strangerHidden
-                      ? <VideoOff size={13} className="text-red-400"/>
-                      : <Video size={13} className="text-white/60"/>}
+                    style={{
+                      backdropFilter: 'blur(12px)',
+                      background: strangerHidden ? 'rgba(245,158,11,0.22)' : 'rgba(0,0,0,0.55)',
+                      border:     strangerHidden ? '1px solid rgba(245,158,11,0.5)' : '1px solid rgba(255,255,255,0.1)',
+                    }}>
+                    <Shield size={13} style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.6)' }} />
                   </button>
                 </div>
               )}
@@ -1271,17 +1273,36 @@ export default function ChatPage() {
               )}
 
               <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
-              {/* Streamer mode — hide stranger's camera */}
+              {/* Safe Mode overlay */}
               <AnimatePresence>
                 {strangerHidden && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
-                    className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
-                    style={{ background: '#060612', backdropFilter: 'blur(24px)' }}>
-                    <VideoOff size={32} className="text-white/20"/>
-                    <p className="text-white/30 text-xs font-semibold">Camera hidden</p>
-                    <button onClick={() => setStrangerHidden(false)}
-                      className="px-4 py-1.5 rounded-lg text-xs font-bold text-white/60 border border-white/10 hover:border-white/20 transition-all">
-                      Show
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4"
+                    style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}
+                  >
+                    {/* Shield glow */}
+                    <div className="relative flex items-center justify-center">
+                      <div className="absolute w-20 h-20 rounded-full"
+                        style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%)' }} />
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                        style={{ background: 'rgba(245,158,11,0.12)', border: '1.5px solid rgba(245,158,11,0.35)', boxShadow: '0 0 24px rgba(245,158,11,0.2)' }}>
+                        <Shield size={26} style={{ color: '#fbbf24' }} />
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-white font-black text-sm tracking-wide mb-0.5">Safe Mode Active</p>
+                      <p className="text-white/35 text-[11px]">Stranger's camera is hidden</p>
+                    </div>
+                    <button
+                      onClick={() => setStrangerHidden(false)}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95"
+                      style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)', color: '#fbbf24' }}
+                    >
+                      <Video size={12} /> Reveal Camera
                     </button>
                   </motion.div>
                 )}
@@ -1368,6 +1389,25 @@ export default function ChatPage() {
                     <Camera size={17} />
                   </BarBtn>
                 )}
+                {/* Safe Mode — always accessible, not behind a menu */}
+                <button
+                  onClick={() => setStrangerHidden(h => !h)}
+                  className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all select-none"
+                  style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.55)' }}
+                  title={strangerHidden ? 'Reveal camera (exit safe mode)' : 'Safe Mode — hide stranger\'s camera'}
+                >
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+                    style={{
+                      background:  strangerHidden ? 'rgba(245,158,11,0.18)' : 'rgba(255,255,255,0.06)',
+                      border:      strangerHidden ? '1px solid rgba(245,158,11,0.45)' : '1px solid transparent',
+                      boxShadow:   strangerHidden ? '0 0 14px rgba(245,158,11,0.3)' : 'none',
+                    }}>
+                    <Shield size={17} />
+                  </div>
+                  <span className="text-[9px] font-medium tracking-wide whitespace-nowrap">
+                    {strangerHidden ? 'Reveal' : 'Safe'}
+                  </span>
+                </button>
                 {user && status === 'matched' && (
                   <>
                     <div className="w-px h-6 bg-white/10 mx-1" />
@@ -1445,6 +1485,20 @@ export default function ChatPage() {
                   {isMuted ? <MicOff size={19} className="text-red-400" /> : <Mic size={19} className="text-white/80" />}
                 </div>
                 <span className="text-[9px] text-white/40">{isMuted ? 'Unmute' : 'Mute'}</span>
+              </button>
+              {/* Safe Mode */}
+              <button onClick={() => setStrangerHidden(h => !h)} className="flex flex-col items-center gap-1">
+                <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all"
+                  style={{
+                    background:  strangerHidden ? 'rgba(245,158,11,0.2)'   : 'rgba(255,255,255,0.1)',
+                    border:      strangerHidden ? '1.5px solid rgba(245,158,11,0.5)' : '1.5px solid transparent',
+                    boxShadow:   strangerHidden ? '0 0 18px rgba(245,158,11,0.35)' : 'none',
+                  }}>
+                  <Shield size={19} style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.8)' }} />
+                </div>
+                <span className="text-[9px] transition-all" style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}>
+                  {strangerHidden ? 'Reveal' : 'Safe'}
+                </span>
               </button>
               {/* Next / Cancel */}
               {status === 'matched' ? (
