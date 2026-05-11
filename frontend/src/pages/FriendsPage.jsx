@@ -231,9 +231,11 @@ export default function FriendsPage() {
                 { id: 'requests', label: 'Requests', icon: <Clock size={12} />, badge: requests.length },
                 { id: 'add',      label: 'Add',      icon: <UserPlus size={12} /> },
               ].map(t => (
-                <button
+                <motion.button
                   key={t.id}
                   onClick={() => setTab(t.id)}
+                  whileTap={{ scale: 0.94 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   className="flex-1 relative flex items-center justify-center gap-1.5 py-3 text-[11px] font-extrabold uppercase tracking-wide transition-colors"
                   style={{
                     color: tab === t.id ? '#fff' : '#4b5563',
@@ -247,7 +249,7 @@ export default function FriendsPage() {
                       {t.badge > 9 ? '9+' : t.badge}
                     </span>
                   )}
-                </button>
+                </motion.button>
               ))}
             </div>
 
@@ -337,24 +339,28 @@ export default function FriendsPage() {
                           <p className="text-[11px]" style={{ color: '#6b7280' }}>wants to be friends</p>
                         </div>
                         <div className="flex gap-1.5 flex-shrink-0">
-                          <button
+                          <motion.button
                             onClick={() => respondToRequest(r._id, 'accept')}
                             disabled={!!actionLoading}
+                            whileTap={{ scale: 0.88 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                             className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-green-500/20 disabled:opacity-50"
                             style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80' }}
                             title="Accept"
                           >
                             <Check size={13} />
-                          </button>
-                          <button
+                          </motion.button>
+                          <motion.button
                             onClick={() => respondToRequest(r._id, 'decline')}
                             disabled={!!actionLoading}
+                            whileTap={{ scale: 0.88 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                             className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-red-500/20 disabled:opacity-50"
                             style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}
                             title="Decline"
                           >
                             <X size={13} />
-                          </button>
+                          </motion.button>
                         </div>
                       </div>
                     ))}
@@ -396,9 +402,11 @@ export default function FriendsPage() {
                         >
                           <Avatar name={u.username} size={8} />
                           <p className="text-sm font-semibold text-white flex-1 truncate">{u.username}</p>
-                          <button
+                          <motion.button
                             onClick={() => !u.requestSent && !u.isFriend && sendRequest(u._id)}
                             disabled={u.requestSent || u.isFriend || actionLoading === 'req_' + u._id}
+                            whileTap={{ scale: 0.92 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                             className="text-xs font-bold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60 flex-shrink-0"
                             style={{
                               background: u.isFriend || u.requestSent ? 'rgba(255,255,255,0.05)' : 'rgba(27,98,245,0.15)',
@@ -407,7 +415,7 @@ export default function FriendsPage() {
                             }}
                           >
                             {u.isFriend ? 'Friends' : u.requestSent ? 'Sent ✓' : 'Add'}
-                          </button>
+                          </motion.button>
                         </div>
                       ))}
                     </div>
@@ -446,13 +454,15 @@ export default function FriendsPage() {
                       {selectedFriend.isOnline ? '● Online' : '○ Offline'}
                     </p>
                   </div>
-                  <button
+                  <motion.button
                     onClick={() => removeFriend(selectedFriend.friendshipId)}
+                    whileTap={{ scale: 0.93 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
                     style={{ color: '#6b7280', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
                     Unfriend
-                  </button>
+                  </motion.button>
                 </div>
 
                 {/* Messages */}

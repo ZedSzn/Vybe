@@ -3,6 +3,7 @@ import { LogOut, Bell, User, Settings, ChevronDown, Trash2, Wallet, Globe, Users
 import { useAuth } from '../context/AuthContext'
 import { useLang } from '../context/LangContext'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
 import { VybeCoin } from './VybeCoin'
 
@@ -147,28 +148,36 @@ export default function Navbar({ onPremiumClick }) {
         <span className="hidden lg:inline">{selectedLang.label}</span>
         <ChevronDown size={11} className={`transition-transform duration-200 ${showLangMenu ? 'rotate-180' : ''}`} />
       </button>
-      {showLangMenu && (
-        <div className="absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden shadow-float animate-fade-in z-50"
-          style={{ background: '#101020', border: '1px solid rgba(255,255,255,0.08)' }}>
-          {LANGUAGES.map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => { switchLang(lang.code); setShowLangMenu(false) }}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                selectedLang.code === lang.code
-                  ? 'text-white bg-vybe-purple/15'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <span>{lang.flag}</span>
-              <span>{lang.label}</span>
-              {selectedLang.code === lang.code && (
-                <span className="ml-auto text-vybe-purple-light text-xs">✓</span>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+      <AnimatePresence>
+        {showLangMenu && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden shadow-float z-50"
+            style={{ background: '#101020', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => { switchLang(lang.code); setShowLangMenu(false) }}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
+                  selectedLang.code === lang.code
+                    ? 'text-white bg-vybe-purple/15'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <span>{lang.flag}</span>
+                <span>{lang.label}</span>
+                {selectedLang.code === lang.code && (
+                  <span className="ml-auto text-vybe-purple-light text-xs">✓</span>
+                )}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 
@@ -270,45 +279,53 @@ export default function Navbar({ onPremiumClick }) {
                 )}
               </button>
 
-              {showNotifs && (
-                <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl overflow-hidden shadow-card animate-fade-in z-50"
-                  style={{ background: '#101020', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-                    <h3 className="text-sm font-black text-white">Notifications</h3>
-                    <div className="flex items-center gap-3">
-                      {unreadCount > 0 && (
-                        <button onClick={handleMarkAllRead} className="text-[10px] text-vybe-purple-light hover:underline font-semibold">
-                          Mark all read
-                        </button>
-                      )}
-                      {notifications.length > 0 && (
-                        <button onClick={handleClearAll} className="text-gray-600 hover:text-red-400 transition-colors">
-                          <Trash2 size={13} />
-                        </button>
-                      )}
+              <AnimatePresence>
+                {showNotifs && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                    transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+                    className="absolute right-0 top-full mt-2 w-80 rounded-2xl overflow-hidden shadow-card z-50"
+                    style={{ background: '#101020', border: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+                      <h3 className="text-sm font-black text-white">Notifications</h3>
+                      <div className="flex items-center gap-3">
+                        {unreadCount > 0 && (
+                          <button onClick={handleMarkAllRead} className="text-[10px] text-vybe-purple-light hover:underline font-semibold">
+                            Mark all read
+                          </button>
+                        )}
+                        {notifications.length > 0 && (
+                          <button onClick={handleClearAll} className="text-gray-600 hover:text-red-400 transition-colors">
+                            <Trash2 size={13} />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <div className="py-10 text-center">
-                        <Bell size={24} className="text-gray-600 mx-auto mb-2 opacity-40" />
-                        <p className="text-gray-600 text-xs">No notifications yet</p>
-                      </div>
-                    ) : notifications.map((n) => (
-                      <div key={n._id} onClick={() => !n.read && handleMarkOne(n._id)}
-                        className={`flex items-start gap-3 px-4 py-3 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/3 transition-colors ${!n.read ? 'bg-vybe-purple/5' : ''}`}>
-                        <span className="text-base flex-shrink-0 mt-0.5">{notifIcon(n.type)}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white text-xs font-bold">{n.title}</p>
-                          <p className="text-gray-600 text-[11px] leading-relaxed mt-0.5 line-clamp-2">{n.message}</p>
-                          <p className="text-gray-700 text-[10px] mt-1">{new Date(n.createdAt).toLocaleDateString()}</p>
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="py-10 text-center">
+                          <Bell size={24} className="text-gray-600 mx-auto mb-2 opacity-40" />
+                          <p className="text-gray-600 text-xs">No notifications yet</p>
                         </div>
-                        {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-vybe-purple flex-shrink-0 mt-1.5" />}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      ) : notifications.map((n) => (
+                        <div key={n._id} onClick={() => !n.read && handleMarkOne(n._id)}
+                          className={`flex items-start gap-3 px-4 py-3 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/3 transition-colors ${!n.read ? 'bg-vybe-purple/5' : ''}`}>
+                          <span className="text-base flex-shrink-0 mt-0.5">{notifIcon(n.type)}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white text-xs font-bold">{n.title}</p>
+                            <p className="text-gray-600 text-[11px] leading-relaxed mt-0.5 line-clamp-2">{n.message}</p>
+                            <p className="text-gray-700 text-[10px] mt-1">{new Date(n.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-vybe-purple flex-shrink-0 mt-1.5" />}
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Avatar + dropdown */}
@@ -327,8 +344,14 @@ export default function Navbar({ onPremiumClick }) {
                 <ChevronDown size={11} className={`text-gray-600 transition-transform hidden sm:block ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
+              <AnimatePresence>
               {showUserMenu && (
-                <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl overflow-hidden shadow-card animate-fade-in z-50"
+                <motion.div
+                  initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                  transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+                  className="absolute right-0 top-full mt-2 w-52 rounded-2xl overflow-hidden shadow-card z-50"
                   style={{ background: '#101020', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div className="px-4 py-3 border-b border-white/5 space-y-2">
                     <div className="flex items-center gap-2.5">
@@ -401,8 +424,9 @@ export default function Navbar({ onPremiumClick }) {
                   >
                     <LogOut size={13} /> {t('logout')}
                   </button>
-                </div>
+                </motion.div>
               )}
+              </AnimatePresence>
             </div>
           </>
         ) : (

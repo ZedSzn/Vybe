@@ -717,10 +717,12 @@ export default function MainPage() {
               </p>
               <div className="flex gap-2">
                 {[{ id: 'solo', label: '👤 Solo' }, { id: 'squad', label: '👥 Duo' }, { id: 'private', label: '🔒 Private' }].map(({ id, label }) => (
-                  <button
+                  <motion.button
                     key={id}
                     onClick={() => setMode(id)}
-                    className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    whileTap={{ scale: 0.93 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-colors ${
                       mode === id
                         ? 'bg-vybe-purple text-white shadow-purple-sm'
                         : 'text-vybe-muted hover:text-white'
@@ -728,7 +730,7 @@ export default function MainPage() {
                     style={mode !== id ? { background: 'rgba(255,255,255,0.05)' } : {}}
                   >
                     {label}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
@@ -747,10 +749,12 @@ export default function MainPage() {
                   { id: 'male',   label: 'Male',   free: false },
                   { id: 'female', label: 'Female', free: false },
                 ].map(({ id, label, free }) => (
-                  <button
+                  <motion.button
                     key={id}
                     onClick={() => handleGender(id)}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all relative ${
+                    whileTap={{ scale: 0.92 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors relative ${
                       filterGender === id
                         ? 'bg-vybe-purple text-white'
                         : 'text-vybe-muted hover:text-white'
@@ -761,7 +765,7 @@ export default function MainPage() {
                     {!free && (
                       <Lock size={8} className="absolute top-1 right-1 opacity-40" />
                     )}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
@@ -786,9 +790,11 @@ export default function MainPage() {
                   <span className="inline-flex items-center gap-0.5"><Crown size={9} /> VIP</span>
                 </span>
               </div>
-              <button
+              <motion.button
                 onClick={handleCountryClick}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all ${
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors ${
                   user?.isVip ? 'text-white' : 'text-vybe-muted cursor-not-allowed'
                 }`}
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}
@@ -801,7 +807,7 @@ export default function MainPage() {
                   size={12}
                   className={`transition-transform duration-200 ${showCountryDrop ? 'rotate-180' : ''}`}
                 />
-              </button>
+              </motion.button>
               <AnimatePresence>
                 {showCountryDrop && user?.isVip && (
                   <motion.div
