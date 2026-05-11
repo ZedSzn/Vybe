@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import { VybeCoin } from '../components/VybeCoin'
+import { Skeleton } from '../components/Skeleton'
 
 const COUNTRY_FLAGS = {
   'United States': '🇺🇸', 'United Kingdom': '🇬🇧', 'Canada': '🇨🇦', 'Australia': '🇦🇺',
@@ -66,6 +67,7 @@ export default function ProfilePage() {
   const [loading,   setLoading]   = useState(true)
   const [editing,   setEditing]   = useState(false)
   const [saving,    setSaving]    = useState(false)
+  const [saveError, setSaveError] = useState('')
   const [copied,    setCopied]    = useState(false)
   const [referral,  setReferral]  = useState(null)
   const [editForm,  setEditForm]  = useState({ bio: '', gender: 'other', country: '', privacyShowBio: true, privacyShowCountry: true })
@@ -107,7 +109,7 @@ export default function ProfilePage() {
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 500000) { alert('Image must be under 500KB'); return }
+    if (file.size > 500000) { setSaveError('Image must be under 500KB'); setTimeout(() => setSaveError(''), 4000); return }
     const reader = new FileReader()
     reader.onload = (ev) => {
       setProfile((p) => ({ ...p, avatar: ev.target.result }))
@@ -141,8 +143,29 @@ export default function ProfilePage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen animated-bg font-space flex items-center justify-center">
-      <Loader2 size={40} className="text-vybe-purple animate-spin" />
+    <div className="min-h-screen animated-bg font-space">
+      <Navbar />
+      <div className="pt-24 pb-12 px-4 max-w-2xl mx-auto">
+        <div className="glass-card rounded-3xl overflow-hidden">
+          <Skeleton className="h-36 w-full" rounded="rounded-none" />
+          <div className="px-6 pb-6">
+            <div className="flex items-end gap-4 -mt-10 mb-5">
+              <Skeleton className="w-20 h-20 flex-shrink-0 ring-4 ring-vybe-bg" rounded="rounded-full" />
+              <div className="flex-1 pb-1 space-y-2">
+                <Skeleton className="h-5 w-36" rounded="rounded" />
+                <Skeleton className="h-3.5 w-24" rounded="rounded" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-full" rounded="rounded" />
+              <Skeleton className="h-4 w-3/4" rounded="rounded" />
+              <div className="grid grid-cols-3 gap-3 pt-2">
+                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16" rounded="rounded-xl" />)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 
@@ -158,6 +181,12 @@ export default function ProfilePage() {
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-vybe-purple/8 rounded-full blur-3xl" />
       </div>
 
+      {saveError && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-semibold text-red-400 border border-red-500/25 backdrop-blur-sm"
+          style={{ background: 'rgba(239,68,68,0.12)', whiteSpace: 'nowrap' }}>
+          {saveError}
+        </div>
+      )}
       <div className="pt-24 pb-12 px-4 max-w-2xl mx-auto relative z-10">
         <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-vybe-muted hover:text-white transition-colors mb-6 text-sm">
           <ArrowLeft size={15} /> Back

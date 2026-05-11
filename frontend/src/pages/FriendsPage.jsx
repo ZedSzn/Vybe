@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
+import { Skeleton } from '../components/Skeleton'
 import axios from 'axios'
 
 
@@ -138,7 +139,6 @@ export default function FriendsPage() {
   }
 
   const removeFriend = async (friendshipId) => {
-    if (!confirm('Remove this friend?')) return
     try {
       await axios.delete(`/api/friends/${friendshipId}`, { headers: { Authorization: `Bearer ${token}` } })
       if (selectedFriend?.friendshipId === friendshipId) setSelectedFriend(null)
@@ -257,7 +257,17 @@ export default function FriendsPage() {
               {/* ── Friends list ── */}
               {tab === 'friends' && (
                 loadingFriends ? (
-                  <div className="py-16 text-center text-sm" style={{ color: '#6b7280' }}>Loading…</div>
+                  <div className="p-4 space-y-3">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="flex items-center gap-3 px-2 py-1">
+                        <Skeleton className="w-9 h-9 flex-shrink-0" rounded="rounded-full" />
+                        <div className="flex-1 space-y-1.5">
+                          <Skeleton className="h-3 w-24" />
+                          <Skeleton className="h-2 w-14" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : friends.length === 0 ? (
                   <div className="py-16 text-center px-6">
                     <Users size={32} className="mx-auto mb-3 opacity-20 text-white" />
@@ -367,7 +377,15 @@ export default function FriendsPage() {
                     />
                   </div>
                   {searching ? (
-                    <div className="text-center text-sm py-6" style={{ color: '#6b7280' }}>Searching…</div>
+                    <div className="space-y-2">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <Skeleton className="w-8 h-8 flex-shrink-0" rounded="rounded-full" />
+                          <Skeleton className="flex-1 h-3" />
+                          <Skeleton className="w-12 h-7 flex-shrink-0" rounded="rounded-lg" />
+                        </div>
+                      ))}
+                    </div>
                   ) : searchResults.length > 0 ? (
                     <div className="space-y-2">
                       {searchResults.map(u => (
@@ -440,7 +458,13 @@ export default function FriendsPage() {
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-5 space-y-3">
                   {loadingMsgs ? (
-                    <div className="h-full flex items-center justify-center text-sm" style={{ color: '#6b7280' }}>Loading…</div>
+                    <div className="space-y-3 pt-2">
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className={`flex ${i % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+                          <Skeleton className="h-10 rounded-2xl" style={{ width: `${45 + Math.random() * 30}%` }} />
+                        </div>
+                      ))}
+                    </div>
                   ) : messages.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center">
                       <MessageCircle size={36} className="mb-3 opacity-15 text-white" />

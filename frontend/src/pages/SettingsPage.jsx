@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Loader2, Trash2, UserX, Download, AlertTriangle, Check, Mail, ShieldCheck } from 'lucide-react'
 import VybeCoin from '../components/VybeCoin'
+import { Skeleton } from '../components/Skeleton'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -101,7 +102,23 @@ function CoinsTab() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-vybe-purple" size={28} /></div>
+  if (loading) return (
+    <div className="space-y-4">
+      <Skeleton className="h-24 w-full" rounded="rounded-2xl" />
+      <Skeleton className="h-52 w-full" rounded="rounded-2xl" />
+      <div className="glass-card rounded-2xl p-5 space-y-3">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex items-center justify-between py-2 border-b border-vybe-border/40 last:border-0">
+            <div className="flex items-center gap-2.5">
+              <Skeleton className="w-6 h-4" rounded="rounded" />
+              <Skeleton className="h-4 w-36" rounded="rounded" />
+            </div>
+            <Skeleton className="h-4 w-14" rounded="rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 
   return (
     <div className="space-y-4">
@@ -178,7 +195,24 @@ function BlocksTab() {
     } catch {}
   }
 
-  if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-vybe-purple" size={28} /></div>
+  if (loading) return (
+    <div className="glass-card rounded-2xl p-5 space-y-3">
+      <Skeleton className="h-5 w-32" rounded="rounded" />
+      <Skeleton className="h-3 w-48" rounded="rounded" />
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="flex items-center justify-between py-2.5 border-b border-vybe-border/30 last:border-0">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-8 h-8 flex-shrink-0" rounded="rounded-full" />
+            <div className="space-y-1.5">
+              <Skeleton className="h-3.5 w-24" rounded="rounded" />
+              <Skeleton className="h-3 w-16" rounded="rounded" />
+            </div>
+          </div>
+          <Skeleton className="h-7 w-16" rounded="rounded-lg" />
+        </div>
+      ))}
+    </div>
+  )
 
   return (
     <div className="glass-card rounded-2xl p-5">
@@ -240,7 +274,32 @@ function ReferralTab() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-vybe-purple" size={28} /></div>
+  if (loading) return (
+    <div className="space-y-4">
+      <div className="glass-card rounded-2xl p-5 space-y-3">
+        <Skeleton className="h-5 w-36" rounded="rounded" />
+        <Skeleton className="h-4 w-56" rounded="rounded" />
+        <div className="flex gap-2">
+          <Skeleton className="h-9 flex-1" rounded="rounded-xl" />
+          <Skeleton className="h-9 w-16" rounded="rounded-xl" />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-9" rounded="rounded-xl" />)}
+        </div>
+      </div>
+      <div className="glass-card rounded-2xl p-5 space-y-3">
+        <Skeleton className="h-5 w-44" rounded="rounded" />
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3 py-2 border-b border-vybe-border/30 last:border-0">
+            <Skeleton className="w-5 h-4" rounded="rounded" />
+            <Skeleton className="w-7 h-7 flex-shrink-0" rounded="rounded-full" />
+            <Skeleton className="h-4 flex-1" rounded="rounded" />
+            <Skeleton className="h-4 w-20" rounded="rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 
   return (
     <div className="space-y-4">
@@ -473,6 +532,7 @@ function AccountTab({ logout, navigate }) {
   const [downloading,  setDownloading]  = useState(false)
   const [deleteStep,   setDeleteStep]   = useState(0) // 0=idle, 1=confirm, 2=deleting
   const [deleteInput,  setDeleteInput]  = useState('')
+  const [deleteError,  setDeleteError]  = useState('')
   const [dlMsg,        setDlMsg]        = useState('')
 
   const downloadData = async () => {
@@ -494,7 +554,7 @@ function AccountTab({ logout, navigate }) {
       logout()
       navigate('/')
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to delete account.')
+      setDeleteError(err.response?.data?.error || 'Failed to delete account.')
       setDeleteStep(1)
     }
   }
@@ -534,6 +594,7 @@ function AccountTab({ logout, navigate }) {
 
         {deleteStep === 1 && (
           <div className="space-y-3">
+            {deleteError && <p className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">{deleteError}</p>}
             <p className="text-white text-sm">Type <strong className="text-red-400">DELETE</strong> to confirm:</p>
             <input
               value={deleteInput}

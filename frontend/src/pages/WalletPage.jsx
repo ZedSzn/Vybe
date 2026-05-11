@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
@@ -6,10 +6,11 @@ import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { VybeCoin } from '../components/VybeCoin'
+import { Skeleton } from '../components/Skeleton'
 import {
   Gift, CalendarDays, Flame, MessageCircle, Users, TrendingUp, TrendingDown,
   Star, BadgeCheck, Crown, Gem, Sparkles, Music2, Globe, Zap, Target,
-  ThumbsUp, Heart, DollarSign, Check,
+  ThumbsUp, Heart, DollarSign, Check, Loader2,
 } from 'lucide-react'
 
 const PACKAGES = [
@@ -123,6 +124,7 @@ export default function WalletPage() {
   const [tab, setTab]                   = useState('overview')
   const [coins, setCoins]               = useState(user?.coins ?? 0)
   const [cashableCoins, setCashableCoins] = useState(user?.cashableCoins ?? 0)
+  const [balanceLoading, setBalanceLoading] = useState(true)
   const [history, setHistory]           = useState([])
   const [histLoading, setHistLoading]   = useState(false)
   const [referralInfo, setReferralInfo] = useState(null)
@@ -155,7 +157,9 @@ export default function WalletPage() {
       setCashableCoins(data.user.cashableCoins ?? 0)
       setTipsEarned(data.user.tipsEarned ?? 0)
       setPaypalEmail(data.user.paypalEmail ?? '')
-    } catch {}
+    } catch {} finally {
+      setBalanceLoading(false)
+    }
   }, []) // intentionally empty — reads from API, not state
 
   useEffect(() => { refreshCoins() }, [refreshCoins])
@@ -322,6 +326,12 @@ export default function WalletPage() {
           <h1 className="text-3xl font-extrabold text-white tracking-tight mb-1">Coin Wallet</h1>
           <p className="text-vybe-muted text-sm mb-5">Earn, spend, and cash out your coins</p>
 
+          {balanceLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Skeleton className="h-[88px]" rounded="rounded-2xl" />
+              <Skeleton className="h-[88px]" rounded="rounded-2xl" />
+            </div>
+          ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Spend Balance */}
             <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-blue-500/25" style={{ background: 'rgba(27,98,245,0.07)' }}>
@@ -353,6 +363,7 @@ export default function WalletPage() {
               </div>
             </div>
           </div>
+          )}
         </div>
 
         {/* Success / Error banners */}
@@ -608,7 +619,20 @@ export default function WalletPage() {
           <div className={cardCls} style={cardStyle}>
             <h2 className="text-white font-bold text-base mb-4">Transaction History</h2>
             {histLoading ? (
-              <div className="py-12 text-center text-vybe-muted text-sm">Loading…</div>
+              <div className="space-y-2">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl">
+                    <div className="flex items-center gap-3 flex-1">
+                      <Skeleton className="w-5 h-5 flex-shrink-0" rounded="rounded-full" />
+                      <div className="flex-1 space-y-1.5">
+                        <Skeleton className="h-3 w-32" />
+                        <Skeleton className="h-2 w-20" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-10" />
+                  </div>
+                ))}
+              </div>
             ) : history.length === 0 ? (
               <div className="py-12 text-center">
                 <div className="flex justify-center mb-3"><CoinBadge size={36} /></div>

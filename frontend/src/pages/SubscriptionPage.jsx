@@ -8,6 +8,7 @@ import {
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
+import { Skeleton } from '../components/Skeleton'
 import axios from 'axios'
 
 
@@ -234,8 +235,14 @@ export default function SubscriptionPage() {
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center py-24">
-            <Loader2 size={28} className="animate-spin text-vybe-purple-light" />
+          <div className="space-y-6">
+            {/* Status card skeleton */}
+            <Skeleton className="h-28 w-full" rounded="rounded-2xl" />
+            {/* Plan cards skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Skeleton className="h-72" rounded="rounded-2xl" />
+              <Skeleton className="h-72" rounded="rounded-2xl" />
+            </div>
           </div>
         ) : (
           <>

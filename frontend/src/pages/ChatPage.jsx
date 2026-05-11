@@ -11,6 +11,7 @@ import SimplePeer from 'simple-peer'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import VybeCoin from '../components/VybeCoin'
+import { playMatchFound, playGiftReceived, playGiftSent, playTipSent, playClick } from '../utils/sounds'
 
 const CHAT_BADGES = [
   { id: 'spark', name: 'Spark',         cost: 75,  rarity: 'common',    label: 'Common'    },
@@ -487,6 +488,7 @@ export default function ChatPage() {
         setStrangerHidden(false)
         setPartnerUsername(pUsername || null)
         setFriendReqSent(false)
+        playMatchFound()
 
         // Support both new format (peers array) and legacy 1v1 format
         const peersToCreate = (peers && peers.length > 0)
@@ -551,6 +553,7 @@ export default function ChatPage() {
         setTimeout(() => setFloatingGifts((prev) => prev.filter((g) => g.id !== id)), 3200)
         setGiftReceived({ badgeId: giftId || 'spark', rarity: rarity || 'common', from })
         setTimeout(() => setGiftReceived(null), 4000)
+        playGiftReceived()
       })
 
       socket.on('gift-sent', ({ rarity, giftId }) => {
@@ -558,6 +561,7 @@ export default function ChatPage() {
         const id = Date.now() + Math.random()
         setFloatingGifts((prev) => [...prev, { id, badgeId: giftId || 'spark', rarity: rarity || 'common', fromMe: true }])
         setTimeout(() => setFloatingGifts((prev) => prev.filter((g) => g.id !== id)), 3200)
+        playGiftSent()
       })
 
       socket.on('tip-received', ({ from, yourShare, coins: newCoins, cashableCoins: newCashable }) => {
@@ -575,6 +579,7 @@ export default function ChatPage() {
         setTipFeedback({ type: 'success', msg: `✅ Tip sent to ${to}!` })
         setTipLoading(false)
         setTimeout(() => setTipFeedback(null), 3500)
+        playTipSent()
       })
 
       socket.on('tip-error', ({ message }) => {
@@ -831,7 +836,8 @@ export default function ChatPage() {
       window.location.href = data.url
     } catch (err) {
       setUnbanLoading(false)
-      alert(err.response?.data?.error || 'Payment unavailable. Please try again later.')
+      setTipFeedback({ type: 'error', msg: err.response?.data?.error || 'Payment unavailable. Please try again later.' })
+      setTimeout(() => setTipFeedback(null), 5000)
     }
   }
 
@@ -1422,7 +1428,7 @@ export default function ChatPage() {
           style={{ background: '#0d0d18' }}
           animate={{ width: showChat ? 320 : 0 }}
           transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
-          <div className="w-[320px] h-full flex flex-col"><ChatContent /></div>
+          <div className="w-[320px] h-full flex flex-col">{ChatContent()}</div>
         </motion.div>
 
       </div>
@@ -1437,7 +1443,7 @@ export default function ChatPage() {
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
             <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0"><div className="w-8 h-1 rounded-full bg-white/20" /></div>
-            <ChatContent />
+            {ChatContent()}
           </motion.div>
         )}
       </AnimatePresence>
