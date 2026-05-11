@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
-  MessageSquare, X, ChevronRight, Globe, Shield, Loader2, Ban, Gift, UserX, Camera,
+  MessageSquare, X, ChevronRight, Globe, Shield, Loader2, Ban, Gift, UserX, UserPlus, Camera,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -192,6 +192,8 @@ export default function ChatPage() {
   const [partnerUsername, setPartnerUsername] = useState(null)
   const [strangerHidden,  setStrangerHidden]  = useState(false)
   const [blockLoading,   setBlockLoading]     = useState(false)
+  const [friendReqSent,  setFriendReqSent]    = useState(false)
+  const [friendReqLoad,  setFriendReqLoad]    = useState(false)
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
   const [floatingGifts,  setFloatingGifts]    = useState([]) // [{id, emoji, fromMe}]
@@ -484,6 +486,7 @@ export default function ChatPage() {
         setSquadMates(mates || [])
         setStrangerHidden(false)
         setPartnerUsername(pUsername || null)
+        setFriendReqSent(false)
 
         // Support both new format (peers array) and legacy 1v1 format
         const peersToCreate = (peers && peers.length > 0)
@@ -659,6 +662,21 @@ export default function ChatPage() {
     } catch {}
     setBlockLoading(false)
     handleSkip()
+  }
+
+  const handleAddFriend = async () => {
+    if (!partnerUidRef.current || !user || friendReqSent) return
+    setFriendReqLoad(true)
+    try {
+      await axios.post('/api/friends/request', { recipientId: partnerUidRef.current })
+      setFriendReqSent(true)
+      setTipFeedback({ type: 'success', msg: 'Friend request sent!' })
+      setTimeout(() => setTipFeedback(null), 3000)
+    } catch (err) {
+      setTipFeedback({ type: 'error', msg: err.response?.data?.error || 'Could not send request' })
+      setTimeout(() => setTipFeedback(null), 3000)
+    }
+    setFriendReqLoad(false)
   }
 
   const handleSendGift = async (giftId) => {
@@ -1278,9 +1296,14 @@ export default function ChatPage() {
                   </>
                 )}
                 {user && partnerUid && status === 'matched' && (
-                  <BarBtn onClick={handleBlock} disabled={blockLoading} label="Block" red>
-                    <UserX size={17} />
-                  </BarBtn>
+                  <>
+                    <BarBtn onClick={handleAddFriend} disabled={friendReqLoad || friendReqSent} label={friendReqSent ? 'Requested' : 'Add Friend'} active={friendReqSent}>
+                      {friendReqSent ? <span className="text-sm">✓</span> : <UserPlus size={17} />}
+                    </BarBtn>
+                    <BarBtn onClick={handleBlock} disabled={blockLoading} label="Block" red>
+                      <UserX size={17} />
+                    </BarBtn>
+                  </>
                 )}
               </div>
 
@@ -1368,6 +1391,15 @@ export default function ChatPage() {
                 </div>
                 <span className="text-[9px] text-white/40">Chat</span>
               </button>
+              {/* Add Friend */}
+              {user && partnerUid && status === 'matched' && (
+                <button onClick={handleAddFriend} disabled={friendReqLoad || friendReqSent} className="flex flex-col items-center gap-1 disabled:opacity-60">
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center ${friendReqSent ? 'bg-vybe-purple/30' : 'bg-white/10'}`}>
+                    {friendReqSent ? <span className="text-vybe-purple-light text-sm">✓</span> : <UserPlus size={19} className="text-white/70" />}
+                  </div>
+                  <span className="text-[9px] text-white/40">{friendReqSent ? 'Sent' : 'Add'}</span>
+                </button>
+              )}
               {/* Report */}
               {reportSent ? (
                 <div className="flex flex-col items-center gap-1">
