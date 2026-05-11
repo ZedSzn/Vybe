@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
-  MessageSquare, X, ChevronRight, Globe, Shield, Loader2, Ban, Gift, UserX, UserPlus, Camera, Crown, Zap,
+  MessageSquare, X, ChevronRight, Globe, Shield, ShieldCheck, Loader2, Ban, Gift, UserX, UserPlus, Camera, Crown, Zap,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -190,10 +190,11 @@ export default function ChatPage() {
   const [giftSending,    setGiftSending]      = useState(false)
   const [giftError,      setGiftError]        = useState('')
   const [giftReceived,   setGiftReceived]     = useState(null)
-  const [partnerUsername,  setPartnerUsername]  = useState(null)
-  const [partnerAvatar,    setPartnerAvatar]    = useState(null)
-  const [partnerIsVip,     setPartnerIsVip]     = useState(false)
-  const [partnerIsPremium, setPartnerIsPremium] = useState(false)
+  const [partnerUsername,      setPartnerUsername]      = useState(null)
+  const [partnerAvatar,        setPartnerAvatar]        = useState(null)
+  const [partnerIsVip,         setPartnerIsVip]         = useState(false)
+  const [partnerIsPremium,     setPartnerIsPremium]     = useState(false)
+  const [partnerEmailVerified, setPartnerEmailVerified] = useState(false)
   const [strangerHidden,   setStrangerHidden]   = useState(false)
   const [blockLoading,   setBlockLoading]     = useState(false)
   const [friendReqSent,  setFriendReqSent]    = useState(false)
@@ -341,6 +342,7 @@ export default function ChatPage() {
     setPartnerAvatar(null)
     setPartnerIsVip(false)
     setPartnerIsPremium(false)
+    setPartnerEmailVerified(false)
   }
 
   const findMatch = (socket) => {
@@ -443,13 +445,14 @@ export default function ChatPage() {
       socket.on('connect', () => {
         if (!mounted) return
         socket.emit('register', {
-          userId:    user?.id       || null,
-          username:  user?.username || 'Guest',
-          avatar:    user?.avatar   || null,
-          gender:    user?.gender   || 'other',
-          country:   user?.country  || '',
-          isPremium: user?.isPremium || false,
-          isVip:     user?.isVip    || false,
+          userId:        user?.id            || null,
+          username:      user?.username      || 'Guest',
+          avatar:        user?.avatar        || null,
+          gender:        user?.gender        || 'other',
+          country:       user?.country       || '',
+          isPremium:     user?.isPremium     || false,
+          isVip:         user?.isVip         || false,
+          emailVerified: user?.emailVerified || false,
         })
         if (mounted) setStatus('searching')
         const p = prefsRef.current
@@ -478,7 +481,7 @@ export default function ChatPage() {
 
       socket.on('waiting', () => { if (mounted) setStatus('searching') })
 
-      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername, partnerAvatar: pAvatar, partnerIsPremium: pIsPremium, partnerIsVip: pIsVip }) => {
+      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername, partnerAvatar: pAvatar, partnerIsPremium: pIsPremium, partnerIsVip: pIsVip, partnerEmailVerified: pEmailVerified }) => {
         if (!mounted) return
 
         // Destroy existing peers
@@ -497,6 +500,7 @@ export default function ChatPage() {
         setPartnerAvatar(pAvatar || null)
         setPartnerIsVip(pIsVip || false)
         setPartnerIsPremium(pIsPremium || false)
+        setPartnerEmailVerified(pEmailVerified || false)
         setFriendReqSent(false)
         playMatchFound()
 
@@ -1196,7 +1200,7 @@ export default function ChatPage() {
                 </div>
               )}
 
-              {/* Stranger label + streamer hide button */}
+              {/* Partner identity + streamer hide button */}
               {status === 'matched' && (
                 <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
                   <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
@@ -1215,6 +1219,9 @@ export default function ChatPage() {
                       <span className="text-white font-bold text-[13px]">
                         {partnerUsername ? `@${partnerUsername}` : 'Stranger'}
                       </span>
+                      {partnerEmailVerified && (
+                        <ShieldCheck size={11} style={{ color: '#60a5fa', flexShrink: 0 }} title="Verified" />
+                      )}
                       {partnerIsVip && (
                         <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}>
                           <Crown size={8} /> VIP
@@ -1226,6 +1233,23 @@ export default function ChatPage() {
                         </span>
                       )}
                     </div>
+                    {/* Inline Add Friend — only show if logged in, partner is known, not yet sent */}
+                    {user && partnerUid && !friendReqSent && (
+                      <button
+                        onClick={handleAddFriend}
+                        disabled={friendReqLoad}
+                        title="Add friend"
+                        className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 transition-all hover:scale-110 active:scale-95"
+                        style={{ background: 'rgba(27,98,245,0.25)', border: '1px solid rgba(27,98,245,0.4)', color: '#60a5fa', flexShrink: 0 }}
+                      >
+                        {friendReqLoad ? <Loader2 size={9} className="animate-spin" /> : <UserPlus size={9} />}
+                      </button>
+                    )}
+                    {user && partnerUid && friendReqSent && (
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ade80', flexShrink: 0 }}>
+                        <UserPlus size={9} />
+                      </span>
+                    )}
                   </div>
                   <button
                     onClick={() => setStrangerHidden(h => !h)}
@@ -1282,8 +1306,31 @@ export default function ChatPage() {
 
               {/* You label */}
               <div className="absolute top-3 left-3 z-10">
-                <div className="px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
-                  <span className="text-white font-bold text-[13px]">{user ? `@${user.username}` : 'You'}</span>
+                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
+                  ) : user?.username ? (
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
+                      style={{ background: 'linear-gradient(135deg, #1b62f5, #7c3aed)' }}>
+                      {user.username[0].toUpperCase()}
+                    </div>
+                  ) : null}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-white font-bold text-[13px]">{user ? `@${user.username}` : 'You'}</span>
+                    {user?.emailVerified && (
+                      <ShieldCheck size={11} style={{ color: '#60a5fa', flexShrink: 0 }} title="Verified" />
+                    )}
+                    {user?.isVip && (
+                      <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}>
+                        <Crown size={8} /> VIP
+                      </span>
+                    )}
+                    {!user?.isVip && user?.isPremium && (
+                      <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(27,98,245,0.2)', color: '#60a5fa', border: '1px solid rgba(27,98,245,0.35)' }}>
+                        <Zap size={8} /> Member
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
