@@ -926,7 +926,7 @@ export default function ChatPage() {
 
   return (
     <div className="h-screen bg-black overflow-hidden font-space flex flex-col">
-      <div className="flex-1 flex overflow-hidden min-h-0 relative">
+      <div className="flex-1 flex overflow-hidden min-h-0">
 
         {/* ── Fixed overlays ───────────────────────────────────────── */}
 
@@ -1159,8 +1159,8 @@ export default function ChatPage() {
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 flex flex-col lg:flex-row gap-1.5 p-2 min-h-0">
 
-            {/* Stranger video — dominant */}
-            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-[3] min-h-0">
+            {/* Stranger video — dominant on mobile, equal on desktop */}
+            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-[3] lg:flex-1 min-h-0">
               {status === 'searching' ? (
                 /* ── Radar pulse while searching ── */
                 <div className="w-full h-full flex flex-col items-center justify-center gap-6 px-4">
@@ -1289,7 +1289,7 @@ export default function ChatPage() {
             </div>
 
             {/* Your video */}
-            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-[2] min-h-0">
+            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-1 min-h-0">
               <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
               {!hasCamera && (
@@ -1494,21 +1494,13 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* ── Desktop chat overlay — absolute, never shrinks video ── */}
-        <AnimatePresence>
-          {showChat && (
-            <motion.div
-              className="hidden lg:flex flex-col absolute top-0 right-0 bottom-0 z-30 border-l border-white/[0.07]"
-              style={{ width: 320, background: 'rgba(10,10,20,0.92)', backdropFilter: 'blur(24px)' }}
-              initial={{ x: 320, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 320, opacity: 0 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-            >
-              <div className="w-[320px] h-full flex flex-col">{ChatContent()}</div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* ── Desktop chat sidebar ─────────────────────────────────── */}
+        <motion.div className="hidden lg:flex flex-col flex-shrink-0 overflow-hidden border-l border-white/[0.07]"
+          style={{ background: '#0d0d18' }}
+          animate={{ width: showChat ? 320 : 0 }}
+          transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
+          <div className="w-[320px] h-full flex flex-col">{ChatContent()}</div>
+        </motion.div>
 
       </div>
 
