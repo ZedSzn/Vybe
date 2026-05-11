@@ -926,7 +926,7 @@ export default function ChatPage() {
 
   return (
     <div className="h-screen bg-black overflow-hidden font-space flex flex-col">
-      <div className="flex-1 flex overflow-hidden min-h-0">
+      <div className="flex-1 flex overflow-hidden min-h-0 relative">
 
         {/* ── Fixed overlays ───────────────────────────────────────── */}
 
@@ -961,7 +961,7 @@ export default function ChatPage() {
 
         {/* Email verification */}
         {user && !user.emailVerified && status === 'matched' && (
-          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm pointer-events-none">
+          <div className="fixed bottom-28 lg:bottom-24 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm pointer-events-none">
             <div className="bg-blue-500/15 border border-blue-500/30 rounded-2xl px-4 py-3 flex items-center gap-3 backdrop-blur-sm pointer-events-auto">
               <span className="text-sm">📧</span>
               <p className="text-blue-300 text-xs flex-1">Verify your email to unlock all features</p>
@@ -1029,8 +1029,8 @@ export default function ChatPage() {
         <AnimatePresence>
           {showTip && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 flex items-end justify-center pb-24 px-4"
-              style={{ background: 'rgba(0,0,0,0.75)' }} onClick={() => setShowTip(false)}>
+              className="fixed inset-0 z-50 flex items-end justify-center px-4"
+              style={{ background: 'rgba(0,0,0,0.75)', paddingBottom: 'calc(84px + 8px)' }} onClick={() => setShowTip(false)}>
               <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#09091a)' }}>
                 <div className="flex items-center justify-between mb-4">
@@ -1072,8 +1072,8 @@ export default function ChatPage() {
         <AnimatePresence>
           {showGifts && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 flex items-end justify-center pb-20 px-4"
-              style={{ background: 'rgba(0,0,0,0.82)' }} onClick={() => { setShowGifts(false); setGiftError('') }}>
+              className="fixed inset-0 z-50 flex items-end justify-center px-4"
+              style={{ background: 'rgba(0,0,0,0.82)', paddingBottom: 'calc(84px + 8px)' }} onClick={() => { setShowGifts(false); setGiftError('') }}>
               <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#060612)', maxHeight: '72vh', overflowY: 'auto' }}>
                 <div className="flex items-center justify-between mb-3">
@@ -1160,7 +1160,7 @@ export default function ChatPage() {
           <div className="flex-1 flex flex-col lg:flex-row gap-1.5 p-2 min-h-0">
 
             {/* Stranger video — dominant */}
-            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-1 min-h-0">
+            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-[3] min-h-0">
               {status === 'searching' ? (
                 /* ── Radar pulse while searching ── */
                 <div className="w-full h-full flex flex-col items-center justify-center gap-6 px-4">
@@ -1289,7 +1289,7 @@ export default function ChatPage() {
             </div>
 
             {/* Your video */}
-            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-1 min-h-0">
+            <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-[2] min-h-0">
               <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
               {!hasCamera && (
@@ -1348,7 +1348,7 @@ export default function ChatPage() {
           </div>
 
           {/* ── BOTTOM CONTROL BAR ──────────────────────────────────── */}
-          <div className="flex-shrink-0 px-4 sm:px-6 py-3" style={{ background: '#0a0a0f', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex-shrink-0 px-4 sm:px-6 py-3 relative z-40" style={{ background: '#0a0a0f', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
 
             {/* Desktop */}
             <div className="hidden lg:flex items-center justify-between max-w-5xl mx-auto">
@@ -1494,25 +1494,35 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* ── Desktop chat sidebar ─────────────────────────────────── */}
-        <motion.div className="hidden lg:flex flex-col flex-shrink-0 overflow-hidden border-l border-white/[0.07]"
-          style={{ background: '#0d0d18' }}
-          animate={{ width: showChat ? 320 : 0 }}
-          transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
-          <div className="w-[320px] h-full flex flex-col">{ChatContent()}</div>
-        </motion.div>
+        {/* ── Desktop chat overlay — absolute, never shrinks video ── */}
+        <AnimatePresence>
+          {showChat && (
+            <motion.div
+              className="hidden lg:flex flex-col absolute top-0 right-0 bottom-0 z-30 border-l border-white/[0.07]"
+              style={{ width: 320, background: 'rgba(10,10,20,0.92)', backdropFilter: 'blur(24px)' }}
+              initial={{ x: 320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 320, opacity: 0 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+            >
+              <div className="w-[320px] h-full flex flex-col">{ChatContent()}</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
 
-      {/* ── Mobile chat slide-up ─────────────────────────────────── */}
+      {/* ── Mobile chat slide-up — sits above the control bar, partial height ── */}
       <AnimatePresence>
         {showChat && (
-          <motion.div className="lg:hidden fixed inset-x-0 z-40 flex flex-col rounded-t-2xl border-t border-white/10"
-            style={{ bottom: 0, height: '62%', background: '#0d0d18' }}
-            initial={{ y: '100%' }}
+          <motion.div
+            className="lg:hidden fixed inset-x-0 z-30 flex flex-col rounded-t-2xl border-t border-white/10"
+            style={{ bottom: '84px', height: '42%', background: 'rgba(10,10,20,0.92)', backdropFilter: 'blur(24px)' }}
+            initial={{ y: '110%' }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
+            exit={{ y: '110%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+          >
             <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0"><div className="w-8 h-1 rounded-full bg-white/20" /></div>
             {ChatContent()}
           </motion.div>
