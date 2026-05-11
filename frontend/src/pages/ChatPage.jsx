@@ -14,6 +14,25 @@ import VybeCoin from '../components/VybeCoin'
 import { VybeBadge } from '../components/VybeBadge'
 import { playMatchFound, playGiftReceived, playGiftSent, playTipSent, playClick } from '../utils/sounds'
 
+// Defined outside ChatPage so the reference is stable across re-renders (no unmount flicker)
+function BarBtn({ onClick, children, label, active, red, disabled: dis, title: t }) {
+  return (
+    <button onClick={onClick} disabled={dis} title={t || label}
+      className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl select-none disabled:opacity-40 disabled:cursor-default
+        ${red ? 'text-red-400/80 hover:text-red-300' : active ? 'text-vybe-purple-light' : 'text-white/55 hover:text-white'}`}
+      style={{ transition: 'color 150ms ease' }}>
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+        style={{
+          transition: 'background-color 150ms ease, box-shadow 150ms ease',
+          background: red && active ? '#dc2626' : red ? 'rgba(239,68,68,0.15)' : active ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)',
+        }}>
+        {children}
+      </div>
+      <span className="text-[9px] font-medium tracking-wide whitespace-nowrap">{label}</span>
+    </button>
+  )
+}
+
 const CHAT_BADGES = [
   { id: 'spark', name: 'Spark',         cost: 75,  rarity: 'common',    label: 'Common'    },
   { id: 'star',  name: 'Shooting Star', cost: 120, rarity: 'common',    label: 'Common'    },
@@ -675,7 +694,7 @@ export default function ChatPage() {
         </div>
         <button
           onClick={() => setShowChat(false)}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all"
+          className="w-7 h-7 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
         >
           <X size={15} />
         </button>
@@ -712,12 +731,12 @@ export default function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             placeholder={status === 'matched' ? 'Type a message…' : 'Connecting…'}
             disabled={status !== 'matched'}
-            className="flex-1 px-3.5 py-2.5 bg-white/6 border border-white/10 rounded-xl text-white placeholder-white/30 text-sm focus:border-vybe-purple focus:outline-none transition-all disabled:opacity-40"
+            className="flex-1 px-3.5 py-2.5 bg-white/6 border border-white/10 rounded-xl text-white placeholder-white/30 text-sm focus:border-vybe-purple focus:outline-none transition-colors disabled:opacity-40"
           />
           <button
             type="submit"
             disabled={!input.trim() || status !== 'matched'}
-            className="w-10 h-10 rounded-xl bg-vybe-purple text-white flex items-center justify-center hover:bg-vybe-purple-light transition-all disabled:opacity-40 flex-shrink-0"
+            className="w-10 h-10 rounded-xl bg-vybe-purple text-white flex items-center justify-center hover:bg-vybe-purple-light transition-colors disabled:opacity-40 flex-shrink-0"
           >
             <Send size={13} />
           </button>
@@ -777,7 +796,7 @@ export default function ChatPage() {
           <button
             onClick={handleUnbanPurchase}
             disabled={unbanLoading}
-            className="w-full max-w-xs py-3.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+            className="w-full max-w-xs py-3.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-black text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mb-3"
           >
             {unbanLoading ? (
               <><Loader2 size={15} className="animate-spin" /> Processing…</>
@@ -797,18 +816,7 @@ export default function ChatPage() {
     )
   }
 
-  // ── Bottom-bar button helpers ────────────────────────────────────────────
-  const BarBtn = ({ onClick, children, label, active, red, disabled: dis, title: t }) => (
-    <button onClick={onClick} disabled={dis} title={t || label}
-      className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all select-none disabled:opacity-40 disabled:cursor-default
-        ${red ? 'text-red-400/80 hover:text-red-300' : active ? 'text-vybe-purple-light' : 'text-white/55 hover:text-white'}`}>
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all
-        ${red && active ? 'bg-red-600' : red ? 'bg-red-500/15 hover:bg-red-500/25' : active ? 'bg-vybe-purple/25' : 'bg-white/[0.06] hover:bg-white/10'}`}>
-        {children}
-      </div>
-      <span className="text-[9px] font-medium tracking-wide whitespace-nowrap">{label}</span>
-    </button>
-  )
+  // BarBtn is defined at module level (stable reference — no per-render flicker)
 
   return (
     <div className="h-screen bg-black overflow-hidden font-space flex flex-col">
@@ -940,15 +948,15 @@ export default function ChatPage() {
                   const canAfford = v <= coins
                   return (
                     <button key={v} onClick={() => canAfford && setTipAmount(String(v))} disabled={!canAfford}
-                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${tipAmount===String(v)?'bg-blue-600 text-white':canAfford?'bg-white/8 text-white/60 hover:bg-white/12':'bg-white/4 text-white/25 cursor-not-allowed'}`}>
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${tipAmount===String(v)?'bg-blue-600 text-white':canAfford?'bg-white/8 text-white/60 hover:bg-white/12':'bg-white/4 text-white/25 cursor-not-allowed'}`}>
                       {v}
                     </button>
                   )
                 })}</div>
-                <div className="flex gap-2 mb-3"><input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" max={coins} className="flex-1 bg-white/6 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500/60 transition-all" /></div>
+                <div className="flex gap-2 mb-3"><input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" max={coins} className="flex-1 bg-white/6 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500/60 transition-colors" /></div>
                 {tipAmount && parseInt(tipAmount) >= 10 && parseInt(tipAmount) <= coins && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
                 {tipAmount && parseInt(tipAmount) > coins && <p className="text-red-400 text-xs mb-3 text-center">You only have {coins} spendable coins</p>}
-                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins} className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50 transition-all" style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 20px rgba(27,98,245,0.4)' }}>{tipLoading?'Sending…':`Send ${tipAmount||0} coins`}</button>
+                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins} className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 20px rgba(27,98,245,0.4)' }}>{tipLoading?'Sending…':`Send ${tipAmount||0} coins`}</button>
               </motion.div>
             </motion.div>
           )}
@@ -979,7 +987,7 @@ export default function ChatPage() {
                     const canAfford = coins >= badge.cost
                     return (
                       <button key={badge.id} onClick={() => handleSendGift(badge.id)} disabled={giftSending || !canAfford}
-                        className="w-full flex items-center gap-3 p-3 rounded-2xl transition-all text-left"
+                        className="w-full flex items-center gap-3 p-3 rounded-2xl transition-colors text-left"
                         style={{ background: rc.bg, border: `1px solid ${rc.border}`, opacity: canAfford ? 1 : 0.35, boxShadow: canAfford ? `0 0 14px ${rc.glow}` : 'none' }}>
                         <div className="flex-shrink-0"><VybeBadge id={badge.id} size={44}/></div>
                         <div className="flex-1 min-w-0">
@@ -1125,7 +1133,7 @@ export default function ChatPage() {
                         onClick={handleAddFriend}
                         disabled={friendReqLoad}
                         title="Add friend"
-                        className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 transition-all hover:scale-110 active:scale-95"
+                        className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95"
                         style={{ background: 'rgba(27,98,245,0.25)', border: '1px solid rgba(27,98,245,0.4)', color: '#60a5fa', flexShrink: 0 }}
                       >
                         {friendReqLoad ? <Loader2 size={9} className="animate-spin" /> : <UserPlus size={9} />}
@@ -1140,11 +1148,12 @@ export default function ChatPage() {
                   <button
                     onClick={() => setStrangerHidden(h => !h)}
                     title={strangerHidden ? 'Reveal camera (exit safe mode)' : 'Safe Mode — hide camera instantly'}
-                    className="flex items-center justify-center w-7 h-7 rounded-lg transition-all"
+                    className="flex items-center justify-center w-7 h-7 rounded-lg"
                     style={{
                       backdropFilter: 'blur(12px)',
                       background: strangerHidden ? 'rgba(245,158,11,0.22)' : 'rgba(0,0,0,0.55)',
                       border:     strangerHidden ? '1px solid rgba(245,158,11,0.5)' : '1px solid rgba(255,255,255,0.1)',
+                      transition: 'background-color 150ms ease, border-color 150ms ease',
                     }}>
                     <Shield size={13} style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.6)' }} />
                   </button>
@@ -1185,7 +1194,7 @@ export default function ChatPage() {
                     </div>
                     <button
                       onClick={() => setStrangerHidden(false)}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold active:scale-95"
                       style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)', color: '#fbbf24' }}
                     >
                       <Video size={12} /> Reveal Camera
@@ -1278,15 +1287,16 @@ export default function ChatPage() {
                 {/* Safe Mode — always accessible, not behind a menu */}
                 <button
                   onClick={() => setStrangerHidden(h => !h)}
-                  className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all select-none"
-                  style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.55)' }}
+                  className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl select-none"
+                  style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.55)', transition: 'color 150ms ease' }}
                   title={strangerHidden ? 'Reveal camera (exit safe mode)' : 'Safe Mode — hide stranger\'s camera'}
                 >
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center"
                     style={{
                       background:  strangerHidden ? 'rgba(245,158,11,0.18)' : 'rgba(255,255,255,0.06)',
                       border:      strangerHidden ? '1px solid rgba(245,158,11,0.45)' : '1px solid transparent',
                       boxShadow:   strangerHidden ? '0 0 14px rgba(245,158,11,0.3)' : 'none',
+                      transition:  'background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease',
                     }}>
                     <Shield size={17} />
                   </div>
@@ -1322,19 +1332,19 @@ export default function ChatPage() {
                 {status === 'matched' ? (
                   <>
                     <motion.button onClick={handleSkip} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white/80 hover:text-white transition-all"
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white/80"
                       style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
                       <SkipForward size={16} /> Next
                     </motion.button>
                     <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-all"
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 text-white font-bold text-sm"
                       style={{ boxShadow: '0 0 20px rgba(220,38,38,0.3)' }}>
                       <PhoneOff size={16} /> End Chat
                     </motion.button>
                   </>
                 ) : (
                   <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                    className="flex items-center gap-2 px-8 py-2.5 rounded-xl font-bold text-sm transition-all"
+                    className="flex items-center gap-2 px-8 py-2.5 rounded-xl font-bold text-sm"
                     style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
                     <PhoneOff size={16} /> Cancel &amp; Leave
                   </motion.button>
@@ -1374,15 +1384,16 @@ export default function ChatPage() {
               </button>
               {/* Safe Mode */}
               <button onClick={() => setStrangerHidden(h => !h)} className="flex flex-col items-center gap-1">
-                <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all"
+                <div className="w-11 h-11 rounded-full flex items-center justify-center"
                   style={{
                     background:  strangerHidden ? 'rgba(245,158,11,0.2)'   : 'rgba(255,255,255,0.1)',
                     border:      strangerHidden ? '1.5px solid rgba(245,158,11,0.5)' : '1.5px solid transparent',
                     boxShadow:   strangerHidden ? '0 0 18px rgba(245,158,11,0.35)' : 'none',
+                    transition:  'background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease',
                   }}>
-                  <Shield size={19} style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.8)' }} />
+                  <Shield size={19} style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.8)', transition: 'color 150ms ease' }} />
                 </div>
-                <span className="text-[9px] transition-all" style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}>
+                <span className="text-[9px]" style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.4)', transition: 'color 150ms ease' }}>
                   {strangerHidden ? 'Reveal' : 'Safe'}
                 </span>
               </button>
