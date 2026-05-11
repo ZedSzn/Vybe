@@ -595,7 +595,7 @@ function kickBannedUser(userId, reason, banType, banExpiresAt) {
 app.post('/api/auth/register', async (req, res) => {
   if (!dbConnected) return res.status(503).json({ error: 'Database not connected. Check MONGODB_URI in your .env file.' });
   try {
-    const { username, email, password, referralCode: refCode } = req.body;
+    const { username, email, password, referralCode: refCode, gender } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
     const exists = await User.findOne({ $or: [{ email }, { username }] });
@@ -621,6 +621,7 @@ app.post('/api/auth/register', async (req, res) => {
     const user = await User.create({
       username, email,
       password: await bcrypt.hash(password, 10),
+      gender: ['male', 'female', 'other'].includes(gender) ? gender : 'other',
       isAdmin,
       emailVerified: isAdmin,
       emailVerificationToken:   isAdmin ? null : verifyToken,

@@ -15,6 +15,7 @@ export default function AuthPage() {
   const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState('')
   const [verifyBanner, setVerifyBanner] = useState(false)
+  const [gender, setGender]             = useState('')
   // Pre-fill referral code from URL (?ref=CODE)
   const refCode = searchParams.get('ref') || ''
 
@@ -31,7 +32,7 @@ export default function AuthPage() {
         navigate('/')
       } else {
         if (!username.trim()) { setError('Username is required'); setLoading(false); return }
-        await register(username, email, password, refCode)
+        await register(username, email, password, refCode, gender || 'other')
         // Navigate immediately — verification is optional (soft)
         navigate('/')
       }
@@ -129,19 +130,42 @@ export default function AuthPage() {
                 className="space-y-4"
               >
                 {tab === 'signup' && (
-                  <div>
-                    <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-widest mb-1.5">
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="cooluser123"
-                      required
-                      className="w-full px-4 py-3 bg-vybe-card2 border border-vybe-border rounded-xl text-white placeholder-vybe-muted text-sm focus:border-vybe-purple focus:shadow-purple-sm transition-all"
-                    />
-                  </div>
+                  <>
+                    <div>
+                      <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-widest mb-1.5">
+                        Username
+                      </label>
+                      <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="cooluser123"
+                        required
+                        className="w-full px-4 py-3 bg-vybe-card2 border border-vybe-border rounded-xl text-white placeholder-vybe-muted text-sm focus:border-vybe-purple focus:shadow-purple-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-widest mb-1.5">
+                        I am a
+                      </label>
+                      <div className="flex gap-2">
+                        {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }, { value: 'other', label: 'Other' }].map(({ value, label }) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setGender(value)}
+                            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all border ${
+                              gender === value
+                                ? 'bg-vybe-purple text-white border-vybe-purple'
+                                : 'bg-vybe-card2 text-vybe-muted border-vybe-border hover:text-white'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div>

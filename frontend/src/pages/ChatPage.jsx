@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
-  MessageSquare, X, ChevronRight, User, Shield, Loader2, Ban, Gift, UserX, Camera,
+  MessageSquare, X, ChevronRight, Globe, Shield, Loader2, Ban, Gift, UserX, Camera,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -1131,7 +1131,7 @@ export default function ChatPage() {
                     <div className="absolute rounded-full animate-ping border border-purple-500/28" style={{ width: 128, height: 128, animationDuration: '2.2s', animationDelay: '0.73s' }} />
                     <div className="absolute rounded-full animate-ping border border-purple-500/14" style={{ width: 128, height: 128, animationDuration: '2.2s', animationDelay: '1.46s' }} />
                     <div className="rounded-full flex items-center justify-center" style={{ width: 128, height: 128, background: '#0d0d18', border: '1.5px solid rgba(124,58,237,0.45)', boxShadow: '0 0 32px rgba(124,58,237,0.2)', zIndex: 1, position: 'relative' }}>
-                      <User size={40} className="text-white/20" />
+                      <Globe size={40} className="text-vybe-purple/40" style={{ animation: 'spin 8s linear infinite' }} />
                     </div>
                   </div>
                   <div className="text-center">
@@ -1225,24 +1225,12 @@ export default function ChatPage() {
                 <div className="absolute inset-0 bg-black/80 flex items-center justify-center"><VideoOff size={26} className="text-white/30" /></div>
               )}
 
-              {/* You label + HD badge */}
-              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
+              {/* You label */}
+              <div className="absolute top-3 left-3 z-10">
                 <div className="px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
                   <span className="text-white font-bold text-[13px]">You</span>
                 </div>
-                {hasCamera && !videoOff && (
-                  <div className="px-2 py-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
-                    <span className="text-white/55 text-[10px] font-black tracking-widest">HD</span>
-                  </div>
-                )}
               </div>
-
-              {/* Flip camera */}
-              {hasCamera && !videoOff && (
-                <button onClick={flipCamera} className="absolute top-3 right-3 z-10 w-9 h-9 rounded-xl flex items-center justify-center hover:bg-white/20 transition-all" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }} title="Flip camera">
-                  <Camera size={15} className="text-white" />
-                </button>
-              )}
 
               {/* Squad mates */}
               {mateSocketIds.map((sid) => (
@@ -1408,13 +1396,19 @@ export default function ChatPage() {
       </div>
 
       {/* ── Mobile chat slide-up ─────────────────────────────────── */}
-      <motion.div className="lg:hidden fixed inset-x-0 bottom-0 flex flex-col rounded-t-2xl border-t border-white/10 z-40"
-        style={{ height: '65%', background: '#0d0d18' }}
-        animate={{ y: showChat ? 0 : '100%' }}
-        transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
-        <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0"><div className="w-8 h-1 rounded-full bg-white/20" /></div>
-        <ChatContent />
-      </motion.div>
+      <AnimatePresence>
+        {showChat && (
+          <motion.div className="lg:hidden fixed inset-x-0 z-40 flex flex-col rounded-t-2xl border-t border-white/10"
+            style={{ bottom: 0, height: '62%', background: '#0d0d18' }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
+            <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0"><div className="w-8 h-1 rounded-full bg-white/20" /></div>
+            <ChatContent />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Report modal ─────────────────────────────────────────── */}
       <AnimatePresence>
