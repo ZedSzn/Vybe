@@ -16,7 +16,7 @@ const PLANS = [
   {
     id:    'basic',
     name:  'Basic',
-    price: '$6.99',
+    price: '£6.99',
     per:   'per month',
     color: '#1B62F5',
     glow:  'rgba(27,98,245,0.3)',
@@ -32,7 +32,7 @@ const PLANS = [
   {
     id:    'vip',
     name:  'VIP',
-    price: '$12.99',
+    price: '£12.99',
     per:   'per month',
     color: '#f59e0b',
     glow:  'rgba(245,158,11,0.35)',
@@ -174,6 +174,22 @@ export default function SubscriptionPage() {
 
   return (
     <div className="min-h-screen font-space" style={{ background: '#07090f' }}>
+      {/* Stripe redirect overlay */}
+      <AnimatePresence>
+        {(actionLoad === 'basic' || actionLoad === 'vip' || actionLoad === 'portal') && (
+          <motion.div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4"
+            style={{ background: 'rgba(7,9,15,0.92)', backdropFilter: 'blur(16px)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          >
+            <Loader2 size={40} className="animate-spin" style={{ color: '#4b88f7' }} />
+            <p className="text-white font-bold text-base">
+              {actionLoad === 'portal' ? 'Opening billing portal…' : 'Opening secure checkout…'}
+            </p>
+            <p className="text-white/40 text-sm">You'll be redirected to Stripe</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '-5%', right: '15%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(245,158,11,0.06) 0%, transparent 65%)' }} />

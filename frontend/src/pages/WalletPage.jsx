@@ -14,11 +14,11 @@ import {
 } from 'lucide-react'
 
 const PACKAGES = [
-  { id: 'coins_100',  coins: 100,  amountUsd: 1.49,  label: '100 Coins',   popular: false },
-  { id: 'coins_500',  coins: 500,  amountUsd: 5.99,  label: '500 Coins',   popular: false },
-  { id: 'coins_1200', coins: 1200, amountUsd: 11.99, label: '1,200 Coins', popular: true  },
-  { id: 'coins_3000', coins: 3000, amountUsd: 24.99, label: '3,000 Coins', popular: false },
-  { id: 'coins_7000', coins: 7000, amountUsd: 49.99, label: '7,000 Coins', popular: false },
+  { id: 'coins_100',  coins: 100,  amountGbp: 1.49,  label: '100 Coins',   popular: false },
+  { id: 'coins_500',  coins: 500,  amountGbp: 5.99,  label: '500 Coins',   popular: false },
+  { id: 'coins_1200', coins: 1200, amountGbp: 11.99, label: '1,200 Coins', popular: true  },
+  { id: 'coins_3000', coins: 3000, amountGbp: 24.99, label: '3,000 Coins', popular: false },
+  { id: 'coins_7000', coins: 7000, amountGbp: 49.99, label: '7,000 Coins', popular: false },
 ]
 
 const EARN_METHODS = [
@@ -226,7 +226,7 @@ export default function WalletPage() {
     setErrorMsg('')
     try {
       await axios.post('/api/cashout/request', { coinsAmount: amount })
-      setSuccessMsg(`Cash out request submitted for ${amount.toLocaleString()} coins ($${((amount / 1000) * 4.20).toFixed(2)})`)
+      setSuccessMsg(`Cash out request submitted for ${amount.toLocaleString()} coins (£${((amount / 1000) * 4.20).toFixed(2)})`)
       setCashoutAmount('')
       loadCashouts()
       refreshCoins()
@@ -318,6 +318,20 @@ export default function WalletPage() {
 
   return (
     <div className="min-h-screen bg-vybe-bg flex flex-col font-space">
+      {/* Stripe redirect overlay — shown while waiting for redirect */}
+      <AnimatePresence>
+        {buyLoading && (
+          <motion.div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4"
+            style={{ background: 'rgba(7,9,15,0.92)', backdropFilter: 'blur(16px)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          >
+            <Loader2 size={40} className="animate-spin" style={{ color: '#4b88f7' }} />
+            <p className="text-white font-bold text-base">Opening secure checkout…</p>
+            <p className="text-white/40 text-sm">You'll be redirected to Stripe</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <Navbar />
       <main className="flex-1 pt-20 pb-16 px-4 max-w-4xl mx-auto w-full">
 
@@ -602,7 +616,7 @@ export default function WalletPage() {
                       className="px-4 py-2 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-60"
                       style={{ background: pkg.popular ? 'linear-gradient(135deg,#a855f7,#7c3aed)' : 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: pkg.popular ? '0 0 16px rgba(168,85,247,0.4)' : '0 0 16px rgba(27,98,245,0.4)' }}
                     >
-                      {buyLoading === pkg.id ? '…' : `$${pkg.amountUsd.toFixed(2)}`}
+                      {buyLoading === pkg.id ? <Loader2 size={13} className="animate-spin inline" /> : `£${pkg.amountGbp.toFixed(2)}`}
                     </button>
                   </div>
                 </motion.div>

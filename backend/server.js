@@ -910,11 +910,11 @@ app.post('/api/unban/create-session', authMiddleware, async (req, res) => {
 
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      automatic_payment_methods: { enabled: true },
       mode: 'payment',
       line_items: [{
         price_data: {
-          currency: 'usd',
+          currency: 'gbp',
           product_data: { name: 'Vybe Ban Removal', description: `Remove your ${user.banType} ban from Vybe` },
           unit_amount: 499,
         },
@@ -1803,12 +1803,12 @@ app.post('/api/coins/buy', authMiddleware, async (req, res) => {
     if (!stripe) return res.status(503).json({ error: 'Payment system unavailable. Configure STRIPE_SECRET_KEY.' });
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      automatic_payment_methods: { enabled: true },
       mode: 'payment',
       line_items: [{ price_data: { currency: 'gbp', product_data: { name: pkg.label, description: `Add ${pkg.coins} coins to your Vybe wallet` }, unit_amount: Math.round(pkg.amountGbp * 100) }, quantity: 1 }],
       metadata: { userId: String(req.user._id), purchaseType: 'coin_purchase', coinsAmount: String(pkg.coins), packageId: pkg.id },
       success_url: `${clientUrl}/wallet?success=1&coins=${pkg.coins}`,
-      cancel_url:  `${clientUrl}/wallet`,
+      cancel_url:  `${clientUrl}/coins`,
     });
     await CoinPurchase.create({ userId: req.user._id, stripeSessionId: session.id, coinsAmount: pkg.coins, gbpAmount: pkg.amountGbp });
     res.json({ url: session.url });
@@ -2033,7 +2033,7 @@ app.post('/api/subscription/create', authMiddleware, async (req, res) => {
 
     const sessionParams = {
       mode: 'subscription',
-      payment_method_types: ['card'],
+      automatic_payment_methods: { enabled: true },
       line_items: [{
         price_data: {
           currency: 'gbp',

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Loader2, Shield } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -14,7 +14,7 @@ const PACKAGES = [
   {
     id:      'coins_100',
     coins:   100,
-    price:   '$1.49',
+    price:   '£1.49',
     label:   'Starter',
     icon:    null,
     color:   '#6b7280',
@@ -25,7 +25,7 @@ const PACKAGES = [
   {
     id:      'coins_500',
     coins:   500,
-    price:   '$5.99',
+    price:   '£5.99',
     label:   'Popular',
     icon:    '⚡',
     color:   '#1B62F5',
@@ -36,7 +36,7 @@ const PACKAGES = [
   {
     id:      'coins_1200',
     coins:   1200,
-    price:   '$11.99',
+    price:   '£11.99',
     label:   'Best Value',
     icon:    '⭐',
     color:   '#a855f7',
@@ -47,7 +47,7 @@ const PACKAGES = [
   {
     id:      'coins_3000',
     coins:   3000,
-    price:   '$24.99',
+    price:   '£24.99',
     label:   'Mega',
     icon:    '👑',
     color:   '#f59e0b',
@@ -58,7 +58,7 @@ const PACKAGES = [
   {
     id:      'coins_7000',
     coins:   7000,
-    price:   '$49.99',
+    price:   '£49.99',
     label:   'Ultimate',
     icon:    '🚀',
     color:   '#22c55e',
@@ -115,6 +115,20 @@ export default function CoinsPage() {
 
   return (
     <div className="min-h-screen font-space" style={{ background: '#07090f' }}>
+      {/* Stripe redirect overlay */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4"
+            style={{ background: 'rgba(7,9,15,0.92)', backdropFilter: 'blur(16px)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          >
+            <Loader2 size={40} className="animate-spin" style={{ color: '#4b88f7' }} />
+            <p className="text-white font-bold text-base">Opening secure checkout…</p>
+            <p className="text-white/40 text-sm">You'll be redirected to Stripe</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '-5%', left: '20%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(27,98,245,0.07) 0%, transparent 65%)' }} />
