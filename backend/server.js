@@ -1690,11 +1690,11 @@ app.post('/api/user/watch-ad', authMiddleware, async (req, res) => {
 });
 
 const GIFTS = {
-  like:    { name: 'Like',    cost: 10,  emoji: '👍' },
-  heart:   { name: 'Heart',   cost: 25,  emoji: '❤️' },
-  fire:    { name: 'Fire',    cost: 50,  emoji: '🔥' },
-  diamond: { name: 'Diamond', cost: 150, emoji: '💎' },
-  crown:   { name: 'Crown',   cost: 300, emoji: '👑' },
+  spark:  { name: 'Spark',         cost: 75,  rarity: 'common',    label: 'Common'    },
+  star:   { name: 'Shooting Star', cost: 120, rarity: 'common',    label: 'Common'    },
+  flame:  { name: 'Flame',         cost: 250, rarity: 'rare',      label: 'Rare'      },
+  orb:    { name: 'Lightning Orb', cost: 480, rarity: 'epic',      label: 'Epic'      },
+  crown:  { name: 'Cosmic Crown',  cost: 950, rarity: 'legendary', label: 'Legendary' },
 };
 
 const BADGE_DEFS = [
@@ -1844,7 +1844,7 @@ app.post('/api/user/send-gift', authMiddleware, async (req, res) => {
       $push: { coinHistory: { $each: [{ amount: -gift.cost, reason: `Sent gift: ${gift.name}`, type: 'gift', timestamp: new Date() }], $slice: -200 } },
     });
     const recipientData = onlineUsers.get(recipientSocketId);
-    const payload = { gift: gift.name, emoji: gift.emoji, giftId, from: sender.username };
+    const payload = { gift: gift.name, rarity: gift.rarity, giftId, from: sender.username };
     // Notify recipient
     io.to(recipientSocketId).emit('gift-received', payload);
     // Award notification to recipient if logged in
@@ -2288,8 +2288,10 @@ function matchPrivateRoom(code, room) {
   const roomId = `priv_${Date.now()}`;
   activePairs.set(hostSid,  [guestSid]);
   activePairs.set(guestSid, [hostSid]);
-  io.to(hostSid).emit('match-found',  { room: roomId, peers: [{ socketId: guestSid, isInitiator: true  }], squadMates: [], isInitiator: true,  partnerId: guestSid });
-  io.to(guestSid).emit('match-found', { room: roomId, peers: [{ socketId: hostSid,  isInitiator: false }], squadMates: [], isInitiator: false, partnerId: hostSid  });
+  const hostData  = onlineUsers.get(hostSid)  || {};
+  const guestData = onlineUsers.get(guestSid) || {};
+  io.to(hostSid).emit('match-found',  { room: roomId, peers: [{ socketId: guestSid, isInitiator: true  }], squadMates: [], isInitiator: true,  partnerId: guestSid, partnerUsername: guestData.username || null, partnerUserId: guestData.userId || null });
+  io.to(guestSid).emit('match-found', { room: roomId, peers: [{ socketId: hostSid,  isInitiator: false }], squadMates: [], isInitiator: false, partnerId: hostSid,  partnerUsername: hostData.username  || null, partnerUserId: hostData.userId  || null });
   privateRooms.delete(code);
 }
 
@@ -2348,7 +2350,15 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
     const peers      = others.map(peerId => ({ socketId: peerId, isInitiator: sid > peerId }));
     const myGroup    = mySquadSocketIds.includes(sid) ? mySquadSocketIds : opponentSocketIds;
     const squadMates = myGroup.filter(x => x !== sid);
-    io.to(sid).emit('match-found', { room, peers, squadMates, isInitiator: peers[0]?.isInitiator ?? true, partnerId: peers[0]?.socketId ?? null });
+    const partnerSid = peers.find(p => !squadMates.includes(p.socketId))?.socketId ?? null;
+    const partnerData = partnerSid ? onlineUsers.get(partnerSid) : null;
+    io.to(sid).emit('match-found', {
+      room, peers, squadMates,
+      isInitiator: peers[0]?.isInitiator ?? true,
+      partnerId: peers[0]?.socketId ?? null,
+      partnerUsername: partnerData?.username || null,
+      partnerUserId: partnerData?.userId || null,
+    });
   }
 }
 

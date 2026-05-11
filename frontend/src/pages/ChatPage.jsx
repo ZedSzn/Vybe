@@ -10,6 +10,138 @@ import { io } from 'socket.io-client'
 import SimplePeer from 'simple-peer'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import VybeCoin from '../components/VybeCoin'
+
+const CHAT_BADGES = [
+  { id: 'spark', name: 'Spark',         cost: 75,  rarity: 'common',    label: 'Common'    },
+  { id: 'star',  name: 'Shooting Star', cost: 120, rarity: 'common',    label: 'Common'    },
+  { id: 'flame', name: 'Flame',         cost: 250, rarity: 'rare',      label: 'Rare'      },
+  { id: 'orb',   name: 'Lightning Orb', cost: 480, rarity: 'epic',      label: 'Epic'      },
+  { id: 'crown', name: 'Cosmic Crown',  cost: 950, rarity: 'legendary', label: 'Legendary' },
+]
+
+const RARITY_COLORS = {
+  common:    { bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.3)',  glow: 'rgba(148,163,184,0.2)',  text: '#94a3b8' },
+  rare:      { bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.4)',   glow: 'rgba(59,130,246,0.25)',  text: '#60a5fa' },
+  epic:      { bg: 'rgba(168,85,247,0.12)',  border: 'rgba(168,85,247,0.4)',   glow: 'rgba(168,85,247,0.3)',   text: '#c084fc' },
+  legendary: { bg: 'rgba(251,191,36,0.12)',  border: 'rgba(251,191,36,0.45)', glow: 'rgba(251,191,36,0.35)',  text: '#fbbf24' },
+}
+
+function BadgeSpark({ size = 60 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bspark_g" x1="34" y1="6" x2="26" y2="54" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#fef9c3"/><stop offset="0.5" stopColor="#fde047"/><stop offset="1" stopColor="#ca8a04"/>
+        </linearGradient>
+        <filter id="bspark_f" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <circle cx="30" cy="30" r="28" fill="rgba(251,191,36,0.07)"/>
+      <polygon points="34,6 20,30 30,30 26,54 40,30 30,30" fill="url(#bspark_g)" filter="url(#bspark_f)"/>
+    </svg>
+  )
+}
+function BadgeStar({ size = 60 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bstar_g" x1="30" y1="8" x2="30" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#e0f2fe"/><stop offset="0.5" stopColor="#38bdf8"/><stop offset="1" stopColor="#0369a1"/>
+        </linearGradient>
+        <filter id="bstar_f" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <circle cx="30" cy="30" r="28" fill="rgba(56,189,248,0.07)"/>
+      <path d="M30,9 L33.8,21.5 L47,21.5 L36.1,29.3 L39.9,41.8 L30,34 L20.1,41.8 L23.9,29.3 L13,21.5 L26.2,21.5 Z" fill="url(#bstar_g)" filter="url(#bstar_f)"/>
+      <circle cx="22" cy="13" r="1.5" fill="white" opacity="0.7"/>
+      <circle cx="44" cy="20" r="1" fill="white" opacity="0.5"/>
+      <circle cx="15" cy="28" r="1.2" fill="white" opacity="0.4"/>
+    </svg>
+  )
+}
+function BadgeFlame({ size = 60 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bflame_g" x1="30" y1="8" x2="30" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#fff7ed"/><stop offset="0.25" stopColor="#fb923c"/><stop offset="0.65" stopColor="#ef4444"/><stop offset="1" stopColor="#7f1d1d"/>
+        </linearGradient>
+        <linearGradient id="bflame_g2" x1="30" y1="18" x2="30" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#fef9c3"/><stop offset="1" stopColor="#fb923c"/>
+        </linearGradient>
+        <filter id="bflame_f" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <circle cx="30" cy="30" r="28" fill="rgba(239,68,68,0.07)"/>
+      <path d="M30,8 C30,8 40,18 38,28 C36,38 42,38 38,44 C35,48 33,52 30,52 C27,52 25,48 22,44 C18,38 24,38 22,28 C20,18 30,8 30,8 Z" fill="url(#bflame_g)" filter="url(#bflame_f)"/>
+      <path d="M30,18 C30,18 36,24 34,31 C33,35 36,37 34,41 C33,44 31,46 30,46 C29,46 27,44 26,41 C24,37 27,35 26,31 C24,24 30,18 30,18 Z" fill="url(#bflame_g2)" opacity="0.85"/>
+    </svg>
+  )
+}
+function BadgeOrb({ size = 60 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="borb_g" cx="38%" cy="32%" r="60%">
+          <stop stopColor="#e0e7ff"/><stop offset="0.45" stopColor="#818cf8"/><stop offset="1" stopColor="#312e81"/>
+        </radialGradient>
+        <radialGradient id="borb_glow" cx="50%" cy="50%" r="50%">
+          <stop stopColor="rgba(99,102,241,0.5)"/><stop offset="1" stopColor="rgba(99,102,241,0)"/>
+        </radialGradient>
+        <filter id="borb_f" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <circle cx="30" cy="30" r="28" fill="url(#borb_glow)"/>
+      <circle cx="30" cy="30" r="21" fill="url(#borb_g)" filter="url(#borb_f)"/>
+      <circle cx="30" cy="30" r="21" stroke="rgba(165,180,252,0.55)" strokeWidth="1.5" fill="none"/>
+      <path d="M17,22 L24,28 L19,31 L27,39" stroke="#c7d2fe" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+      <path d="M43,24 L36,30 L41,33 L33,42" stroke="#a5b4fc" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.75"/>
+      <ellipse cx="23" cy="21" rx="5" ry="3" fill="white" opacity="0.22"/>
+    </svg>
+  )
+}
+function BadgeCrown({ size = 60 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bcrown_g" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop stopColor="#fef3c7"/><stop offset="0.35" stopColor="#fbbf24"/><stop offset="0.7" stopColor="#d97706"/><stop offset="1" stopColor="#78350f"/>
+        </linearGradient>
+        <radialGradient id="bcrown_glow" cx="50%" cy="50%" r="50%">
+          <stop stopColor="rgba(251,191,36,0.45)"/><stop offset="1" stopColor="rgba(251,191,36,0)"/>
+        </radialGradient>
+        <filter id="bcrown_f" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="3.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <circle cx="30" cy="30" r="28" fill="url(#bcrown_glow)"/>
+      <path d="M10,44 L14,25 L22,36 L30,18 L38,36 L46,25 L50,44 Z" fill="url(#bcrown_g)" filter="url(#bcrown_f)"/>
+      <rect x="10" y="42" width="40" height="6" rx="2" fill="url(#bcrown_g)"/>
+      <circle cx="14" cy="24" r="3.5" fill="#a78bfa" stroke="#ede9fe" strokeWidth="1"/>
+      <circle cx="30" cy="17" r="4" fill="#f472b6" stroke="#fce7f3" strokeWidth="1"/>
+      <circle cx="46" cy="24" r="3.5" fill="#34d399" stroke="#d1fae5" strokeWidth="1"/>
+      <ellipse cx="24" cy="38" rx="5" ry="2.5" fill="white" opacity="0.18"/>
+    </svg>
+  )
+}
+function BadgeIcon({ id, size = 60 }) {
+  if (id === 'spark') return <BadgeSpark size={size} />
+  if (id === 'star')  return <BadgeStar  size={size} />
+  if (id === 'flame') return <BadgeFlame size={size} />
+  if (id === 'orb')   return <BadgeOrb   size={size} />
+  if (id === 'crown') return <BadgeCrown size={size} />
+  return <BadgeSpark size={size} />
+}
 
 const REPORT_REASONS = [
   { id: 'nudity',     label: '🔞 Nudity / Sexual content' },
@@ -54,10 +186,11 @@ export default function ChatPage() {
 
   const [adminWarning,   setAdminWarning]     = useState('')
   const [showGifts,      setShowGifts]        = useState(false)
-  const [gifts,          setGifts]            = useState({})
   const [giftSending,    setGiftSending]      = useState(false)
   const [giftError,      setGiftError]        = useState('')
   const [giftReceived,   setGiftReceived]     = useState(null)
+  const [partnerUsername, setPartnerUsername] = useState(null)
+  const [strangerHidden,  setStrangerHidden]  = useState(false)
   const [blockLoading,   setBlockLoading]     = useState(false)
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
@@ -98,7 +231,6 @@ export default function ChatPage() {
   const partnerUidRef   = useRef(null)
 
   useEffect(() => {
-    axios.get('/api/gifts').then(({ data }) => setGifts(data.gifts)).catch(() => {})
     // Always fetch fresh balance — localStorage can be stale
     if (user) {
       axios.get('/api/coins').then(({ data }) => {
@@ -336,7 +468,7 @@ export default function ChatPage() {
 
       socket.on('waiting', () => { if (mounted) setStatus('searching') })
 
-      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId }) => {
+      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername }) => {
         if (!mounted) return
 
         // Destroy existing peers
@@ -350,6 +482,8 @@ export default function ChatPage() {
         setReportSent(false)
         setStatus('matched')
         setSquadMates(mates || [])
+        setStrangerHidden(false)
+        setPartnerUsername(pUsername || null)
 
         // Support both new format (peers array) and legacy 1v1 format
         const peersToCreate = (peers && peers.length > 0)
@@ -407,20 +541,20 @@ export default function ChatPage() {
         setTimeout(() => setAdminWarning(''), 8000)
       })
 
-      socket.on('gift-received', ({ emoji, from }) => {
+      socket.on('gift-received', ({ rarity, giftId, from }) => {
         if (!mounted) return
         const id = Date.now() + Math.random()
-        setFloatingGifts((prev) => [...prev, { id, emoji: emoji || '🎁', from, fromMe: false }])
-        setTimeout(() => setFloatingGifts((prev) => prev.filter((g) => g.id !== id)), 2800)
-        setGiftReceived({ gift: emoji || '🎁', from })
-        setTimeout(() => setGiftReceived(null), 3500)
+        setFloatingGifts((prev) => [...prev, { id, badgeId: giftId || 'spark', rarity: rarity || 'common', from, fromMe: false }])
+        setTimeout(() => setFloatingGifts((prev) => prev.filter((g) => g.id !== id)), 3200)
+        setGiftReceived({ badgeId: giftId || 'spark', rarity: rarity || 'common', from })
+        setTimeout(() => setGiftReceived(null), 4000)
       })
 
-      socket.on('gift-sent', ({ emoji }) => {
+      socket.on('gift-sent', ({ rarity, giftId }) => {
         if (!mounted) return
         const id = Date.now() + Math.random()
-        setFloatingGifts((prev) => [...prev, { id, emoji: emoji || '🎁', fromMe: true }])
-        setTimeout(() => setFloatingGifts((prev) => prev.filter((g) => g.id !== id)), 2800)
+        setFloatingGifts((prev) => [...prev, { id, badgeId: giftId || 'spark', rarity: rarity || 'common', fromMe: true }])
+        setTimeout(() => setFloatingGifts((prev) => prev.filter((g) => g.id !== id)), 3200)
       })
 
       socket.on('tip-received', ({ from, yourShare, coins: newCoins, cashableCoins: newCashable }) => {
@@ -798,13 +932,19 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* Floating gifts */}
+        {/* Floating badges */}
         <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
           <AnimatePresence>
             {floatingGifts.map((g) => (
-              <motion.div key={g.id} initial={{ opacity: 1, y: 0, x: '-50%', scale: 1 }} animate={{ opacity: 0, y: -280, scale: 1.6 }} exit={{ opacity: 0 }}
-                transition={{ duration: 2.4, ease: 'easeOut' }} className="absolute text-6xl select-none"
-                style={{ left: g.fromMe ? '30%' : '70%', bottom: '25%' }}>{g.emoji}</motion.div>
+              <motion.div key={g.id}
+                initial={{ opacity: 1, y: 0, x: '-50%', scale: 0.6 }}
+                animate={{ opacity: 0, y: -220, scale: 2 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 2.8, ease: 'easeOut' }}
+                className="absolute select-none"
+                style={{ left: g.fromMe ? '28%' : '72%', bottom: '22%' }}>
+                <BadgeIcon id={g.badgeId} size={64} />
+              </motion.div>
             ))}
           </AnimatePresence>
         </div>
@@ -820,13 +960,29 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* Gift received toast */}
+        {/* Badge received overlay */}
         <AnimatePresence>
           {giftReceived && (
-            <motion.div initial={{ opacity: 0, scale: 0.8, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8 }}
-              className="fixed bottom-28 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl bg-vybe-card2 border border-blue-500/25 text-center backdrop-blur-sm">
-              <p className="text-3xl mb-1">{giftReceived.gift}</p>
-              <p className="text-white text-sm font-bold">{giftReceived.from} sent you a gift!</p>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+              <motion.div
+                initial={{ scale: 0.5, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                className="flex flex-col items-center gap-3 px-8 py-6 rounded-3xl text-center"
+                style={{
+                  background: 'rgba(8,8,20,0.88)',
+                  backdropFilter: 'blur(20px)',
+                  border: `1.5px solid ${RARITY_COLORS[giftReceived.rarity]?.border || 'rgba(255,255,255,0.2)'}`,
+                  boxShadow: `0 0 48px ${RARITY_COLORS[giftReceived.rarity]?.glow || 'rgba(255,255,255,0.1)'}`,
+                }}>
+                <BadgeIcon id={giftReceived.badgeId} size={96} />
+                <div>
+                  <p className="text-white font-black text-base">{giftReceived.from}</p>
+                  <p className="text-sm mt-0.5 font-semibold" style={{ color: RARITY_COLORS[giftReceived.rarity]?.text }}>
+                    sent you a {CHAT_BADGES.find(b => b.id === giftReceived.badgeId)?.name || 'badge'}!
+                  </p>
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -846,12 +1002,12 @@ export default function ChatPage() {
                 {/* Coin balance breakdown */}
                 <div className="flex gap-2 mb-4">
                   <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
-                    <p className="text-yellow-300 font-black text-sm">🪙 {coins.toLocaleString()}</p>
+                    <p className="text-yellow-300 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {coins.toLocaleString()}</p>
                     <p className="text-white/40 text-[10px] mt-0.5">Spendable</p>
                   </div>
                   {cashableCoins > 0 && (
                     <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
-                      <p className="text-green-400 font-black text-sm">🪙 {cashableCoins.toLocaleString()}</p>
+                      <p className="text-green-400 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {cashableCoins.toLocaleString()}</p>
                       <p className="text-white/40 text-[10px] mt-0.5">Earned (cashable)</p>
                     </div>
                   )}
@@ -874,28 +1030,45 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* Gift picker */}
+        {/* Badge picker */}
         <AnimatePresence>
           {showGifts && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 flex items-end justify-center pb-24 px-4"
-              style={{ background: 'rgba(0,0,0,0.75)' }} onClick={() => { setShowGifts(false); setGiftError('') }}>
-              <motion.div initial={{ y: 40 }} animate={{ y: 0 }} exit={{ y: 40 }} onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#09091a)' }}>
-                <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-white font-black text-sm">Send a Gift 🎁</h3>
-                  <div className="flex items-center gap-3"><span className="text-yellow-300 text-xs font-black">🪙 {coins.toLocaleString()}</span><button onClick={() => { setShowGifts(false); setGiftError('') }} className="text-white/40 hover:text-white"><X size={16} /></button></div>
+              className="fixed inset-0 z-40 flex items-end justify-center pb-20 px-4"
+              style={{ background: 'rgba(0,0,0,0.82)' }} onClick={() => { setShowGifts(false); setGiftError('') }}>
+              <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#060612)', maxHeight: '72vh', overflowY: 'auto' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-white font-black text-sm">Send a Badge</h3>
+                    <p className="text-white/30 text-[10px] mt-0.5">Animates on both screens</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1 text-yellow-300 text-xs font-black"><VybeCoin size={12}/> {coins.toLocaleString()}</span>
+                    <button onClick={() => { setShowGifts(false); setGiftError('') }} className="text-white/40 hover:text-white"><X size={16} /></button>
+                  </div>
                 </div>
-                <p className="text-white/30 text-[10px] mb-4">Gift flies across both screens when sent</p>
                 {giftError && <p className="text-red-400 text-xs mb-3 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">{giftError}</p>}
-                <div className="grid grid-cols-5 gap-2">
-                  {Object.entries(gifts).map(([id, g]) => (
-                    <button key={id} onClick={() => handleSendGift(id)} disabled={giftSending||coins<g.cost}
-                      className="flex flex-col items-center gap-1 p-3 rounded-2xl bg-white/4 border border-white/8 hover:border-blue-500/40 hover:bg-blue-500/8 transition-all disabled:opacity-40">
-                      <span className="text-2xl">{g.emoji||g.name.split(' ')[0]}</span>
-                      <span className="text-yellow-300 text-[10px] font-black">{g.cost}🪙</span>
-                    </button>
-                  ))}
+                <div className="space-y-2.5">
+                  {CHAT_BADGES.map((badge) => {
+                    const rc = RARITY_COLORS[badge.rarity]
+                    const canAfford = coins >= badge.cost
+                    return (
+                      <button key={badge.id} onClick={() => handleSendGift(badge.id)} disabled={giftSending || !canAfford}
+                        className="w-full flex items-center gap-3 p-3 rounded-2xl transition-all text-left"
+                        style={{ background: rc.bg, border: `1px solid ${rc.border}`, opacity: canAfford ? 1 : 0.35, boxShadow: canAfford ? `0 0 14px ${rc.glow}` : 'none' }}>
+                        <div className="flex-shrink-0"><BadgeIcon id={badge.id} size={44}/></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-bold text-sm leading-none">{badge.name}</p>
+                          <p className="text-[11px] mt-1 font-semibold" style={{ color: rc.text }}>{badge.label}</p>
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <VybeCoin size={11}/>
+                          <span className="text-yellow-300 font-black text-sm">{badge.cost.toLocaleString()}</span>
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
               </motion.div>
             </motion.div>
@@ -989,14 +1162,25 @@ export default function ChatPage() {
                 </div>
               )}
 
-              {/* Stranger label */}
+              {/* Stranger label + streamer hide button */}
               {status === 'matched' && (
-                <div className="absolute top-3 left-3 z-10">
+                <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
                   <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
-                    <span className="text-white font-bold text-[13px]">Stranger</span>
+                    <span className="text-white font-bold text-[13px]">
+                      {partnerUsername ? `@${partnerUsername}` : 'Stranger'}
+                    </span>
                     <span className="text-white/40 text-[11px]">• Online</span>
                   </div>
+                  <button
+                    onClick={() => setStrangerHidden(h => !h)}
+                    title={strangerHidden ? 'Show camera' : 'Hide camera (streamer mode)'}
+                    className="flex items-center justify-center w-7 h-7 rounded-lg transition-all"
+                    style={{ background: strangerHidden ? 'rgba(239,68,68,0.25)' : 'rgba(0,0,0,0.55)', backdropFilter: 'blur(12px)', border: strangerHidden ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(255,255,255,0.1)' }}>
+                    {strangerHidden
+                      ? <VideoOff size={13} className="text-red-400"/>
+                      : <Video size={13} className="text-white/60"/>}
+                  </button>
                 </div>
               )}
 
@@ -1008,6 +1192,21 @@ export default function ChatPage() {
               )}
 
               <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
+              {/* Streamer mode — hide stranger's camera */}
+              <AnimatePresence>
+                {strangerHidden && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
+                    className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
+                    style={{ background: '#060612', backdropFilter: 'blur(24px)' }}>
+                    <VideoOff size={32} className="text-white/20"/>
+                    <p className="text-white/30 text-xs font-semibold">Camera hidden</p>
+                    <button onClick={() => setStrangerHidden(false)}
+                      className="px-4 py-1.5 rounded-lg text-xs font-bold text-white/60 border border-white/10 hover:border-white/20 transition-all">
+                      Show
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Your video */}

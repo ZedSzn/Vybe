@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Loader2, Trash2, UserX, Download, AlertTriangle, Check, Play, Mail, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Loader2, Trash2, UserX, Download, AlertTriangle, Check, Mail, ShieldCheck } from 'lucide-react'
+import VybeCoin from '../components/VybeCoin'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -92,7 +93,6 @@ function CoinsTab() {
   const [coins,   setCoins]   = useState(0)
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
-  const [watching, setWatching] = useState(false)
 
   useEffect(() => {
     axios.get('/api/user/coins/history')
@@ -101,37 +101,14 @@ function CoinsTab() {
       .finally(() => setLoading(false))
   }, [])
 
-  const watchAd = async () => {
-    setWatching(true)
-    // Simulate ad for 3 seconds
-    await new Promise((r) => setTimeout(r, 3000))
-    try {
-      const { data } = await axios.post('/api/user/watch-ad')
-      setCoins(data.coins)
-      setHistory((h) => [{ amount: 5, reason: 'Watched an ad', timestamp: new Date() }, ...h])
-    } catch (err) {
-      alert(err.response?.data?.error || 'Could not watch ad')
-    }
-    setWatching(false)
-  }
-
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-vybe-purple" size={28} /></div>
 
   return (
     <div className="space-y-4">
       {/* Balance card */}
-      <div className="glass-card rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <p className="text-vybe-muted text-xs font-bold uppercase tracking-wider mb-1">Coin Balance</p>
-          <p className="text-4xl font-black text-white">{coins.toLocaleString()} <span className="text-2xl">🪙</span></p>
-        </div>
-        <button
-          onClick={watchAd}
-          disabled={watching}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-green-600/20 border border-green-500/30 text-green-400 hover:bg-green-600/30 text-sm font-bold transition-all disabled:opacity-50"
-        >
-          {watching ? <><Loader2 size={14} className="animate-spin" /> Watching…</> : <><Play size={14} /> Watch Ad (+5 🪙)</>}
-        </button>
+      <div className="glass-card rounded-2xl p-6">
+        <p className="text-vybe-muted text-xs font-bold uppercase tracking-wider mb-2">Coin Balance</p>
+        <p className="text-4xl font-black text-white flex items-center gap-2">{coins.toLocaleString()} <VybeCoin size={28}/></p>
       </div>
 
       {/* Earn ways */}
@@ -139,20 +116,19 @@ function CoinsTab() {
         <h3 className="text-sm font-black text-white mb-4">Ways to earn coins</h3>
         <div className="space-y-2.5">
           {[
-            { icon: '📅', action: 'Daily login',              reward: '+10 🪙' },
-            { icon: '🔥', action: '3-day streak',             reward: '+30 🪙' },
-            { icon: '🔥', action: '7-day streak',             reward: '+100 🪙' },
-            { icon: '🔥', action: '30-day streak',            reward: '+500 🪙' },
-            { icon: '💬', action: 'Every 10 chats completed', reward: '+5 🪙'  },
-            { icon: '👥', action: 'Friend signs up via referral', reward: '+50 🪙 each' },
-            { icon: '📺', action: 'Watch an ad',              reward: '+5 🪙 (10x/day)' },
-          ].map(({ icon, action, reward }) => (
+            { icon: '📅', action: 'Daily login',                  coins: 10,  suffix: '' },
+            { icon: '🔥', action: '3-day streak',                 coins: 30,  suffix: '' },
+            { icon: '🔥', action: '7-day streak',                 coins: 100, suffix: '' },
+            { icon: '🔥', action: '30-day streak',                coins: 500, suffix: '' },
+            { icon: '💬', action: 'Every 10 chats completed',     coins: 5,   suffix: '' },
+            { icon: '👥', action: 'Friend signs up via referral', coins: 50,  suffix: ' each' },
+          ].map(({ icon, action, coins: c, suffix }) => (
             <div key={action} className="flex items-center justify-between py-2 border-b border-vybe-border/40 last:border-0">
               <div className="flex items-center gap-2.5">
                 <span className="text-base">{icon}</span>
                 <span className="text-white/80 text-sm">{action}</span>
               </div>
-              <span className="text-yellow-300 text-sm font-bold">{reward}</span>
+              <span className="text-yellow-300 text-sm font-bold flex items-center gap-1">+{c}<VybeCoin size={12}/>{suffix}</span>
             </div>
           ))}
         </div>
@@ -171,8 +147,8 @@ function CoinsTab() {
                   <p className="text-white text-xs font-semibold">{t.reason}</p>
                   <p className="text-vybe-muted text-[10px]">{new Date(t.timestamp).toLocaleDateString()}</p>
                 </div>
-                <span className={`text-sm font-black ${t.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {t.amount > 0 ? '+' : ''}{t.amount} 🪙
+                <span className={`text-sm font-black flex items-center gap-1 ${t.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {t.amount > 0 ? '+' : ''}{t.amount}<VybeCoin size={12}/>
                 </span>
               </div>
             ))}
