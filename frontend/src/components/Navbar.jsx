@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LogOut, Bell, User, Settings, ChevronDown, Trash2, Wallet, Globe, Users, Crown, Zap, Flame, UserPlus, Medal, AlertTriangle, Megaphone, DollarSign } from 'lucide-react'
+import { LogOut, Bell, User, Settings, ChevronDown, Trash2, Wallet, Globe, Users, Crown, Zap, UserPlus, Medal, AlertTriangle, Megaphone, DollarSign } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
 import { useLang } from '../context/LangContext'
@@ -405,12 +405,6 @@ export default function Navbar({ onPremiumClick }) {
                       </div>
                       <span className="text-yellow-400/50 text-[10px] ml-2">Wallet →</span>
                     </Link>
-                    {(user?.loginStreak ?? 0) > 0 && (
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                        <Flame size={13} className="text-orange-400" />
-                        <span className="text-orange-300 text-[11px] font-bold">{user.loginStreak}-day streak</span>
-                      </div>
-                    )}
                   </motion.div>
 
                   {/* Staggered menu items */}

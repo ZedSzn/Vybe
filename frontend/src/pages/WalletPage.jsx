@@ -6,13 +6,11 @@ import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { VybeCoin } from '../components/VybeCoin'
-import { CoinBalance, CoinSpend, CoinReward, CoinEarn, CoinCashout } from '../components/VybeCoinIcons'
 import { Skeleton } from '../components/Skeleton'
 import EmptyStateIllustration from '../components/EmptyStateIllustration'
 import {
-  Gift, CalendarDays, Flame, MessageCircle, Users, TrendingUp, TrendingDown,
-  Star, BadgeCheck, Crown, Gem, Sparkles, Music2, Globe, Zap, Target,
-  ThumbsUp, Heart, Check, Loader2,
+  Gift, TrendingUp, TrendingDown, Heart, Flame, Gem, Crown, ThumbsUp,
+  Check, Loader2, ArrowRight, DollarSign, ShoppingCart, Users,
 } from 'lucide-react'
 
 const PACKAGES = [
@@ -21,49 +19,6 @@ const PACKAGES = [
   { id: 'coins_1200', coins: 1200, amountGbp: 11.99, label: '1,200 Coins', popular: true  },
   { id: 'coins_3000', coins: 3000, amountGbp: 24.99, label: '3,000 Coins', popular: false },
   { id: 'coins_7000', coins: 7000, amountGbp: 49.99, label: '7,000 Coins', popular: false },
-]
-
-const EARN_METHODS = [
-  { Icon: Gift,          label: 'Sign up bonus',  desc: '100 coins free on registration',  color: '#a78bfa' },
-  { Icon: CalendarDays,  label: 'Daily login',    desc: '10 coins every day you log in',   color: '#60a5fa' },
-  { Icon: Flame,         label: '3-day streak',   desc: '+30 bonus coins',                 color: '#fb923c' },
-  { Icon: Flame,         label: '7-day streak',   desc: '+100 bonus coins',                color: '#f97316' },
-  { Icon: Flame,         label: '30-day streak',  desc: '+500 bonus coins',                color: '#ef4444' },
-  { Icon: MessageCircle, label: 'Every 10 chats', desc: '5 coins per milestone',           color: '#4ade80' },
-  { Icon: Users,         label: 'Refer a friend', desc: '50 coins when they sign up',      color: '#38bdf8' },
-  { Icon: TrendingUp,    label: 'Receive a tip',  desc: 'Goes to your Earn Balance only',  color: '#fbbf24' },
-]
-
-const BADGE_DEFS = [
-  { id: 'star',         name: 'Rising Star',    Icon: Star,       cost: 200,  desc: 'For those making their mark on Vybe',       rarity: 'common'    },
-  { id: 'verified',     name: 'Verified Viber', Icon: BadgeCheck, cost: 500,  desc: 'Gold checkmark — trusted community member', rarity: 'rare'      },
-  { id: 'hot',          name: 'Hot',            Icon: Flame,      cost: 300,  desc: "You're trending on Vybe",                   rarity: 'common'    },
-  { id: 'royalty',      name: 'Royalty',        Icon: Crown,      cost: 1000, desc: 'The most prestigious badge on Vybe',        rarity: 'legendary' },
-  { id: 'diamond',      name: 'Diamond Member', Icon: Gem,        cost: 800,  desc: 'Diamond tier — top 1% of Vybe',            rarity: 'epic'      },
-  { id: 'rainbow',      name: 'Rainbow',        Icon: Sparkles,   cost: 400,  desc: 'Colorful, vibrant and unmissable',          rarity: 'rare'      },
-  { id: 'entertainer',  name: 'Entertainer',    Icon: Music2,     cost: 350,  desc: 'For charismatic and entertaining chatters', rarity: 'uncommon'  },
-  { id: 'globetrotter', name: 'Globetrotter',   Icon: Globe,      cost: 450,  desc: 'Chatted with people from many countries',   rarity: 'rare'      },
-  { id: 'flash',        name: 'Flash',          Icon: Zap,        cost: 250,  desc: 'Fast connector — always in the action',     rarity: 'uncommon'  },
-  { id: 'sharp',        name: 'Sharp',          Icon: Target,     cost: 300,  desc: 'Precision and focus — a premium badge',     rarity: 'common'    },
-]
-
-const RARITY_STYLE = {
-  common:    { label: 'Common',    color: '#9ca3af', bg: 'rgba(156,163,175,0.1)',  border: 'rgba(156,163,175,0.2)'  },
-  uncommon:  { label: 'Uncommon',  color: '#4ade80', bg: 'rgba(74,222,128,0.1)',   border: 'rgba(74,222,128,0.2)'   },
-  rare:      { label: 'Rare',      color: '#60a5fa', bg: 'rgba(96,165,250,0.1)',   border: 'rgba(96,165,250,0.2)'   },
-  epic:      { label: 'Epic',      color: '#c084fc', bg: 'rgba(192,132,252,0.1)',  border: 'rgba(192,132,252,0.2)'  },
-  legendary: { label: 'Legendary', color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.3)'   },
-}
-
-const BORDER_COLORS = [
-  { hex: '#7c3aed', name: 'Purple'  },
-  { hex: '#1b62f5', name: 'Blue'    },
-  { hex: '#ec4899', name: 'Pink'    },
-  { hex: '#f59e0b', name: 'Gold'    },
-  { hex: '#10b981', name: 'Green'   },
-  { hex: '#ef4444', name: 'Red'     },
-  { hex: '#06b6d4', name: 'Cyan'    },
-  { hex: '#ffffff', name: 'White'   },
 ]
 
 const GIFTS_LIST = [
@@ -75,45 +30,28 @@ const GIFTS_LIST = [
 ]
 
 const TX_TYPE_LABELS = {
-  signup:        { label: 'Sign-up bonus',    color: 'text-green-400'  },
-  bonus:         { label: 'Login bonus',      color: 'text-green-400'  },
-  streak:        { label: 'Streak bonus',     color: 'text-orange-400' },
-  referral:      { label: 'Referral',         color: 'text-blue-400'   },
-  ad:            { label: 'Ad reward',        color: 'text-green-400'  },
-  chat_reward:   { label: 'Chat reward',      color: 'text-green-400'  },
-  purchase:      { label: 'Coin purchase',    color: 'text-blue-400'   },
-  tip_received:  { label: 'Tip received',     color: 'text-yellow-400' },
-  tip_sent:      { label: 'Tip sent',         color: 'text-red-400'    },
-  gift:          { label: 'Gift sent',        color: 'text-red-400'    },
-  badge:         { label: 'Badge purchase',   color: 'text-purple-400' },
-  border:        { label: 'Border style',     color: 'text-purple-400' },
-  cashout:       { label: 'Cash out',         color: 'text-purple-400' },
-  cashout_refund:{ label: 'Cashout refund',   color: 'text-green-400'  },
+  signup:        { label: 'Sign-up bonus',  color: 'text-green-400'  },
+  bonus:         { label: 'Login bonus',    color: 'text-green-400'  },
+  streak:        { label: 'Streak bonus',   color: 'text-orange-400' },
+  referral:      { label: 'Referral',       color: 'text-blue-400'   },
+  purchase:      { label: 'Coin purchase',  color: 'text-blue-400'   },
+  tip_received:  { label: 'Tip received',   color: 'text-yellow-400' },
+  tip_sent:      { label: 'Tip sent',       color: 'text-red-400'    },
+  gift:          { label: 'Gift sent',      color: 'text-red-400'    },
+  cashout:       { label: 'Cash out',       color: 'text-purple-400' },
+  cashout_refund:{ label: 'Cashout refund', color: 'text-green-400'  },
 }
-
 
 function TabBtn({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`px-3 sm:px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${active ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'}`}
+      className={`px-3 sm:px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+        active ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'
+      }`}
     >
       {children}
     </button>
-  )
-}
-
-function Tooltip({ text }) {
-  const [show, setShow] = useState(false)
-  return (
-    <span className="relative inline-flex items-center ml-1 cursor-help" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
-      <span className="w-3.5 h-3.5 rounded-full border border-white/20 text-[9px] flex items-center justify-center text-white/40 font-black">?</span>
-      {show && (
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-52 text-[11px] text-white/80 bg-[#1a1a2e] border border-white/10 rounded-xl px-3 py-2 z-50 leading-relaxed pointer-events-none">
-          {text}
-        </span>
-      )}
-    </span>
   )
 }
 
@@ -122,44 +60,22 @@ export default function WalletPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  const [tab, setTab]                   = useState('overview')
-  const [coins, setCoins]               = useState(user?.coins ?? 0)
-  const [cashableCoins, setCashableCoins] = useState(user?.cashableCoins ?? 0)
-  // Only show skeleton if we have no cached data at all — user context often already has balance
+  const [tab, setTab]                     = useState('overview')
+  const [coins, setCoins]                 = useState(user?.coins ?? 0)
+  const [earnings, setEarnings]           = useState(user?.cashableCoins ?? 0)
   const [balanceLoading, setBalanceLoading] = useState(user?.coins == null)
-  const [history, setHistory]           = useState([])
-  const [histLoading, setHistLoading]   = useState(false)
-  const [referralInfo, setReferralInfo] = useState(null)
-  const [cashouts, setCashouts]         = useState([])
-  const [tipsEarned, setTipsEarned]     = useState(0)
-  const [paypalEmail, setPaypalEmail]   = useState('')
-  const [paypalSaving, setPaypalSaving] = useState(false)
+  const [history, setHistory]             = useState([])
+  const [histLoading, setHistLoading]     = useState(false)
+  const [referralInfo, setReferralInfo]   = useState(null)
+  const [cashouts, setCashouts]           = useState([])
+  const [paypalEmail, setPaypalEmail]     = useState('')
+  const [paypalSaving, setPaypalSaving]   = useState(false)
   const [cashoutAmount, setCashoutAmount] = useState('')
   const [cashoutLoading, setCashoutLoading] = useState(false)
-  const [buyLoading, setBuyLoading]     = useState(null)
-  const [successMsg, setSuccessMsg]     = useState('')
-  const [errorMsg, setErrorMsg]         = useState('')
-  const [copied, setCopied]             = useState(false)
-
-  const [streakClaiming, setStreakClaiming] = useState(false)
-  const [streakResult,   setStreakResult]   = useState(null)
-  const [currentStreak,  setCurrentStreak]  = useState(user?.loginStreak ?? 0)
-
-  const claimStreak = async () => {
-    setStreakClaiming(true)
-    try {
-      const { data } = await axios.post('/api/auth/daily-login')
-      setStreakResult(data)
-      if (!data.alreadyClaimed && data.coinsEarned) {
-        setCoins(prev => prev + data.coinsEarned)
-        setCurrentStreak(data.streak)
-      }
-    } catch (err) {
-      const msg = err.response?.data?.error || (err.code === 'ERR_NETWORK' ? 'Server unavailable — try again later' : 'Could not claim')
-      setStreakResult({ error: msg })
-    }
-    setStreakClaiming(false)
-  }
+  const [buyLoading, setBuyLoading]       = useState(null)
+  const [successMsg, setSuccessMsg]       = useState('')
+  const [errorMsg, setErrorMsg]           = useState('')
+  const [copied, setCopied]               = useState(false)
 
   useEffect(() => {
     if (authLoading) return
@@ -171,18 +87,16 @@ export default function WalletPage() {
     if (tabParam) setTab(tabParam)
   }, [user, authLoading, navigate, searchParams])
 
-  // Stable refreshCoins — no user/updateUser dependency to avoid infinite loops
   const refreshCoins = useCallback(async () => {
     try {
       const { data } = await axios.get('/api/user/me')
       setCoins(data.user.coins ?? 0)
-      setCashableCoins(data.user.cashableCoins ?? 0)
-      setTipsEarned(data.user.tipsEarned ?? 0)
+      setEarnings(data.user.cashableCoins ?? 0)
       setPaypalEmail(data.user.paypalEmail ?? '')
     } catch {} finally {
       setBalanceLoading(false)
     }
-  }, []) // intentionally empty — reads from API, not state
+  }, [])
 
   useEffect(() => { refreshCoins() }, [refreshCoins])
 
@@ -192,7 +106,7 @@ export default function WalletPage() {
       const { data } = await axios.get('/api/user/coins/history')
       setHistory(data.history || [])
       setCoins(data.coins ?? 0)
-      setCashableCoins(data.cashableCoins ?? 0)
+      setEarnings(data.cashableCoins ?? 0)
     } catch {}
     setHistLoading(false)
   }, [])
@@ -215,7 +129,7 @@ export default function WalletPage() {
     if (tab === 'history')  loadHistory()
     if (tab === 'referral') loadReferral()
     if (tab === 'cashout')  { loadCashouts(); refreshCoins() }
-  }, [tab]) // only re-fire when tab changes
+  }, [tab])
 
   const handleBuy = async (pkg) => {
     setBuyLoading(pkg.id)
@@ -242,8 +156,8 @@ export default function WalletPage() {
 
   const handleCashout = async () => {
     const amount = parseInt(cashoutAmount, 10)
-    if (!amount || amount < 1000) { setErrorMsg('Minimum cash out is 1,000 cashable coins'); return }
-    if (amount > cashableCoins) { setErrorMsg(`You only have ${cashableCoins.toLocaleString()} cashable coins`); return }
+    if (!amount || amount < 1000) { setErrorMsg('Minimum cash out is 1,000 earnings coins'); return }
+    if (amount > earnings) { setErrorMsg(`You only have ${earnings.toLocaleString()} earnings coins`); return }
     setCashoutLoading(true)
     setErrorMsg('')
     try {
@@ -254,67 +168,6 @@ export default function WalletPage() {
       refreshCoins()
     } catch (e) { setErrorMsg(e.response?.data?.error || 'Failed to submit request') }
     setCashoutLoading(false)
-  }
-
-  const [ownedBadges,    setOwnedBadges]    = useState([])
-  const [equippedBadges, setEquippedBadges] = useState([])
-  const [badgeBuying,    setBadgeBuying]    = useState(null)
-  const [borderColor,    setBorderColor]    = useState('')
-  const [animatedBorder, setAnimatedBorder] = useState(false)
-  const [borderSaving,   setBorderSaving]   = useState(false)
-
-  const loadBadges = useCallback(async () => {
-    try {
-      const { data } = await axios.get('/api/badges/mine')
-      setOwnedBadges(data.owned || [])
-      setEquippedBadges(data.equipped || [])
-      setCoins(data.coins ?? coins)
-    } catch {}
-  }, []) // eslint-disable-line
-
-  useEffect(() => {
-    if (tab === 'spend') loadBadges()
-  }, [tab]) // eslint-disable-line
-
-  useEffect(() => {
-    setBorderColor(user?.borderColor || '')
-    setAnimatedBorder(user?.animatedBorder || false)
-  }, [user?.borderColor, user?.animatedBorder])
-
-  const handleBuyBadge = async (badge) => {
-    setBadgeBuying(badge.id)
-    setErrorMsg('')
-    try {
-      const { data } = await axios.post('/api/badges/buy', { badgeId: badge.id })
-      setCoins(data.coins)
-      setOwnedBadges(prev => [...prev, badge.id])
-      setSuccessMsg(`${badge.name} badge unlocked!`)
-    } catch (e) { setErrorMsg(e.response?.data?.error || 'Purchase failed') }
-    setBadgeBuying(null)
-  }
-
-  const handleToggleEquip = async (badgeId) => {
-    const next = equippedBadges.includes(badgeId)
-      ? equippedBadges.filter(b => b !== badgeId)
-      : equippedBadges.length < 3 ? [...equippedBadges, badgeId] : equippedBadges
-    if (next === equippedBadges) { setErrorMsg('You can only equip 3 badges at once. Unequip one first.'); return }
-    setEquippedBadges(next)
-    try {
-      await axios.put('/api/badges/equip', { equippedBadges: next })
-    } catch (e) { setErrorMsg(e.response?.data?.error || 'Failed to update'); setEquippedBadges(equippedBadges) }
-  }
-
-  const handleSaveBorder = async (newColor, newAnimated) => {
-    setBorderSaving(true)
-    setErrorMsg('')
-    try {
-      const { data } = await axios.put('/api/user/border', { borderColor: newColor, animatedBorder: newAnimated })
-      setCoins(data.coins)
-      setBorderColor(data.borderColor)
-      setAnimatedBorder(data.animatedBorder)
-      setSuccessMsg('Profile border updated!')
-    } catch (e) { setErrorMsg(e.response?.data?.error || 'Failed to update border') }
-    setBorderSaving(false)
   }
 
   const copyReferral = () => {
@@ -332,15 +185,14 @@ export default function WalletPage() {
     rejected: 'bg-red-500/15 text-red-400 border-red-500/25',
   }[s] || '')
 
-  const cardCls = 'rounded-2xl p-5 border border-vybe-border'
+  const cardCls   = 'rounded-2xl p-5 border border-vybe-border'
   const cardStyle = { background: 'linear-gradient(160deg, #0d0d1c 0%, #09091a 100%)' }
-  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-colors'
+  const inputCls  = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-colors'
 
-  const canCashout = cashableCoins >= 1000
+  const canCashout = earnings >= 1000
 
   return (
     <div className="min-h-screen bg-vybe-bg flex flex-col font-space">
-      {/* Stripe redirect overlay — shown while waiting for redirect */}
       <AnimatePresence>
         {buyLoading && (
           <motion.div
@@ -354,13 +206,14 @@ export default function WalletPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
       <Navbar />
       <main className="flex-1 pt-20 pb-16 px-4 max-w-4xl mx-auto w-full">
 
-        {/* Header — dual balance display */}
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-white tracking-tight mb-1">Coin Wallet</h1>
-          <p className="text-vybe-muted text-sm mb-5">Earn, spend, and cash out your coins</p>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight mb-1">Wallet</h1>
+          <p className="text-vybe-muted text-sm mb-5">Buy coins, send gifts, and cash out your earnings</p>
 
           {balanceLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -368,41 +221,35 @@ export default function WalletPage() {
               <Skeleton className="h-[88px]" rounded="rounded-2xl" />
             </div>
           ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Spend Balance */}
-            <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-blue-500/25" style={{ background: 'rgba(27,98,245,0.07)' }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(27,98,245,0.15)' }}>
-                <CoinSpend size={22} />
-              </div>
-              <div>
-                <div className="flex items-center gap-1">
-                  <p className="text-xs font-bold text-blue-400/80 uppercase tracking-wider">Spend Balance</p>
-                  <Tooltip text="Earned from login, streaks, purchases, and referrals. Use for gifts and features." />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Coins */}
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-blue-500/25" style={{ background: 'rgba(27,98,245,0.07)' }}>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(27,98,245,0.15)' }}>
+                  <VybeCoin size={22} />
                 </div>
-                <p className="text-2xl font-extrabold text-white">{coins.toLocaleString()}</p>
-                <p className="text-blue-400/50 text-[11px]">spendable coins</p>
+                <div>
+                  <p className="text-xs font-bold text-blue-400/80 uppercase tracking-wider mb-0.5">Coins</p>
+                  <p className="text-2xl font-extrabold text-white">{coins.toLocaleString()}</p>
+                  <p className="text-blue-400/50 text-[11px]">use to send gifts in chat</p>
+                </div>
               </div>
-            </div>
 
-            {/* Earn Balance */}
-            <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-yellow-500/30" style={{ background: 'rgba(234,179,8,0.07)' }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(234,179,8,0.12)' }}>
-                <CoinEarn size={22} />
-              </div>
-              <div>
-                <div className="flex items-center gap-1">
-                  <p className="text-xs font-bold text-yellow-400/80 uppercase tracking-wider">Earn Balance</p>
-                  <Tooltip text="Tips received from other users. Can only be cashed out — cannot be spent on gifts or features." />
+              {/* Earnings */}
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-green-500/25" style={{ background: 'rgba(34,197,94,0.06)' }}>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34,197,94,0.12)' }}>
+                  <DollarSign size={20} className="text-green-400" />
                 </div>
-                <p className="text-2xl font-extrabold text-yellow-300">{cashableCoins.toLocaleString()}</p>
-                <p className="text-yellow-400/50 text-[11px]">≈ £{((cashableCoins / 1000) * 4.20).toFixed(2)} cashable</p>
+                <div>
+                  <p className="text-xs font-bold text-green-400/80 uppercase tracking-wider mb-0.5">Earnings</p>
+                  <p className="text-2xl font-extrabold text-green-300">{earnings.toLocaleString()}</p>
+                  <p className="text-green-400/50 text-[11px]">≈ £{((earnings / 1000) * 4.20).toFixed(2)} cashable from tips</p>
+                </div>
               </div>
             </div>
-          </div>
           )}
         </div>
 
-        {/* Success / Error banners */}
+        {/* Banners */}
         <AnimatePresence>
           {successMsg && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -426,7 +273,6 @@ export default function WalletPage() {
         <div className="flex flex-wrap items-center gap-1 mb-6 bg-white/3 rounded-2xl p-1">
           {[
             ['overview', 'Overview'],
-            ['spend',    'Spend Coins'],
             ['buy',      'Buy Coins'],
             ['history',  'History'],
             ['referral', 'Refer'],
@@ -436,210 +282,72 @@ export default function WalletPage() {
           ))}
         </div>
 
-        {/* ── OVERVIEW ─────────────────────────────────────────── */}
+        {/* ── OVERVIEW ── */}
         {tab === 'overview' && (
           <div className="grid gap-5">
+            {/* How it works */}
             <div className={cardCls} style={cardStyle}>
-              <h2 className="text-white font-bold text-base mb-4">Ways to Earn Spend Coins</h2>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {EARN_METHODS.map((m, i) => (
-                  <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/4 border border-white/6">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${m.color}18` }}>
-                      <m.Icon size={16} style={{ color: m.color }} />
+              <h2 className="text-white font-bold text-base mb-5">How Gifting Works</h2>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {[
+                  { Icon: ShoppingCart, color: '#4b88f7', step: '1', title: 'Buy Coins', desc: 'Purchase coins with a simple one-time payment via Stripe.' },
+                  { Icon: Gift,         color: '#a855f7', step: '2', title: 'Send Gifts', desc: 'Send gifts to people you meet in video chat — instantly.' },
+                  { Icon: DollarSign,   color: '#22c55e', step: '3', title: 'Cash Out',   desc: 'Recipients earn 70% of every gift and can cash out to PayPal.' },
+                ].map(({ Icon, color, step, title, desc }) => (
+                  <div key={step} className="flex flex-col items-center text-center p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 relative" style={{ background: `${color}18`, border: `1px solid ${color}30` }}>
+                      <Icon size={22} style={{ color }} />
+                      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white" style={{ background: color }}>
+                        {step}
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-white text-sm font-semibold">{m.label}</p>
-                      <p className="text-vybe-muted text-xs">{m.desc}</p>
-                    </div>
+                    <p className="text-white font-bold text-sm mb-1">{title}</p>
+                    <p className="text-vybe-muted text-xs leading-relaxed">{desc}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Daily streak claim */}
-            <div className="rounded-2xl p-5 border border-orange-500/25 flex flex-col sm:flex-row items-center gap-5" style={{ background: 'rgba(249,115,22,0.05)' }}>
-              <div className="flex items-center gap-4 flex-1">
-                <div className="relative flex-shrink-0">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl" style={{ background: 'rgba(249,115,22,0.12)', border: '1.5px solid rgba(249,115,22,0.3)' }}>🔥</div>
-                  {(streakResult?.streak ?? currentStreak) > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center text-[10px] font-black text-white" style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)' }}>
-                      {streakResult?.streak ?? currentStreak}
-                    </span>
-                  )}
-                </div>
-                <div>
-                  <p className="text-white font-bold text-sm">Daily Streak</p>
-                  <p className="text-orange-300/70 text-xs">{streakResult?.streak ?? currentStreak} day{(streakResult?.streak ?? currentStreak) !== 1 ? 's' : ''} — claim +10 <span className="text-yellow-300">coins</span> every day</p>
-                  {streakResult?.alreadyClaimed && <p className="text-green-400 text-xs flex items-center gap-1 mt-0.5"><Check size={11} /> Claimed — come back tomorrow!</p>}
-                  {streakResult && !streakResult.alreadyClaimed && !streakResult.error && <p className="text-green-400 text-xs mt-0.5">+{streakResult.coinsEarned} coins earned!</p>}
-                  {streakResult?.error && <p className="text-red-400 text-xs mt-0.5">{streakResult.error}</p>}
-                </div>
-              </div>
-              {!streakResult?.alreadyClaimed && (
-                <button
-                  onClick={claimStreak}
-                  disabled={streakClaiming}
-                  className="flex-shrink-0 flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-black text-sm text-white disabled:opacity-50 transition-opacity"
-                  style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)', boxShadow: '0 0 18px rgba(249,115,22,0.3)' }}
-                >
-                  {streakClaiming ? <><Loader2 size={14} className="animate-spin" /> Claiming…</> : '📅 Claim Daily'}
-                </button>
-              )}
-            </div>
-
-            <div className="rounded-2xl p-5 border border-yellow-500/20" style={{ background: 'rgba(234,179,8,0.04)' }}>
-              <p className="text-yellow-300 font-bold text-sm mb-1">How Earn Balance works</p>
-              <p className="text-vybe-muted text-xs leading-relaxed">
-                Tips received during video chat go to your Earn Balance (70% cut). Earn Balance can <span className="text-white font-semibold">only be cashed out</span> — it cannot be spent on badges or gifts. Minimum cash out is 1,000 coins.
-              </p>
-            </div>
-
+            {/* Gift options */}
             <div className={cardCls} style={cardStyle}>
-              <p className="text-white font-bold text-sm mb-1">Ways to spend coins</p>
-              <p className="text-vybe-muted text-xs mb-4">Go to the <button className="text-vybe-purple-light underline" onClick={() => setTab('spend')}>Spend Coins</button> tab to buy badges, customise your profile, and send gifts.</p>
-              <div className="flex flex-wrap gap-2">
-                {[{ l:'Custom Badges', c:'200–1000 coins'}, {l:'Profile Border', c:'150 coins'}, {l:'Animated Border', c:'400 coins'}, {l:'Gifts in Chat', c:'10–300 coins'}].map(i => (
-                  <span key={i.l} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)', color: 'rgba(167,139,250,0.9)' }}>
-                    {i.l} <span className="opacity-60">· {i.c}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── SPEND COINS ──────────────────────────────────────── */}
-        {tab === 'spend' && (
-          <div className="grid gap-6">
-
-            {/* Badge Shop */}
-            <div className={cardCls} style={cardStyle}>
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-white font-black text-base">Badge Shop</h2>
-                <span className="text-vybe-muted text-xs">{equippedBadges.length}/3 equipped</span>
-              </div>
-              <p className="text-vybe-muted text-xs mb-5">Purchase badges permanently. Equip up to 3 to display on your profile and during chats.</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {BADGE_DEFS.map(badge => {
-                  const owned    = ownedBadges.includes(badge.id)
-                  const equipped = equippedBadges.includes(badge.id)
-                  const rStyle   = RARITY_STYLE[badge.rarity]
-                  const isLegendary = badge.rarity === 'legendary' || badge.rarity === 'epic'
-                  return (
-                    <motion.div
-                      key={badge.id}
-                      whileHover={{ scale: 1.02 }}
-                      className="relative flex flex-col items-center text-center p-4 rounded-2xl"
-                      style={{
-                        background: owned ? 'rgba(124,58,237,0.1)' : 'rgba(255,255,255,0.03)',
-                        border: equipped ? '1px solid rgba(124,58,237,0.6)' : owned ? `1px solid ${rStyle.border}` : '1px solid rgba(255,255,255,0.07)',
-                        boxShadow: equipped ? '0 0 14px rgba(124,58,237,0.25)' : isLegendary && owned ? `0 0 12px ${rStyle.border}` : 'none',
-                      }}
-                    >
-                      {equipped && (
-                        <span className="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black text-white" style={{ background: '#7c3aed' }}>✓</span>
-                      )}
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-2" style={{ background: rStyle.bg, border: `1px solid ${rStyle.border}` }}>
-                        <badge.Icon size={24} style={{ color: rStyle.color }} />
-                      </div>
-                      <p className="text-white text-xs font-black mb-0.5 leading-tight">{badge.name}</p>
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full mb-2" style={{ background: rStyle.bg, color: rStyle.color }}>{rStyle.label}</span>
-                      <p className="text-vybe-muted text-[10px] leading-relaxed mb-3">{badge.desc}</p>
-                      {owned ? (
-                        <button
-                          onClick={() => handleToggleEquip(badge.id)}
-                          className="w-full py-1.5 rounded-lg text-[11px] font-bold transition-all"
-                          style={equipped
-                            ? { background: 'rgba(124,58,237,0.2)', color: 'rgba(167,139,250,1)', border: '1px solid rgba(124,58,237,0.4)' }
-                            : { background: 'rgba(255,255,255,0.06)', color: 'rgba(200,200,220,0.8)', border: '1px solid rgba(255,255,255,0.1)' }
-                          }
-                        >
-                          {equipped ? 'Unequip' : 'Equip'}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleBuyBadge(badge)}
-                          disabled={badgeBuying === badge.id || coins < badge.cost}
-                          className="w-full py-1.5 rounded-lg text-[11px] font-bold text-white disabled:opacity-40 transition-all"
-                          style={{ background: coins >= badge.cost ? 'linear-gradient(135deg,#7c3aed,#a855f7)' : 'rgba(255,255,255,0.06)' }}
-                        >
-                          {badgeBuying === badge.id ? '…' : (
-                            <span className="flex items-center justify-center gap-1"><CoinSpend size={10} />{badge.cost}</span>
-                          )}
-                        </button>
-                      )}
-                    </motion.div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Profile Border */}
-            <div className={cardCls} style={cardStyle}>
-              <h2 className="text-white font-black text-base mb-1">Profile Border</h2>
-              <p className="text-vybe-muted text-xs mb-4">Customise the ring around your profile picture. One-time cost per change.</p>
-
-              <p className="text-xs font-bold text-vybe-muted uppercase tracking-wider mb-2">Border Colour <span className="normal-case text-yellow-300 font-semibold ml-1">150 coins</span></p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                <button
-                  onClick={() => handleSaveBorder('', animatedBorder)}
-                  disabled={borderSaving}
-                  className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all"
-                  style={{ borderColor: borderColor === '' ? '#7c3aed' : 'rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)' }}
-                  title="No border"
-                >✕</button>
-                {BORDER_COLORS.map(c => (
-                  <button
-                    key={c.hex}
-                    onClick={() => handleSaveBorder(c.hex, animatedBorder)}
-                    disabled={borderSaving || borderColor === c.hex}
-                    className="w-8 h-8 rounded-full border-2 transition-all disabled:scale-110"
-                    style={{ background: c.hex, borderColor: borderColor === c.hex ? '#fff' : 'transparent', opacity: borderColor === c.hex ? 1 : 0.7 }}
-                    title={c.name}
-                  />
-                ))}
-              </div>
-
-              <p className="text-xs font-bold text-vybe-muted uppercase tracking-wider mb-2">Animated Border <span className="normal-case text-yellow-300 font-semibold ml-1">400 coins</span></p>
-              <button
-                onClick={() => handleSaveBorder(borderColor, !animatedBorder)}
-                disabled={borderSaving}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
-                style={{ background: animatedBorder ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.03)', border: animatedBorder ? '1px solid rgba(124,58,237,0.4)' : '1px solid rgba(255,255,255,0.08)' }}
-              >
-                <div className="w-10 h-10 rounded-full flex-shrink-0" style={{ background: animatedBorder ? 'conic-gradient(#7c3aed,#1b62f5,#ec4899,#7c3aed)' : 'rgba(255,255,255,0.1)', animation: animatedBorder ? 'spin 2s linear infinite' : 'none' }} />
-                <div className="text-left">
-                  <p className="text-white text-sm font-bold">{animatedBorder ? 'Animated — Active' : 'Animated Border'}</p>
-                  <p className="text-vybe-muted text-xs">Glowing rotating ring around your profile picture</p>
-                </div>
-              </button>
-              <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-            </div>
-
-            {/* Gifts */}
-            <div className={cardCls} style={cardStyle}>
-              <h2 className="text-white font-black text-base mb-1">Gifts During Chat</h2>
-              <p className="text-vybe-muted text-xs mb-4">Send gifts to the person you're chatting with. Coins are spent when you tap Send.</p>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-4">
+              <h2 className="text-white font-bold text-base mb-1">Available Gifts</h2>
+              <p className="text-vybe-muted text-xs mb-4">Send these during any video chat. Coins are spent when you tap send.</p>
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-5">
                 {GIFTS_LIST.map(g => (
-                  <div key={g.id} className="flex flex-col items-center text-center p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div key={g.id} className="flex flex-col items-center text-center p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1.5" style={{ background: `${g.color}18`, border: `1px solid ${g.color}30` }}>
                       <g.Icon size={20} style={{ color: g.color }} />
                     </div>
-                    <p className="text-white text-xs font-bold mb-1">{g.name}</p>
-                    <span className="flex items-center gap-0.5 text-[10px] font-semibold text-yellow-300"><CoinSpend size={9} />{g.cost}</span>
+                    <p className="text-white text-xs font-bold mb-0.5">{g.name}</p>
+                    <span className="flex items-center gap-0.5 text-[10px] font-semibold text-yellow-300">
+                      <VybeCoin size={9} />{g.cost}
+                    </span>
                   </div>
                 ))}
               </div>
-              <button onClick={() => navigate('/chat')} className="w-full py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg,#7c3aed,#1b62f5)' }}>
-                Start a Chat to Send Gifts
+              <button
+                onClick={() => navigate('/chat')}
+                className="w-full py-3 rounded-xl text-sm font-extrabold text-white flex items-center justify-center gap-2"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#1b62f5)', boxShadow: '0 0 20px rgba(124,58,237,0.25)' }}
+              >
+                Start a Chat <ArrowRight size={15} />
               </button>
             </div>
 
+            {/* Earnings info */}
+            <div className="rounded-2xl p-5 border border-green-500/20" style={{ background: 'rgba(34,197,94,0.04)' }}>
+              <div className="flex items-center gap-2 mb-1">
+                <DollarSign size={15} className="text-green-400" />
+                <p className="text-green-300 font-bold text-sm">How Earnings Work</p>
+              </div>
+              <p className="text-vybe-muted text-xs leading-relaxed">
+                When someone sends you a gift in chat, 70% goes straight to your Earnings balance. Once you reach 1,000 earnings coins (≈ £4.20), you can request a PayPal payout in the <button className="text-white font-semibold underline" onClick={() => setTab('cashout')}>Cash Out</button> tab.
+              </p>
+            </div>
           </div>
         )}
 
-        {/* ── BUY COINS ────────────────────────────────────────── */}
+        {/* ── BUY COINS ── */}
         {tab === 'buy' && (
           <div className={`${cardCls} space-y-4`} style={cardStyle}>
             <h2 className="text-white font-bold text-base">Choose a Package</h2>
@@ -659,7 +367,7 @@ export default function WalletPage() {
                     </span>
                   )}
                   <div className="flex items-center justify-between mb-3">
-                    <CoinBalance size={28} />
+                    <VybeCoin size={28} />
                     <span className="text-2xl font-extrabold text-yellow-300">{pkg.label}</span>
                   </div>
                   <div className="flex items-end justify-between">
@@ -667,7 +375,10 @@ export default function WalletPage() {
                     <button
                       disabled={buyLoading === pkg.id}
                       className="px-4 py-2 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-60"
-                      style={{ background: pkg.popular ? 'linear-gradient(135deg,#a855f7,#7c3aed)' : 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: pkg.popular ? '0 0 16px rgba(168,85,247,0.4)' : '0 0 16px rgba(27,98,245,0.4)' }}
+                      style={{
+                        background: pkg.popular ? 'linear-gradient(135deg,#a855f7,#7c3aed)' : 'linear-gradient(135deg,#1b62f5,#4b88f7)',
+                        boxShadow: pkg.popular ? '0 0 16px rgba(168,85,247,0.4)' : '0 0 16px rgba(27,98,245,0.4)',
+                      }}
                     >
                       {buyLoading === pkg.id ? <Loader2 size={13} className="animate-spin inline" /> : `£${pkg.amountGbp.toFixed(2)}`}
                     </button>
@@ -681,7 +392,7 @@ export default function WalletPage() {
           </div>
         )}
 
-        {/* ── HISTORY ──────────────────────────────────────────── */}
+        {/* ── HISTORY ── */}
         {tab === 'history' && (
           <div className={cardCls} style={cardStyle}>
             <h2 className="text-white font-bold text-base mb-4">Transaction History</h2>
@@ -709,13 +420,13 @@ export default function WalletPage() {
               >
                 <EmptyStateIllustration variant="wallet" size={96} />
                 <p className="text-white/70 text-sm font-bold mt-2 mb-1">No transactions yet</p>
-                <p className="text-white/30 text-xs">Buy coins or earn rewards to see your history here</p>
+                <p className="text-white/30 text-xs">Buy coins or receive gifts to see your history here</p>
               </motion.div>
             ) : (
               <div className="space-y-1 max-h-[520px] overflow-y-auto pr-1">
                 {history.map((tx, i) => {
                   const meta = TX_TYPE_LABELS[tx.type] || { label: tx.type || '—', color: tx.amount > 0 ? 'text-green-400' : 'text-red-400' }
-                  const earnable = tx.type === 'tip_received' || tx.type === 'cashout' || tx.type === 'cashout_refund'
+                  const isEarning = tx.type === 'tip_received' || tx.type === 'cashout' || tx.type === 'cashout_refund'
                   return (
                     <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-white/3 transition-colors">
                       <div className="flex items-center gap-3 min-w-0">
@@ -734,9 +445,7 @@ export default function WalletPage() {
                         <span className={`text-sm font-extrabold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
                           {tx.amount > 0 ? '+' : ''}{tx.amount}
                         </span>
-                        {earnable && (
-                          <span className="text-[10px] text-yellow-400/70">earn bal</span>
-                        )}
+                        {isEarning && <span className="text-[10px] text-green-400/60">earnings</span>}
                         <span className="text-vybe-muted/50 text-[10px]">
                           {new Date(tx.timestamp).toLocaleDateString()}
                         </span>
@@ -749,7 +458,7 @@ export default function WalletPage() {
           </div>
         )}
 
-        {/* ── REFERRAL ─────────────────────────────────────────── */}
+        {/* ── REFERRAL ── */}
         {tab === 'referral' && (
           <div className="grid gap-5">
             <div className={cardCls} style={cardStyle}>
@@ -762,7 +471,11 @@ export default function WalletPage() {
                     <button
                       onClick={copyReferral}
                       className="px-4 py-3 rounded-xl text-sm font-bold transition-all"
-                      style={{ background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(27,98,245,0.15)', border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(27,98,245,0.3)'}`, color: copied ? '#4ade80' : '#4b88f7' }}
+                      style={{
+                        background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(27,98,245,0.15)',
+                        border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(27,98,245,0.3)'}`,
+                        color: copied ? '#4ade80' : '#4b88f7',
+                      }}
                     >
                       {copied ? '✓ Copied!' : 'Copy'}
                     </button>
@@ -774,7 +487,7 @@ export default function WalletPage() {
                     </div>
                     <div className="px-4 py-3 rounded-xl bg-white/4 border border-white/6 text-center">
                       <div className="flex items-center justify-center gap-1 mb-0.5">
-                        <CoinReward size={16} />
+                        <VybeCoin size={16} />
                         <p className="text-2xl font-extrabold text-yellow-300">{(referralInfo.referralCount || 0) * 50}</p>
                       </div>
                       <p className="text-vybe-muted text-xs mt-0.5">Coins earned</p>
@@ -806,41 +519,34 @@ export default function WalletPage() {
           </div>
         )}
 
-        {/* ── CASH OUT ─────────────────────────────────────────── */}
+        {/* ── CASH OUT ── */}
         {tab === 'cashout' && (
           <div className="grid gap-5">
-            {/* Balances for cashout */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="px-4 py-4 rounded-2xl border border-blue-500/20" style={{ background: 'rgba(27,98,245,0.06)' }}>
-                <p className="text-blue-400/70 text-xs font-bold uppercase mb-1">Spend Balance</p>
-                <div className="flex items-center gap-1.5">
-                  <CoinSpend size={16} />
-                  <p className="text-xl font-extrabold text-white">{coins.toLocaleString()}</p>
-                </div>
-                <p className="text-blue-400/40 text-[11px] mt-1">Cannot be cashed out</p>
+            {/* Earnings summary */}
+            <div className="px-5 py-4 rounded-2xl border border-green-500/25 flex items-center gap-4" style={{ background: 'rgba(34,197,94,0.06)' }}>
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34,197,94,0.15)' }}>
+                <DollarSign size={20} className="text-green-400" />
               </div>
-              <div className="px-4 py-4 rounded-2xl border border-yellow-500/30" style={{ background: 'rgba(234,179,8,0.07)' }}>
-                <p className="text-yellow-400/70 text-xs font-bold uppercase mb-1">Earn Balance</p>
-                <div className="flex items-center gap-1.5">
-                  <CoinEarn size={16} />
-                  <p className="text-xl font-extrabold text-yellow-300">{cashableCoins.toLocaleString()}</p>
-                </div>
-                <p className="text-yellow-400/50 text-[11px] mt-1 flex items-center gap-1">
-                  {canCashout ? <><Check size={11} className="text-green-400" /><span className="text-green-400">Eligible to cash out</span></> : `${Math.max(0, 1000 - cashableCoins).toLocaleString()} more needed`}
-                </p>
+              <div className="flex-1">
+                <p className="text-xs font-bold text-green-400/80 uppercase tracking-wider mb-0.5">Your Earnings</p>
+                <p className="text-2xl font-extrabold text-green-300">{earnings.toLocaleString()} coins</p>
+                <p className="text-green-400/50 text-[11px]">≈ £{((earnings / 1000) * 4.20).toFixed(2)} · from tips received in chat</p>
               </div>
+              {canCashout && (
+                <div className="flex items-center gap-1 text-green-400 text-xs font-bold">
+                  <Check size={13} /> Eligible
+                </div>
+              )}
             </div>
 
             <div className={cardCls} style={cardStyle}>
               <h2 className="text-white font-bold text-base mb-1">Cash Out via PayPal</h2>
               <p className="text-vybe-muted text-sm mb-4">
-                Only your <span className="text-yellow-300 font-semibold">Earn Balance</span> (tips received) can be cashed out.
-                Minimum request: 1,000 coins.
+                Minimum 1,000 earnings coins to request a payout. Rate: 1,000 coins = £4.20.
               </p>
 
-              {/* PayPal email */}
               <div className="mb-4">
-                <label className="text-white/60 text-xs font-semibold block mb-2">PayPal Email</label>
+                <label className="text-white/60 text-xs font-semibold block mb-2">Your PayPal Email</label>
                 <div className="flex gap-2">
                   <input
                     type="email"
@@ -860,12 +566,11 @@ export default function WalletPage() {
                 </div>
               </div>
 
-              {/* Cash out form */}
               {canCashout ? (
                 <div className="space-y-3">
                   <div>
                     <label className="text-white/60 text-xs font-semibold block mb-2">
-                      Amount (from Earn Balance — max {cashableCoins.toLocaleString()})
+                      Amount to cash out (max {earnings.toLocaleString()})
                     </label>
                     <input
                       type="number"
@@ -873,36 +578,35 @@ export default function WalletPage() {
                       onChange={(e) => setCashoutAmount(e.target.value)}
                       placeholder="1000"
                       min="1000"
-                      max={cashableCoins}
+                      max={earnings}
                       step="100"
                       className={inputCls}
                     />
-                    {cashoutAmount && parseInt(cashoutAmount) >= 1000 && parseInt(cashoutAmount) <= cashableCoins && (
+                    {cashoutAmount && parseInt(cashoutAmount) >= 1000 && parseInt(cashoutAmount) <= earnings && (
                       <p className="text-green-400 text-xs mt-1">≈ £{((parseInt(cashoutAmount) / 1000) * 4.20).toFixed(2)} to your PayPal</p>
                     )}
-                    {cashoutAmount && parseInt(cashoutAmount) > cashableCoins && (
-                      <p className="text-red-400 text-xs mt-1">Exceeds your Earn Balance of {cashableCoins.toLocaleString()} coins</p>
+                    {cashoutAmount && parseInt(cashoutAmount) > earnings && (
+                      <p className="text-red-400 text-xs mt-1">Exceeds your earnings of {earnings.toLocaleString()} coins</p>
                     )}
                   </div>
                   <button
                     onClick={handleCashout}
-                    disabled={cashoutLoading || !cashoutAmount || parseInt(cashoutAmount) < 1000 || parseInt(cashoutAmount) > cashableCoins || !paypalEmail}
+                    disabled={cashoutLoading || !cashoutAmount || parseInt(cashoutAmount) < 1000 || parseInt(cashoutAmount) > earnings || !paypalEmail}
                     className="w-full py-3 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-50"
                     style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)', boxShadow: '0 0 20px rgba(34,197,94,0.3)' }}
                   >
                     {cashoutLoading ? 'Submitting…' : 'Request Cash Out'}
                   </button>
-                  <p className="text-vybe-muted text-xs text-center">Requests are reviewed and processed within 3–5 business days.</p>
+                  <p className="text-vybe-muted text-xs text-center">Reviewed and processed within 3–5 business days.</p>
                 </div>
               ) : (
-                <div className="px-4 py-4 rounded-xl text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <p className="text-white/50 text-sm">Earn {Math.max(0, 1000 - cashableCoins).toLocaleString()} more coins from tips to unlock cash out</p>
-                  <p className="text-vybe-muted text-xs mt-1">Tip coins go directly to your Earn Balance during video chats</p>
+                <div className="px-4 py-5 rounded-xl text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <p className="text-white/50 text-sm mb-1">Earn {Math.max(0, 1000 - earnings).toLocaleString()} more coins from tips to unlock cash out</p>
+                  <p className="text-vybe-muted text-xs">When someone sends you a gift in chat, it goes to your earnings balance</p>
                 </div>
               )}
             </div>
 
-            {/* Cash out history */}
             {cashouts.length > 0 && (
               <div className={cardCls} style={cardStyle}>
                 <h3 className="text-white font-bold text-sm mb-3">Request History</h3>

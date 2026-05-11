@@ -14,7 +14,6 @@ const TABS = [
   { id: 'coins',       label: 'Coins'         },
   { id: 'blocks',      label: '🚫 Blocked'    },
   { id: 'referral',    label: '🔗 Referral'   },
-  { id: 'streak',      label: '🔥 Streak'     },
   { id: 'account',     label: '⚙️ Account'    },
 ]
 
@@ -93,7 +92,6 @@ export default function SettingsPage() {
             {tab === 'coins'    && <CoinsTab />}
             {tab === 'blocks'   && <BlocksTab />}
             {tab === 'referral' && <ReferralTab />}
-            {tab === 'streak'   && <StreakTab />}
             {tab === 'account'  && <AccountTab logout={logout} navigate={navigate} />}
           </motion.div>
         </AnimatePresence>
@@ -146,19 +144,17 @@ function CoinsTab() {
         <h3 className="text-sm font-black text-white mb-4">Ways to earn coins</h3>
         <div className="space-y-2.5">
           {[
-            { icon: '📅', action: 'Daily login',                  coins: 10,  suffix: '' },
-            { icon: '🔥', action: '3-day streak',                 coins: 30,  suffix: '' },
-            { icon: '🔥', action: '7-day streak',                 coins: 100, suffix: '' },
-            { icon: '🔥', action: '30-day streak',                coins: 500, suffix: '' },
-            { icon: '💬', action: 'Every 10 chats completed',     coins: 5,   suffix: '' },
             { icon: '👥', action: 'Friend signs up via referral', coins: 50,  suffix: ' each' },
+            { icon: '🎁', action: 'Receive gifts in chat',        coins: 70,  suffix: '% goes to your earnings' },
           ].map(({ icon, action, coins: c, suffix }) => (
             <div key={action} className="flex items-center justify-between py-2 border-b border-vybe-border/40 last:border-0">
               <div className="flex items-center gap-2.5">
                 <span className="text-base">{icon}</span>
                 <span className="text-white/80 text-sm">{action}</span>
               </div>
-              <span className="text-yellow-300 text-sm font-bold flex items-center gap-1">+{c}<CoinReward size={12}/>{suffix}</span>
+              <span className="text-yellow-300 text-sm font-bold flex items-center gap-1">
+                {suffix.includes('%') ? suffix : <><span>+{c}</span><CoinReward size={12}/>{suffix}</>}
+              </span>
             </div>
           ))}
         </div>
@@ -391,105 +387,6 @@ function ReferralTab() {
 }
 
 // ─── Streak Tab ───────────────────────────────────────────────────────────────
-function StreakTab() {
-  const { user } = useAuth()
-  const [claiming, setClaiming]   = useState(false)
-  const [result,   setResult]     = useState(null)
-  const [celebrate, setCelebrate] = useState(false)
-
-  const claimDaily = async () => {
-    setClaiming(true)
-    try {
-      const { data } = await axios.post('/api/auth/daily-login')
-      setResult(data)
-      if (data.milestoneHit) setCelebrate(true)
-    } catch (err) {
-      const msg = err.response?.data?.error || (err.code === 'ERR_NETWORK' ? 'Server unavailable — try again later' : 'Could not claim streak')
-      setResult({ error: msg })
-    }
-    setClaiming(false)
-  }
-
-  const milestones = [
-    { streak: 3,  reward: 30,  label: '3-Day Streak'  },
-    { streak: 7,  reward: 100, label: '7-Day Streak'  },
-    { streak: 30, reward: 500, label: '30-Day Streak' },
-  ]
-
-  return (
-    <div className="space-y-4">
-      {/* Celebration */}
-      <AnimatePresence>
-        {celebrate && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="glass-card rounded-2xl p-6 text-center border border-orange-500/30 bg-orange-500/5"
-          >
-            <div className="text-4xl mb-3">🎉🔥🎉</div>
-            <h3 className="text-xl font-black text-white">Milestone hit!</h3>
-            <p className="text-orange-300 text-sm mt-1">{result?.streak}-day streak — earned +{result?.milestoneHit?.bonus} bonus coins!</p>
-            <button onClick={() => setCelebrate(false)} className="mt-4 px-4 py-2 rounded-xl btn-purple text-white text-sm font-bold">Awesome!</button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Current streak */}
-      <div className="glass-card rounded-2xl p-5 text-center">
-        <p className="text-6xl mb-2">🔥</p>
-        <p className="text-4xl font-black text-white">{result?.streak ?? user?.loginStreak ?? 0}</p>
-        <p className="text-vybe-muted text-sm">Day Streak</p>
-        <p className="text-vybe-muted text-xs mt-1">Best: {user?.longestStreak || 0} days</p>
-
-        {result?.alreadyClaimed ? (
-          <div className="mt-4 flex items-center justify-center gap-2 text-green-400 text-sm">
-            <Check size={15} /> Already claimed today — come back tomorrow!
-          </div>
-        ) : (
-          <button
-            onClick={claimDaily}
-            disabled={claiming}
-            className="mt-4 w-full py-3 rounded-xl btn-purple text-white font-black text-sm flex items-center justify-center gap-2 disabled:opacity-60"
-          >
-            {claiming ? <><Loader2 size={14} className="animate-spin" /> Claiming…</> : <><span>📅 Claim Daily Login (+10</span><CoinReward size={14} /><span>)</span></>}
-          </button>
-        )}
-
-        {result && !result.alreadyClaimed && !result.error && (
-          <p className="text-green-400 text-xs mt-2 flex items-center justify-center gap-1">+{result.coinsEarned} <CoinReward size={12} /> earned!</p>
-        )}
-        {result?.error && (
-          <p className="text-red-400 text-xs mt-2 text-center">{result.error}</p>
-        )}
-      </div>
-
-      {/* Milestone roadmap */}
-      <div className="glass-card rounded-2xl p-5">
-        <h3 className="text-sm font-black text-white mb-4">Streak Milestones</h3>
-        <div className="space-y-3">
-          {milestones.map(({ streak, reward, label }) => {
-            const current  = result?.streak ?? user?.loginStreak ?? 0
-            const achieved = current >= streak
-            return (
-              <div key={streak} className={`flex items-center gap-3 p-3 rounded-xl border ${achieved ? 'border-orange-500/40 bg-orange-500/10' : 'border-vybe-border'}`}>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${achieved ? 'bg-orange-500/20' : 'bg-vybe-card'}`}>
-                  {achieved ? '✅' : '🔒'}
-                </div>
-                <div className="flex-1">
-                  <p className={`text-sm font-bold ${achieved ? 'text-orange-300' : 'text-vybe-muted'}`}>{label}</p>
-                  <p className="text-xs text-vybe-muted">{streak} consecutive days</p>
-                </div>
-                <span className={`text-sm font-black flex items-center gap-1 ${achieved ? 'text-yellow-300' : 'text-vybe-muted'}`}>{reward} <CoinReward size={12} /></span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ─── Email Verification Section ───────────────────────────────────────────────
 function EmailVerificationSection({ user }) {
   const { refreshUser } = useAuth()
