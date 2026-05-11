@@ -21,5 +21,29 @@ export default defineConfig({
   define: {
     global: 'globalThis',
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-  }
+  },
+  // Pre-bundle dependencies so first load doesn't hit cold CJS transforms
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'axios', 'lucide-react'],
+  },
+  build: {
+    // Split vendors into separate cacheable chunks
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (id.includes('framer-motion'))               return 'vendor-motion'
+          if (id.includes('lucide-react'))                return 'vendor-icons'
+          if (id.includes('react-dom') || id.includes('react-router')) return 'vendor-react'
+          if (id.includes('socket.io') || id.includes('simple-peer') || id.includes('webrtc'))
+                                                          return 'vendor-rtc'
+          if (id.includes('axios') || id.includes('stripe')) return 'vendor-http'
+          return 'vendor'
+        },
+      },
+    },
+    chunkSizeWarningLimit: 900,
+    // Slightly faster minification in CI; esbuild is the default and already fast
+    minify: 'esbuild',
+  },
 })

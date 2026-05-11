@@ -3,18 +3,23 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react'
 import axios from 'axios'
+import { useAuth } from '../context/AuthContext'
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams()
   const [status, setStatus] = useState('verifying') // verifying | success | error | no-token
   const [error, setError]   = useState('')
+  const { refreshUser, user } = useAuth()
 
   useEffect(() => {
     const token = searchParams.get('token')
     if (!token) { setStatus('no-token'); return }
 
     axios.get(`/api/auth/verify-email?token=${token}`)
-      .then(() => setStatus('success'))
+      .then(() => {
+        setStatus('success')
+        refreshUser().catch(() => {})
+      })
       .catch((err) => {
         setStatus('error')
         setError(err.response?.data?.error || 'Verification failed.')
@@ -51,10 +56,10 @@ export default function VerifyEmailPage() {
               Your email has been confirmed. You can now start Vybing!
             </p>
             <Link
-              to="/auth"
+              to={user ? '/' : '/auth'}
               className="block w-full py-3.5 rounded-xl btn-purple text-white font-black text-sm text-center"
             >
-              Sign In
+              {user ? 'Go to Vybe' : 'Sign In'}
             </Link>
           </div>
         )}

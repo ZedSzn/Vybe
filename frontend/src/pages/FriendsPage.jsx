@@ -7,6 +7,7 @@ import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
 import { Skeleton } from '../components/Skeleton'
+import EmptyStateIllustration from '../components/EmptyStateIllustration'
 import axios from 'axios'
 
 
@@ -21,7 +22,7 @@ function Avatar({ name, size = 9, online }) {
       </div>
       {online !== undefined && (
         <span
-          className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-black ${online ? 'bg-green-400' : 'bg-gray-600'}`}
+          className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-black transition-colors duration-500 ${online ? 'bg-green-400' : 'bg-gray-600'}`}
         />
       )}
     </div>
@@ -47,10 +48,13 @@ export default function FriendsPage() {
   const [actionLoading, setActionLoading] = useState('')
   const [toast, setToast] = useState('')
   const [unreadCounts, setUnreadCounts] = useState({})
+  const [partnerTyping, setPartnerTyping] = useState(false)
 
   const messagesEndRef = useRef(null)
+  const typingEndRef   = useRef(null)
   const inputRef = useRef(null)
   const searchTimeout = useRef(null)
+  const typingTimeout = useRef(null)
   const selectedFriendRef = useRef(null)
   selectedFriendRef.current = selectedFriend
 
@@ -66,17 +70,29 @@ export default function FriendsPage() {
 
   useEffect(() => {
     if (!socket) return
-    const handler = (msg) => {
+    const onReceive = (msg) => {
       const current = selectedFriendRef.current
       if (current && String(msg.from) === String(current.friend._id)) {
         setMessages(prev => [...prev, { ...msg, fromMe: false }])
+        setPartnerTyping(false)
         axios.patch(`/api/dm/${current.friend._id}/read`, {}, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {})
       } else {
         setUnreadCounts(prev => ({ ...prev, [msg.from]: (prev[msg.from] || 0) + 1 }))
       }
     }
-    socket.on('dm-receive', handler)
-    return () => socket.off('dm-receive', handler)
+    const onTyping = ({ fromUserId, isTyping }) => {
+      const current = selectedFriendRef.current
+      if (current && String(fromUserId) === String(current.friend._id)) {
+        setPartnerTyping(isTyping)
+        if (isTyping) {
+          clearTimeout(typingTimeout.current)
+          typingTimeout.current = setTimeout(() => setPartnerTyping(false), 4000)
+        }
+      }
+    }
+    socket.on('dm-receive', onReceive)
+    socket.on('dm-typing',  onTyping)
+    return () => { socket.off('dm-receive', onReceive); socket.off('dm-typing', onTyping) }
   }, [socket, token])
 
   const fetchAll = async () => {
@@ -101,6 +117,7 @@ export default function FriendsPage() {
   const openChat = async (friendship) => {
     setSelectedFriend(friendship)
     setMsgInput('')
+    setPartnerTyping(false)
     setLoadingMsgs(true)
     setUnreadCounts(prev => ({ ...prev, [friendship.friend._id]: 0 }))
     try {
@@ -112,9 +129,15 @@ export default function FriendsPage() {
     setTimeout(() => inputRef.current?.focus(), 100)
   }
 
+  const emitTyping = (isTyping) => {
+    if (!socket || !selectedFriend) return
+    socket.emit('dm-typing', { toUserId: selectedFriend.friend._id, isTyping })
+  }
+
   const sendMessage = () => {
     const content = msgInput.trim()
     if (!content || !selectedFriend || !socket) return
+    emitTyping(false)
     setMsgInput('')
     setMessages(prev => [...prev, { _id: Date.now(), content, fromMe: true, createdAt: new Date().toISOString() }])
     socket.emit('dm-send', { toUserId: selectedFriend.friend._id, content })
@@ -205,9 +228,16 @@ export default function FriendsPage() {
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 pt-24 pb-16">
         <div className="mb-6 flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-sm transition-colors" style={{ color: '#6b7280' }}>
+          <motion.button
+            onClick={() => navigate(-1)}
+            whileHover={{ x: -3, color: '#ffffff' }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+            className="inline-flex items-center gap-2 text-sm transition-colors"
+            style={{ color: '#6b7280' }}
+          >
             <ArrowLeft size={15} />
-          </button>
+          </motion.button>
           <div>
             <h1 className="text-3xl font-black text-white tracking-tight">Friends</h1>
             <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>
@@ -271,28 +301,39 @@ export default function FriendsPage() {
                     ))}
                   </div>
                 ) : friends.length === 0 ? (
-                  <div className="py-16 text-center px-6">
-                    <Users size={32} className="mx-auto mb-3 opacity-20 text-white" />
-                    <p className="text-sm font-semibold text-white mb-1">No friends yet</p>
-                    <p className="text-xs mb-4" style={{ color: '#6b7280' }}>Add people you meet in video chat</p>
-                    <button
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="py-10 text-center px-6 flex flex-col items-center"
+                  >
+                    <EmptyStateIllustration variant="friends" size={88} />
+                    <p className="text-sm font-bold text-white mt-3 mb-1">No friends yet</p>
+                    <p className="text-xs mb-4" style={{ color: '#6b7280' }}>Meet people in video chat and add them</p>
+                    <motion.button
                       onClick={() => setTab('add')}
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                       className="text-xs font-bold px-4 py-2 rounded-xl transition-colors"
                       style={{ background: 'rgba(27,98,245,0.15)', color: '#4b88f7', border: '1px solid rgba(27,98,245,0.25)' }}
                     >
                       Find friends
-                    </button>
-                  </div>
+                    </motion.button>
+                  </motion.div>
                 ) : (
                   <div>
                     {friends.map(f => {
                       const unread = unreadCounts[f.friend._id] || 0
                       const isSelected = selectedFriend?.friendshipId === f.friendshipId
                       return (
-                        <button
+                        <motion.button
                           key={f.friendshipId}
                           onClick={() => openChat(f)}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5 border-b"
+                          whileHover={{ backgroundColor: 'rgba(255,255,255,0.045)' }}
+                          whileTap={{ scale: 0.985 }}
+                          transition={{ duration: 0.15 }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left border-b"
                           style={{
                             borderColor: 'rgba(255,255,255,0.04)',
                             background: isSelected ? 'rgba(27,98,245,0.1)' : 'transparent',
@@ -301,16 +342,25 @@ export default function FriendsPage() {
                           <Avatar name={f.friend.username} size={9} online={f.isOnline} />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-white truncate">{f.friend.username}</p>
-                            <p className="text-[11px]" style={{ color: f.isOnline ? '#4ade80' : '#6b7280' }}>
+                            <p className="text-[11px] transition-colors duration-300" style={{ color: f.isOnline ? '#4ade80' : '#6b7280' }}>
                               {f.isOnline ? 'Online' : 'Offline'}
                             </p>
                           </div>
-                          {unread > 0 && (
-                            <span className="w-5 h-5 rounded-full bg-purple-600 text-[10px] font-black flex items-center justify-center text-white flex-shrink-0">
-                              {unread > 9 ? '9+' : unread}
-                            </span>
-                          )}
-                        </button>
+                          <AnimatePresence>
+                            {unread > 0 && (
+                              <motion.span
+                                key="unread"
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0, opacity: 0 }}
+                                transition={{ type: 'spring', stiffness: 600, damping: 20 }}
+                                className="w-5 h-5 rounded-full bg-purple-600 text-[10px] font-black flex items-center justify-center text-white flex-shrink-0"
+                              >
+                                {unread > 9 ? '9+' : unread}
+                              </motion.span>
+                            )}
+                          </AnimatePresence>
+                        </motion.button>
                       )
                     })}
                   </div>
@@ -320,11 +370,16 @@ export default function FriendsPage() {
               {/* ── Requests ── */}
               {tab === 'requests' && (
                 requests.length === 0 ? (
-                  <div className="py-16 text-center px-6">
-                    <Clock size={32} className="mx-auto mb-3 opacity-20 text-white" />
-                    <p className="text-sm font-semibold text-white mb-1">No pending requests</p>
-                    <p className="text-xs" style={{ color: '#6b7280' }}>Friend requests you receive will appear here</p>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="py-10 text-center px-6 flex flex-col items-center"
+                  >
+                    <EmptyStateIllustration variant="requests" size={88} />
+                    <p className="text-sm font-bold text-white mt-3 mb-1">No pending requests</p>
+                    <p className="text-xs" style={{ color: '#6b7280' }}>Friend requests will appear here</p>
+                  </motion.div>
                 ) : (
                   <div>
                     {requests.map(r => (
@@ -476,11 +531,16 @@ export default function FriendsPage() {
                       ))}
                     </div>
                   ) : messages.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center">
-                      <MessageCircle size={36} className="mb-3 opacity-15 text-white" />
-                      <p className="text-sm font-semibold text-white mb-1">Say hello!</p>
-                      <p className="text-xs" style={{ color: '#6b7280' }}>Start your conversation with {selectedFriend.friend.username}</p>
-                    </div>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="h-full flex flex-col items-center justify-center text-center"
+                    >
+                      <EmptyStateIllustration variant="messages" size={88} />
+                      <p className="text-sm font-bold text-white mt-2 mb-1">Say hello!</p>
+                      <p className="text-xs" style={{ color: '#6b7280' }}>Start the conversation with {selectedFriend.friend.username}</p>
+                    </motion.div>
                   ) : (
                     messages.map((msg, i) => (
                       <motion.div
@@ -505,6 +565,25 @@ export default function FriendsPage() {
                       </motion.div>
                     ))
                   )}
+                  <AnimatePresence>
+                    {partnerTyping && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 4, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex justify-start"
+                      >
+                        <div className="px-4 py-3 rounded-2xl rounded-bl-sm flex items-center gap-1.5"
+                          style={{ background: 'rgba(255,255,255,0.07)' }}>
+                          {[0, 0.18, 0.36].map((delay, i) => (
+                            <span key={i} className="w-1.5 h-1.5 rounded-full bg-white/50"
+                              style={{ animation: `loading-dot 1.1s ease-in-out ${delay}s infinite` }} />
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                   <div ref={messagesEndRef} />
                 </div>
 
@@ -515,7 +594,12 @@ export default function FriendsPage() {
                       ref={inputRef}
                       type="text"
                       value={msgInput}
-                      onChange={e => setMsgInput(e.target.value)}
+                      onChange={e => {
+                        setMsgInput(e.target.value)
+                        emitTyping(true)
+                        clearTimeout(typingTimeout.current)
+                        typingTimeout.current = setTimeout(() => emitTyping(false), 2000)
+                      }}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
                       placeholder={`Message ${selectedFriend.friend.username}…`}
                       maxLength={500}
@@ -536,16 +620,25 @@ export default function FriendsPage() {
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
-                  style={{ background: 'rgba(27,98,245,0.1)', border: '1px solid rgba(27,98,245,0.2)' }}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="flex-1 flex flex-col items-center justify-center text-center px-8"
+              >
+                <motion.div
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
+                  style={{ background: 'rgba(27,98,245,0.1)', border: '1px solid rgba(27,98,245,0.2)' }}
+                >
                   <MessageCircle size={28} style={{ color: '#4b88f7' }} />
-                </div>
+                </motion.div>
                 <p className="text-base font-black text-white mb-2">Your messages</p>
                 <p className="text-sm leading-relaxed" style={{ color: '#6b7280' }}>
                   Select a friend from the list to start chatting.<br />Messages are private between friends only.
                 </p>
-              </div>
+              </motion.div>
             )}
           </div>
         </div>

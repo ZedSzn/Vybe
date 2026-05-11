@@ -82,7 +82,7 @@ export default function ProfilePage() {
   const { id }          = useParams()
   const { user: me, updateUser } = useAuth()
   const navigate        = useNavigate()
-  const isOwn           = String(id) === String(me?.id)
+  const isOwn           = String(id) === String(me?.id) || String(id) === String(me?._id)
 
   const [profile,   setProfile]   = useState(null)
   const [loading,   setLoading]   = useState(true)

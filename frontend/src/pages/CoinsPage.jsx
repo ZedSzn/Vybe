@@ -20,7 +20,7 @@ const PACKAGES = [
     color:   '#6b7280',
     glow:    'rgba(107,114,128,0.25)',
     popular: false,
-    desc:    'Perfect for trying out gifts',
+    desc:    'Perfect for tips and badges',
   },
   {
     id:      'coins_500',
@@ -31,7 +31,7 @@ const PACKAGES = [
     color:   '#1B62F5',
     glow:    'rgba(27,98,245,0.3)',
     popular: false,
-    desc:    'Most popular — great for gifting',
+    desc:    'Most popular — great for tipping',
   },
   {
     id:      'coins_1200',
@@ -53,7 +53,7 @@ const PACKAGES = [
     color:   '#f59e0b',
     glow:    'rgba(245,158,11,0.3)',
     popular: false,
-    desc:    'For power users who love gifting',
+    desc:    'For power users who love tipping',
   },
   {
     id:      'coins_7000',
@@ -81,11 +81,11 @@ const EARN_WAYS = [
 
 const SPEND_WAYS = [
   { badge: null,    icon: '🔁', label: 'Replay last match',     cost: '20',    desc: 'Reconnect with your last partner' },
-  { badge: 'spark',            label: 'Gift: Spark',            cost: '75',    desc: 'Common gift — during video chat' },
-  { badge: 'star',             label: 'Gift: Shooting Star',    cost: '120',   desc: 'Common gift — during video chat' },
-  { badge: 'flame',            label: 'Gift: Flame',            cost: '250',   desc: 'Rare gift — during video chat' },
-  { badge: 'orb',              label: 'Gift: Lightning Orb',    cost: '480',   desc: 'Epic gift — during video chat' },
-  { badge: 'crown',            label: 'Gift: Cosmic Crown',     cost: '950',   desc: 'Legendary gift — during video chat' },
+  { badge: 'spark',            label: 'Badge: Spark',           cost: '75',    desc: 'Common badge — profile & status flex' },
+  { badge: 'star',             label: 'Badge: Shooting Star',   cost: '120',   desc: 'Common badge — profile & status flex' },
+  { badge: 'flame',            label: 'Badge: Flame',           cost: '250',   desc: 'Rare badge — profile & status flex' },
+  { badge: 'orb',              label: 'Badge: Lightning Orb',   cost: '480',   desc: 'Epic badge — profile & status flex' },
+  { badge: 'crown',            label: 'Badge: Cosmic Crown',    cost: '950',   desc: 'Legendary badge — profile & status flex' },
   { badge: null,    icon: '💸', label: 'Send tip',               cost: '10+',   desc: 'Tip your chat partner directly' },
 ]
 
@@ -162,7 +162,7 @@ export default function CoinsPage() {
             <h1 className="text-4xl font-black text-white tracking-tight">Buy Coins</h1>
           </div>
           <p style={{ color: '#6b7280' }} className="text-base max-w-md mx-auto">
-            Use coins to send gifts, tip great chatters, replay matches, and more.
+            Use coins to tip great chatters, collect badges, replay matches, and more.
           </p>
           {user && (
             <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full text-sm font-semibold"

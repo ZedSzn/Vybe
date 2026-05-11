@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Loader2, Trash2, UserX, Download, AlertTriangle, Check, Mail, ShieldCheck } from 'lucide-react'
+import EmptyStateIllustration from '../components/EmptyStateIllustration'
 import VybeCoin from '../components/VybeCoin'
+import { CoinBalance, CoinReward } from '../components/VybeCoinIcons'
 import { Skeleton } from '../components/Skeleton'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
@@ -46,38 +48,47 @@ export default function SettingsPage() {
       </div>
 
       <div className="pt-24 pb-12 px-4 max-w-2xl mx-auto relative z-10">
-        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-vybe-muted hover:text-white transition-colors mb-6 text-sm">
+        <motion.button
+          onClick={() => navigate(-1)}
+          whileHover={{ x: -3 }}
+          whileTap={{ scale: 0.93 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+          className="inline-flex items-center gap-2 text-vybe-muted hover:text-white transition-colors mb-6 text-sm"
+        >
           <ArrowLeft size={15} /> Back
-        </button>
+        </motion.button>
 
         <h1 className="text-2xl font-black text-white mb-6">Settings</h1>
 
         {/* Tab bar */}
         <div className="flex gap-1 flex-wrap mb-6">
           {TABS.map((t) => (
-            <button
+            <motion.button
               key={t.id}
               onClick={() => setTab(t.id)}
+              whileHover={{ scale: tab === t.id ? 1 : 1.04 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 22 }}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
                 tab === t.id
                   ? 'bg-vybe-purple text-white'
-                  : 'bg-vybe-card border border-vybe-border text-vybe-muted hover:text-white'
+                  : 'bg-vybe-card border border-vybe-border text-vybe-muted hover:text-white hover:border-white/20'
               }`}
             >
               {t.id === 'coins'
-                ? <span className="flex items-center gap-1"><VybeCoin size={11} /> Coins</span>
+                ? <span className="flex items-center gap-1"><CoinBalance size={11} /> Coins</span>
                 : t.label}
-            </button>
+            </motion.button>
           ))}
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
             {tab === 'coins'    && <CoinsTab />}
             {tab === 'blocks'   && <BlocksTab />}
@@ -127,7 +138,7 @@ function CoinsTab() {
       {/* Balance card */}
       <div className="glass-card rounded-2xl p-6">
         <p className="text-vybe-muted text-xs font-bold uppercase tracking-wider mb-2">Coin Balance</p>
-        <p className="text-4xl font-black text-white flex items-center gap-2">{coins.toLocaleString()} <VybeCoin size={28}/></p>
+        <p className="text-4xl font-black text-white flex items-center gap-2">{coins.toLocaleString()} <CoinBalance size={28}/></p>
       </div>
 
       {/* Earn ways */}
@@ -147,7 +158,7 @@ function CoinsTab() {
                 <span className="text-base">{icon}</span>
                 <span className="text-white/80 text-sm">{action}</span>
               </div>
-              <span className="text-yellow-300 text-sm font-bold flex items-center gap-1">+{c}<VybeCoin size={12}/>{suffix}</span>
+              <span className="text-yellow-300 text-sm font-bold flex items-center gap-1">+{c}<CoinReward size={12}/>{suffix}</span>
             </div>
           ))}
         </div>
@@ -157,7 +168,14 @@ function CoinsTab() {
       <div className="glass-card rounded-2xl p-5">
         <h3 className="text-sm font-black text-white mb-4">Transaction History</h3>
         {history.length === 0 ? (
-          <p className="text-vybe-muted text-sm text-center py-6">No transactions yet</p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="py-6 flex flex-col items-center text-center"
+          >
+            <EmptyStateIllustration variant="wallet" size={72} />
+            <p className="text-white/60 text-xs font-semibold mt-1">No transactions yet</p>
+          </motion.div>
         ) : (
           <div className="space-y-1 max-h-72 overflow-y-auto">
             {history.map((t, i) => (
@@ -221,10 +239,18 @@ function BlocksTab() {
       <h3 className="text-sm font-black text-white mb-1">Blocked Users</h3>
       <p className="text-vybe-muted text-xs mb-4">Blocked users will never be matched with you.</p>
       {blocked.length === 0 ? (
-        <div className="text-center py-10">
-          <UserX size={32} className="text-vybe-muted mx-auto mb-3 opacity-40" />
-          <p className="text-vybe-muted text-sm">No blocked users</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="py-8 flex flex-col items-center text-center"
+        >
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
+            style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.15)' }}>
+            <UserX size={24} className="text-vybe-purple-light opacity-50" />
+          </div>
+          <p className="text-white/60 text-sm font-semibold mb-0.5">No blocked users</p>
+          <p className="text-vybe-muted text-xs">Users you block won't be matched with you</p>
+        </motion.div>
       ) : (
         <div className="space-y-2">
           {blocked.map((u) => (
@@ -309,7 +335,7 @@ function ReferralTab() {
         <h3 className="text-sm font-black text-white mb-1">Your Referral Link</h3>
         <p className="text-vybe-muted text-xs mb-4">
           You've invited <span className="text-white font-bold">{info?.referralCount || 0}</span> friends
-          and earned <span className="text-yellow-300 font-bold inline-flex items-center gap-1">{(info?.coinsEarned || 0).toLocaleString()} <VybeCoin size={12} /></span>.
+          and earned <span className="text-yellow-300 font-bold inline-flex items-center gap-1">{(info?.coinsEarned || 0).toLocaleString()} <CoinReward size={12} /></span>.
         </p>
         <div className="flex gap-2 mb-3">
           <div className="flex-1 px-3 py-2 bg-vybe-bg border border-vybe-border rounded-xl text-vybe-muted text-xs truncate font-mono">
@@ -378,7 +404,8 @@ function StreakTab() {
       setResult(data)
       if (data.milestoneHit) setCelebrate(true)
     } catch (err) {
-      setResult({ error: err.response?.data?.error || 'Error claiming' })
+      const msg = err.response?.data?.error || (err.code === 'ERR_NETWORK' ? 'Server unavailable — try again later' : 'Could not claim streak')
+      setResult({ error: msg })
     }
     setClaiming(false)
   }
@@ -425,12 +452,15 @@ function StreakTab() {
             disabled={claiming}
             className="mt-4 w-full py-3 rounded-xl btn-purple text-white font-black text-sm flex items-center justify-center gap-2 disabled:opacity-60"
           >
-            {claiming ? <><Loader2 size={14} className="animate-spin" /> Claiming…</> : <><span>📅 Claim Daily Login (+10</span><VybeCoin size={14} /><span>)</span></>}
+            {claiming ? <><Loader2 size={14} className="animate-spin" /> Claiming…</> : <><span>📅 Claim Daily Login (+10</span><CoinReward size={14} /><span>)</span></>}
           </button>
         )}
 
         {result && !result.alreadyClaimed && !result.error && (
-          <p className="text-green-400 text-xs mt-2 flex items-center justify-center gap-1">+{result.coinsEarned} <VybeCoin size={12} /> earned!</p>
+          <p className="text-green-400 text-xs mt-2 flex items-center justify-center gap-1">+{result.coinsEarned} <CoinReward size={12} /> earned!</p>
+        )}
+        {result?.error && (
+          <p className="text-red-400 text-xs mt-2 text-center">{result.error}</p>
         )}
       </div>
 
@@ -450,7 +480,7 @@ function StreakTab() {
                   <p className={`text-sm font-bold ${achieved ? 'text-orange-300' : 'text-vybe-muted'}`}>{label}</p>
                   <p className="text-xs text-vybe-muted">{streak} consecutive days</p>
                 </div>
-                <span className={`text-sm font-black flex items-center gap-1 ${achieved ? 'text-yellow-300' : 'text-vybe-muted'}`}>{reward} <VybeCoin size={12} /></span>
+                <span className={`text-sm font-black flex items-center gap-1 ${achieved ? 'text-yellow-300' : 'text-vybe-muted'}`}>{reward} <CoinReward size={12} /></span>
               </div>
             )
           })}
@@ -462,9 +492,14 @@ function StreakTab() {
 
 // ─── Email Verification Section ───────────────────────────────────────────────
 function EmailVerificationSection({ user }) {
+  const { refreshUser } = useAuth()
   const [sending,  setSending]  = useState(false)
   const [sent,     setSent]     = useState(false)
   const [errMsg,   setErrMsg]   = useState('')
+
+  useEffect(() => {
+    refreshUser().catch(() => {})
+  }, []) // eslint-disable-line
 
   const resend = async () => {
     setSending(true)

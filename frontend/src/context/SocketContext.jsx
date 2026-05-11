@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { io } from 'socket.io-client'
 import { useAuth } from './AuthContext'
 
@@ -17,12 +17,18 @@ export function SocketProvider({ children }) {
   const [isConnected, setIsConnected] = useState(false)
   const [onlineCount, setOnlineCount] = useState(0)
 
+  // Keep a ref so the connect callback always reads fresh user data
+  // without needing to recreate the socket when non-identity fields change
+  const userRef = useRef(user)
+  useEffect(() => { userRef.current = user }, [user])
+
+  // Only reconnect when the user's identity changes (login / logout)
+  // NOT on every refreshUser() call that updates profile fields
   useEffect(() => {
-    // Wake Render via HTTP first — much faster than a cold WebSocket handshake
     pingBackend()
 
     const s = io(BACKEND, {
-      transports: ['polling', 'websocket'], // polling first wakes Render, then upgrades
+      transports: ['polling', 'websocket'],
       withCredentials: true,
       reconnectionDelay: 2000,
       reconnectionDelayMax: 8000,
@@ -31,13 +37,14 @@ export function SocketProvider({ children }) {
 
     s.on('connect', () => {
       setIsConnected(true)
+      const u = userRef.current
       s.emit('register', {
-        userId:    user?.id       || null,
-        username:  user?.username || 'Guest',
-        gender:    user?.gender   || 'other',
-        country:   user?.country  || '',
-        isPremium: user?.isPremium || false,
-        isVip:     user?.isVip    || false,
+        userId:    u?.id        || null,
+        username:  u?.username  || 'Guest',
+        gender:    u?.gender    || 'other',
+        country:   u?.country   || '',
+        isPremium: u?.isPremium || false,
+        isVip:     u?.isVip     || false,
       })
     })
 
@@ -50,7 +57,7 @@ export function SocketProvider({ children }) {
       s.disconnect()
       setSocket(null)
     }
-  }, [user])
+  }, [user?.id]) // eslint-disable-line — only reconnect on identity change
 
   return (
     <SocketContext.Provider value={{ socket, isConnected, onlineCount }}>

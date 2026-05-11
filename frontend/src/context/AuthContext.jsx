@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
     return data.user
   }
 
-  const register = async (username, email, password, referralCode = '', gender = 'other') => {
+  const register = async (username, email, password, referralCode = '', gender = '') => {
     const { data } = await axios.post('/api/auth/register', { username, email, password, referralCode, gender })
     _storeSession(data.user, data.token)
     return data

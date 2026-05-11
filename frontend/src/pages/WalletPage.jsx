@@ -141,6 +141,26 @@ export default function WalletPage() {
   const [errorMsg, setErrorMsg]         = useState('')
   const [copied, setCopied]             = useState(false)
 
+  const [streakClaiming, setStreakClaiming] = useState(false)
+  const [streakResult,   setStreakResult]   = useState(null)
+  const [currentStreak,  setCurrentStreak]  = useState(user?.loginStreak ?? 0)
+
+  const claimStreak = async () => {
+    setStreakClaiming(true)
+    try {
+      const { data } = await axios.post('/api/auth/daily-login')
+      setStreakResult(data)
+      if (!data.alreadyClaimed && data.coinsEarned) {
+        setCoins(prev => prev + data.coinsEarned)
+        setCurrentStreak(data.streak)
+      }
+    } catch (err) {
+      const msg = err.response?.data?.error || (err.code === 'ERR_NETWORK' ? 'Server unavailable — try again later' : 'Could not claim')
+      setStreakResult({ error: msg })
+    }
+    setStreakClaiming(false)
+  }
+
   useEffect(() => {
     if (authLoading) return
     if (!user) { navigate('/auth'); return }
@@ -434,6 +454,37 @@ export default function WalletPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Daily streak claim */}
+            <div className="rounded-2xl p-5 border border-orange-500/25 flex flex-col sm:flex-row items-center gap-5" style={{ background: 'rgba(249,115,22,0.05)' }}>
+              <div className="flex items-center gap-4 flex-1">
+                <div className="relative flex-shrink-0">
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl" style={{ background: 'rgba(249,115,22,0.12)', border: '1.5px solid rgba(249,115,22,0.3)' }}>🔥</div>
+                  {(streakResult?.streak ?? currentStreak) > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center text-[10px] font-black text-white" style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)' }}>
+                      {streakResult?.streak ?? currentStreak}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm">Daily Streak</p>
+                  <p className="text-orange-300/70 text-xs">{streakResult?.streak ?? currentStreak} day{(streakResult?.streak ?? currentStreak) !== 1 ? 's' : ''} — claim +10 <span className="text-yellow-300">coins</span> every day</p>
+                  {streakResult?.alreadyClaimed && <p className="text-green-400 text-xs flex items-center gap-1 mt-0.5"><Check size={11} /> Claimed — come back tomorrow!</p>}
+                  {streakResult && !streakResult.alreadyClaimed && !streakResult.error && <p className="text-green-400 text-xs mt-0.5">+{streakResult.coinsEarned} coins earned!</p>}
+                  {streakResult?.error && <p className="text-red-400 text-xs mt-0.5">{streakResult.error}</p>}
+                </div>
+              </div>
+              {!streakResult?.alreadyClaimed && (
+                <button
+                  onClick={claimStreak}
+                  disabled={streakClaiming}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-black text-sm text-white disabled:opacity-50 transition-opacity"
+                  style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)', boxShadow: '0 0 18px rgba(249,115,22,0.3)' }}
+                >
+                  {streakClaiming ? <><Loader2 size={14} className="animate-spin" /> Claiming…</> : '📅 Claim Daily'}
+                </button>
+              )}
             </div>
 
             <div className="rounded-2xl p-5 border border-yellow-500/20" style={{ background: 'rgba(234,179,8,0.04)' }}>

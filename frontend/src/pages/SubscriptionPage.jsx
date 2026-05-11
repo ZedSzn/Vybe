@@ -53,8 +53,10 @@ export default function SubscriptionPage() {
   const navigate                     = useNavigate()
   const [searchParams]               = useSearchParams()
 
-  const [sub,        setSub]        = useState(null)
-  const [loading,    setLoading]    = useState(true)
+  // Seed from sessionStorage so the page renders immediately on repeat visits
+  const _cached = (() => { try { const r = sessionStorage.getItem('vybe_sub'); return r ? JSON.parse(r) : null } catch { return null } })()
+  const [sub,        setSub]        = useState(_cached)
+  const [loading,    setLoading]    = useState(!_cached)
   const [actionLoad, setActionLoad] = useState('')
   const [error,      setError]      = useState('')
   const [toast,      setToast]      = useState('')
@@ -66,12 +68,14 @@ export default function SubscriptionPage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) { navigate('/auth'); return }
-    fetchStatus()
-  }, [user, authLoading])
+    // If we have cached data, refresh silently in background (no spinner)
+    fetchStatus(_cached == null)
+  }, [user, authLoading]) // eslint-disable-line
 
   useEffect(() => {
     if (success) {
       setToast(`🎉 ${successPlan === 'vip' ? 'VIP' : 'Basic'} plan activated! Welcome aboard.`)
+      try { sessionStorage.removeItem('vybe_sub') } catch {}
       if (refreshUser) refreshUser()
       navigate('/subscription', { replace: true })
     }
@@ -81,13 +85,15 @@ export default function SubscriptionPage() {
     }
   }, [success, cancelled])
 
-  const fetchStatus = async () => {
-    setLoading(true)
+  const fetchStatus = async (showSpinner = true) => {
+    if (showSpinner) setLoading(true)
     try {
       const res = await axios.get(`/api/subscription/status`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      setSub(res.data.subscription)
+      const data = res.data.subscription
+      setSub(data)
+      try { sessionStorage.setItem('vybe_sub', JSON.stringify(data)) } catch {}
     } catch {
       // not subscribed or error — that's fine
     } finally {
@@ -116,6 +122,7 @@ export default function SubscriptionPage() {
     try {
       await axios.post(`/api/subscription/cancel`, {}, { headers: { Authorization: `Bearer ${token}` } })
       setToast('Subscription will cancel at end of billing period.')
+      try { sessionStorage.removeItem('vybe_sub') } catch {}
       fetchStatus()
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to cancel. Try again.')
@@ -146,6 +153,7 @@ export default function SubscriptionPage() {
         { headers: { Authorization: `Bearer ${token}` } },
       )
       setToast(`Switched to ${planId === 'vip' ? 'VIP' : 'Basic'} plan!`)
+      try { sessionStorage.removeItem('vybe_sub') } catch {}
       if (refreshUser) refreshUser()
       fetchStatus()
     } catch (err) {

@@ -5,10 +5,12 @@ import { LangProvider } from './context/LangContext'
 import { useState, useEffect, lazy, Suspense } from 'react'
 import axios from 'axios'
 
-// Eager — these are the primary landing / core flows, load immediately
+// Eager — only the landing page and auth need to render immediately
 import MainPage  from './pages/MainPage'
 import AuthPage  from './pages/AuthPage'
-import ChatPage  from './pages/ChatPage'
+
+// Chat is heavy (SimplePeer, socket.io, WebRTC) — lazy-split it
+const ChatPage = lazy(() => import('./pages/ChatPage'))
 
 // Lazy — heavy pages split into separate chunks
 const AdminPage            = lazy(() => import('./pages/AdminPage'))
@@ -94,6 +96,7 @@ function AppRoutes() {
   const [maintenance, setMaintenance]   = useState(false)
   const [maintMessage, setMaintMessage] = useState('')
 
+  // Check maintenance once on mount — not on every route change
   useEffect(() => {
     const adminToken = localStorage.getItem('vybe_admin_token') || ''
     axios.get(`/api/settings`, { headers: adminToken ? { 'x-admin-token': adminToken } : {} })
@@ -102,7 +105,7 @@ function AppRoutes() {
         setMaintMessage(data.maintenanceMessage || '')
       })
       .catch(() => {})
-  }, [location.pathname])
+  }, []) // eslint-disable-line
 
   const isAdminPath = ADMIN_PATHS.some(p => location.pathname.startsWith(p))
   if (maintenance && !isAdminPath) {

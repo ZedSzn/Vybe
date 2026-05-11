@@ -32,7 +32,8 @@ export default function AuthPage() {
         navigate('/')
       } else {
         if (!username.trim()) { setError('Username is required'); setLoading(false); return }
-        await register(username, email, password, refCode, gender || 'other')
+        if (!gender) { setError('Please select your gender'); setLoading(false); return }
+        await register(username, email, password, refCode, gender)
         // Navigate immediately — verification is optional (soft)
         navigate('/')
       }
@@ -146,10 +147,10 @@ export default function AuthPage() {
                     </div>
                     <div>
                       <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-widest mb-1.5">
-                        I am a
+                        I am a <span className="text-red-400">*</span>
                       </label>
-                      <div className="flex gap-2">
-                        {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }, { value: 'other', label: 'Other' }].map(({ value, label }) => (
+                      <div className="flex gap-3">
+                        {[{ value: 'male', label: '♂ Male' }, { value: 'female', label: '♀ Female' }].map(({ value, label }) => (
                           <button
                             key={value}
                             type="button"
@@ -266,8 +267,8 @@ export default function AuthPage() {
 
             <p className="text-center text-vybe-muted text-[11px] mt-5 leading-relaxed">
               By continuing you agree to our{' '}
-              <button className="text-vybe-purple-light hover:underline">Terms</button> and{' '}
-              <button className="text-vybe-purple-light hover:underline">Privacy Policy</button>.
+              <Link to="/terms" className="text-vybe-purple-light hover:underline">Terms</Link> and{' '}
+              <Link to="/privacy" className="text-vybe-purple-light hover:underline">Privacy Policy</Link>.
               Must be 18+ to use Vybe.
             </p>
           </div>

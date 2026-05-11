@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -323,6 +324,8 @@ const userSchema = new mongoose.Schema({
   equippedBadges:   { type: [String], default: [] },
   borderColor:      { type: String, default: '' },
   animatedBorder:   { type: Boolean, default: false },
+  accentColor:      { type: String, default: '' },
+  bannerGradient:   { type: String, default: '' },
 });
 
 const reportSchema = new mongoose.Schema({
@@ -531,6 +534,8 @@ const serializeUser = (user, extra = {}) => ({
   equippedBadges: user.equippedBadges || [],
   borderColor:    user.borderColor    || '',
   animatedBorder: user.animatedBorder || false,
+  accentColor:    user.accentColor    || '',
+  bannerGradient: user.bannerGradient || '',
   ...extra,
 });
 
@@ -598,6 +603,7 @@ app.post('/api/auth/register', async (req, res) => {
     const { username, email, password, referralCode: refCode, gender } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    if (!['male', 'female'].includes(gender)) return res.status(400).json({ error: 'Please select your gender' });
     const exists = await User.findOne({ $or: [{ email }, { username }] });
     if (exists) return res.status(400).json({ error: 'Email or username already taken' });
     const isAdmin = email === process.env.ADMIN_EMAIL;
@@ -621,7 +627,7 @@ app.post('/api/auth/register', async (req, res) => {
     const user = await User.create({
       username, email,
       password: await bcrypt.hash(password, 10),
-      gender: ['male', 'female', 'other'].includes(gender) ? gender : 'other',
+      gender,
       isAdmin,
       emailVerified: isAdmin,
       emailVerificationToken:   isAdmin ? null : verifyToken,
@@ -1627,7 +1633,7 @@ app.get('/api/user/me', authMiddleware, async (req, res) => {
 
 app.get('/api/user/:id/profile', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder');
+    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient');
     if (!user) return res.status(404).json({ error: 'User not found' });
     const friendCount = await Friendship.countDocuments({ $or: [{ requester: user._id }, { recipient: user._id }], status: 'accepted' });
     const isOnline    = [...onlineUsers.values()].some((s) => String(s.userId) === String(user._id));
@@ -1643,6 +1649,8 @@ app.get('/api/user/:id/profile', async (req, res) => {
       equippedBadges: user.equippedBadges || [],
       borderColor: user.borderColor || '',
       animatedBorder: user.animatedBorder || false,
+      accentColor: user.accentColor || '',
+      bannerGradient: user.bannerGradient || '',
     }});
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -1784,6 +1792,27 @@ app.put('/api/user/border', authMiddleware, async (req, res) => {
     res.json({ success: true, coins: updated.coins, borderColor: updated.borderColor, animatedBorder: updated.animatedBorder });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+app.put('/api/user/cosmetics', authMiddleware, async (req, res) => {
+  try {
+    const { accentColor, bannerGradient } = req.body;
+    const ACCENT_COLORS = ['#7c3aed','#1b62f5','#ec4899','#f59e0b','#10b981','#06b6d4',''];
+    const BANNER_GRADIENTS = ['default','sunset','ocean','forest','ember','aurora','midnight','rose',''];
+    const update = {};
+    if (accentColor !== undefined) {
+      if (!ACCENT_COLORS.includes(accentColor)) return res.status(400).json({ error: 'Invalid accent color' });
+      update.accentColor = accentColor;
+    }
+    if (bannerGradient !== undefined) {
+      if (!BANNER_GRADIENTS.includes(bannerGradient)) return res.status(400).json({ error: 'Invalid banner' });
+      update.bannerGradient = bannerGradient;
+    }
+    await User.findByIdAndUpdate(req.user._id, update);
+    const updated = await User.findById(req.user._id).select('accentColor bannerGradient');
+    res.json({ success: true, accentColor: updated.accentColor, bannerGradient: updated.bannerGradient });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 const COIN_PACKAGES = [
   { id: 'coins_100',  coins: 100,  amountGbp: 1.49,  label: '100 Coins',   popular: false },
   { id: 'coins_500',  coins: 500,  amountGbp: 5.99,  label: '500 Coins',   popular: false },
@@ -2676,6 +2705,16 @@ io.on('connection', (socket) => {
     else socket.emit('private-room-waiting', {});
   });
 
+  socket.on('dm-typing', ({ toUserId, isTyping }) => {
+    const sender = onlineUsers.get(socket.id);
+    if (!sender?.userId) return;
+    for (const [sid, data] of onlineUsers.entries()) {
+      if (String(data.userId) === String(toUserId)) {
+        io.to(sid).emit('dm-typing', { fromUserId: String(sender.userId), isTyping: !!isTyping });
+      }
+    }
+  });
+
   socket.on('dm-send', async ({ toUserId, content }) => {
     if (!content?.trim() || !toUserId) return;
     const sender = onlineUsers.get(socket.id);
@@ -2733,6 +2772,13 @@ io.on('connection', (socket) => {
     }
     io.emit('online-count', onlineUsers.size);
   });
+});
+
+// Serve React frontend in production
+const distPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(distPath));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3001;

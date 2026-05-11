@@ -1,11 +1,13 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { LogOut, Bell, User, Settings, ChevronDown, Trash2, Wallet, Globe, Users, Crown, Zap, Flame, UserPlus, Medal, AlertTriangle, Megaphone, DollarSign } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useSocket } from '../context/SocketContext'
 import { useLang } from '../context/LangContext'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
 import { VybeCoin } from './VybeCoin'
+import EmptyStateIllustration from './EmptyStateIllustration'
 
 const NAV_LINK_DEFS = [
   { key: 'nav_home',      path: '/' },
@@ -30,6 +32,7 @@ const LANGUAGES = [
 
 export default function Navbar({ onPremiumClick }) {
   const { user, logout, isAuthenticated } = useAuth()
+  const { onlineCount } = useSocket()
   const { lang, switchLang, t } = useLang()
   const navigate  = useNavigate()
   const location  = useLocation()
@@ -212,21 +215,18 @@ export default function Navbar({ onPremiumClick }) {
         {NAV_LINK_DEFS.map((link) => {
           const active = isActive(link.path)
           return (
-            <button
+            <motion.button
               key={link.key}
               onClick={() => handleNavClick(link)}
-              className={`relative px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                active ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+              className={`nav-link-underline${active ? ' active' : ''} relative px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                active ? 'text-white' : 'text-gray-400 hover:text-white'
               }`}
             >
               {t(link.key)}
-              {active && (
-                <span
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 rounded-full"
-                  style={{ width: '70%', background: 'linear-gradient(90deg,#3b82f6,#a855f7)' }}
-                />
-              )}
-            </button>
+            </motion.button>
           )
         })}
       </div>
@@ -245,39 +245,55 @@ export default function Navbar({ onPremiumClick }) {
             </Link>
 
             {/* Buy Coins — desktop only */}
-            <Link
-              to="/wallet?tab=buy"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold text-white transition-all"
-              style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 14px rgba(27,98,245,0.35)' }}
-            >
-              {t('buy_coins')}
-            </Link>
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }} transition={{ type: 'spring', stiffness: 500, damping: 25 }} className="hidden sm:block">
+              <Link
+                to="/wallet?tab=buy"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold text-white transition-all"
+                style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 14px rgba(27,98,245,0.35)' }}
+              >
+                {t('buy_coins')}
+              </Link>
+            </motion.div>
 
-            {/* Cash Out — always visible */}
-            <Link
-              to="/wallet?tab=cashout"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all"
-              style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.28)', color: 'rgb(52,211,153)' }}
-            >
-              <DollarSign size={13} /> Cash Out
-            </Link>
+            {/* Cash Out — hidden on mobile to prevent overflow */}
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }} transition={{ type: 'spring', stiffness: 500, damping: 25 }} className="hidden sm:block">
+              <Link
+                to="/wallet?tab=cashout"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all"
+                style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.28)', color: 'rgb(52,211,153)' }}
+              >
+                <DollarSign size={13} /> Cash Out
+              </Link>
+            </motion.div>
 
             {/* Language selector */}
             <LangSelector />
 
             {/* Notification bell */}
             <div ref={notifsRef} className="relative">
-              <button
+              <motion.button
                 onClick={() => { setShowNotifs((v) => !v); setShowUserMenu(false) }}
-                className="relative w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:text-white hover:bg-white/5 transition-all"
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                className="relative w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:text-white hover:bg-white/5 transition-colors"
               >
                 <Bell size={17} />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-vybe-purple rounded-full text-[9px] flex items-center justify-center font-black text-white px-0.5">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </button>
+                <AnimatePresence>
+                  {unreadCount > 0 && (
+                    <motion.span
+                      key="badge"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 600, damping: 20 }}
+                      className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-vybe-purple rounded-full text-[9px] flex items-center justify-center font-black text-white px-0.5"
+                    >
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
 
               <AnimatePresence>
                 {showNotifs && (
@@ -306,10 +322,15 @@ export default function Navbar({ onPremiumClick }) {
                     </div>
                     <div className="max-h-80 overflow-y-auto">
                       {notifications.length === 0 ? (
-                        <div className="py-10 text-center">
-                          <Bell size={24} className="text-gray-600 mx-auto mb-2 opacity-40" />
-                          <p className="text-gray-600 text-xs">No notifications yet</p>
-                        </div>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="py-6 flex flex-col items-center text-center px-4"
+                        >
+                          <EmptyStateIllustration variant="notifications" size={80} />
+                          <p className="text-white/70 text-xs font-semibold mt-1">All caught up!</p>
+                          <p className="text-gray-600 text-[11px] mt-0.5">You have no new notifications</p>
+                        </motion.div>
                       ) : notifications.map((n) => (
                         <div key={n._id} onClick={() => !n.read && handleMarkOne(n._id)}
                           className={`flex items-start gap-3 px-4 py-3 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/3 transition-colors ${!n.read ? 'bg-vybe-purple/5' : ''}`}>
@@ -330,9 +351,12 @@ export default function Navbar({ onPremiumClick }) {
 
             {/* Avatar + dropdown */}
             <div ref={userMenuRef} className="relative">
-              <button
+              <motion.button
                 onClick={() => { setShowUserMenu((v) => !v); setShowNotifs(false) }}
-                className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.93 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                className="flex items-center gap-1.5"
               >
                 {user?.avatar ? (
                   <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover border border-vybe-purple/40" />
@@ -342,18 +366,24 @@ export default function Navbar({ onPremiumClick }) {
                   </div>
                 )}
                 <ChevronDown size={11} className={`text-gray-600 transition-transform hidden sm:block ${showUserMenu ? 'rotate-180' : ''}`} />
-              </button>
+              </motion.button>
 
               <AnimatePresence>
               {showUserMenu && (
                 <motion.div
-                  initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                  initial={{ opacity: 0, y: -8, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                  transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+                  exit={{ opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.1 } }}
+                  transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute right-0 top-full mt-2 w-52 rounded-2xl overflow-hidden shadow-card z-50"
                   style={{ background: '#101020', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div className="px-4 py-3 border-b border-white/5 space-y-2">
+                  {/* Profile header */}
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.04, duration: 0.18 }}
+                    className="px-4 py-3 border-b border-white/5 space-y-2"
+                  >
                     <div className="flex items-center gap-2.5">
                       {user?.avatar ? (
                         <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
@@ -381,40 +411,59 @@ export default function Navbar({ onPremiumClick }) {
                         <span className="text-orange-300 text-[11px] font-bold">{user.loginStreak}-day streak</span>
                       </div>
                     )}
-                  </div>
+                  </motion.div>
 
-                  <Link to={`/profile/${user?.id || user?._id}`} onClick={() => setShowUserMenu(false)}
-                    className="w-full px-4 py-2.5 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2">
-                    <User size={13} /> {t('profile')}
-                  </Link>
-                  <Link to="/friends" onClick={() => setShowUserMenu(false)}
-                    className="w-full px-4 py-2.5 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2">
-                    <Users size={13} />
-                    Friends
-                    {pendingRequests > 0 && (
+                  {/* Staggered menu items */}
+                  {[
+                    { to: `/profile/${user?.id || user?._id}`, icon: <User size={13} />, label: t('profile'), extra: null },
+                    { to: '/friends', icon: <Users size={13} />, label: 'Friends', extra: pendingRequests > 0 ? (
                       <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-purple-600 text-[9px] font-black flex items-center justify-center text-white">
                         {pendingRequests > 9 ? '9+' : pendingRequests}
                       </span>
-                    )}
-                  </Link>
-                  <Link to="/wallet" onClick={() => setShowUserMenu(false)}
-                    className="w-full px-4 py-2.5 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2">
-                    <Wallet size={13} /> {t('wallet')}
-                  </Link>
-                  <Link to="/settings" onClick={() => setShowUserMenu(false)}
-                    className="w-full px-4 py-2.5 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2">
-                    <Settings size={13} /> {t('settings')}
-                  </Link>
-                  {/* Mobile-only nav links — hidden on desktop where they appear in the top nav */}
+                    ) : null },
+                    { to: '/wallet', icon: <Wallet size={13} />, label: t('wallet'), extra: null },
+                    { to: '/settings', icon: <Settings size={13} />, label: t('settings'), extra: null },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={item.to}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.06 + i * 0.04, duration: 0.16 }}
+                    >
+                      <Link to={item.to} onClick={() => setShowUserMenu(false)}
+                        className="w-full px-4 py-2.5 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2">
+                        {item.icon} {item.label} {item.extra}
+                      </Link>
+                    </motion.div>
+                  ))}
+
+                  {/* Mobile-only quick actions */}
+                  <div className="lg:hidden border-t border-white/5 px-4 py-2 flex gap-2">
+                    <Link to="/wallet?tab=buy" onClick={() => setShowUserMenu(false)}
+                      className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-extrabold text-white"
+                      style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)' }}>
+                      {t('buy_coins')}
+                    </Link>
+                    <Link to="/wallet?tab=cashout" onClick={() => setShowUserMenu(false)}
+                      className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-extrabold"
+                      style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.28)', color: 'rgb(52,211,153)' }}>
+                      <DollarSign size={12} /> Cash Out
+                    </Link>
+                  </div>
+
+                  {/* Mobile-only nav links */}
                   <div className="lg:hidden border-t border-white/5">
-                    {NAV_LINK_DEFS.map((link) => (
-                      <button
+                    {NAV_LINK_DEFS.map((link, i) => (
+                      <motion.button
                         key={link.key}
                         onClick={() => handleNavClick(link)}
+                        initial={{ opacity: 0, x: -6 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.22 + i * 0.03, duration: 0.15 }}
                         className="w-full px-4 py-2.5 text-left text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2"
                       >
                         {t(link.key)}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
 

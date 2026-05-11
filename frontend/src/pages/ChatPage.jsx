@@ -519,21 +519,24 @@ export default function ChatPage() {
   const flipCamera = async () => {
     const newFacing = facingMode === 'user' ? 'environment' : 'user'
     setFacingMode(newFacing)
-    localStreamRef.current?.getTracks().forEach((t) => t.stop())
+    // Only stop video tracks — preserve the existing audio track so mute keeps working
+    localStreamRef.current?.getVideoTracks().forEach((t) => t.stop())
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      const videoStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: newFacing, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: { echoCancellation: true, noiseSuppression: true },
+        audio: false,
       })
-      localStreamRef.current = stream
-      if (localVideoRef.current) localVideoRef.current.srcObject = stream
-      if (localVideoDesktopRef.current) localVideoDesktopRef.current.srcObject = stream
-      // Replace the video track in all active peer connections
-      const videoTrack = stream.getVideoTracks()[0]
-      if (videoTrack) {
+      const newVideoTrack = videoStream.getVideoTracks()[0]
+      if (newVideoTrack && localStreamRef.current) {
+        localStreamRef.current.getVideoTracks().forEach((t) => localStreamRef.current.removeTrack(t))
+        localStreamRef.current.addTrack(newVideoTrack)
+      }
+      if (localVideoRef.current) localVideoRef.current.srcObject = localStreamRef.current
+      if (localVideoDesktopRef.current) localVideoDesktopRef.current.srcObject = localStreamRef.current
+      if (newVideoTrack) {
         Object.values(peersRef.current).forEach((peer) => {
           const sender = peer._pc?.getSenders().find((s) => s.track?.kind === 'video')
-          if (sender) sender.replaceTrack(videoTrack).catch(() => {})
+          if (sender) sender.replaceTrack(newVideoTrack).catch(() => {})
         })
       }
     } catch {
@@ -644,8 +647,15 @@ export default function ChatPage() {
   }
 
   const toggleMute = () => {
-    const track = localStreamRef.current?.getAudioTracks()[0]
-    if (track) { track.enabled = !track.enabled; setIsMuted(!track.enabled) }
+    const stream = localStreamRef.current
+    if (!stream) return
+    const newMuted = !isMuted
+    stream.getAudioTracks().forEach((t) => { t.enabled = !newMuted })
+    // Also update any peer connection senders directly (stays in sync after camera flips)
+    Object.values(peersRef.current).forEach((peer) => {
+      peer._pc?.getSenders().forEach((s) => { if (s.track?.kind === 'audio') s.track.enabled = !newMuted })
+    })
+    setIsMuted(newMuted)
   }
 
   const toggleVideo = () => {
@@ -972,157 +982,172 @@ export default function ChatPage() {
         )}
 
 
-        {/* ── MOBILE: fullscreen stranger video background ── */}
-        <div className="lg:hidden fixed inset-0 z-[1] bg-black">
-          {status === 'searching' ? (
-            <div className="w-full h-full flex flex-col items-center justify-center gap-6 px-6 relative">
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="absolute rounded-full animate-pulse" style={{ width: 340, height: 340, background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)' }} />
-                <div className="absolute rounded-full animate-pulse" style={{ width: 240, height: 240, background: 'radial-gradient(circle, rgba(27,98,245,0.10) 0%, transparent 65%)', animationDelay: '0.4s' }} />
-              </div>
-              <VybeGlobe size={260} />
-              <div className="text-center relative z-10">
-                <AnimatePresence mode="wait">
-                  <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-white font-bold text-lg mb-1.5">
-                    {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
-                  </motion.p>
-                </AnimatePresence>
-                {onlineCount > 0 && (
-                  <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#6b7280' }}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
-                    {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
-                  </p>
-                )}
-              </div>
-            </div>
-          ) : opponentSocketIds.length === 0 ? (
-            <div className="w-full h-full flex items-center justify-center bg-[#0d0d18]">
-              {status === 'matched' && <div className="loading-dots flex"><span /><span /><span /></div>}
-            </div>
-          ) : (
-            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="w-full h-full flex">
-              {opponentSocketIds.map((sid, idx) => (
-                <div key={sid} className={`relative flex-1 overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
-                  <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                </div>
-              ))}
-            </motion.div>
-          )}
+        {/* ── MOBILE: 50/50 vertical split ── */}
+        <div className="lg:hidden fixed inset-0 z-[1] bg-black flex flex-col">
 
-          {/* safe mode overlay */}
-          <AnimatePresence>
-            {strangerHidden && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                className="absolute inset-0 z-[5] flex flex-col items-center justify-center gap-4"
-                style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}>
-                <div className="relative flex items-center justify-center">
-                  <div className="absolute w-20 h-20 rounded-full" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%)' }} />
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.12)', border: '1.5px solid rgba(245,158,11,0.35)', boxShadow: '0 0 24px rgba(245,158,11,0.2)' }}>
-                    <Shield size={26} style={{ color: '#fbbf24' }} />
+          {/* Top half — stranger */}
+          <div className="relative flex-1 min-h-0 overflow-hidden bg-[#0d0d18]">
+            {status === 'searching' ? (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 px-6 relative">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="absolute rounded-full animate-pulse" style={{ width: 260, height: 260, background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)' }} />
+                  <div className="absolute rounded-full animate-pulse" style={{ width: 180, height: 180, background: 'radial-gradient(circle, rgba(27,98,245,0.10) 0%, transparent 65%)', animationDelay: '0.4s' }} />
+                </div>
+                <VybeGlobe size={160} />
+                <div className="text-center relative z-10">
+                  <AnimatePresence mode="wait">
+                    <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-white font-bold text-base mb-1">
+                      {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
+                    </motion.p>
+                  </AnimatePresence>
+                  {onlineCount > 0 && (
+                    <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#6b7280' }}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+                      {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : opponentSocketIds.length === 0 ? (
+              <div className="w-full h-full flex items-center justify-center">
+                {status === 'matched' && <div className="loading-dots flex"><span /><span /><span /></div>}
+              </div>
+            ) : (
+              <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="w-full h-full flex">
+                {opponentSocketIds.map((sid, idx) => (
+                  <div key={sid} className={`relative flex-1 overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
+                    <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                   </div>
-                </div>
-                <div className="text-center">
-                  <p className="text-white font-black text-sm tracking-wide mb-0.5">Safe Mode Active</p>
-                  <p className="text-white/35 text-[11px]">Stranger's camera is hidden</p>
-                </div>
-                <button onClick={() => setStrangerHidden(false)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold active:scale-95" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)', color: '#fbbf24' }}>
-                  <Video size={12} /> Reveal Camera
-                </button>
+                ))}
               </motion.div>
             )}
-          </AnimatePresence>
 
-          {/* top gradient */}
-          <div className="absolute inset-x-0 top-0 h-32 pointer-events-none z-[3]" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%)' }} />
-          {/* bottom gradient */}
-          <div className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-[3]" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)' }} />
-        </div>
-
-        {/* ── MOBILE: partner info overlay — top left ── */}
-        <AnimatePresence>
-          {status === 'matched' && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.25 }}
-              className="lg:hidden fixed z-[10] flex items-center gap-2"
-              style={{ top: 'max(16px, env(safe-area-inset-top, 0px) + 12px)', left: 16 }}
-            >
-              <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                {partnerAvatar ? (
-                  <img src={partnerAvatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
-                ) : partnerUsername ? (
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ background: 'linear-gradient(135deg, #7c3aed, #1b62f5)' }}>
-                    {partnerUsername[0].toUpperCase()}
+            {/* Safe mode overlay */}
+            <AnimatePresence>
+              {strangerHidden && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+                  className="absolute inset-0 z-[5] flex flex-col items-center justify-center gap-2.5"
+                  style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}>
+                  <div className="relative flex items-center justify-center">
+                    <div className="absolute w-14 h-14 rounded-full" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%)' }} />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.12)', border: '1.5px solid rgba(245,158,11,0.35)', boxShadow: '0 0 16px rgba(245,158,11,0.2)' }}>
+                      <Shield size={18} style={{ color: '#fbbf24' }} />
+                    </div>
                   </div>
-                ) : (
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
-                )}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-white font-bold text-[13px]">{partnerUsername ? `@${partnerUsername}` : 'Stranger'}</span>
-                  {partnerEmailVerified && <ShieldCheck size={11} style={{ color: '#60a5fa', flexShrink: 0 }} />}
-                  {partnerIsVip && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}><Crown size={8} /> VIP</span>}
-                  {!partnerIsVip && partnerIsPremium && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(27,98,245,0.2)', color: '#60a5fa', border: '1px solid rgba(27,98,245,0.35)' }}><Zap size={8} /> Member</span>}
-                </div>
-                {user && partnerUid && !friendReqSent && (
-                  <button onClick={handleAddFriend} disabled={friendReqLoad} className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95" style={{ background: 'rgba(27,98,245,0.25)', border: '1px solid rgba(27,98,245,0.4)', color: '#60a5fa', flexShrink: 0 }}>
-                    {friendReqLoad ? <Loader2 size={9} className="animate-spin" /> : <UserPlus size={9} />}
+                  <div className="text-center">
+                    <p className="text-white font-black text-xs tracking-wide mb-0.5">Safe Mode Active</p>
+                    <p className="text-white/35 text-[10px]">Stranger's camera is hidden</p>
+                  </div>
+                  <button onClick={() => setStrangerHidden(false)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold active:scale-95 mt-1" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)', color: '#fbbf24' }}>
+                    <Video size={11} /> Reveal Camera
                   </button>
-                )}
-                {user && partnerUid && friendReqSent && (
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ade80', flexShrink: 0 }}>
-                    <UserPlus size={9} />
-                  </span>
-                )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Top gradient */}
+            <div className="absolute inset-x-0 top-0 h-20 pointer-events-none z-[3]" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%)' }} />
+            {/* Divider */}
+            <div className="absolute inset-x-0 bottom-0 h-px bg-white/[0.08] z-[4]" />
+
+            {/* Partner info — top left (inside panel) */}
+            <AnimatePresence>
+              {status === 'matched' && (
+                <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}
+                  className="absolute z-[6] flex items-center gap-2"
+                  style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', left: 12 }}>
+                  <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    {partnerAvatar ? (
+                      <img src={partnerAvatar} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
+                    ) : partnerUsername ? (
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ background: 'linear-gradient(135deg, #7c3aed, #1b62f5)' }}>
+                        {partnerUsername[0].toUpperCase()}
+                      </div>
+                    ) : (
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
+                    )}
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-white font-bold text-[12px]">{partnerUsername ? `@${partnerUsername}` : 'Stranger'}</span>
+                      {partnerEmailVerified && <ShieldCheck size={10} style={{ color: '#60a5fa', flexShrink: 0 }} />}
+                      {partnerIsVip && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}><Crown size={7} /> VIP</span>}
+                      {!partnerIsVip && partnerIsPremium && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(27,98,245,0.2)', color: '#60a5fa', border: '1px solid rgba(27,98,245,0.35)' }}><Zap size={7} /> Member</span>}
+                    </div>
+                    {user && partnerUid && !friendReqSent && (
+                      <button onClick={handleAddFriend} disabled={friendReqLoad} className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95" style={{ background: 'rgba(27,98,245,0.25)', border: '1px solid rgba(27,98,245,0.4)', color: '#60a5fa', flexShrink: 0 }}>
+                        {friendReqLoad ? <Loader2 size={9} className="animate-spin" /> : <UserPlus size={9} />}
+                      </button>
+                    )}
+                    {user && partnerUid && friendReqSent && (
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ade80', flexShrink: 0 }}>
+                        <UserPlus size={9} />
+                      </span>
+                    )}
+                  </div>
+                  {user && status === 'matched' && (
+                    <button onClick={() => setShowTip(true)} className="flex items-center justify-center w-7 h-7 rounded-xl active:scale-90" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <VybeCoin size={14} />
+                    </button>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Timer — top right (inside panel) */}
+            {status === 'matched' && (
+              <div className="absolute z-[6] px-2.5 py-1.5 rounded-xl font-mono text-[11px] text-white/70"
+                style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                {fmt(elapsed)}
               </div>
-              {user && status === 'matched' && (
-                <button onClick={() => setShowTip(true)} className="flex items-center justify-center w-8 h-8 rounded-xl active:scale-90" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <VybeCoin size={15} />
+            )}
+          </div>
+
+          {/* Bottom half — you */}
+          <div className="relative flex-1 min-h-0 overflow-hidden bg-[#0d0d18]">
+            <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+            {!hasCamera && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a14] gap-2">
+                <div className="w-12 h-12 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <p className="text-white/25 text-[10px] font-semibold tracking-wider uppercase">No Camera</p>
+              </div>
+            )}
+            {videoOff && hasCamera && (
+              <div className="absolute inset-0 bg-black/80 flex items-center justify-center"><VideoOff size={26} className="text-white/30" /></div>
+            )}
+            {/* top gradient */}
+            <div className="absolute inset-x-0 top-0 h-10 pointer-events-none z-[2]" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
+            {/* bottom gradient — space for controls pill */}
+            <div className="absolute inset-x-0 bottom-0 h-28 pointer-events-none z-[2]" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)' }} />
+            {/* "You" label */}
+            <div className="absolute top-2.5 left-3 z-[3]">
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="" className="w-4 h-4 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
+                ) : user?.username ? (
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[8px]" style={{ background: 'linear-gradient(135deg, #1b62f5, #7c3aed)' }}>
+                    {user.username[0].toUpperCase()}
+                  </div>
+                ) : null}
+                <span className="text-white/70 font-semibold text-[11px]">{user ? `@${user.username}` : 'You'}</span>
+                {user?.emailVerified && <ShieldCheck size={9} style={{ color: '#60a5fa', flexShrink: 0 }} />}
+                {user?.isVip && <span className="flex items-center gap-0.5 px-1 py-0.5 rounded-full text-[7px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}><Crown size={6} /> VIP</span>}
+              </div>
+            </div>
+            {/* Camera controls — bottom right, above pill */}
+            <div className="absolute z-[3] flex gap-1.5"
+              style={{ bottom: 'max(76px, calc(env(safe-area-inset-bottom, 0px) + 68px))', right: 12 }}>
+              {hasCamera && !videoOff && (
+                <button onClick={flipCamera} className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <Camera size={13} className="text-white/70" />
                 </button>
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── MOBILE: timer top right ── */}
-        {status === 'matched' && (
-          <div className="lg:hidden fixed z-[10] px-2.5 py-1.5 rounded-xl font-mono text-[12px] text-white/70"
-            style={{ top: 'max(16px, env(safe-area-inset-top, 0px) + 12px)', right: 16, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            {fmt(elapsed)}
-          </div>
-        )}
-
-        {/* ── MOBILE: PiP self-video — bottom right ── */}
-        <div className="lg:hidden fixed z-[20] rounded-2xl overflow-hidden shadow-xl"
-          style={{
-            bottom: 'max(90px, calc(env(safe-area-inset-bottom, 0px) + 78px))',
-            right: 12,
-            width: 86,
-            height: 116,
-            border: '1.5px solid rgba(255,255,255,0.12)',
-            background: '#0d0d18',
-          }}>
-          <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-          {!hasCamera && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a14]">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              {hasCamera && (
+                <button onClick={toggleVideo} className="w-7 h-7 rounded-full flex items-center justify-center active:scale-90" style={{ background: videoOff ? 'rgba(220,38,38,0.5)' : 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', border: videoOff ? '1px solid rgba(220,38,38,0.5)' : '1px solid rgba(255,255,255,0.1)' }}>
+                  {videoOff ? <VideoOff size={13} className="text-white" /> : <Video size={13} className="text-white/70" />}
+                </button>
+              )}
             </div>
-          )}
-          {videoOff && hasCamera && (
-            <div className="absolute inset-0 bg-black/80 flex items-center justify-center"><VideoOff size={18} className="text-white/30" /></div>
-          )}
-          <div className="absolute bottom-1.5 inset-x-0 flex justify-center gap-1.5">
-            {hasCamera && !videoOff && (
-              <button onClick={flipCamera} className="w-6 h-6 rounded-full flex items-center justify-center active:scale-90" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
-                <Camera size={11} className="text-white/70" />
-              </button>
-            )}
-            {hasCamera && (
-              <button onClick={toggleVideo} className="w-6 h-6 rounded-full flex items-center justify-center active:scale-90" style={{ background: videoOff ? 'rgba(220,38,38,0.5)' : 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
-                {videoOff ? <VideoOff size={11} className="text-white" /> : <Video size={11} className="text-white/70" />}
-              </button>
-            )}
           </div>
         </div>
 
@@ -1183,10 +1208,10 @@ export default function ChatPage() {
         ══════════════════════════════════════════════════════════ */}
         <div className="hidden lg:flex" style={{ height: '100dvh', width: '100%' }}>
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex-1 flex gap-1.5 p-2 min-h-0">
+            <div className="flex-1 grid grid-cols-2 gap-1.5 p-2 min-h-0">
 
               {/* Stranger video */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-1 min-h-0">
+              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] min-h-0 min-w-0">
                 {status === 'searching' ? (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-6 px-4">
                     <VybeGlobe size={180} />
@@ -1340,7 +1365,7 @@ export default function ChatPage() {
               </div>
 
               {/* Your video — desktop only, uses localVideoDesktopRef */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-1 min-h-0">
+              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] min-h-0 min-w-0">
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
