@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, Edit2, Save, X, ArrowLeft, Copy, Check, Loader2, Shield, Crown, Zap, Flame, Trophy, MessageCircle, Lock, MessageSquare, Twitter, Star, BadgeCheck, Gem, Sparkles, Music2, Globe, Target } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import { VybeCoin } from '../components/VybeCoin'
 import { Skeleton } from '../components/Skeleton'
+import EmptyStateIllustration from '../components/EmptyStateIllustration'
 
 const COUNTRY_FLAGS = {
   'United States': '🇺🇸', 'United Kingdom': '🇬🇧', 'Canada': '🇨🇦', 'Australia': '🇦🇺',
@@ -14,6 +15,26 @@ const COUNTRY_FLAGS = {
   'Mexico': '🇲🇽', 'Spain': '🇪🇸', 'Italy': '🇮🇹', 'Netherlands': '🇳🇱', 'Sweden': '🇸🇪',
 }
 const countryFlag = (c) => COUNTRY_FLAGS[c] || '🌍'
+
+const BANNER_PRESETS = [
+  { id: 'default',  name: 'Vybe',     style: 'linear-gradient(135deg, rgba(124,58,237,0.5) 0%, rgba(99,102,241,0.3) 40%, rgba(27,98,245,0.35) 100%)' },
+  { id: 'sunset',   name: 'Sunset',   style: 'linear-gradient(135deg, rgba(234,88,12,0.5) 0%, rgba(236,72,153,0.35) 50%, rgba(124,58,237,0.4) 100%)' },
+  { id: 'ocean',    name: 'Ocean',    style: 'linear-gradient(135deg, rgba(6,182,212,0.5) 0%, rgba(59,130,246,0.4) 50%, rgba(30,58,138,0.5) 100%)' },
+  { id: 'forest',   name: 'Forest',   style: 'linear-gradient(135deg, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.35) 50%, rgba(6,95,70,0.5) 100%)' },
+  { id: 'ember',    name: 'Ember',    style: 'linear-gradient(135deg, rgba(239,68,68,0.5) 0%, rgba(245,158,11,0.4) 50%, rgba(234,88,12,0.4) 100%)' },
+  { id: 'aurora',   name: 'Aurora',   style: 'linear-gradient(135deg, rgba(99,102,241,0.5) 0%, rgba(167,139,250,0.4) 40%, rgba(236,72,153,0.35) 100%)' },
+  { id: 'midnight', name: 'Midnight', style: 'linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.8) 50%, rgba(17,24,39,0.9) 100%)' },
+  { id: 'rose',     name: 'Rose',     style: 'linear-gradient(135deg, rgba(244,63,94,0.45) 0%, rgba(251,113,133,0.3) 50%, rgba(190,18,60,0.4) 100%)' },
+]
+
+const ACCENT_COLORS = [
+  { hex: '#7c3aed', name: 'Purple' },
+  { hex: '#1b62f5', name: 'Blue'   },
+  { hex: '#ec4899', name: 'Pink'   },
+  { hex: '#f59e0b', name: 'Gold'   },
+  { hex: '#10b981', name: 'Green'  },
+  { hex: '#06b6d4', name: 'Cyan'   },
+]
 
 const BADGE_DEFS = [
   { id: 'star',         name: 'Rising Star',    icon: '⭐', cost: 200,  desc: 'For those making their mark on Vybe',       rarity: 'common'    },
@@ -70,7 +91,7 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState('')
   const [copied,    setCopied]    = useState(false)
   const [referral,  setReferral]  = useState(null)
-  const [editForm,  setEditForm]  = useState({ bio: '', gender: 'other', country: '', privacyShowBio: true, privacyShowCountry: true })
+  const [editForm,  setEditForm]  = useState({ bio: '', gender: 'other', country: '', privacyShowBio: true, privacyShowCountry: true, accentColor: '', bannerGradient: '' })
   const [ownedBadgeIds, setOwnedBadgeIds] = useState([])
 
   const fileRef = useRef(null)
@@ -89,6 +110,8 @@ export default function ProfilePage() {
             country:           data.user.country || '',
             privacyShowBio:    data.user.privacyShowBio ?? true,
             privacyShowCountry: data.user.privacyShowCountry ?? true,
+            accentColor:       data.user.accentColor || '',
+            bannerGradient:    data.user.bannerGradient || '',
           })
           // Secondary fetches — isolated so failures don't redirect away from profile
           axios.get('/api/referral/info').then(r => setReferral(r.data)).catch(() => {})
@@ -120,19 +143,29 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setSaving(true)
+    setSaveError('')
     try {
-      const { data } = await axios.put('/api/user/profile', {
-        bio:               editForm.bio,
-        gender:            editForm.gender,
-        country:           editForm.country,
-        privacyShowBio:    editForm.privacyShowBio,
-        privacyShowCountry: editForm.privacyShowCountry,
-        avatar:            editForm.avatar || profile.avatar,
-      })
-      setProfile((p) => ({ ...p, ...data.user }))
-      if (updateUser) updateUser({ ...me, ...data.user })
+      const [profileRes] = await Promise.all([
+        axios.put('/api/user/profile', {
+          bio:               editForm.bio,
+          gender:            editForm.gender,
+          country:           editForm.country,
+          privacyShowBio:    editForm.privacyShowBio,
+          privacyShowCountry: editForm.privacyShowCountry,
+          avatar:            editForm.avatar || profile.avatar,
+        }),
+        axios.put('/api/user/cosmetics', {
+          accentColor:    editForm.accentColor,
+          bannerGradient: editForm.bannerGradient,
+        }).catch(() => {}),
+      ])
+      const updated = { ...profileRes.data.user, accentColor: editForm.accentColor, bannerGradient: editForm.bannerGradient }
+      setProfile((p) => ({ ...p, ...updated }))
+      if (updateUser) updateUser({ ...me, ...updated })
       setEditing(false)
-    } catch {}
+    } catch (err) {
+      setSaveError(err.response?.data?.error || 'Failed to save. Please try again.')
+    }
     setSaving(false)
   }
 
@@ -195,16 +228,15 @@ export default function ProfilePage() {
         {/* Profile card */}
         <div className="glass-card rounded-3xl overflow-hidden">
           {/* Header banner */}
-          <div className="h-24 bg-gradient-to-r from-vybe-purple/40 via-purple-600/20 to-blue-800/30 relative">
-            {isOwn && editing && (
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-black/80 transition-colors"
-              >
-                <Camera size={14} />
-              </button>
-            )}
-          </div>
+          {(() => {
+            const preset = BANNER_PRESETS.find(b => b.id === (editing ? editForm.bannerGradient : profile.bannerGradient)) || BANNER_PRESETS[0]
+            return (
+              <div className="h-24 relative transition-all duration-500" style={{ background: preset.style }}>
+                {/* Subtle noise grain overlay for depth */}
+                <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3CfeColorMatrix type=\'saturate\' values=\'0\'/%3E%3C/filter%3E%3Crect width=\'200\' height=\'200\' filter=\'url(%23n)\' opacity=\'0.04\'/%3E%3C/svg%3E")', mixBlendMode: 'overlay' }} />
+              </div>
+            )
+          })()}
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
 
           <div className="px-6 pb-6">
@@ -213,12 +245,14 @@ export default function ProfilePage() {
               <div
                 className="w-20 h-20 rounded-2xl border-4 overflow-hidden bg-gradient-to-br from-vybe-purple to-blue-900 flex items-center justify-center"
                 style={{
-                  borderColor: profile.borderColor || '#0a0a0f',
+                  borderColor: profile.borderColor || (profile.accentColor ? `${profile.accentColor}55` : '#0a0a0f'),
                   boxShadow: profile.animatedBorder
                     ? '0 0 0 2px #ec4899, 0 0 0 4px #06b6d4, 0 0 20px rgba(124,58,237,0.6)'
-                    : profile.borderColor
-                      ? `0 0 12px ${profile.borderColor}88`
-                      : undefined,
+                    : profile.accentColor
+                      ? `0 0 16px ${profile.accentColor}66`
+                      : profile.borderColor
+                        ? `0 0 12px ${profile.borderColor}88`
+                        : undefined,
                   animation: profile.animatedBorder ? 'borderPulse 2s ease-in-out infinite' : undefined,
                 }}
               >
@@ -256,7 +290,7 @@ export default function ProfilePage() {
               </div>
               {isOwn && !editing && (
                 <button
-                  onClick={() => setEditing(true)}
+                  onClick={() => { setEditing(true); setSaveError('') }}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-vybe-border text-vybe-muted hover:text-white hover:border-vybe-purple/40 text-sm transition-all"
                 >
                   <Edit2 size={13} /> Edit
@@ -327,9 +361,8 @@ export default function ProfilePage() {
                       onChange={(e) => setEditForm((f) => ({ ...f, gender: e.target.value }))}
                       className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm focus:border-vybe-purple focus:outline-none"
                     >
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
+                      <option value="male">♂ Male</option>
+                      <option value="female">♀ Female</option>
                     </select>
                   </div>
                   <div>
@@ -353,6 +386,62 @@ export default function ProfilePage() {
                     </label>
                   ))}
                 </div>
+
+                {/* Banner presets */}
+                <div>
+                  <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-2">Profile Banner</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {BANNER_PRESETS.map(b => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => setEditForm(f => ({ ...f, bannerGradient: b.id === 'default' ? '' : b.id }))}
+                        className="relative h-10 rounded-lg overflow-hidden transition-all"
+                        style={{
+                          background: b.style,
+                          boxShadow: (editForm.bannerGradient || 'default') === b.id || (!editForm.bannerGradient && b.id === 'default')
+                            ? '0 0 0 2px #a78bfa' : undefined,
+                          opacity: 1,
+                        }}
+                        title={b.name}
+                      >
+                        {((editForm.bannerGradient || 'default') === b.id || (!editForm.bannerGradient && b.id === 'default')) && (
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <Check size={12} className="text-white drop-shadow" />
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Accent color */}
+                <div>
+                  <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-2">Accent Color <span className="normal-case font-normal">(free)</span></label>
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setEditForm(f => ({ ...f, accentColor: '' }))}
+                      className="w-7 h-7 rounded-full border-2 transition-all flex items-center justify-center"
+                      style={{ background: '#1a1a2e', borderColor: !editForm.accentColor ? '#a78bfa' : 'rgba(255,255,255,0.15)' }}
+                      title="None"
+                    >
+                      {!editForm.accentColor && <Check size={11} className="text-white/60" />}
+                    </button>
+                    {ACCENT_COLORS.map(c => (
+                      <button
+                        key={c.hex}
+                        type="button"
+                        onClick={() => setEditForm(f => ({ ...f, accentColor: c.hex }))}
+                        className="w-7 h-7 rounded-full border-2 transition-all"
+                        style={{ background: c.hex, borderColor: editForm.accentColor === c.hex ? '#fff' : 'transparent',
+                          boxShadow: editForm.accentColor === c.hex ? `0 0 8px ${c.hex}88` : undefined }}
+                        title={c.name}
+                      />
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex gap-2 pt-1">
                   <button
                     onClick={handleSave}
@@ -394,6 +483,17 @@ export default function ProfilePage() {
                   <h3 className="text-sm font-black text-white">Badge Collection</h3>
                   <span className="text-xs text-vybe-muted">{ownedBadgeIds.length}/{BADGE_DEFS.length} owned</span>
                 </div>
+                {ownedBadgeIds.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center text-center py-4 mb-3"
+                  >
+                    <EmptyStateIllustration variant="badges" size={72} />
+                    <p className="text-white/60 text-xs font-semibold mt-1 mb-0.5">No badges yet</p>
+                    <p className="text-vybe-muted text-[11px]">Unlock your first badge below</p>
+                  </motion.div>
+                )}
                 <div className="grid grid-cols-2 gap-2">
                   {BADGE_DEFS.map(def => {
                     const owned    = ownedBadgeIds.includes(def.id)

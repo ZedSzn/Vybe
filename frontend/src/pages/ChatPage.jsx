@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
-  MessageSquare, X, ChevronRight, Globe, Shield, ShieldCheck, Loader2, Ban, Gift, UserX, UserPlus, Camera, Crown, Zap,
+  MessageSquare, X, ChevronRight, Shield, ShieldCheck, Loader2, Ban, UserX, UserPlus, Camera, Crown, Zap,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -11,8 +11,8 @@ import SimplePeer from 'simple-peer'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import VybeCoin from '../components/VybeCoin'
-import { VybeBadge } from '../components/VybeBadge'
-import { playMatchFound, playGiftReceived, playGiftSent, playTipSent, playClick } from '../utils/sounds'
+import VybeGlobe from '../components/VybeGlobe'
+import { playMatchFound, playTipSent, playClick } from '../utils/sounds'
 
 // Defined outside ChatPage so the reference is stable across re-renders (no unmount flicker)
 function BarBtn({ onClick, children, label, active, red, disabled: dis, title: t }) {
@@ -31,21 +31,6 @@ function BarBtn({ onClick, children, label, active, red, disabled: dis, title: t
       <span className="text-[9px] font-medium tracking-wide whitespace-nowrap">{label}</span>
     </button>
   )
-}
-
-const CHAT_BADGES = [
-  { id: 'spark', name: 'Spark',         cost: 75,  rarity: 'common',    label: 'Common'    },
-  { id: 'star',  name: 'Shooting Star', cost: 120, rarity: 'common',    label: 'Common'    },
-  { id: 'flame', name: 'Flame',         cost: 250, rarity: 'rare',      label: 'Rare'      },
-  { id: 'orb',   name: 'Lightning Orb', cost: 480, rarity: 'epic',      label: 'Epic'      },
-  { id: 'crown', name: 'Cosmic Crown',  cost: 950, rarity: 'legendary', label: 'Legendary' },
-]
-
-const RARITY_COLORS = {
-  common:    { bg: 'rgba(250,204,21,0.07)',   border: 'rgba(250,204,21,0.22)',  glow: 'rgba(250,204,21,0.15)',   text: '#fde047' },
-  rare:      { bg: 'rgba(249,115,22,0.1)',    border: 'rgba(249,115,22,0.38)',  glow: 'rgba(249,115,22,0.22)',   text: '#fb923c' },
-  epic:      { bg: 'rgba(139,92,246,0.1)',    border: 'rgba(139,92,246,0.38)',  glow: 'rgba(139,92,246,0.26)',   text: '#a78bfa' },
-  legendary: { bg: 'rgba(251,191,36,0.12)',   border: 'rgba(251,191,36,0.48)', glow: 'rgba(251,191,36,0.38)',   text: '#fbbf24' },
 }
 
 
@@ -91,10 +76,6 @@ export default function ChatPage() {
   const [reconnectCount,   setReconnectCount]   = useState(0)
 
   const [adminWarning,   setAdminWarning]     = useState('')
-  const [showGifts,      setShowGifts]        = useState(false)
-  const [giftSending,    setGiftSending]      = useState(false)
-  const [giftError,      setGiftError]        = useState('')
-  const [giftReceived,   setGiftReceived]     = useState(null)
   const [partnerUsername,      setPartnerUsername]      = useState(null)
   const [partnerAvatar,        setPartnerAvatar]        = useState(null)
   const [partnerIsVip,         setPartnerIsVip]         = useState(false)
@@ -106,7 +87,6 @@ export default function ChatPage() {
   const [friendReqLoad,  setFriendReqLoad]    = useState(false)
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
-  const [floatingGifts,  setFloatingGifts]    = useState([]) // [{id, emoji, fromMe}]
   const [showTip,        setShowTip]          = useState(false)
   const [tipAmount,      setTipAmount]        = useState('50')
   const [tipLoading,     setTipLoading]       = useState(false)
@@ -117,10 +97,12 @@ export default function ChatPage() {
   const [hasCamera,      setHasCamera]        = useState(true)
   const [noCamDismissed, setNoCamDismissed]   = useState(false)
   const [facingMode,     setFacingMode]       = useState('user')
+  const [matchFlash,     setMatchFlash]       = useState(false)
 
   const searchTimerRef   = useRef(null)
   const searchTextTimer  = useRef(null)
   const reconnectTimer   = useRef(null)
+  const matchFlashTimer  = useRef(null)
   const statusRef        = useRef(status)
 
   const SEARCH_TEXTS = [
@@ -408,6 +390,9 @@ export default function ChatPage() {
         setPartnerEmailVerified(pEmailVerified || false)
         setFriendReqSent(false)
         playMatchFound()
+        setMatchFlash(true)
+        clearTimeout(matchFlashTimer.current)
+        matchFlashTimer.current = setTimeout(() => setMatchFlash(false), 1200)
 
         // Support both new format (peers array) and legacy 1v1 format
         const peersToCreate = (peers && peers.length > 0)
@@ -465,24 +450,6 @@ export default function ChatPage() {
         setTimeout(() => setAdminWarning(''), 8000)
       })
 
-      socket.on('gift-received', ({ rarity, giftId, from }) => {
-        if (!mounted) return
-        const id = Date.now() + Math.random()
-        setFloatingGifts((prev) => [...prev, { id, badgeId: giftId || 'spark', rarity: rarity || 'common', from, fromMe: false }])
-        setTimeout(() => setFloatingGifts((prev) => prev.filter((g) => g.id !== id)), 3200)
-        setGiftReceived({ badgeId: giftId || 'spark', rarity: rarity || 'common', from })
-        setTimeout(() => setGiftReceived(null), 4000)
-        playGiftReceived()
-      })
-
-      socket.on('gift-sent', ({ rarity, giftId }) => {
-        if (!mounted) return
-        const id = Date.now() + Math.random()
-        setFloatingGifts((prev) => [...prev, { id, badgeId: giftId || 'spark', rarity: rarity || 'common', fromMe: true }])
-        setTimeout(() => setFloatingGifts((prev) => prev.filter((g) => g.id !== id)), 3200)
-        playGiftSent()
-      })
-
       socket.on('tip-received', ({ from, yourShare, coins: newCoins, cashableCoins: newCashable }) => {
         if (!mounted) return
         if (newCoins     !== undefined) setCoins(newCoins)
@@ -522,6 +489,7 @@ export default function ChatPage() {
       localStreamRef.current?.getTracks().forEach((t) => t.stop())
       socketRef.current?.disconnect()
       clearInterval(timerRef.current)
+      clearTimeout(matchFlashTimer.current)
     }
   }, []) // eslint-disable-line
 
@@ -601,20 +569,6 @@ export default function ChatPage() {
       setTimeout(() => setTipFeedback(null), 3000)
     }
     setFriendReqLoad(false)
-  }
-
-  const handleSendGift = async (giftId) => {
-    if (!partnerSockRef.current) return
-    setGiftSending(true)
-    setGiftError('')
-    try {
-      const { data } = await axios.post('/api/user/send-gift', { giftId, recipientSocketId: partnerSockRef.current })
-      setCoins(data.coins)
-      setShowGifts(false)
-    } catch (err) {
-      setGiftError(err.response?.data?.error || 'Could not send gift')
-    }
-    setGiftSending(false)
   }
 
   const handleSendTip = () => {
@@ -801,7 +755,7 @@ export default function ChatPage() {
             {unbanLoading ? (
               <><Loader2 size={15} className="animate-spin" /> Processing…</>
             ) : (
-              <>Remove Ban for $4.99</>
+              <>Remove Ban for £4.99</>
             )}
           </button>
         )}
@@ -853,6 +807,38 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
+        {/* Match found flash */}
+        <AnimatePresence>
+          {matchFlash && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+            >
+              <div className="animate-match-found flex flex-col items-center gap-3">
+                <div
+                  className="animate-match-fade w-20 h-20 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(27,98,245,0.35) 0%, transparent 70%)',
+                    border: '2px solid rgba(75,136,247,0.55)',
+                    boxShadow: '0 0 40px rgba(27,98,245,0.55), 0 0 80px rgba(27,98,245,0.25)',
+                  }}
+                >
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div className="animate-match-fade text-center">
+                  <p className="text-white font-black text-lg tracking-tight leading-none">Match Found!</p>
+                  <p className="text-blue-400/70 text-xs font-medium mt-1">Connecting you now…</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Email verification */}
         {user && !user.emailVerified && status === 'matched' && (
           <div className="fixed bottom-28 lg:bottom-24 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm pointer-events-none">
@@ -864,23 +850,6 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* Floating badges */}
-        <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
-          <AnimatePresence>
-            {floatingGifts.map((g) => (
-              <motion.div key={g.id}
-                initial={{ opacity: 1, y: 0, x: '-50%', scale: 0.6 }}
-                animate={{ opacity: 0, y: -220, scale: 2 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 2.8, ease: 'easeOut' }}
-                className="absolute select-none"
-                style={{ left: g.fromMe ? '28%' : '72%', bottom: '22%' }}>
-                <VybeBadge id={g.badgeId} size={64} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-
         {/* Tip/gift feedback toast */}
         <AnimatePresence>
           {tipFeedback && (
@@ -888,33 +857,6 @@ export default function ChatPage() {
               className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-semibold backdrop-blur-sm whitespace-nowrap"
               style={{ background: tipFeedback.type === 'success' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${tipFeedback.type === 'success' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`, color: tipFeedback.type === 'success' ? '#4ade80' : '#f87171' }}>
               {tipFeedback.msg}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Badge received overlay */}
-        <AnimatePresence>
-          {giftReceived && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-              <motion.div
-                initial={{ scale: 0.5, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                className="flex flex-col items-center gap-3 px-8 py-6 rounded-3xl text-center"
-                style={{
-                  background: 'rgba(8,8,20,0.88)',
-                  backdropFilter: 'blur(20px)',
-                  border: `1.5px solid ${RARITY_COLORS[giftReceived.rarity]?.border || 'rgba(255,255,255,0.2)'}`,
-                  boxShadow: `0 0 48px ${RARITY_COLORS[giftReceived.rarity]?.glow || 'rgba(255,255,255,0.1)'}`,
-                }}>
-                <VybeBadge id={giftReceived.badgeId} size={96} />
-                <div>
-                  <p className="text-white font-black text-base">{giftReceived.from}</p>
-                  <p className="text-sm mt-0.5 font-semibold" style={{ color: RARITY_COLORS[giftReceived.rarity]?.text }}>
-                    sent you a {CHAT_BADGES.find(b => b.id === giftReceived.badgeId)?.name || 'badge'}!
-                  </p>
-                </div>
-              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -957,51 +899,6 @@ export default function ChatPage() {
                 {tipAmount && parseInt(tipAmount) >= 10 && parseInt(tipAmount) <= coins && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
                 {tipAmount && parseInt(tipAmount) > coins && <p className="text-red-400 text-xs mb-3 text-center">You only have {coins} spendable coins</p>}
                 <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins} className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 20px rgba(27,98,245,0.4)' }}>{tipLoading?'Sending…':`Send ${tipAmount||0} coins`}</button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Badge picker */}
-        <AnimatePresence>
-          {showGifts && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-end justify-center px-4"
-              style={{ background: 'rgba(0,0,0,0.82)', paddingBottom: 'calc(84px + 8px)' }} onClick={() => { setShowGifts(false); setGiftError('') }}>
-              <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#060612)', maxHeight: '72vh', overflowY: 'auto' }}>
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="text-white font-black text-sm">Send a Badge</h3>
-                    <p className="text-white/30 text-[10px] mt-0.5">Animates on both screens</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1 text-yellow-300 text-xs font-black"><VybeCoin size={12}/> {coins.toLocaleString()}</span>
-                    <button onClick={() => { setShowGifts(false); setGiftError('') }} className="text-white/40 hover:text-white"><X size={16} /></button>
-                  </div>
-                </div>
-                {giftError && <p className="text-red-400 text-xs mb-3 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">{giftError}</p>}
-                <div className="space-y-2.5">
-                  {CHAT_BADGES.map((badge) => {
-                    const rc = RARITY_COLORS[badge.rarity]
-                    const canAfford = coins >= badge.cost
-                    return (
-                      <button key={badge.id} onClick={() => handleSendGift(badge.id)} disabled={giftSending || !canAfford}
-                        className="w-full flex items-center gap-3 p-3 rounded-2xl transition-colors text-left"
-                        style={{ background: rc.bg, border: `1px solid ${rc.border}`, opacity: canAfford ? 1 : 0.35, boxShadow: canAfford ? `0 0 14px ${rc.glow}` : 'none' }}>
-                        <div className="flex-shrink-0"><VybeBadge id={badge.id} size={44}/></div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white font-bold text-sm leading-none">{badge.name}</p>
-                          <p className="text-[11px] mt-1 font-semibold" style={{ color: rc.text }}>{badge.label}</p>
-                        </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <VybeCoin size={11}/>
-                          <span className="text-yellow-300 font-black text-sm">{badge.cost.toLocaleString()}</span>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
               </motion.div>
             </motion.div>
           )}
@@ -1056,16 +953,9 @@ export default function ChatPage() {
             {/* Stranger video — dominant on mobile, equal on desktop */}
             <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] flex-[3] lg:flex-1 min-h-0">
               {status === 'searching' ? (
-                /* ── Radar pulse while searching ── */
+                /* ── Spinning globe while searching ── */
                 <div className="w-full h-full flex flex-col items-center justify-center gap-6 px-4">
-                  <div className="relative flex items-center justify-center" style={{ width: 180, height: 180 }}>
-                    <div className="absolute rounded-full animate-ping border border-purple-500/45" style={{ width: 128, height: 128, animationDuration: '2.2s', animationDelay: '0s' }} />
-                    <div className="absolute rounded-full animate-ping border border-purple-500/28" style={{ width: 128, height: 128, animationDuration: '2.2s', animationDelay: '0.73s' }} />
-                    <div className="absolute rounded-full animate-ping border border-purple-500/14" style={{ width: 128, height: 128, animationDuration: '2.2s', animationDelay: '1.46s' }} />
-                    <div className="rounded-full flex items-center justify-center" style={{ width: 128, height: 128, background: '#0d0d18', border: '1.5px solid rgba(124,58,237,0.45)', boxShadow: '0 0 32px rgba(124,58,237,0.2)', zIndex: 1, position: 'relative' }}>
-                      <Globe size={40} className="text-vybe-purple/40" style={{ animation: 'spin 8s linear infinite' }} />
-                    </div>
-                  </div>
+                  <VybeGlobe size={180} />
                   <div className="text-center">
                     <AnimatePresence mode="wait">
                       <motion.p key={prefs.mode==='private'?'private':searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-white font-bold text-base mb-1.5">
@@ -1085,18 +975,30 @@ export default function ChatPage() {
                   {status === 'matched' && <div className="loading-dots flex"><span /><span /><span /></div>}
                 </div>
               ) : (
-                <div className="w-full h-full flex">
+                <motion.div
+                  key={opponentSocketIds.join(',')}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  className="w-full h-full flex"
+                >
                   {opponentSocketIds.map((sid, idx) => (
                     <div key={sid} className={`relative flex-1 overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
                       <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                     </div>
                   ))}
-                </div>
+                </motion.div>
               )}
 
               {/* Partner identity + streamer hide button */}
+              <AnimatePresence>
               {status === 'matched' && (
-                <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
+                <motion.div
+                  initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute top-3 left-3 z-10 flex items-center gap-2">
                   <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
                     {/* Partner avatar */}
                     {partnerAvatar ? (
@@ -1157,8 +1059,9 @@ export default function ChatPage() {
                     }}>
                     <Shield size={13} style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.6)' }} />
                   </button>
-                </div>
+                </motion.div>
               )}
+              </AnimatePresence>
 
               {/* Timer — top right of stranger video */}
               {status === 'matched' && (
@@ -1307,9 +1210,6 @@ export default function ChatPage() {
                 {user && status === 'matched' && (
                   <>
                     <div className="w-px h-6 bg-white/10 mx-1" />
-                    <BarBtn onClick={() => { setShowGifts(true); setGiftError('') }} label="Gift">
-                      <Gift size={17} />
-                    </BarBtn>
                     <BarBtn onClick={() => setShowTip(true)} label="Tip">
                       <VybeCoin size={17} />
                     </BarBtn>

@@ -38,11 +38,11 @@ const GIFT_TYPES = [
 const FAQS = [
   {
     q: 'How much is each coin worth?',
-    a: 'Every 100 Vybe Coins = £1.00. You keep 70% of all gift value — the remaining 30% covers platform fees.',
+    a: 'Every 1,000 Vybe Coins = approximately £4.20 at cashout. You keep 70% of all gift value — the remaining 30% covers platform fees.',
   },
   {
     q: 'When can I cash out?',
-    a: 'You can request a payout once your wallet reaches 1,000 coins (£10). Payouts are processed within 3–5 business days via bank transfer or PayPal.',
+    a: 'You can request a payout once your Earn Balance reaches 1,000 coins (≈ £4.20). Payouts are processed within 3–5 business days via PayPal.',
   },
   {
     q: 'Do I need a subscription to earn?',
@@ -167,8 +167,8 @@ export default function EarnPage() {
           style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(37,99,235,0.14) 100%)', border: '1px solid rgba(124,58,237,0.25)' }}
         >
           <Star size={24} className="text-vybe-purple-light mx-auto mb-3" />
-          <p className="text-white font-black text-lg mb-1">100 coins = £1.00</p>
-          <p className="text-vybe-muted text-sm">You keep <span className="text-white font-bold">70%</span> of every gift. No caps. Cash out any time you hit 1,000 coins (£10).</p>
+          <p className="text-white font-black text-lg mb-1">1,000 coins ≈ £4.20</p>
+          <p className="text-vybe-muted text-sm">You keep <span className="text-white font-bold">70%</span> of every gift. No caps. Cash out any time you hit 1,000 coins (≈ £4.20).</p>
         </motion.div>
 
         {/* FAQ */}

@@ -49,7 +49,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What is Vybe Membership?',
-    a: 'Membership comes in two tiers. Basic ($6.99/mo) unlocks gender filtering so you choose who you match with. VIP ($12.99/mo) adds country filtering, priority matching, and early access to new features.',
+    a: 'Membership comes in two tiers. Basic (£6.99/mo) unlocks gender filtering so you choose who you match with. VIP (£12.99/mo) adds country filtering, priority matching, and early access to new features.',
   },
   {
     q: 'How do I report someone?',
@@ -987,15 +987,23 @@ export default function MainPage() {
                           >
                             {inviteUrl}
                           </div>
-                          <button
+                          <motion.button
                             onClick={copyLink}
+                            whileTap={{ scale: 0.85 }}
+                            animate={copied ? { scale: [1, 1.2, 1] } : {}}
+                            transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                             className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
                               copied ? 'bg-green-500/20 text-green-400' : 'text-vybe-muted hover:text-white'
                             }`}
                             style={!copied ? { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } : {}}
                           >
-                            {copied ? <Check size={10} /> : <Copy size={10} />}
-                          </button>
+                            <AnimatePresence mode="wait">
+                              {copied
+                                ? <motion.span key="check" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }}><Check size={10} /></motion.span>
+                                : <motion.span key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={10} /></motion.span>
+                              }
+                            </AnimatePresence>
+                          </motion.button>
                         </div>
 
                         <div className="grid grid-cols-3 gap-1.5">
@@ -1106,15 +1114,23 @@ export default function MainPage() {
                             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
                             {privateInviteUrl}
                           </div>
-                          <button
+                          <motion.button
                             onClick={copyPrivateLink}
+                            whileTap={{ scale: 0.85 }}
+                            animate={privateCopied ? { scale: [1, 1.2, 1] } : {}}
+                            transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                             className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
                               privateCopied ? 'bg-green-500/20 text-green-400' : 'text-vybe-muted hover:text-white'
                             }`}
                             style={!privateCopied ? { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } : {}}
                           >
-                            {privateCopied ? <Check size={10} /> : <Copy size={10} />}
-                          </button>
+                            <AnimatePresence mode="wait">
+                              {privateCopied
+                                ? <motion.span key="check" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }}><Check size={10} /></motion.span>
+                                : <motion.span key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={10} /></motion.span>
+                              }
+                            </AnimatePresence>
+                          </motion.button>
                         </div>
 
                         <p className="text-[10px] text-center text-vybe-muted">

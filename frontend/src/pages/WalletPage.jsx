@@ -6,11 +6,13 @@ import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { VybeCoin } from '../components/VybeCoin'
+import { CoinBalance, CoinSpend, CoinReward, CoinEarn, CoinCashout } from '../components/VybeCoinIcons'
 import { Skeleton } from '../components/Skeleton'
+import EmptyStateIllustration from '../components/EmptyStateIllustration'
 import {
   Gift, CalendarDays, Flame, MessageCircle, Users, TrendingUp, TrendingDown,
   Star, BadgeCheck, Crown, Gem, Sparkles, Music2, Globe, Zap, Target,
-  ThumbsUp, Heart, DollarSign, Check, Loader2,
+  ThumbsUp, Heart, Check, Loader2,
 } from 'lucide-react'
 
 const PACKAGES = [
@@ -89,7 +91,6 @@ const TX_TYPE_LABELS = {
   cashout_refund:{ label: 'Cashout refund',   color: 'text-green-400'  },
 }
 
-const CoinBadge = ({ size = 18 }) => <VybeCoin size={size} />
 
 function TabBtn({ active, onClick, children }) {
   return (
@@ -124,7 +125,8 @@ export default function WalletPage() {
   const [tab, setTab]                   = useState('overview')
   const [coins, setCoins]               = useState(user?.coins ?? 0)
   const [cashableCoins, setCashableCoins] = useState(user?.cashableCoins ?? 0)
-  const [balanceLoading, setBalanceLoading] = useState(true)
+  // Only show skeleton if we have no cached data at all — user context often already has balance
+  const [balanceLoading, setBalanceLoading] = useState(user?.coins == null)
   const [history, setHistory]           = useState([])
   const [histLoading, setHistLoading]   = useState(false)
   const [referralInfo, setReferralInfo] = useState(null)
@@ -350,7 +352,7 @@ export default function WalletPage() {
             {/* Spend Balance */}
             <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-blue-500/25" style={{ background: 'rgba(27,98,245,0.07)' }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(27,98,245,0.15)' }}>
-                <CoinBadge size={22} />
+                <CoinSpend size={22} />
               </div>
               <div>
                 <div className="flex items-center gap-1">
@@ -365,7 +367,7 @@ export default function WalletPage() {
             {/* Earn Balance */}
             <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-yellow-500/30" style={{ background: 'rgba(234,179,8,0.07)' }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(234,179,8,0.12)' }}>
-                <DollarSign size={20} className="text-yellow-400" />
+                <CoinEarn size={22} />
               </div>
               <div>
                 <div className="flex items-center gap-1">
@@ -373,7 +375,7 @@ export default function WalletPage() {
                   <Tooltip text="Tips received from other users. Can only be cashed out — cannot be spent on gifts or features." />
                 </div>
                 <p className="text-2xl font-extrabold text-yellow-300">{cashableCoins.toLocaleString()}</p>
-                <p className="text-yellow-400/50 text-[11px]">≈ ${((cashableCoins / 1000) * 4.20).toFixed(2)} cashable</p>
+                <p className="text-yellow-400/50 text-[11px]">≈ £{((cashableCoins / 1000) * 4.20).toFixed(2)} cashable</p>
               </div>
             </div>
           </div>
@@ -511,7 +513,7 @@ export default function WalletPage() {
                           style={{ background: coins >= badge.cost ? 'linear-gradient(135deg,#7c3aed,#a855f7)' : 'rgba(255,255,255,0.06)' }}
                         >
                           {badgeBuying === badge.id ? '…' : (
-                            <span className="flex items-center justify-center gap-1"><CoinBadge size={10} />{badge.cost}</span>
+                            <span className="flex items-center justify-center gap-1"><CoinSpend size={10} />{badge.cost}</span>
                           )}
                         </button>
                       )}
@@ -574,7 +576,7 @@ export default function WalletPage() {
                       <g.Icon size={20} style={{ color: g.color }} />
                     </div>
                     <p className="text-white text-xs font-bold mb-1">{g.name}</p>
-                    <span className="flex items-center gap-0.5 text-[10px] font-semibold text-yellow-300"><CoinBadge size={9} />{g.cost}</span>
+                    <span className="flex items-center gap-0.5 text-[10px] font-semibold text-yellow-300"><CoinSpend size={9} />{g.cost}</span>
                   </div>
                 ))}
               </div>
@@ -606,7 +608,7 @@ export default function WalletPage() {
                     </span>
                   )}
                   <div className="flex items-center justify-between mb-3">
-                    <CoinBadge size={28} />
+                    <CoinBalance size={28} />
                     <span className="text-2xl font-extrabold text-yellow-300">{pkg.label}</span>
                   </div>
                   <div className="flex items-end justify-between">
@@ -648,10 +650,16 @@ export default function WalletPage() {
                 ))}
               </div>
             ) : history.length === 0 ? (
-              <div className="py-12 text-center">
-                <div className="flex justify-center mb-3"><CoinBadge size={36} /></div>
-                <p className="text-white/50 text-sm">No transactions yet</p>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="py-8 flex flex-col items-center text-center"
+              >
+                <EmptyStateIllustration variant="wallet" size={96} />
+                <p className="text-white/70 text-sm font-bold mt-2 mb-1">No transactions yet</p>
+                <p className="text-white/30 text-xs">Buy coins or earn rewards to see your history here</p>
+              </motion.div>
             ) : (
               <div className="space-y-1 max-h-[520px] overflow-y-auto pr-1">
                 {history.map((tx, i) => {
@@ -715,7 +723,7 @@ export default function WalletPage() {
                     </div>
                     <div className="px-4 py-3 rounded-xl bg-white/4 border border-white/6 text-center">
                       <div className="flex items-center justify-center gap-1 mb-0.5">
-                        <CoinBadge size={16} />
+                        <CoinReward size={16} />
                         <p className="text-2xl font-extrabold text-yellow-300">{(referralInfo.referralCount || 0) * 50}</p>
                       </div>
                       <p className="text-vybe-muted text-xs mt-0.5">Coins earned</p>
@@ -755,7 +763,7 @@ export default function WalletPage() {
               <div className="px-4 py-4 rounded-2xl border border-blue-500/20" style={{ background: 'rgba(27,98,245,0.06)' }}>
                 <p className="text-blue-400/70 text-xs font-bold uppercase mb-1">Spend Balance</p>
                 <div className="flex items-center gap-1.5">
-                  <CoinBadge size={16} />
+                  <CoinSpend size={16} />
                   <p className="text-xl font-extrabold text-white">{coins.toLocaleString()}</p>
                 </div>
                 <p className="text-blue-400/40 text-[11px] mt-1">Cannot be cashed out</p>
@@ -763,7 +771,7 @@ export default function WalletPage() {
               <div className="px-4 py-4 rounded-2xl border border-yellow-500/30" style={{ background: 'rgba(234,179,8,0.07)' }}>
                 <p className="text-yellow-400/70 text-xs font-bold uppercase mb-1">Earn Balance</p>
                 <div className="flex items-center gap-1.5">
-                  <DollarSign size={16} className="text-yellow-400" />
+                  <CoinEarn size={16} />
                   <p className="text-xl font-extrabold text-yellow-300">{cashableCoins.toLocaleString()}</p>
                 </div>
                 <p className="text-yellow-400/50 text-[11px] mt-1 flex items-center gap-1">
@@ -819,7 +827,7 @@ export default function WalletPage() {
                       className={inputCls}
                     />
                     {cashoutAmount && parseInt(cashoutAmount) >= 1000 && parseInt(cashoutAmount) <= cashableCoins && (
-                      <p className="text-green-400 text-xs mt-1">≈ ${((parseInt(cashoutAmount) / 1000) * 4.20).toFixed(2)} to your PayPal</p>
+                      <p className="text-green-400 text-xs mt-1">≈ £{((parseInt(cashoutAmount) / 1000) * 4.20).toFixed(2)} to your PayPal</p>
                     )}
                     {cashoutAmount && parseInt(cashoutAmount) > cashableCoins && (
                       <p className="text-red-400 text-xs mt-1">Exceeds your Earn Balance of {cashableCoins.toLocaleString()} coins</p>
@@ -851,7 +859,7 @@ export default function WalletPage() {
                   {cashouts.map((r) => (
                     <div key={r._id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/3">
                       <div>
-                        <p className="text-white text-sm font-semibold">{r.coinsAmount.toLocaleString()} coins → ${r.gbpAmount.toFixed(2)}</p>
+                        <p className="text-white text-sm font-semibold">{r.coinsAmount.toLocaleString()} coins → £{r.gbpAmount.toFixed(2)}</p>
                         <p className="text-vybe-muted text-xs">{r.paypalEmail} · {new Date(r.createdAt).toLocaleDateString()}</p>
                         {r.adminNote && <p className="text-white/40 text-xs mt-0.5">{r.adminNote}</p>}
                       </div>
