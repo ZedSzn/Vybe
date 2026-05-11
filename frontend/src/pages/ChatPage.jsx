@@ -1030,7 +1030,7 @@ export default function ChatPage() {
               <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#09091a)' }}>
                 <div className="flex items-center justify-between mb-4">
-                  <div><h3 className="text-white font-black text-sm">Send a Tip 💰</h3><p className="text-white/40 text-xs mt-0.5">30% goes to Vybe · Min 10 coins</p></div>
+                  <div><h3 className="text-white font-black text-sm flex items-center gap-1.5">Send a Tip <VybeCoin size={15} /></h3><p className="text-white/40 text-xs mt-0.5">30% goes to Vybe · Min 10 coins</p></div>
                   <button onClick={() => setShowTip(false)} className="text-white/40 hover:text-white"><X size={15} /></button>
                 </div>
                 {/* Coin balance breakdown */}

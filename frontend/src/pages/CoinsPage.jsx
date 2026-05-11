@@ -5,6 +5,7 @@ import { ArrowLeft, Loader2, Shield } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
+import { VybeCoin } from '../components/VybeCoin'
 import axios from 'axios'
 
 
@@ -14,7 +15,7 @@ const PACKAGES = [
     coins:   100,
     price:   '$1.49',
     label:   'Starter',
-    icon:    '🪙',
+    icon:    null,
     color:   '#6b7280',
     glow:    'rgba(107,114,128,0.25)',
     popular: false,
@@ -188,7 +189,7 @@ export default function CoinsPage() {
               {/* Icon */}
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-3xl"
                 style={{ background: `${pkg.color}18`, border: `1px solid ${pkg.color}30` }}>
-                {pkg.icon}
+                {pkg.icon ?? <VybeCoin size={32} />}
               </div>
 
               <p className="text-xs font-extrabold uppercase tracking-widest mb-1" style={{ color: pkg.color }}>{pkg.label}</p>
@@ -275,7 +276,7 @@ export default function CoinsPage() {
                       <p className="text-xs" style={{ color: '#6b7280' }}>{desc}</p>
                     </div>
                   </div>
-                  <span className="text-sm font-black" style={{ color: '#f59e0b' }}>🪙 {cost}</span>
+                  <span className="text-sm font-black flex items-center gap-1" style={{ color: '#f59e0b' }}><VybeCoin size={14} /> {cost}</span>
                 </div>
               ))}
             </div>

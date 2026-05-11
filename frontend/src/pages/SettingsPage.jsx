@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 
 const TABS = [
-  { id: 'coins',       label: '🪙 Coins'      },
+  { id: 'coins',       label: 'Coins'         },
   { id: 'blocks',      label: '🚫 Blocked'    },
   { id: 'referral',    label: '🔗 Referral'   },
   { id: 'streak',      label: '🔥 Streak'     },
@@ -64,7 +64,9 @@ export default function SettingsPage() {
                   : 'bg-vybe-card border border-vybe-border text-vybe-muted hover:text-white'
               }`}
             >
-              {t.label}
+              {t.id === 'coins'
+                ? <span className="flex items-center gap-1"><VybeCoin size={11} /> Coins</span>
+                : t.label}
             </button>
           ))}
         </div>
@@ -307,7 +309,7 @@ function ReferralTab() {
         <h3 className="text-sm font-black text-white mb-1">Your Referral Link</h3>
         <p className="text-vybe-muted text-xs mb-4">
           You've invited <span className="text-white font-bold">{info?.referralCount || 0}</span> friends
-          and earned <span className="text-yellow-300 font-bold">{(info?.coinsEarned || 0).toLocaleString()} 🪙</span>.
+          and earned <span className="text-yellow-300 font-bold inline-flex items-center gap-1">{(info?.coinsEarned || 0).toLocaleString()} <VybeCoin size={12} /></span>.
         </p>
         <div className="flex gap-2 mb-3">
           <div className="flex-1 px-3 py-2 bg-vybe-bg border border-vybe-border rounded-xl text-vybe-muted text-xs truncate font-mono">
@@ -382,9 +384,9 @@ function StreakTab() {
   }
 
   const milestones = [
-    { streak: 3,  reward: '30 🪙',  label: '3-Day Streak'  },
-    { streak: 7,  reward: '100 🪙', label: '7-Day Streak'  },
-    { streak: 30, reward: '500 🪙', label: '30-Day Streak' },
+    { streak: 3,  reward: 30,  label: '3-Day Streak'  },
+    { streak: 7,  reward: 100, label: '7-Day Streak'  },
+    { streak: 30, reward: 500, label: '30-Day Streak' },
   ]
 
   return (
@@ -423,12 +425,12 @@ function StreakTab() {
             disabled={claiming}
             className="mt-4 w-full py-3 rounded-xl btn-purple text-white font-black text-sm flex items-center justify-center gap-2 disabled:opacity-60"
           >
-            {claiming ? <><Loader2 size={14} className="animate-spin" /> Claiming…</> : '📅 Claim Daily Login (+10 🪙)'}
+            {claiming ? <><Loader2 size={14} className="animate-spin" /> Claiming…</> : <><span>📅 Claim Daily Login (+10</span><VybeCoin size={14} /><span>)</span></>}
           </button>
         )}
 
         {result && !result.alreadyClaimed && !result.error && (
-          <p className="text-green-400 text-xs mt-2">+{result.coinsEarned} 🪙 earned!</p>
+          <p className="text-green-400 text-xs mt-2 flex items-center justify-center gap-1">+{result.coinsEarned} <VybeCoin size={12} /> earned!</p>
         )}
       </div>
 
@@ -448,7 +450,7 @@ function StreakTab() {
                   <p className={`text-sm font-bold ${achieved ? 'text-orange-300' : 'text-vybe-muted'}`}>{label}</p>
                   <p className="text-xs text-vybe-muted">{streak} consecutive days</p>
                 </div>
-                <span className={`text-sm font-black ${achieved ? 'text-yellow-300' : 'text-vybe-muted'}`}>{reward}</span>
+                <span className={`text-sm font-black flex items-center gap-1 ${achieved ? 'text-yellow-300' : 'text-vybe-muted'}`}>{reward} <VybeCoin size={12} /></span>
               </div>
             )
           })}
