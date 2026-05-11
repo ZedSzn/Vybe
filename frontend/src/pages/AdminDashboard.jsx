@@ -100,7 +100,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
                   <h3 className="font-black text-white">{user.username}</h3>
                   {profile.isOnline && <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />}
                   {user.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>}
-                  {user.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">PREMIUM</span>}
+                  {user.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">MEMBER</span>}
                   {user.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 font-bold">VIP</span>}
                 </div>
                 <p className="text-vybe-muted text-xs mt-0.5">{user.email}</p>
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
                           <div className="flex flex-wrap gap-1">
                             {u.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>}
                             {!u.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 font-bold">ACTIVE</span>}
-                            {u.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">PRO</span>}
+                            {u.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">MEMBER</span>}
                             {u.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 font-bold">VIP</span>}
                           </div>
                         </td>

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
-  MessageSquare, X, ChevronRight, Globe, Shield, Loader2, Ban, Gift, UserX, UserPlus, Camera,
+  MessageSquare, X, ChevronRight, Globe, Shield, Loader2, Ban, Gift, UserX, UserPlus, Camera, Crown, Zap,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -190,8 +190,11 @@ export default function ChatPage() {
   const [giftSending,    setGiftSending]      = useState(false)
   const [giftError,      setGiftError]        = useState('')
   const [giftReceived,   setGiftReceived]     = useState(null)
-  const [partnerUsername, setPartnerUsername] = useState(null)
-  const [strangerHidden,  setStrangerHidden]  = useState(false)
+  const [partnerUsername,  setPartnerUsername]  = useState(null)
+  const [partnerAvatar,    setPartnerAvatar]    = useState(null)
+  const [partnerIsVip,     setPartnerIsVip]     = useState(false)
+  const [partnerIsPremium, setPartnerIsPremium] = useState(false)
+  const [strangerHidden,   setStrangerHidden]   = useState(false)
   const [blockLoading,   setBlockLoading]     = useState(false)
   const [friendReqSent,  setFriendReqSent]    = useState(false)
   const [friendReqLoad,  setFriendReqLoad]    = useState(false)
@@ -335,6 +338,9 @@ export default function ChatPage() {
     setSquadMates([])
     setPartnerSock(null)
     setPartnerUid(null)
+    setPartnerAvatar(null)
+    setPartnerIsVip(false)
+    setPartnerIsPremium(false)
   }
 
   const findMatch = (socket) => {
@@ -439,6 +445,7 @@ export default function ChatPage() {
         socket.emit('register', {
           userId:    user?.id       || null,
           username:  user?.username || 'Guest',
+          avatar:    user?.avatar   || null,
           gender:    user?.gender   || 'other',
           country:   user?.country  || '',
           isPremium: user?.isPremium || false,
@@ -471,7 +478,7 @@ export default function ChatPage() {
 
       socket.on('waiting', () => { if (mounted) setStatus('searching') })
 
-      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername }) => {
+      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername, partnerAvatar: pAvatar, partnerIsPremium: pIsPremium, partnerIsVip: pIsVip }) => {
         if (!mounted) return
 
         // Destroy existing peers
@@ -487,6 +494,9 @@ export default function ChatPage() {
         setSquadMates(mates || [])
         setStrangerHidden(false)
         setPartnerUsername(pUsername || null)
+        setPartnerAvatar(pAvatar || null)
+        setPartnerIsVip(pIsVip || false)
+        setPartnerIsPremium(pIsPremium || false)
         setFriendReqSent(false)
         playMatchFound()
 
@@ -1189,12 +1199,33 @@ export default function ChatPage() {
               {/* Stranger label + streamer hide button */}
               {status === 'matched' && (
                 <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
-                    <span className="text-white font-bold text-[13px]">
-                      {partnerUsername ? `@${partnerUsername}` : 'Stranger'}
-                    </span>
-                    <span className="text-white/40 text-[11px]">• Online</span>
+                  <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
+                    {/* Partner avatar */}
+                    {partnerAvatar ? (
+                      <img src={partnerAvatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
+                    ) : partnerUsername ? (
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
+                        style={{ background: 'linear-gradient(135deg, #7c3aed, #1b62f5)' }}>
+                        {partnerUsername[0].toUpperCase()}
+                      </div>
+                    ) : (
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
+                    )}
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-white font-bold text-[13px]">
+                        {partnerUsername ? `@${partnerUsername}` : 'Stranger'}
+                      </span>
+                      {partnerIsVip && (
+                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}>
+                          <Crown size={8} /> VIP
+                        </span>
+                      )}
+                      {!partnerIsVip && partnerIsPremium && (
+                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(27,98,245,0.2)', color: '#60a5fa', border: '1px solid rgba(27,98,245,0.35)' }}>
+                          <Zap size={8} /> Member
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <button
                     onClick={() => setStrangerHidden(h => !h)}
@@ -1297,7 +1328,7 @@ export default function ChatPage() {
                       <Gift size={17} />
                     </BarBtn>
                     <BarBtn onClick={() => setShowTip(true)} label="Tip">
-                      <span className="text-base leading-none">💰</span>
+                      <VybeCoin size={17} />
                     </BarBtn>
                   </>
                 )}
@@ -1368,13 +1399,6 @@ export default function ChatPage() {
                 </div>
                 <span className="text-[9px] text-white/40">{isMuted ? 'Unmute' : 'Mute'}</span>
               </button>
-              {/* Flip */}
-              {hasCamera && (
-                <button onClick={flipCamera} className="flex flex-col items-center gap-1">
-                  <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center"><Camera size={19} className="text-white/80" /></div>
-                  <span className="text-[9px] text-white/40">Flip</span>
-                </button>
-              )}
               {/* Next / Cancel */}
               {status === 'matched' ? (
                 <button onClick={handleSkip} className="flex flex-col items-center gap-1">

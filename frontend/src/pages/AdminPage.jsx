@@ -363,7 +363,7 @@ export default function AdminPage() {
                             <div className="flex flex-wrap gap-1">
                               {u.isAdmin   && <span className="text-[10px] px-2 py-0.5 rounded-full bg-vybe-purple/20 text-vybe-purple border border-vybe-purple/30 font-black">ADMIN</span>}
                               {u.isVip     && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 font-bold">VIP</span>}
-                              {u.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">PREMIUM</span>}
+                              {u.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">MEMBER</span>}
                               {u.isBanned  ? (
                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>
                               ) : (

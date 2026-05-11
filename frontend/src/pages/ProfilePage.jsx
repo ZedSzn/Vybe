@@ -266,7 +266,7 @@ export default function ProfilePage() {
 
             {/* Badges */}
             <div className="flex flex-wrap gap-2 mb-2">
-              {profile.isPremium && <Badge icon={Zap}            label="Premium"                         color="border-yellow-500/30 text-yellow-400 bg-yellow-500/10" />}
+              {profile.isPremium && <Badge icon={Zap}            label="Member"                          color="border-yellow-500/30 text-yellow-400 bg-yellow-500/10" />}
               {profile.isVip     && <Badge icon={Crown}          label="VIP"                             color="border-purple-500/30 text-purple-300 bg-purple-500/10" />}
               {profile.emailVerified && <Badge icon={Shield}     label="Verified"                        color="border-blue-500/30 text-blue-400 bg-blue-500/10" />}
               {(profile.loginStreak ?? 0) >= 7  && <Badge icon={Flame}   label={`${profile.loginStreak}d Streak`} color="border-orange-500/30 text-orange-400 bg-orange-500/10" />}

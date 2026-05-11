@@ -77,7 +77,7 @@ export default function PremiumModal({ isOpen, onClose }) {
                   <div className="text-4xl mb-2">🚀</div>
                   <h2 className="text-2xl font-black text-white mb-1">Upgrade your Vybe</h2>
                   <p className="text-sm" style={{ color: '#6b7280' }}>
-                    Unlock premium filters and meet exactly who you want.
+                    Unlock membership filters and meet exactly who you want.
                   </p>
                 </div>
 

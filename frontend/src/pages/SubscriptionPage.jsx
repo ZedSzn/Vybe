@@ -170,7 +170,7 @@ export default function SubscriptionPage() {
   const isActive     = sub?.status === 'active'
   const isPastDue    = sub?.status === 'past_due'
   const isCancelling = sub?.cancelAtPeriodEnd
-  const periodEnd    = sub?.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''
+  const periodEnd    = sub?.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : ''
 
   return (
     <div className="min-h-screen font-space" style={{ background: '#07090f' }}>

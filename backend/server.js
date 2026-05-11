@@ -2291,8 +2291,8 @@ function matchPrivateRoom(code, room) {
   activePairs.set(guestSid, [hostSid]);
   const hostData  = onlineUsers.get(hostSid)  || {};
   const guestData = onlineUsers.get(guestSid) || {};
-  io.to(hostSid).emit('match-found',  { room: roomId, peers: [{ socketId: guestSid, isInitiator: true  }], squadMates: [], isInitiator: true,  partnerId: guestSid, partnerUsername: guestData.username || null, partnerUserId: guestData.userId || null });
-  io.to(guestSid).emit('match-found', { room: roomId, peers: [{ socketId: hostSid,  isInitiator: false }], squadMates: [], isInitiator: false, partnerId: hostSid,  partnerUsername: hostData.username  || null, partnerUserId: hostData.userId  || null });
+  io.to(hostSid).emit('match-found',  { room: roomId, peers: [{ socketId: guestSid, isInitiator: true  }], squadMates: [], isInitiator: true,  partnerId: guestSid, partnerUsername: guestData.username || null, partnerUserId: guestData.userId || null, partnerAvatar: guestData.avatar || null, partnerIsPremium: guestData.isPremium || false, partnerIsVip: guestData.isVip || false });
+  io.to(guestSid).emit('match-found', { room: roomId, peers: [{ socketId: hostSid,  isInitiator: false }], squadMates: [], isInitiator: false, partnerId: hostSid,  partnerUsername: hostData.username  || null, partnerUserId: hostData.userId  || null, partnerAvatar: hostData.avatar  || null, partnerIsPremium: hostData.isPremium  || false, partnerIsVip: hostData.isVip  || false });
   privateRooms.delete(code);
 }
 
@@ -2359,6 +2359,9 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
       partnerId: peers[0]?.socketId ?? null,
       partnerUsername: partnerData?.username || null,
       partnerUserId: partnerData?.userId || null,
+      partnerAvatar: partnerData?.avatar || null,
+      partnerIsPremium: partnerData?.isPremium || false,
+      partnerIsVip: partnerData?.isVip || false,
     });
   }
 }

@@ -92,9 +92,9 @@ export default function TermsPage() {
             <p>We collect the minimum data necessary to operate the platform safely, including email addresses, usage logs, and report records. We do not sell personal data to third parties.</p>
           </Section>
 
-          <Section title="Premium Services">
-            <p>Vybe offers optional paid subscriptions (Basic and VIP). Subscriptions are billed monthly and may be cancelled at any time. Refunds are not provided for partial months of service.</p>
-            <p>Premium features are subject to change. We reserve the right to modify, suspend, or discontinue any paid feature with reasonable notice.</p>
+          <Section title="Membership Services">
+            <p>Vybe offers optional paid memberships (Basic and VIP). Memberships are billed monthly and may be cancelled at any time. Refunds are not provided for partial months of service.</p>
+            <p>Membership features are subject to change. We reserve the right to modify, suspend, or discontinue any paid feature with reasonable notice.</p>
           </Section>
 
           <Section title="Disclaimer of Warranties">
