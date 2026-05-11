@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
 import { VybeCoin } from '../components/VybeCoin'
+import { VybeBadge } from '../components/VybeBadge'
 import axios from 'axios'
 
 
@@ -79,13 +80,13 @@ const EARN_WAYS = [
 ]
 
 const SPEND_WAYS = [
-  { icon: '🔁', label: 'Replay last match',   cost: '20',   desc: 'Reconnect with your last partner' },
-  { icon: '👍', label: 'Send Like gift',       cost: '75',   desc: 'During video chat' },
-  { icon: '❤️', label: 'Send Heart gift',      cost: '120',  desc: 'During video chat' },
-  { icon: '🔥', label: 'Send Fire gift',       cost: '350',  desc: 'During video chat' },
-  { icon: '💎', label: 'Send Diamond gift',    cost: '900',  desc: 'During video chat' },
-  { icon: '👑', label: 'Send Crown gift',      cost: '1,500', desc: 'During video chat' },
-  { icon: '💸', label: 'Send tip',             cost: '10+',  desc: 'Tip your chat partner' },
+  { badge: null,    icon: '🔁', label: 'Replay last match',     cost: '20',    desc: 'Reconnect with your last partner' },
+  { badge: 'spark',            label: 'Gift: Spark',            cost: '75',    desc: 'Common gift — during video chat' },
+  { badge: 'star',             label: 'Gift: Shooting Star',    cost: '120',   desc: 'Common gift — during video chat' },
+  { badge: 'flame',            label: 'Gift: Flame',            cost: '250',   desc: 'Rare gift — during video chat' },
+  { badge: 'orb',              label: 'Gift: Lightning Orb',    cost: '480',   desc: 'Epic gift — during video chat' },
+  { badge: 'crown',            label: 'Gift: Cosmic Crown',     cost: '950',   desc: 'Legendary gift — during video chat' },
+  { badge: null,    icon: '💸', label: 'Send tip',               cost: '10+',   desc: 'Tip your chat partner directly' },
 ]
 
 export default function CoinsPage() {
@@ -267,10 +268,13 @@ export default function CoinsPage() {
           >
             <h2 className="text-lg font-black text-white mb-4">✨ Ways to Spend Coins</h2>
             <div className="space-y-2.5">
-              {SPEND_WAYS.map(({ icon, label, cost, desc }) => (
+              {SPEND_WAYS.map(({ badge, icon, label, cost, desc }) => (
                 <div key={label} className="flex items-center justify-between py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
                   <div className="flex items-center gap-2.5">
-                    <span className="text-lg">{icon}</span>
+                    {badge
+                      ? <div className="flex-shrink-0 w-8 h-8"><VybeBadge id={badge} size={32} /></div>
+                      : <span className="text-lg w-8 text-center">{icon}</span>
+                    }
                     <div>
                       <p className="text-sm font-semibold text-white">{label}</p>
                       <p className="text-xs" style={{ color: '#6b7280' }}>{desc}</p>

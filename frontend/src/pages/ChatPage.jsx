@@ -11,6 +11,7 @@ import SimplePeer from 'simple-peer'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import VybeCoin from '../components/VybeCoin'
+import { VybeBadge } from '../components/VybeBadge'
 import { playMatchFound, playGiftReceived, playGiftSent, playTipSent, playClick } from '../utils/sounds'
 
 const CHAT_BADGES = [
@@ -22,127 +23,12 @@ const CHAT_BADGES = [
 ]
 
 const RARITY_COLORS = {
-  common:    { bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.3)',  glow: 'rgba(148,163,184,0.2)',  text: '#94a3b8' },
-  rare:      { bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.4)',   glow: 'rgba(59,130,246,0.25)',  text: '#60a5fa' },
-  epic:      { bg: 'rgba(168,85,247,0.12)',  border: 'rgba(168,85,247,0.4)',   glow: 'rgba(168,85,247,0.3)',   text: '#c084fc' },
-  legendary: { bg: 'rgba(251,191,36,0.12)',  border: 'rgba(251,191,36,0.45)', glow: 'rgba(251,191,36,0.35)',  text: '#fbbf24' },
+  common:    { bg: 'rgba(250,204,21,0.07)',   border: 'rgba(250,204,21,0.22)',  glow: 'rgba(250,204,21,0.15)',   text: '#fde047' },
+  rare:      { bg: 'rgba(249,115,22,0.1)',    border: 'rgba(249,115,22,0.38)',  glow: 'rgba(249,115,22,0.22)',   text: '#fb923c' },
+  epic:      { bg: 'rgba(139,92,246,0.1)',    border: 'rgba(139,92,246,0.38)',  glow: 'rgba(139,92,246,0.26)',   text: '#a78bfa' },
+  legendary: { bg: 'rgba(251,191,36,0.12)',   border: 'rgba(251,191,36,0.48)', glow: 'rgba(251,191,36,0.38)',   text: '#fbbf24' },
 }
 
-function BadgeSpark({ size = 60 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="bspark_g" x1="34" y1="6" x2="26" y2="54" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#fef9c3"/><stop offset="0.5" stopColor="#fde047"/><stop offset="1" stopColor="#ca8a04"/>
-        </linearGradient>
-        <filter id="bspark_f" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="2.5" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <circle cx="30" cy="30" r="28" fill="rgba(251,191,36,0.07)"/>
-      <polygon points="34,6 20,30 30,30 26,54 40,30 30,30" fill="url(#bspark_g)" filter="url(#bspark_f)"/>
-    </svg>
-  )
-}
-function BadgeStar({ size = 60 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="bstar_g" x1="30" y1="8" x2="30" y2="52" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#e0f2fe"/><stop offset="0.5" stopColor="#38bdf8"/><stop offset="1" stopColor="#0369a1"/>
-        </linearGradient>
-        <filter id="bstar_f" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="2.5" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <circle cx="30" cy="30" r="28" fill="rgba(56,189,248,0.07)"/>
-      <path d="M30,9 L33.8,21.5 L47,21.5 L36.1,29.3 L39.9,41.8 L30,34 L20.1,41.8 L23.9,29.3 L13,21.5 L26.2,21.5 Z" fill="url(#bstar_g)" filter="url(#bstar_f)"/>
-      <circle cx="22" cy="13" r="1.5" fill="white" opacity="0.7"/>
-      <circle cx="44" cy="20" r="1" fill="white" opacity="0.5"/>
-      <circle cx="15" cy="28" r="1.2" fill="white" opacity="0.4"/>
-    </svg>
-  )
-}
-function BadgeFlame({ size = 60 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="bflame_g" x1="30" y1="8" x2="30" y2="52" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#fff7ed"/><stop offset="0.25" stopColor="#fb923c"/><stop offset="0.65" stopColor="#ef4444"/><stop offset="1" stopColor="#7f1d1d"/>
-        </linearGradient>
-        <linearGradient id="bflame_g2" x1="30" y1="18" x2="30" y2="48" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#fef9c3"/><stop offset="1" stopColor="#fb923c"/>
-        </linearGradient>
-        <filter id="bflame_f" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="3" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <circle cx="30" cy="30" r="28" fill="rgba(239,68,68,0.07)"/>
-      <path d="M30,8 C30,8 40,18 38,28 C36,38 42,38 38,44 C35,48 33,52 30,52 C27,52 25,48 22,44 C18,38 24,38 22,28 C20,18 30,8 30,8 Z" fill="url(#bflame_g)" filter="url(#bflame_f)"/>
-      <path d="M30,18 C30,18 36,24 34,31 C33,35 36,37 34,41 C33,44 31,46 30,46 C29,46 27,44 26,41 C24,37 27,35 26,31 C24,24 30,18 30,18 Z" fill="url(#bflame_g2)" opacity="0.85"/>
-    </svg>
-  )
-}
-function BadgeOrb({ size = 60 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="borb_g" cx="38%" cy="32%" r="60%">
-          <stop stopColor="#e0e7ff"/><stop offset="0.45" stopColor="#818cf8"/><stop offset="1" stopColor="#312e81"/>
-        </radialGradient>
-        <radialGradient id="borb_glow" cx="50%" cy="50%" r="50%">
-          <stop stopColor="rgba(99,102,241,0.5)"/><stop offset="1" stopColor="rgba(99,102,241,0)"/>
-        </radialGradient>
-        <filter id="borb_f" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="3" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <circle cx="30" cy="30" r="28" fill="url(#borb_glow)"/>
-      <circle cx="30" cy="30" r="21" fill="url(#borb_g)" filter="url(#borb_f)"/>
-      <circle cx="30" cy="30" r="21" stroke="rgba(165,180,252,0.55)" strokeWidth="1.5" fill="none"/>
-      <path d="M17,22 L24,28 L19,31 L27,39" stroke="#c7d2fe" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-      <path d="M43,24 L36,30 L41,33 L33,42" stroke="#a5b4fc" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.75"/>
-      <ellipse cx="23" cy="21" rx="5" ry="3" fill="white" opacity="0.22"/>
-    </svg>
-  )
-}
-function BadgeCrown({ size = 60 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="bcrown_g" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop stopColor="#fef3c7"/><stop offset="0.35" stopColor="#fbbf24"/><stop offset="0.7" stopColor="#d97706"/><stop offset="1" stopColor="#78350f"/>
-        </linearGradient>
-        <radialGradient id="bcrown_glow" cx="50%" cy="50%" r="50%">
-          <stop stopColor="rgba(251,191,36,0.45)"/><stop offset="1" stopColor="rgba(251,191,36,0)"/>
-        </radialGradient>
-        <filter id="bcrown_f" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="3.5" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <circle cx="30" cy="30" r="28" fill="url(#bcrown_glow)"/>
-      <path d="M10,44 L14,25 L22,36 L30,18 L38,36 L46,25 L50,44 Z" fill="url(#bcrown_g)" filter="url(#bcrown_f)"/>
-      <rect x="10" y="42" width="40" height="6" rx="2" fill="url(#bcrown_g)"/>
-      <circle cx="14" cy="24" r="3.5" fill="#a78bfa" stroke="#ede9fe" strokeWidth="1"/>
-      <circle cx="30" cy="17" r="4" fill="#f472b6" stroke="#fce7f3" strokeWidth="1"/>
-      <circle cx="46" cy="24" r="3.5" fill="#34d399" stroke="#d1fae5" strokeWidth="1"/>
-      <ellipse cx="24" cy="38" rx="5" ry="2.5" fill="white" opacity="0.18"/>
-    </svg>
-  )
-}
-function BadgeIcon({ id, size = 60 }) {
-  if (id === 'spark') return <BadgeSpark size={size} />
-  if (id === 'star')  return <BadgeStar  size={size} />
-  if (id === 'flame') return <BadgeFlame size={size} />
-  if (id === 'orb')   return <BadgeOrb   size={size} />
-  if (id === 'crown') return <BadgeCrown size={size} />
-  return <BadgeSpark size={size} />
-}
 
 const REPORT_REASONS = [
   { id: 'nudity',     label: '🔞 Nudity / Sexual content' },
@@ -981,7 +867,7 @@ export default function ChatPage() {
                 transition={{ duration: 2.8, ease: 'easeOut' }}
                 className="absolute select-none"
                 style={{ left: g.fromMe ? '28%' : '72%', bottom: '22%' }}>
-                <BadgeIcon id={g.badgeId} size={64} />
+                <VybeBadge id={g.badgeId} size={64} />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -1013,7 +899,7 @@ export default function ChatPage() {
                   border: `1.5px solid ${RARITY_COLORS[giftReceived.rarity]?.border || 'rgba(255,255,255,0.2)'}`,
                   boxShadow: `0 0 48px ${RARITY_COLORS[giftReceived.rarity]?.glow || 'rgba(255,255,255,0.1)'}`,
                 }}>
-                <BadgeIcon id={giftReceived.badgeId} size={96} />
+                <VybeBadge id={giftReceived.badgeId} size={96} />
                 <div>
                   <p className="text-white font-black text-base">{giftReceived.from}</p>
                   <p className="text-sm mt-0.5 font-semibold" style={{ color: RARITY_COLORS[giftReceived.rarity]?.text }}>
@@ -1095,7 +981,7 @@ export default function ChatPage() {
                       <button key={badge.id} onClick={() => handleSendGift(badge.id)} disabled={giftSending || !canAfford}
                         className="w-full flex items-center gap-3 p-3 rounded-2xl transition-all text-left"
                         style={{ background: rc.bg, border: `1px solid ${rc.border}`, opacity: canAfford ? 1 : 0.35, boxShadow: canAfford ? `0 0 14px ${rc.glow}` : 'none' }}>
-                        <div className="flex-shrink-0"><BadgeIcon id={badge.id} size={44}/></div>
+                        <div className="flex-shrink-0"><VybeBadge id={badge.id} size={44}/></div>
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-bold text-sm leading-none">{badge.name}</p>
                           <p className="text-[11px] mt-1 font-semibold" style={{ color: rc.text }}>{badge.label}</p>
