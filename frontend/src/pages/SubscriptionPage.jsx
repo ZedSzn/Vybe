@@ -22,10 +22,9 @@ const PLANS = [
     glow:  'rgba(27,98,245,0.3)',
     BadgeIcon: Zap,
     features: [
-      { label: 'Gender filter (Male or Female)', included: true },
-      { label: 'Country filter',                  included: false },
-      { label: 'Priority matching',               included: false },
-      { label: 'VIP badge on profile',            included: false },
+      { label: 'Gender filter (Male or Female)', included: true  },
+      { label: 'Country filter',                 included: false },
+      { label: 'Basic badge on profile',         included: true  },
     ],
   },
   {
@@ -39,9 +38,8 @@ const PLANS = [
     popular: true,
     features: [
       { label: 'Gender filter (Male or Female)', included: true },
-      { label: 'Country filter',                  included: true },
-      { label: 'Priority matching',               included: true },
-      { label: 'VIP badge on profile',            included: true },
+      { label: 'Country filter',                 included: true },
+      { label: 'VIP badge on profile',           included: true },
     ],
   },
 ]
@@ -244,7 +242,7 @@ export default function SubscriptionPage() {
           <p style={{ color: '#6b7280' }} className="text-base max-w-md mx-auto">
             {isActive
               ? 'You\'re on a membership plan. Manage your billing below.'
-              : 'Unlock filters, priority matching, and more.'}
+              : 'Unlock gender and country filters.'}
           </p>
         </motion.div>
 
@@ -473,7 +471,7 @@ export default function SubscriptionPage() {
             {/* Free plan note */}
             {!isActive && (
               <div className="text-center text-sm mb-10" style={{ color: '#6b7280' }}>
-                Free for everyone: unlimited chats, friend requests, gifts &amp; coins — no credit card required.
+                Free for everyone: unlimited chats, friend requests, coins &amp; gifts — no credit card required.
               </div>
             )}
 
@@ -494,18 +492,13 @@ export default function SubscriptionPage() {
                 <div className="text-center">VIP</div>
               </div>
               {[
-                { label: 'Random video chat',          basic: true,  vip: true  },
-                { label: 'Friend requests',            basic: true,  vip: true  },
-                { label: 'Coin earning & spending',    basic: true,  vip: true  },
-                { label: 'Send gifts in chat',         basic: true,  vip: true  },
-                { label: 'Tip other users',            basic: true,  vip: true  },
-                { label: 'Gender filter',              basic: true,  vip: true  },
-                { label: 'Country filter',             basic: false, vip: true  },
-                { label: 'Priority matching',          basic: false, vip: true  },
-                { label: 'VIP badge on profile',       basic: false, vip: true  },
+                { label: 'Gender filter',        basic: true,  vip: true  },
+                { label: 'Country filter',       basic: false, vip: true  },
+                { label: 'Basic badge on profile', basic: true, vip: false },
+                { label: 'VIP badge on profile', basic: false, vip: true  },
               ].map(({ label, basic, vip }, i) => (
                 <div key={label} className="grid grid-cols-4 items-center px-5 py-3 text-sm"
-                  style={{ borderBottom: i < 9 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent' }}>
+                  style={{ borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent' }}>
                   <div className="col-span-2 text-gray-300">{label}</div>
                   <div className="flex justify-center">
                     {basic
