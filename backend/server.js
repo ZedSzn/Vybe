@@ -1614,6 +1614,15 @@ app.post('/api/auth/daily-login', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Lightweight balance endpoint for navbar polling
+app.get('/api/me/balance', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('coins cashableCoins');
+    if (!user) return res.status(404).json({ error: 'Not found' });
+    res.json({ coins: user.coins, cashableCoins: user.cashableCoins });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ─── User Profile Routes ───────────────────────────────────────────────────────
 app.get('/api/user/me', authMiddleware, async (req, res) => {
   try {

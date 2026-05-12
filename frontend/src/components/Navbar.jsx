@@ -1,8 +1,8 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LogOut, Bell, User, Settings, ChevronDown, Trash2, Wallet, Globe, Users, Crown, Zap, UserPlus, Medal, AlertTriangle, Megaphone, DollarSign, Flame } from 'lucide-react'
+import { LogOut, Bell, User, Settings, Trash2, Wallet, Users, Crown, Zap, UserPlus, Medal, AlertTriangle, Megaphone, DollarSign, Flame } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
-import { useLang } from '../context/LangContext'
+import { useLang } from '../context/LangContext' // t() still used for auth button labels
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
@@ -17,41 +17,33 @@ const NAV_LINK_DEFS = [
   { key: 'nav_faq',       faq: true },
 ]
 
-const LANGUAGES = [
-  { code: 'en', label: 'English',    flag: '🇺🇸' },
-  { code: 'es', label: 'Español',    flag: '🇪🇸' },
-  { code: 'fr', label: 'Français',   flag: '🇫🇷' },
-  { code: 'de', label: 'Deutsch',    flag: '🇩🇪' },
-  { code: 'pt', label: 'Português',  flag: '🇧🇷' },
-  { code: 'ar', label: 'العربية',    flag: '🇸🇦' },
-  { code: 'ko', label: '한국어',      flag: '🇰🇷' },
-  { code: 'ja', label: '日本語',      flag: '🇯🇵' },
-  { code: 'zh', label: '中文',        flag: '🇨🇳' },
-  { code: 'ru', label: 'Русский',    flag: '🇷🇺' },
-]
 
 export default function Navbar({ onPremiumClick }) {
   const { user, logout, isAuthenticated } = useAuth()
   const { onlineCount } = useSocket()
-  const { lang, switchLang, t } = useLang()
+  const { t } = useLang()
   const navigate  = useNavigate()
   const location  = useLocation()
 
   const [showUserMenu,    setShowUserMenu]    = useState(false)
   const [showNotifs,      setShowNotifs]      = useState(false)
-  const [showLangMenu,    setShowLangMenu]    = useState(false)
   const [notifications,   setNotifications]   = useState([])
   const [unreadCount,     setUnreadCount]     = useState(0)
   const [coins,           setCoins]           = useState(user?.coins ?? 0)
   const [pendingRequests, setPendingRequests] = useState(0)
 
-  const selectedLang = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0]
-
   const userMenuRef = useRef(null)
   const notifsRef   = useRef(null)
-  const langMenuRef = useRef(null)
 
   useEffect(() => { if (user?.coins !== undefined) setCoins(user.coins) }, [user?.coins])
+
+  const fetchCoins = useCallback(async () => {
+    if (!isAuthenticated) return
+    try {
+      const { data } = await axios.get('/api/me/balance')
+      if (data.coins !== undefined) setCoins(data.coins)
+    } catch {}
+  }, [isAuthenticated])
 
   const fetchNotifs = useCallback(async () => {
     if (!isAuthenticated) return
@@ -73,15 +65,15 @@ export default function Navbar({ onPremiumClick }) {
   useEffect(() => {
     fetchNotifs()
     fetchPendingRequests()
-    const id = setInterval(() => { fetchNotifs(); fetchPendingRequests() }, 30000)
+    fetchCoins()
+    const id = setInterval(() => { fetchNotifs(); fetchPendingRequests(); fetchCoins() }, 15000)
     return () => clearInterval(id)
-  }, [fetchNotifs, fetchPendingRequests])
+  }, [fetchNotifs, fetchPendingRequests, fetchCoins])
 
   useEffect(() => {
     const handler = (e) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setShowUserMenu(false)
       if (notifsRef.current  && !notifsRef.current.contains(e.target))   setShowNotifs(false)
-      if (langMenuRef.current && !langMenuRef.current.contains(e.target)) setShowLangMenu(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -128,7 +120,6 @@ export default function Navbar({ onPremiumClick }) {
   const handleNavClick = (link) => {
     setShowUserMenu(false)
     setShowNotifs(false)
-    setShowLangMenu(false)
     if (link.faq) {
       if (location.pathname !== '/') {
         navigate('/', { state: { scrollToFaq: true } })
@@ -140,49 +131,6 @@ export default function Navbar({ onPremiumClick }) {
     if (link.modal === 'premium') { navigate('/subscription'); return }
     navigate(link.path)
   }
-
-  const LangSelector = () => (
-    <div ref={langMenuRef} className="relative">
-      <button
-        onClick={() => { setShowLangMenu((v) => !v); setShowUserMenu(false); setShowNotifs(false) }}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-colors"
-      >
-        <Globe size={14} />
-        <span className="hidden lg:inline">{selectedLang.label}</span>
-        <ChevronDown size={11} className={`transition-transform duration-200 ${showLangMenu ? 'rotate-180' : ''}`} />
-      </button>
-      <AnimatePresence>
-        {showLangMenu && (
-          <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.97 }}
-            transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden shadow-float z-50"
-            style={{ background: '#101020', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            {LANGUAGES.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => { switchLang(lang.code); setShowLangMenu(false) }}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                  selectedLang.code === lang.code
-                    ? 'text-white bg-vybe-purple/15'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <span>{lang.flag}</span>
-                <span>{lang.label}</span>
-                {selectedLang.code === lang.code && (
-                  <span className="ml-auto text-vybe-purple-light text-xs">✓</span>
-                )}
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
 
   return (
     <nav
@@ -265,9 +213,6 @@ export default function Navbar({ onPremiumClick }) {
                 <DollarSign size={13} /> Cash Out
               </Link>
             </motion.div>
-
-            {/* Language selector */}
-            <LangSelector />
 
             {/* Notification bell */}
             <div ref={notifsRef} className="relative">
@@ -474,9 +419,6 @@ export default function Navbar({ onPremiumClick }) {
           </>
         ) : (
           <>
-            {/* Language selector */}
-            <LangSelector />
-
             {/* Auth buttons */}
             <Link to="/auth"
               className="px-4 py-1.5 rounded-lg text-gray-300 border border-white/10 hover:text-white hover:border-white/20 text-sm font-semibold transition-all">
