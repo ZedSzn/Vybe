@@ -149,6 +149,7 @@ export default function ChatPage() {
   const localVideoRef       = useRef(null)   // mobile PiP
   const localVideoDesktopRef = useRef(null)  // desktop panel
   const pipContainerRef     = useRef(null)
+  const pipLastTapRef       = useRef(0)
   const messagesEndRef  = useRef(null)
   const timerRef        = useRef(null)
   const prefsRef        = useRef(prefs)
@@ -1116,8 +1117,16 @@ export default function ChatPage() {
             dragConstraints={pipContainerRef}
             dragElastic={0.08}
             dragMomentum={false}
-            onTap={() => setSelfViewExpanded(v => !v)}
-            initial={{ opacity: 0, scale: 0.85 }}
+            onTap={() => {
+              const now = Date.now()
+              if (now - pipLastTapRef.current < 350) {
+                setSelfViewExpanded(v => !v)
+                pipLastTapRef.current = 0
+              } else {
+                pipLastTapRef.current = now
+              }
+            }}
+            initial={{ x: 0, y: 0, opacity: 0, scale: 0.85 }}
             animate={{
               opacity: 1,
               scale: 1,
