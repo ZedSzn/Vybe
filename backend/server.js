@@ -912,7 +912,6 @@ app.post('/api/unban/create-session', authMiddleware, async (req, res) => {
 
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const session = await stripe.checkout.sessions.create({
-      automatic_payment_methods: { enabled: true },
       mode: 'payment',
       line_items: [{
         price_data: {
@@ -1828,7 +1827,6 @@ app.post('/api/coins/buy', authMiddleware, async (req, res) => {
     if (!stripe) return res.status(503).json({ error: 'Payment system unavailable. Configure STRIPE_SECRET_KEY.' });
     const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const session = await stripe.checkout.sessions.create({
-      automatic_payment_methods: { enabled: true },
       mode: 'payment',
       line_items: [{ price_data: { currency: 'gbp', product_data: { name: pkg.label, description: `Add ${pkg.coins} coins to your Vybe wallet` }, unit_amount: Math.round(pkg.amountGbp * 100) }, quantity: 1 }],
       metadata: { userId: String(req.user._id), purchaseType: 'coin_purchase', coinsAmount: String(pkg.coins), packageId: pkg.id },
@@ -2058,7 +2056,6 @@ app.post('/api/subscription/create', authMiddleware, async (req, res) => {
 
     const sessionParams = {
       mode: 'subscription',
-      automatic_payment_methods: { enabled: true },
       line_items: [{
         price_data: {
           currency: 'gbp',
