@@ -1809,7 +1809,7 @@ app.put('/api/user/cosmetics', authMiddleware, async (req, res) => {
 });
 
 const COIN_PACKAGES = [
-  { id: 'coins_test', coins: 1,    amountGbp: 0.05,  label: '1 Coin (Test)', popular: false },
+  { id: 'coins_test', coins: 1,    amountGbp: 0.30,  label: '1 Coin (Test)', popular: false },
   { id: 'coins_100',  coins: 100,  amountGbp: 1.49,  label: '100 Coins',   popular: false },
   { id: 'coins_500',  coins: 500,  amountGbp: 5.99,  label: '500 Coins',   popular: false },
   { id: 'coins_1200', coins: 1200, amountGbp: 11.99, label: '1,200 Coins', popular: true  },
