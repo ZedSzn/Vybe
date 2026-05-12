@@ -58,9 +58,14 @@ function TabBtn({ active, onClick, children }) {
 export default function WalletPage() {
   const { user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const [tab, setTab]                     = useState('overview')
+  const [tab, setTab] = useState(() => searchParams.get('tab') || 'overview')
+
+  const switchTab = (t) => {
+    setTab(t)
+    setSearchParams(t === 'overview' ? {} : { tab: t }, { replace: true })
+  }
   const [coins, setCoins]                 = useState(user?.coins ?? 0)
   const [earnings, setEarnings]           = useState(user?.cashableCoins ?? 0)
   const [balanceLoading, setBalanceLoading] = useState(user?.coins == null)
@@ -83,8 +88,6 @@ export default function WalletPage() {
     const success = searchParams.get('success')
     const purchasedCoins = searchParams.get('coins')
     if (success && purchasedCoins) setSuccessMsg(`${Number(purchasedCoins).toLocaleString()} coins added to your wallet!`)
-    const tabParam = searchParams.get('tab')
-    if (tabParam) setTab(tabParam)
   }, [user, authLoading, navigate, searchParams])
 
   const refreshCoins = useCallback(async () => {
@@ -278,7 +281,7 @@ export default function WalletPage() {
             ['referral', 'Refer'],
             ['cashout',  'Cash Out'],
           ].map(([t, label]) => (
-            <TabBtn key={t} active={tab === t} onClick={() => setTab(t)}>{label}</TabBtn>
+            <TabBtn key={t} active={tab === t} onClick={() => switchTab(t)}>{label}</TabBtn>
           ))}
         </div>
 
@@ -341,7 +344,7 @@ export default function WalletPage() {
                 <p className="text-green-300 font-bold text-sm">How Earnings Work</p>
               </div>
               <p className="text-vybe-muted text-xs leading-relaxed">
-                When someone sends you a gift in chat, 70% goes straight to your Earnings balance. Once you reach 1,000 earnings coins (≈ £4.20), you can request a PayPal payout in the <button className="text-white font-semibold underline" onClick={() => setTab('cashout')}>Cash Out</button> tab.
+                When someone sends you a gift in chat, 70% goes straight to your Earnings balance. Once you reach 1,000 earnings coins (≈ £4.20), you can request a PayPal payout in the <button className="text-white font-semibold underline" onClick={() => switchTab('cashout')}>Cash Out</button> tab.
               </p>
             </div>
           </div>
