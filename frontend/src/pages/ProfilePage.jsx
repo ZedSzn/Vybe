@@ -486,8 +486,7 @@ export default function ProfilePage() {
               <div className="bg-vybe-card border border-vybe-border rounded-2xl p-4">
                 <h3 className="text-sm font-black text-white mb-1">Your Referral Link</h3>
                 <p className="text-vybe-muted text-xs mb-3">
-                  Invite friends and both get <span className="inline-flex items-center gap-1 text-yellow-300 font-bold">50 <VybeCoin size={12} /> coins</span> when they sign up.
-                  You've invited <span className="text-white font-bold">{referral.referralCount}</span> people.
+                  Invite friends to Vybe. You've invited <span className="text-white font-bold">{referral.referralCount}</span> people.
                 </p>
                 <div className="flex gap-2">
                   <div className="flex-1 px-3 py-2 bg-vybe-bg border border-vybe-border rounded-xl text-vybe-muted text-xs truncate font-mono">

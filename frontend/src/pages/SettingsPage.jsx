@@ -144,7 +144,6 @@ function CoinsTab() {
         <h3 className="text-sm font-black text-white mb-4">Ways to earn coins</h3>
         <div className="space-y-2.5">
           {[
-            { icon: '👥', action: 'Friend signs up via referral', coins: 50,  suffix: ' each' },
             { icon: '🎁', action: 'Receive gifts in chat',        coins: 70,  suffix: '% goes to your earnings' },
           ].map(({ icon, action, coins: c, suffix }) => (
             <div key={action} className="flex items-center justify-between py-2 border-b border-vybe-border/40 last:border-0">

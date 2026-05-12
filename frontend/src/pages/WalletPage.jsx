@@ -466,8 +466,8 @@ export default function WalletPage() {
         {tab === 'referral' && (
           <div className="grid gap-5">
             <div className={cardCls} style={cardStyle}>
-              <h2 className="text-white font-bold text-base mb-1">Refer Friends — Earn 50 Coins Each</h2>
-              <p className="text-vybe-muted text-sm mb-5">Share your link. When someone signs up with it, you both get 50 coins.</p>
+              <h2 className="text-white font-bold text-base mb-1">Refer Friends</h2>
+              <p className="text-vybe-muted text-sm mb-5">Share your link and grow the Vybe community.</p>
               {referralInfo ? (
                 <div className="space-y-4">
                   <div className="flex gap-2">
@@ -484,18 +484,9 @@ export default function WalletPage() {
                       {copied ? '✓ Copied!' : 'Copy'}
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="px-4 py-3 rounded-xl bg-white/4 border border-white/6 text-center">
-                      <p className="text-2xl font-extrabold text-white">{referralInfo.referralCount || 0}</p>
-                      <p className="text-vybe-muted text-xs mt-0.5">Friends referred</p>
-                    </div>
-                    <div className="px-4 py-3 rounded-xl bg-white/4 border border-white/6 text-center">
-                      <div className="flex items-center justify-center gap-1 mb-0.5">
-                        <VybeCoin size={16} />
-                        <p className="text-2xl font-extrabold text-yellow-300">{(referralInfo.referralCount || 0) * 50}</p>
-                      </div>
-                      <p className="text-vybe-muted text-xs mt-0.5">Coins earned</p>
-                    </div>
+                  <div className="px-4 py-3 rounded-xl bg-white/4 border border-white/6 text-center">
+                    <p className="text-2xl font-extrabold text-white">{referralInfo.referralCount || 0}</p>
+                    <p className="text-vybe-muted text-xs mt-0.5">Friends referred</p>
                   </div>
                   <div className="flex gap-3 pt-1">
                     <a
