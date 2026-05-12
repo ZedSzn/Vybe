@@ -127,6 +127,7 @@ export default function ChatPage() {
   const [facingMode,     setFacingMode]       = useState('user')
   const [matchFlash,     setMatchFlash]       = useState(false)
   const [selfViewExpanded, setSelfViewExpanded] = useState(true)
+  const [duoPipExpanded,   setDuoPipExpanded]   = useState(false)
 
   const searchTimerRef   = useRef(null)
   const searchTextTimer  = useRef(null)
@@ -150,12 +151,21 @@ export default function ChatPage() {
   const localVideoDesktopRef = useRef(null)  // desktop panel
   const pipContainerRef     = useRef(null)
   const pipLastTapRef       = useRef(0)
+  const duoPipLastTapRef    = useRef(0)
   const PIP_H = 190
   const PIP_BOTTOM_GAP = 88
+  const DUO_PIP_W_SM = 96
+  const DUO_PIP_H_SM = 128
+  const DUO_PIP_W_LG = 126
+  const DUO_PIP_H_LG = 168
   const pipX = useMotionValue(12)
   const pipY = useMotionValue(
     typeof window !== 'undefined' ? window.innerHeight - PIP_H - PIP_BOTTOM_GAP : 600
   )
+  const duoPipX = useMotionValue(
+    typeof window !== 'undefined' ? window.innerWidth - DUO_PIP_W_SM - 12 : 250
+  )
+  const duoPipY = useMotionValue(72)
   const messagesEndRef  = useRef(null)
   const timerRef        = useRef(null)
   const prefsRef        = useRef(prefs)
@@ -698,6 +708,7 @@ export default function ChatPage() {
   const allRemoteEntries   = Object.keys(remoteStreams)
   const opponentSocketIds  = allRemoteEntries.filter((sid) => !squadMates.includes(sid))
   const mateSocketIds      = allRemoteEntries.filter((sid) => squadMates.includes(sid))
+  const isDuoMode          = mateSocketIds.length > 0
 
   // ── Shared chat content ────────────────────────────────────────────────────
   const ChatContent = () => (
@@ -1039,12 +1050,25 @@ export default function ChatPage() {
               {status === 'matched' && <div className="loading-dots flex"><span /><span /><span /></div>}
             </div>
           ) : (
-            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute inset-0 flex">
-              {opponentSocketIds.map((sid, idx) => (
-                <div key={sid} className={`relative flex-1 h-full overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
-                  <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                </div>
-              ))}
+            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute inset-0">
+              {/* Primary opponent — always fullscreen */}
+              <video
+                ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }}
+                autoPlay playsInline
+                className="w-full h-full object-cover"
+              />
+              {/* Secondary opponent PiP — only when 2 opponents and no duo mate */}
+              {opponentSocketIds.length > 1 && !isDuoMode && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+                  className="absolute z-[8] overflow-hidden"
+                  style={{ top: 'max(72px, env(safe-area-inset-top, 0px) + 62px)', right: 12, width: 96, height: 128, borderRadius: 14, border: '1.5px solid rgba(255,255,255,0.12)', boxShadow: '0 8px 28px rgba(0,0,0,0.55)' }}
+                >
+                  <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                </motion.div>
+              )}
             </motion.div>
           )}
 
@@ -1206,6 +1230,85 @@ export default function ChatPage() {
               </div>
             )}
           </motion.div>
+
+          {/* ── DUO MODE: squad-mate floating PiP ── */}
+          <AnimatePresence>
+            {isDuoMode && mateSocketIds[0] && (
+              <motion.div
+                drag
+                dragConstraints={{ left: 0, top: 0, right: window.innerWidth - DUO_PIP_W_LG, bottom: window.innerHeight - DUO_PIP_H_LG }}
+                dragElastic={0.08}
+                dragMomentum={false}
+                onTap={() => {
+                  const now = Date.now()
+                  if (now - duoPipLastTapRef.current < 350) {
+                    setDuoPipExpanded(v => !v)
+                    duoPipLastTapRef.current = 0
+                  } else {
+                    duoPipLastTapRef.current = now
+                  }
+                }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  width: duoPipExpanded ? DUO_PIP_W_LG : DUO_PIP_W_SM,
+                  height: duoPipExpanded ? DUO_PIP_H_LG : DUO_PIP_H_SM,
+                  borderRadius: duoPipExpanded ? 18 : 14,
+                }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+                className="absolute z-[11] overflow-hidden"
+                style={{
+                  x: duoPipX,
+                  y: duoPipY,
+                  top: 0,
+                  left: 0,
+                  boxShadow: '0 0 22px rgba(124,58,237,0.38), 0 8px 32px rgba(0,0,0,0.65)',
+                  border: '1.5px solid rgba(124,58,237,0.5)',
+                  touchAction: 'none',
+                  cursor: 'grab',
+                }}
+              >
+                <video
+                  ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }}
+                  autoPlay playsInline
+                  className="w-full h-full object-cover"
+                />
+                {/* DUO label */}
+                <div className="absolute top-1.5 left-1.5 pointer-events-none">
+                  <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(124,58,237,0.75)', backdropFilter: 'blur(8px)' }}>
+                    <span className="text-white font-black text-[7px] tracking-wider">DUO</span>
+                  </div>
+                </div>
+                {/* Username label */}
+                <div className="absolute bottom-1 inset-x-0 flex items-center justify-center pointer-events-none">
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+                    <span className="text-white/80 font-semibold text-[9px]">Your partner</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── DUO MODE badge — top center ── */}
+          <AnimatePresence>
+            {isDuoMode && status === 'matched' && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+                className="absolute z-[6] left-1/2 -translate-x-1/2 pointer-events-none"
+                style={{ top: 'max(14px, env(safe-area-inset-top, 0px) + 12px)' }}
+              >
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(124,58,237,0.22)', backdropFilter: 'blur(16px)', border: '1px solid rgba(124,58,237,0.38)', boxShadow: '0 0 16px rgba(124,58,237,0.2)' }}>
+                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#a78bfa' }} />
+                  <span className="text-[10px] font-black tracking-widest text-white/90">DUO MODE</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
         </div>
 
