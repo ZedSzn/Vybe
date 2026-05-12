@@ -149,7 +149,7 @@ function AppRoutes() {
   const [announcement,   setAnnouncement]   = useState('')
   const [announcActive,  setAnnouncActive]  = useState(false)
   const [announcDismissed, setAnnouncDismissed] = useState(false)
-  const { pendingWarnings, dismissWarning, pendingAnnouncements, dismissAnnouncement, bannedInfo, clearBanned } = useSocket()
+  const { socket, pendingWarnings, dismissWarning, pendingAnnouncements, dismissAnnouncement, bannedInfo, clearBanned } = useSocket()
 
   const checkSettings = () => {
     const adminToken = localStorage.getItem('vybe_admin_token') || ''
@@ -168,6 +168,19 @@ function AppRoutes() {
     const interval = setInterval(checkSettings, 60000)
     return () => clearInterval(interval)
   }, []) // eslint-disable-line
+
+  // Instant maintenance mode via socket — no 60s poll wait
+  useEffect(() => {
+    if (!socket) return
+    const handler = ({ active, message }) => {
+      // Admins bypass maintenance — they can see the site while it's down
+      if (localStorage.getItem('vybe_admin_token')) return
+      setMaintenance(active)
+      if (message) setMaintMessage(message)
+    }
+    socket.on('maintenance-mode', handler)
+    return () => socket.off('maintenance-mode', handler)
+  }, [socket])
 
   // When banned globally, log out and redirect after modal dismissed
   const handleBanDismiss = () => {

@@ -1548,6 +1548,12 @@ app.post('/api/admin-secure/settings', adminSecureMiddleware, async (req, res) =
     await AppSettings.findOneAndUpdate({}, update, { upsert: true, new: true });
     invalidateSettings();
 
+    // Push maintenance state instantly to all connected clients
+    if (maintenanceMode !== undefined) {
+      const msg = maintenanceMessage !== undefined ? maintenanceMessage : 'Vybe is temporarily down for maintenance. Be back soon!';
+      io.emit('maintenance-mode', { active: !!maintenanceMode, message: msg });
+    }
+
     if (announcementActive && announcement) {
       io.emit('announcement', { message: announcement });
     }

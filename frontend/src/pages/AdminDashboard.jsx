@@ -738,9 +738,10 @@ export default function AdminDashboard() {
             </button>
           </div>
           {settings.maintenanceMode && (
-            <p className="text-xs px-3 py-2 rounded-lg mb-3 font-semibold" style={{ background: 'rgba(234,179,8,0.1)', color: '#fbbf24', border: '1px solid rgba(234,179,8,0.2)' }}>
-              Maintenance is ON — regular users see the maintenance page. You bypass it as admin.
-            </p>
+            <div className="px-3 py-2.5 rounded-lg mb-3 space-y-1" style={{ background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.2)' }}>
+              <p className="text-xs font-black" style={{ color: '#fbbf24' }}>⚠ Maintenance is LIVE</p>
+              <p className="text-xs" style={{ color: 'rgba(234,179,8,0.7)' }}>Regular users see the maintenance page right now. You bypass it because you're logged into the admin panel — test in an incognito window to verify.</p>
+            </div>
           )}
           <label className="block text-xs font-bold text-vybe-muted uppercase tracking-wider mb-1.5">Maintenance Message</label>
           <input value={settings.maintenanceMessage} onChange={(e) => setSettings({ ...settings, maintenanceMessage: e.target.value })} className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none" />
