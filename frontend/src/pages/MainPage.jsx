@@ -442,31 +442,27 @@ export default function MainPage() {
                 style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%)', top: '16%' }} />
               {!permissionAsked || cameraErr ? (
                 <div className="relative z-10 flex flex-col items-center w-full">
-                  <div className="flex items-center justify-center mb-4 rounded-full" style={{ width: 64, height: 64, background: 'rgba(124,58,237,0.15)', border: '1.5px solid rgba(124,58,237,0.35)' }}>
-                    {cameraErr ? <VideoOff size={26} style={{ color: 'rgba(167,139,250,0.85)' }} /> : <Camera size={26} style={{ color: 'rgba(167,139,250,0.85)' }} />}
+                  <div className="flex items-center justify-center mb-3 rounded-2xl" style={{ width: 48, height: 48, background: cameraErr ? 'rgba(220,38,38,0.12)' : 'rgba(124,58,237,0.15)', border: `1.5px solid ${cameraErr ? 'rgba(220,38,38,0.28)' : 'rgba(124,58,237,0.35)'}` }}>
+                    {cameraErr ? <VideoOff size={20} style={{ color: '#f87171' }} /> : <Camera size={20} style={{ color: 'rgba(167,139,250,0.85)' }} />}
                   </div>
                   {cameraErr ? (
                     <>
-                      <p className="text-white font-bold text-[13px] text-center mb-1 leading-snug">Camera access blocked</p>
-                      <p className="text-[11px] text-center mb-3 leading-relaxed px-1" style={{ color: 'rgba(240,100,100,0.85)' }}>{cameraErrMsg || 'Allow camera in your browser settings, then try again.'}</p>
+                      <p className="text-white font-bold text-[13px] text-center mb-1 leading-snug">Camera blocked</p>
+                      <p className="text-[11px] text-center mb-3 leading-relaxed px-2" style={{ color: 'rgba(248,113,113,0.8)' }}>{cameraErrMsg || 'Allow camera in your browser settings.'}</p>
                       {(() => {
                         const ua = navigator.userAgent
                         const isIOS = /iPad|iPhone|iPod/.test(ua)
                         const isAndroid = /Android/.test(ua)
                         const steps = isIOS
-                          ? { label: 'Fix on iPhone:', items: ['Open Settings app', 'Scroll to Chrome (or Safari)', 'Tap Camera → Allow'] }
+                          ? ['Settings → Chrome/Safari → Camera → Allow']
                           : isAndroid
-                          ? { label: 'Fix on Android:', items: ['Tap the lock icon in address bar', 'Tap Permissions → Camera → Allow', 'Reload the page'] }
+                          ? ['Address bar lock → Permissions → Camera → Allow']
                           : null
                         if (!steps) return null
                         return (
-                          <div className="w-full mb-3 space-y-1 text-left">
-                            <p className="text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color: 'rgba(167,139,250,0.7)' }}>{steps.label}</p>
-                            {steps.items.map((s, i) => (
-                              <div key={i} className="flex items-start gap-1.5">
-                                <span className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black mt-px" style={{ background: 'rgba(124,58,237,0.3)', color: 'rgba(167,139,250,1)' }}>{i + 1}</span>
-                                <span className="text-[11px] leading-relaxed" style={{ color: 'rgba(210,210,230,0.7)' }}>{s}</span>
-                              </div>
+                          <div className="w-full mb-3 px-1">
+                            {steps.map((s, i) => (
+                              <p key={i} className="text-[10px] text-center leading-relaxed" style={{ color: 'rgba(167,139,250,0.6)' }}>› {s}</p>
                             ))}
                           </div>
                         )
@@ -474,8 +470,8 @@ export default function MainPage() {
                     </>
                   ) : (
                     <>
-                      <p className="text-white font-bold text-[14px] text-center mb-1 leading-snug">Allow Vybe to use<br/>your camera</p>
-                      <p className="text-[11px] text-center mb-5 leading-relaxed" style={{ color: 'rgba(160,160,180,0.6)' }}>Required to start video chatting</p>
+                      <p className="text-white font-bold text-[13px] text-center mb-1 leading-snug">Allow camera access</p>
+                      <p className="text-[11px] text-center mb-4 leading-relaxed" style={{ color: 'rgba(160,160,180,0.55)' }}>Required to start video chatting</p>
                     </>
                   )}
                   <motion.button onClick={enableCamera} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
@@ -957,40 +953,30 @@ export default function MainPage() {
                 {!permissionAsked || cameraErr ? (
                   /* ── Permission prompt (initial) or retry (error) ── */
                   <div className="relative z-10 flex flex-col items-center w-full">
-                    {/* Camera icon ring */}
-                    <div
-                      className="flex items-center justify-center mb-4 rounded-full"
-                      style={{ width: 64, height: 64, background: 'rgba(124,58,237,0.15)', border: '1.5px solid rgba(124,58,237,0.35)' }}
-                    >
-                      {cameraErr
-                        ? <VideoOff size={26} style={{ color: 'rgba(167,139,250,0.85)' }} />
-                        : <Camera   size={26} style={{ color: 'rgba(167,139,250,0.85)' }} />}
+                    <div className="flex items-center justify-center mb-3 rounded-2xl" style={{ width: 48, height: 48, background: cameraErr ? 'rgba(220,38,38,0.12)' : 'rgba(124,58,237,0.15)', border: `1.5px solid ${cameraErr ? 'rgba(220,38,38,0.28)' : 'rgba(124,58,237,0.35)'}` }}>
+                      {cameraErr ? <VideoOff size={20} style={{ color: '#f87171' }} /> : <Camera size={20} style={{ color: 'rgba(167,139,250,0.85)' }} />}
                     </div>
 
                     {cameraErr ? (
                       <>
-                        <p className="text-white font-bold text-[13px] text-center mb-1 leading-snug">Camera access blocked</p>
-                        <p className="text-[11px] text-center mb-3 leading-relaxed px-1" style={{ color: 'rgba(240,100,100,0.85)' }}>
-                          {cameraErrMsg || 'Allow camera in your browser settings, then try again.'}
+                        <p className="text-white font-bold text-[13px] text-center mb-1 leading-snug">Camera blocked</p>
+                        <p className="text-[11px] text-center mb-3 leading-relaxed px-2" style={{ color: 'rgba(248,113,113,0.8)' }}>
+                          {cameraErrMsg || 'Allow camera in your browser settings.'}
                         </p>
                         {(() => {
                           const ua = navigator.userAgent
                           const isIOS = /iPad|iPhone|iPod/.test(ua)
                           const isAndroid = /Android/.test(ua)
                           const steps = isIOS
-                            ? { label: 'Fix on iPhone:', items: ['Open Settings app', 'Scroll to Chrome (or Safari)', 'Tap Camera → Allow'] }
+                            ? ['Settings → Chrome/Safari → Camera → Allow']
                             : isAndroid
-                            ? { label: 'Fix on Android:', items: ['Tap the lock icon in address bar', 'Tap Permissions → Camera → Allow', 'Reload the page'] }
+                            ? ['Address bar lock → Permissions → Camera → Allow']
                             : null
                           if (!steps) return null
                           return (
-                            <div className="w-full mb-3 space-y-1 text-left">
-                              <p className="text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color: 'rgba(167,139,250,0.7)' }}>{steps.label}</p>
-                              {steps.items.map((s, i) => (
-                                <div key={i} className="flex items-start gap-1.5">
-                                  <span className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black mt-px" style={{ background: 'rgba(124,58,237,0.3)', color: 'rgba(167,139,250,1)' }}>{i + 1}</span>
-                                  <span className="text-[11px] leading-relaxed" style={{ color: 'rgba(210,210,230,0.7)' }}>{s}</span>
-                                </div>
+                            <div className="w-full mb-3 px-1">
+                              {steps.map((s, i) => (
+                                <p key={i} className="text-[10px] text-center leading-relaxed" style={{ color: 'rgba(167,139,250,0.6)' }}>› {s}</p>
                               ))}
                             </div>
                           )
@@ -998,8 +984,8 @@ export default function MainPage() {
                       </>
                     ) : (
                       <>
-                        <p className="text-white font-bold text-[14px] text-center mb-1 leading-snug">Allow Vybe to use<br/>your camera</p>
-                        <p className="text-[11px] text-center mb-5 leading-relaxed" style={{ color: 'rgba(160,160,180,0.6)' }}>
+                        <p className="text-white font-bold text-[13px] text-center mb-1 leading-snug">Allow camera access</p>
+                        <p className="text-[11px] text-center mb-4 leading-relaxed" style={{ color: 'rgba(160,160,180,0.55)' }}>
                           Required to start video chatting
                         </p>
                       </>
