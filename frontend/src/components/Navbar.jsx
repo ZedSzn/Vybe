@@ -214,6 +214,25 @@ export default function Navbar({ onPremiumClick }) {
               </Link>
             </motion.div>
 
+            {/* Coin balance — mobile only */}
+            <Link
+              to="/wallet"
+              className="flex sm:hidden items-center gap-1 px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(234,179,8,0.12)', border: '1px solid rgba(234,179,8,0.22)' }}
+            >
+              <CoinIcon />
+              <span className="text-yellow-300 text-[11px] font-black">{coins.toLocaleString()}</span>
+            </Link>
+
+            {/* Buy Coins — mobile only */}
+            <Link
+              to="/wallet?tab=buy"
+              className="flex sm:hidden items-center px-2.5 py-1 rounded-lg text-[11px] font-extrabold text-white"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7)', boxShadow: '0 0 10px rgba(124,58,237,0.4)' }}
+            >
+              Buy
+            </Link>
+
             {/* Notification bell */}
             <div ref={notifsRef} className="relative">
               <motion.button

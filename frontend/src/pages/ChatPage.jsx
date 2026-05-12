@@ -35,21 +35,30 @@ function BarBtn({ onClick, children, label, active, red, disabled: dis, title: t
 
 
 // Floating pill button for mobile immersive bar
-function MobileFloatBtn({ onClick, children, active, red, amber, disabled: dis }) {
-  let bg = 'rgba(255,255,255,0.1)'
-  let border = '1px solid rgba(255,255,255,0.1)'
+function MobileFloatBtn({ onClick, children, active, red, amber, primary, disabled: dis }) {
+  let bg = 'rgba(255,255,255,0.07)'
+  let border = '1px solid rgba(255,255,255,0.06)'
   let glow = 'none'
-  let color = active ? '#a78bfa' : 'rgba(255,255,255,0.8)'
-  if (red && active) { bg = '#dc2626'; border = '1px solid rgba(220,38,38,0.6)'; glow = '0 0 16px rgba(220,38,38,0.5)'; color = '#fff' }
-  else if (red)       { bg = 'rgba(239,68,68,0.15)'; border = '1px solid rgba(239,68,68,0.25)'; color = '#f87171' }
-  else if (amber)     { bg = 'rgba(245,158,11,0.2)'; border = '1px solid rgba(245,158,11,0.45)'; glow = '0 0 14px rgba(245,158,11,0.3)'; color = '#fbbf24' }
-  else if (active)    { bg = 'rgba(124,58,237,0.25)'; border = '1px solid rgba(124,58,237,0.4)' }
+  let color = active ? '#c4b5fd' : 'rgba(255,255,255,0.72)'
+  let sz = primary ? 46 : 40
+
+  if (red && active)  { bg = 'rgba(220,38,38,0.88)'; border = '1px solid rgba(220,38,38,0.5)'; glow = '0 0 22px rgba(220,38,38,0.55), 0 0 44px rgba(220,38,38,0.18)'; color = '#fff' }
+  else if (red)       { bg = 'rgba(239,68,68,0.1)';  border = '1px solid rgba(239,68,68,0.18)'; color = '#f87171' }
+  else if (amber)     { bg = 'rgba(245,158,11,0.16)'; border = '1px solid rgba(245,158,11,0.38)'; glow = '0 0 14px rgba(245,158,11,0.22)'; color = '#fbbf24' }
+  else if (primary)   { bg = 'rgba(124,58,237,0.2)';  border = '1px solid rgba(124,58,237,0.32)'; glow = '0 0 16px rgba(124,58,237,0.28)'; color = '#c4b5fd' }
+  else if (active)    { bg = 'rgba(124,58,237,0.18)'; border = '1px solid rgba(124,58,237,0.28)'; color = '#c4b5fd' }
+
   return (
-    <button onClick={onClick} disabled={dis}
-      className="w-10 h-10 rounded-full flex items-center justify-center active:scale-90 disabled:opacity-30 flex-shrink-0"
-      style={{ background: bg, border, boxShadow: glow, color, transition: 'background 150ms, box-shadow 150ms' }}>
+    <motion.button
+      onClick={onClick}
+      disabled={dis}
+      whileTap={{ scale: 0.86 }}
+      transition={{ type: 'spring', stiffness: 520, damping: 24 }}
+      className="rounded-full flex items-center justify-center disabled:opacity-25 flex-shrink-0"
+      style={{ width: sz, height: sz, background: bg, border, boxShadow: glow, color, transition: 'background 140ms, box-shadow 140ms' }}
+    >
       {children}
-    </button>
+    </motion.button>
   )
 }
 
@@ -1173,48 +1182,73 @@ export default function ChatPage() {
         <AnimatePresence>
           {!showChat && (
             <motion.div
-              initial={{ opacity: 0, y: 16, scale: 0.95 }}
+              initial={{ opacity: 0, y: 22, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.95 }}
-              transition={{ type: 'spring', damping: 26, stiffness: 300 }}
-              className="lg:hidden fixed z-[30] flex items-center gap-2 px-4 py-3 rounded-full"
+              exit={{ opacity: 0, y: 18, scale: 0.92 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 340 }}
+              className="lg:hidden fixed z-[30] flex items-center rounded-full"
               style={{
-                bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px))',
+                bottom: 'max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px))',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                background: 'rgba(12,12,24,0.75)',
-                backdropFilter: 'blur(28px)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                background: 'rgba(7,7,18,0.84)',
+                backdropFilter: 'blur(44px) saturate(1.5)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                boxShadow: '0 8px 40px rgba(0,0,0,0.72), 0 1px 0 rgba(255,255,255,0.04) inset',
+                padding: '8px 12px',
+                gap: '5px',
               }}
             >
+              {/* Mute */}
               <MobileFloatBtn onClick={toggleMute} active={isMuted} red={isMuted}>
-                {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+                {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
               </MobileFloatBtn>
+
+              {/* Divider */}
+              {status === 'matched' && <div className="w-px h-5 flex-shrink-0 mx-0.5" style={{ background: 'rgba(255,255,255,0.07)' }} />}
+
+              {/* Skip — primary accent */}
               {status === 'matched' && (
-                <MobileFloatBtn onClick={handleSkip}>
+                <MobileFloatBtn onClick={handleSkip} primary>
                   <SkipForward size={18} />
                 </MobileFloatBtn>
               )}
+
+              {/* End call */}
               <MobileFloatBtn onClick={handleEnd} red active={status === 'matched'}>
-                <PhoneOff size={18} />
+                <PhoneOff size={status === 'matched' ? 18 : 16} />
               </MobileFloatBtn>
+
+              {/* Divider */}
+              <div className="w-px h-5 flex-shrink-0 mx-0.5" style={{ background: 'rgba(255,255,255,0.07)' }} />
+
+              {/* Chat */}
               <MobileFloatBtn onClick={toggleChat}>
                 <span className="relative">
-                  <MessageSquare size={18} />
-                  {unread > 0 && !showChat && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-[7px] font-black flex items-center justify-center">{unread > 9 ? '9+' : unread}</span>}
+                  <MessageSquare size={16} />
+                  {unread > 0 && !showChat && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-[7px] font-black flex items-center justify-center"
+                      style={{ background: '#7c3aed', color: '#fff' }}>
+                      {unread > 9 ? '9+' : unread}
+                    </span>
+                  )}
                 </span>
               </MobileFloatBtn>
+
+              {/* Safe mode */}
               <MobileFloatBtn onClick={() => setStrangerHidden(h => !h)} amber={strangerHidden} active={strangerHidden}>
-                <Shield size={18} />
+                <Shield size={16} />
               </MobileFloatBtn>
+
+              {/* Report */}
               {!reportSent ? (
                 <MobileFloatBtn onClick={() => status === 'matched' && setShowReport(true)} disabled={status !== 'matched'}>
-                  <Flag size={18} />
+                  <Flag size={16} />
                 </MobileFloatBtn>
               ) : (
-                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.3)' }}>
-                  <span className="text-green-400 text-xs">✓</span>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.22)' }}>
+                  <span className="text-green-400 text-xs font-bold">✓</span>
                 </div>
               )}
             </motion.div>
