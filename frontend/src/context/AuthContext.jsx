@@ -29,13 +29,6 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const { data } = await axios.post('/api/auth/login', { email, password })
-    if (data.requires2FA) return data // { requires2FA: true, pendingToken }
-    _storeSession(data.user, data.token)
-    return data.user
-  }
-
-  const verify2FA = async (pendingToken, code) => {
-    const { data } = await axios.post('/api/auth/2fa/verify', { pendingToken, code })
     _storeSession(data.user, data.token)
     return data.user
   }
@@ -68,7 +61,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, verify2FA, register, logout, updateUser, refreshUser, loading, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, updateUser, refreshUser, loading, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   )

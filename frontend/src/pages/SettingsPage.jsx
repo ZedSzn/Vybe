@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Loader2, Trash2, UserX, Download, AlertTriangle, Check, Mail, ShieldCheck, Smartphone, Lock } from 'lucide-react'
+import { ArrowLeft, Loader2, Trash2, UserX, Download, AlertTriangle, Check, Mail, ShieldCheck } from 'lucide-react'
 import EmptyStateIllustration from '../components/EmptyStateIllustration'
 import VybeCoin from '../components/VybeCoin'
 import { CoinBalance, CoinReward } from '../components/VybeCoinIcons'
@@ -459,184 +459,6 @@ function EmailVerificationSection({ user }) {
   )
 }
 
-// ─── Phone 2FA Section ────────────────────────────────────────────────────────
-function PhoneTwoFactorSection() {
-  const [status,       setStatus]       = useState(null) // { phone, phoneVerified, twoFactorEnabled }
-  const [loading,      setLoading]      = useState(true)
-  const [phone,        setPhone]        = useState('')
-  const [code,         setCode]         = useState('')
-  const [step,         setStep]         = useState('idle') // idle | sent | verified
-  const [saving,       setSaving]       = useState(false)
-  const [toggling,     setToggling]     = useState(false)
-  const [err,          setErr]          = useState('')
-  const [success,      setSuccess]      = useState('')
-
-  useEffect(() => {
-    axios.get('/api/user/2fa/status')
-      .then(({ data }) => {
-        setStatus(data)
-        setPhone(data.phone || '')
-        if (data.phoneVerified) setStep('verified')
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
-
-  const sendCode = async () => {
-    setErr(''); setSuccess('')
-    setSaving(true)
-    try {
-      await axios.post('/api/user/phone/send-code', { phone })
-      setStep('sent')
-      setSuccess('Code sent! Check your phone.')
-    } catch (e) {
-      setErr(e.response?.data?.error || 'Failed to send code.')
-    }
-    setSaving(false)
-  }
-
-  const verifyCode = async () => {
-    setErr(''); setSuccess('')
-    setSaving(true)
-    try {
-      await axios.post('/api/user/phone/verify', { code })
-      setStep('verified')
-      setStatus(s => ({ ...s, phoneVerified: true }))
-      setSuccess('Phone verified!')
-    } catch (e) {
-      setErr(e.response?.data?.error || 'Invalid code.')
-    }
-    setSaving(false)
-  }
-
-  const toggle2FA = async () => {
-    setErr(''); setSuccess('')
-    setToggling(true)
-    try {
-      const { data } = await axios.post('/api/user/2fa/toggle', { enabled: !status?.twoFactorEnabled })
-      setStatus(s => ({ ...s, twoFactorEnabled: data.twoFactorEnabled }))
-      setSuccess(data.twoFactorEnabled ? '2FA enabled — your account is now more secure.' : '2FA disabled.')
-    } catch (e) {
-      setErr(e.response?.data?.error || 'Failed to update 2FA.')
-    }
-    setToggling(false)
-  }
-
-  if (loading) return (
-    <div className="glass-card rounded-2xl p-5 space-y-3">
-      <div className="flex items-center gap-2 mb-1">
-        <div className="w-9 h-9 rounded-full bg-vybe-purple/10 flex-shrink-0" />
-        <div className="space-y-2 flex-1">
-          <div className="h-4 w-40 bg-vybe-border rounded animate-pulse" />
-          <div className="h-3 w-52 bg-vybe-border/60 rounded animate-pulse" />
-        </div>
-      </div>
-    </div>
-  )
-
-  return (
-    <div className="glass-card rounded-2xl p-5 border border-vybe-purple/20">
-      <div className="flex items-start gap-3 mb-4">
-        <div className="w-9 h-9 rounded-full bg-vybe-purple/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Smartphone size={18} className="text-vybe-purple-light" />
-        </div>
-        <div>
-          <p className="text-white text-sm font-bold">Two-Factor Authentication</p>
-          <p className="text-vybe-muted text-xs mt-0.5 leading-relaxed">
-            Add your phone number to protect your account with a one-time code at login.
-          </p>
-        </div>
-      </div>
-
-      {/* Success / error messages */}
-      {success && <p className="text-green-400 text-xs mb-3 flex items-center gap-1.5"><Check size={12} />{success}</p>}
-      {err     && <p className="text-red-400 text-xs mb-3">{err}</p>}
-
-      {/* Phone input + send code */}
-      {step === 'idle' && (
-        <div className="space-y-2">
-          <input
-            type="tel"
-            value={phone}
-            onChange={e => setPhone(e.target.value)}
-            placeholder="+447911123456"
-            className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:outline-none focus:border-vybe-purple transition-colors font-mono"
-          />
-          <p className="text-vybe-muted text-[11px]">Include country code, e.g. +44 for UK, +1 for US.</p>
-          <button
-            onClick={sendCode}
-            disabled={saving || !phone.trim()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-vybe-purple/15 border border-vybe-purple/30 text-vybe-purple-light hover:bg-vybe-purple/25 text-sm font-bold transition-all disabled:opacity-50"
-          >
-            {saving ? <><Loader2 size={13} className="animate-spin" /> Sending…</> : <><Smartphone size={13} /> Send Verification Code</>}
-          </button>
-        </div>
-      )}
-
-      {/* Code entry */}
-      {step === 'sent' && (
-        <div className="space-y-2">
-          <p className="text-vybe-muted text-xs">Enter the 6-digit code sent to <span className="text-white font-mono">{phone}</span>.</p>
-          <input
-            type="text"
-            inputMode="numeric"
-            maxLength={6}
-            value={code}
-            onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
-            placeholder="000000"
-            className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:outline-none focus:border-vybe-purple transition-colors font-mono tracking-widest text-center"
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={verifyCode}
-              disabled={saving || code.length < 6}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-vybe-purple/15 border border-vybe-purple/30 text-vybe-purple-light hover:bg-vybe-purple/25 text-sm font-bold transition-all disabled:opacity-50"
-            >
-              {saving ? <><Loader2 size={13} className="animate-spin" /> Verifying…</> : <><Check size={13} /> Verify</>}
-            </button>
-            <button onClick={() => { setStep('idle'); setCode(''); setErr(''); setSuccess('') }}
-              className="px-4 py-2.5 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-sm transition-colors">
-              Change number
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Verified — show 2FA toggle */}
-      {step === 'verified' && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-green-400 text-xs">
-            <ShieldCheck size={14} /> Phone verified — <span className="font-mono text-white/70">{status?.phone}</span>
-            <button onClick={() => { setStep('idle'); setCode(''); setErr(''); setSuccess('') }}
-              className="ml-auto text-vybe-muted hover:text-white text-[11px] transition-colors">change</button>
-          </div>
-          <div className="flex items-center justify-between py-2 border-t border-vybe-border/40">
-            <div className="flex items-center gap-2">
-              <Lock size={14} className="text-vybe-purple-light" />
-              <span className="text-white text-sm font-semibold">Two-factor authentication</span>
-              {status?.twoFactorEnabled && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/25">ON</span>
-              )}
-            </div>
-            <button
-              onClick={toggle2FA}
-              disabled={toggling}
-              className={`relative w-11 h-6 rounded-full transition-colors ${status?.twoFactorEnabled ? 'bg-vybe-purple' : 'bg-vybe-border'}`}
-            >
-              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${status?.twoFactorEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
-            </button>
-          </div>
-          <p className="text-vybe-muted text-[11px]">
-            {status?.twoFactorEnabled
-              ? 'You\'ll be asked for a code from your phone each time you sign in.'
-              : 'Enable to require a one-time code from your phone at every login.'}
-          </p>
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Account Tab ──────────────────────────────────────────────────────────────
 function AccountTab({ logout, navigate }) {
   const { user } = useAuth()
@@ -674,9 +496,6 @@ function AccountTab({ logout, navigate }) {
     <div className="space-y-4">
       {/* Email verification */}
       <EmailVerificationSection user={user} />
-
-      {/* Phone 2FA */}
-      <PhoneTwoFactorSection />
 
       {/* Data export */}
       <div className="glass-card rounded-2xl p-5">

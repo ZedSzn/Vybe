@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Smartphone } from 'lucide-react'
+import { Eye, EyeOff, ArrowLeft, Loader2, Mail } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Footer from '../components/Footer'
 
@@ -16,13 +16,10 @@ export default function AuthPage() {
   const [error, setError]           = useState('')
   const [verifyBanner, setVerifyBanner] = useState(false)
   const [gender, setGender]             = useState('')
-  // 2FA step state
-  const [twoFAPending, setTwoFAPending] = useState(null) // { pendingToken }
-  const [twoFACode, setTwoFACode]       = useState('')
   // Pre-fill referral code from URL (?ref=CODE)
   const refCode = searchParams.get('ref') || ''
 
-  const { login, verify2FA, register } = useAuth()
+  const { login, register } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -31,36 +28,17 @@ export default function AuthPage() {
     setLoading(true)
     try {
       if (tab === 'login') {
-        const result = await login(email, password)
-        if (result?.requires2FA) {
-          setTwoFAPending({ pendingToken: result.pendingToken })
-          setLoading(false)
-          return
-        }
+        await login(email, password)
         navigate('/')
       } else {
         if (!username.trim()) { setError('Username is required'); setLoading(false); return }
         if (!gender) { setError('Please select your gender'); setLoading(false); return }
         await register(username, email, password, refCode, gender)
+        // Navigate immediately — verification is optional (soft)
         navigate('/')
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handle2FASubmit = async (e) => {
-    e.preventDefault()
-    if (!twoFACode.trim()) return
-    setError('')
-    setLoading(true)
-    try {
-      await verify2FA(twoFAPending.pendingToken, twoFACode)
-      navigate('/')
-    } catch (err) {
-      setError(err.response?.data?.error || 'Invalid code. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -88,66 +66,6 @@ export default function AuthPage() {
           Back to Vybe
         </Link>
 
-        {/* 2FA verification step */}
-        {twoFAPending && !verifyBanner && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glass-card rounded-2xl p-7"
-          >
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-vybe-purple/20 border border-vybe-purple/30 flex items-center justify-center mx-auto mb-4">
-                <Smartphone size={26} className="text-vybe-purple-light" />
-              </div>
-              <h2 className="text-white font-black text-xl mb-2">Check your phone</h2>
-              <p className="text-vybe-muted text-sm leading-relaxed">
-                We sent a 6-digit code to your registered phone number.
-              </p>
-            </div>
-            <form onSubmit={handle2FASubmit} className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-widest mb-1.5">
-                  Verification Code
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  value={twoFACode}
-                  onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="000000"
-                  autoFocus
-                  className="w-full px-4 py-3 bg-vybe-card2 border border-vybe-border rounded-xl text-white placeholder-vybe-muted text-lg text-center tracking-[0.3em] font-mono focus:border-vybe-purple focus:shadow-purple-sm transition-all"
-                />
-              </div>
-              <AnimatePresence>
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    className="text-red-400 text-[13px] bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3"
-                  >
-                    {error}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-              <button
-                type="submit"
-                disabled={loading || twoFACode.length < 6}
-                className="w-full py-3.5 rounded-xl btn-purple text-white font-bold text-sm disabled:opacity-60 flex items-center justify-center gap-2"
-              >
-                {loading ? <><Loader2 size={15} className="animate-spin" /> Verifying…</> : 'Verify & Sign In'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setTwoFAPending(null); setTwoFACode(''); setError('') }}
-                className="w-full py-2.5 text-vybe-muted hover:text-white text-sm transition-colors"
-              >
-                Back to login
-              </button>
-            </form>
-          </motion.div>
-        )}
-
         {verifyBanner && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -171,7 +89,7 @@ export default function AuthPage() {
           </motion.div>
         )}
 
-        {!verifyBanner && !twoFAPending && (
+        {!verifyBanner && (
         <div className="glass-card rounded-2xl overflow-hidden">
           <div className="p-7 pb-0">
             {/* Brand */}
