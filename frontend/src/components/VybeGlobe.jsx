@@ -1,79 +1,113 @@
 export default function VybeGlobe({ size = 200 }) {
   const id = 'vg'
 
-  // Equirectangular 720×360: x = (lng+180)*2, y = (90-lat)*2
+  // Globe occupies 66% of total size — rings stay fully inside the size×size box
+  const g = Math.round(size * 0.66)
+
+  // Equirectangular 720×360: x=(lng+180)*2, y=(90-lat)*2
+  // Paths are much more geographically accurate anchor points
   const landPaths = [
+    // ── North America ──────────────────────────────────────────────
+    'M46,38 L32,48 L20,62 L18,76 L24,86 L16,94 L24,100 L38,94 L52,80 L64,70 L78,64 L94,66 L108,72 L116,84 L116,98 L108,108 L100,118 L98,128 L104,134 L114,130 L122,136 L132,144 L142,152 L148,160 L150,168 L158,170 L166,164 L170,154 L168,142 L172,132 L166,122 L170,112 L182,110 L196,114 L204,126 L204,136 L200,148 L202,158 L198,168 L202,172 L210,168 L212,158 L210,148 L216,138 L224,132 L232,138 L236,148 L242,136 L248,122 L256,110 L264,100 L264,90 L256,80 L244,72 L228,62 L208,52 L186,44 L162,38 L136,34 L110,36 L86,40 L66,40Z',
     // Greenland
-    'M244,28 L256,18 L272,12 L292,10 L314,16 L326,24 L330,34 L326,46 L316,56 L300,62 L278,66 L260,62 L248,54 L242,42 L244,28Z',
-    // Iceland
-    'M306,50 L316,44 L330,44 L338,48 L336,56 L324,60 L312,58 L306,52Z',
-    // North America — detailed
-    'M54,54 L40,60 L26,70 L22,82 L28,90 L44,84 L60,72 L76,64 L92,66 L104,72 L112,86 L120,100 L128,114 L138,122 L150,134 L164,148 L180,158 L200,166 L214,170 L228,168 L236,158 L228,150 L214,142 L200,130 L200,122 L208,110 L216,100 L222,90 L234,88 L250,84 L260,76 L262,66 L256,56 L246,50 L228,42 L206,32 L180,26 L158,28 L136,36 L114,44 L92,50 L72,52Z',
-    // Florida peninsula
-    'M196,146 L200,154 L202,162 L198,166 L194,162 L192,154 L194,146Z',
-    // Central America
-    'M150,152 L156,158 L162,166 L168,172 L174,180 L172,188 L166,190 L160,184 L154,174 L148,164 L146,156Z',
-    // Caribbean (Cuba approx)
-    'M196,148 L208,144 L218,146 L220,150 L208,152 L196,150Z',
-    // South America
-    'M208,168 L222,162 L236,162 L248,170 L258,180 L268,196 L274,212 L280,228 L284,244 L286,260 L280,276 L270,288 L258,296 L248,294 L238,282 L232,266 L226,248 L220,230 L214,210 L208,190 L204,180Z',
+    'M250,12 L264,6 L282,4 L300,6 L318,14 L328,24 L330,36 L324,48 L314,58 L298,62 L278,64 L260,60 L248,50 L244,36 L248,22Z',
+    // Alaska peninsula
+    'M18,76 L8,82 L4,92 L14,96 L26,92 L36,84 L40,74 L30,68Z',
+    // Florida
+    'M198,130 L202,142 L202,154 L198,162 L194,154 L192,142 L194,130Z',
+    // Cuba
+    'M192,138 L206,134 L220,134 L226,140 L222,146 L208,148 L196,146Z',
+
+    // ── South America ───────────────────────────────────────────────
+    'M166,162 L178,158 L192,158 L206,164 L218,172 L228,184 L238,198 L248,214 L256,230 L260,248 L262,264 L260,278 L254,290 L244,298 L232,300 L220,292 L210,278 L204,262 L200,244 L198,226 L196,208 L192,192 L186,178 L176,166Z',
+    // Venezuela bump
+    'M206,164 L218,160 L230,162 L236,168 L228,172 L216,170Z',
+
+    // ── Europe ──────────────────────────────────────────────────────
+    'M332,72 L340,66 L348,62 L358,58 L370,54 L382,50 L394,46 L406,44 L416,48 L420,56 L418,66 L412,72 L408,76 L412,82 L420,88 L424,96 L422,104 L416,110 L406,114 L396,112 L386,104 L374,96 L362,90 L350,88 L340,90 L332,84 L330,76Z',
+    // Iberian Peninsula
+    'M328,80 L336,74 L344,72 L354,74 L362,80 L362,90 L354,98 L342,102 L330,96 L326,86Z',
     // UK
-    'M338,68 L346,64 L354,68 L358,76 L356,84 L350,88 L344,86 L338,78 L338,68Z',
+    'M334,62 L342,58 L350,60 L354,68 L352,76 L346,80 L338,78 L334,70Z',
     // Ireland
-    'M326,72 L334,70 L340,74 L338,82 L330,82 L326,76Z',
-    // Scandinavia — Norway/Sweden
-    'M376,40 L382,30 L388,22 L396,18 L402,22 L408,32 L408,42 L402,48 L394,50 L386,46 L378,42Z M396,20 L404,14 L412,14 L416,20 L414,30 L408,34 L402,28Z M412,18 L420,16 L426,20 L424,30 L418,34 L414,28Z',
-    // Denmark + Finland
-    'M388,56 L394,52 L400,54 L400,60 L394,62 L388,58Z M418,32 L426,26 L432,28 L434,36 L430,44 L422,46 L418,40Z',
-    // Europe — mainland
-    'M358,58 L366,50 L376,46 L388,42 L400,38 L412,36 L420,38 L424,44 L418,52 L412,60 L406,66 L412,70 L422,74 L426,80 L424,88 L418,94 L410,98 L402,96 L392,100 L382,96 L370,90 L362,84 L358,76 L362,68 L360,62Z',
-    // Italy boot
-    'M402,96 L408,98 L416,102 L422,110 L418,118 L412,122 L406,118 L402,110 L400,100Z M416,120 L420,116 L422,122 L420,126 L416,122Z',
-    // Spain + Portugal
-    'M336,90 L342,84 L350,82 L360,82 L368,86 L372,94 L366,102 L354,106 L342,104 L334,98Z',
-    // Greece + Balkans
-    'M418,90 L428,88 L436,90 L440,96 L436,104 L428,106 L420,102 L416,96Z M428,106 L432,110 L430,116 L426,112Z',
-    // Africa — detailed
-    'M348,110 L356,104 L366,100 L378,100 L392,102 L406,108 L420,116 L432,126 L444,140 L454,156 L462,164 L468,174 L464,186 L456,198 L448,210 L444,224 L438,238 L428,248 L416,252 L402,252 L390,248 L380,236 L374,220 L372,204 L370,188 L364,174 L354,164 L342,156 L330,146 L324,134 L324,122 L328,112 L338,108Z',
-    // Horn of Africa
-    'M468,174 L476,168 L484,166 L490,170 L488,180 L480,186 L470,184Z',
-    // Middle East / Arabian Peninsula
-    'M434,96 L446,88 L458,84 L468,84 L478,90 L482,100 L480,112 L472,120 L462,124 L450,122 L440,116 L434,106Z M450,122 L458,126 L464,136 L468,148 L462,152 L454,146 L448,134 L448,124Z',
-    // India subcontinent
-    'M498,106 L510,102 L522,104 L530,112 L532,124 L530,136 L526,148 L520,158 L514,164 L506,160 L498,150 L492,138 L490,124 L492,112Z',
-    // Sri Lanka
-    'M520,164 L526,160 L530,164 L528,170 L522,170Z',
-    // Asia — main body
-    'M428,36 L444,30 L462,26 L484,24 L506,22 L528,22 L550,24 L572,24 L594,22 L614,20 L634,20 L652,24 L666,30 L676,38 L682,48 L680,60 L672,70 L658,76 L640,80 L624,84 L614,90 L606,98 L600,108 L596,120 L598,132 L606,140 L616,146 L626,142 L636,134 L648,128 L658,126 L668,130 L672,140 L668,150 L658,156 L646,160 L634,162 L622,164 L612,170 L606,178 L598,182 L588,180 L576,176 L566,172 L554,172 L546,178 L540,184 L532,178 L524,168 L516,160 L510,164 L506,150 L510,138 L514,126 L512,114 L504,106 L494,100 L480,96 L466,92 L452,90 L442,90 L434,94 L428,100 L422,106 L420,96 L424,84 L432,76 L440,68 L444,60 L440,52 L432,44Z',
-    // Tibet plateau edge
-    'M510,88 L522,84 L534,84 L544,88 L546,96 L538,100 L526,100 L514,96Z',
-    // Southeast Asia mainland
-    'M548,134 L558,126 L566,120 L576,118 L582,124 L580,136 L574,146 L564,150 L554,148 L548,140Z',
-    // Japan — main islands
-    'M624,88 L630,82 L638,80 L644,84 L644,92 L638,98 L630,98 L624,92Z M614,100 L622,96 L630,98 L634,106 L630,114 L622,116 L616,110Z',
-    // Taiwan
-    'M610,130 L614,126 L618,128 L618,136 L614,138 L610,134Z',
-    // Philippines
-    'M574,140 L580,136 L586,140 L584,150 L578,154 L572,150Z M578,152 L584,150 L586,158 L582,162 L576,158Z',
-    // Borneo
-    'M568,162 L580,156 L592,158 L598,164 L598,176 L590,182 L578,182 L568,174Z',
-    // Sumatra + Java
-    'M544,176 L558,170 L572,170 L584,174 L586,182 L576,186 L562,186 L548,180Z M570,174 L580,170 L594,168 L602,172 L604,180 L594,182 L580,178Z',
-    // Australia
-    'M586,220 L594,210 L606,204 L620,202 L636,204 L650,210 L662,218 L668,230 L672,244 L668,258 L658,266 L644,270 L628,270 L614,264 L602,256 L594,244 L588,232Z',
-    // New Zealand
-    'M680,252 L688,246 L694,250 L692,260 L686,264 L680,258Z M676,268 L684,262 L690,266 L692,276 L684,282 L678,276Z',
+    'M322,68 L330,64 L336,66 L336,74 L330,78 L322,74Z',
+    // Scandinavia
+    'M372,38 L378,30 L386,22 L394,18 L400,24 L402,34 L398,44 L390,48 L382,46Z M394,18 L402,12 L410,14 L414,22 L412,32 L406,34 L400,24Z M410,16 L418,14 L424,20 L424,30 L418,34 L412,28Z',
+    // Italy
+    'M396,88 L402,84 L408,86 L414,94 L416,104 L414,114 L410,118 L406,112 L402,102 L398,92Z M410,116 L414,112 L418,118 L416,124 L412,120Z',
+    // Greece
+    'M414,96 L422,92 L430,96 L432,104 L426,110 L416,108Z',
+    // Balkans
+    'M408,80 L416,76 L424,78 L428,86 L424,94 L416,94 L410,88Z',
+
+    // ── Africa ──────────────────────────────────────────────────────
+    'M330,104 L342,98 L356,94 L372,92 L388,94 L404,100 L418,108 L430,120 L440,134 L448,150 L452,166 L452,182 L448,196 L442,210 L438,226 L430,240 L418,252 L404,256 L390,252 L376,242 L364,228 L354,212 L346,196 L340,180 L334,164 L324,150 L314,136 L312,122 L316,110Z',
+    // Horn of Africa / Somalia
+    'M452,168 L462,162 L474,158 L484,162 L482,174 L472,182 L460,180Z',
     // Madagascar
-    'M446,188 L454,182 L462,184 L466,196 L464,210 L456,218 L448,216 L444,204 L446,192Z',
+    'M448,186 L456,180 L464,182 L468,196 L466,210 L456,218 L448,214 L444,202Z',
+    // Sinai / Nile delta
+    'M428,108 L436,104 L444,106 L446,114 L438,116 L428,114Z',
+
+    // ── Middle East / Arabia ─────────────────────────────────────────
+    'M432,94 L448,86 L462,82 L474,82 L484,88 L486,102 L480,116 L468,124 L454,128 L440,122 L434,110Z M452,128 L460,132 L466,146 L462,156 L452,150 L448,136 L450,128Z',
+
+    // ── India ───────────────────────────────────────────────────────
+    'M492,100 L508,96 L524,98 L534,108 L536,122 L530,138 L522,152 L514,162 L504,164 L494,156 L488,142 L486,126 L490,112Z',
+    // Sri Lanka
+    'M518,164 L524,160 L528,164 L526,170 L520,170Z',
+
+    // ── Asia ────────────────────────────────────────────────────────
+    'M418,42 L436,34 L456,28 L480,24 L506,20 L532,20 L558,20 L584,20 L608,18 L632,18 L652,22 L668,30 L678,42 L678,56 L668,68 L652,76 L634,80 L618,84 L608,94 L600,106 L596,120 L600,132 L610,142 L622,140 L636,130 L650,124 L664,122 L672,130 L672,144 L664,154 L650,160 L636,164 L622,168 L612,176 L600,182 L586,180 L570,174 L554,170 L540,174 L534,182 L524,176 L518,164 L522,150 L528,136 L522,122 L512,110 L498,104 L482,98 L466,94 L450,90 L436,90 L426,94 L420,100 L414,96 L416,80 L422,70 L430,60 L432,50Z',
+    // Tibetan Plateau edge
+    'M508,86 L522,80 L538,80 L548,86 L548,96 L536,100 L522,98 L510,92Z',
+    // Japan
+    'M624,76 L632,70 L640,68 L646,72 L646,82 L640,88 L632,88 L624,82Z M614,90 L622,84 L632,86 L636,96 L630,104 L620,104 L616,96Z',
+    // Taiwan
+    'M608,124 L614,120 L618,122 L618,130 L614,134 L608,130Z',
+    // Southeast Asia
+    'M548,128 L560,120 L570,116 L582,118 L584,128 L580,140 L568,146 L556,142 L548,134Z',
+    // Philippines
+    'M578,130 L584,126 L592,130 L590,140 L582,144 L578,136Z M576,148 L582,142 L590,146 L588,158 L580,160 L576,154Z',
+    // Borneo
+    'M566,158 L580,150 L596,152 L602,162 L600,174 L588,180 L574,178 L566,168Z',
+    // Sumatra
+    'M540,170 L558,162 L576,160 L590,164 L592,174 L578,178 L560,178 L546,172Z',
+    // Java
+    'M558,174 L576,168 L594,168 L606,172 L606,180 L592,182 L574,180 L560,178Z',
+    // Papua New Guinea
+    'M610,178 L626,170 L642,168 L656,170 L660,178 L652,186 L636,188 L620,186Z',
+
+    // ── Australia ───────────────────────────────────────────────────
+    'M582,216 L594,206 L610,200 L628,196 L646,198 L662,204 L672,214 L676,228 L676,244 L670,258 L658,266 L642,270 L626,268 L610,262 L596,252 L586,238 L580,224Z',
+    // New Zealand
+    'M676,248 L684,240 L692,244 L692,256 L686,262 L676,256Z M672,266 L680,260 L688,264 L688,276 L682,282 L672,274Z',
+    // Tasmania
+    'M634,272 L642,268 L648,272 L648,280 L640,282 L634,278Z',
+
+    // ── Iceland ─────────────────────────────────────────────────────
+    'M306,46 L318,40 L332,40 L340,46 L338,56 L326,60 L314,58 L306,52Z',
   ]
 
-  const latLines = [60, 120, 180, 240, 300]
-  const lonLines = [60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720]
-  const svgW = 720
-  const svgH = 360
+  const latLines  = [60, 120, 180, 240, 300]
+  const lonLines  = [120, 240, 360, 480, 600]
+  const svgW = 720, svgH = 360
+
+  // Inner ring radius  = size * 0.39  →  diameter = size * 0.78  (fits inside size)
+  // Outer ring radius  = size * 0.475 →  diameter = size * 0.95  (fits inside size)
+  const r1 = Math.round(size * 0.39)
+  const r2 = Math.round(size * 0.475)
 
   return (
-    <div style={{ width: size, height: size, position: 'relative', flexShrink: 0, overflow: 'visible' }}>
+    <div style={{
+      width: size,
+      height: size,
+      position: 'relative',
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
       <style>{`
         @keyframes ${id}_scroll {
           from { transform: translateX(0); }
@@ -91,158 +125,162 @@ export default function VybeGlobe({ size = 200 }) {
           from { transform: translate(-50%,-50%) rotate(0deg); }
           to   { transform: translate(-50%,-50%) rotate(360deg); }
         }
-        @keyframes ${id}_dot_cw {
-          from { transform: translate(-50%,-50%) rotate(0deg) translateY(-${size * 0.68}px); }
-          to   { transform: translate(-50%,-50%) rotate(360deg) translateY(-${size * 0.68}px); }
+        @keyframes ${id}_atmo {
+          0%,100% { opacity: 0.55; transform: translate(-50%,-50%) scale(1); }
+          50%     { opacity: 0.85; transform: translate(-50%,-50%) scale(1.04); }
         }
-        @keyframes ${id}_dot_ccw {
-          from { transform: translate(-50%,-50%) rotate(0deg) translateY(-${size * 0.82}px); }
-          to   { transform: translate(-50%,-50%) rotate(-360deg) translateY(-${size * 0.82}px); }
+        @keyframes ${id}_d1 {
+          from { transform: translate(-50%,-50%) rotate(0deg)    translateY(-${r1}px); }
+          to   { transform: translate(-50%,-50%) rotate(360deg)  translateY(-${r1}px); }
         }
-        @keyframes ${id}_dot2_ccw {
-          from { transform: translate(-50%,-50%) rotate(120deg) translateY(-${size * 0.82}px); }
-          to   { transform: translate(-50%,-50%) rotate(-240deg) translateY(-${size * 0.82}px); }
+        @keyframes ${id}_d2 {
+          from { transform: translate(-50%,-50%) rotate(50deg)   translateY(-${r2}px); }
+          to   { transform: translate(-50%,-50%) rotate(410deg)  translateY(-${r2}px); }
+        }
+        @keyframes ${id}_d3 {
+          from { transform: translate(-50%,-50%) rotate(200deg)  translateY(-${r2}px); }
+          to   { transform: translate(-50%,-50%) rotate(560deg)  translateY(-${r2}px); }
         }
       `}</style>
 
-      {/* Sweeping whirl glow */}
+      {/* ── Atmospheric ambient glow ── */}
       <div style={{
         position: 'absolute',
-        width: size * 1.18,
-        height: size * 1.18,
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%,-50%)',
+        width: size * 0.86,
+        height: size * 0.86,
+        top: '50%', left: '50%',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, rgba(27,98,245,0.10) 45%, transparent 72%)',
+        animation: `${id}_atmo 5s ease-in-out infinite`,
+        pointerEvents: 'none',
+      }} />
+
+      {/* ── Sweeping conic glow ── */}
+      <div style={{
+        position: 'absolute',
+        width: size * 0.80,
+        height: size * 0.80,
+        top: '50%', left: '50%',
         borderRadius: '50%',
         background: `conic-gradient(from 0deg,
           transparent 0%,
-          transparent 50%,
-          rgba(124,58,237,0.08) 68%,
-          rgba(99,102,241,0.18) 80%,
-          rgba(27,98,245,0.12) 90%,
+          transparent 52%,
+          rgba(124,58,237,0.05) 68%,
+          rgba(99,102,241,0.18) 82%,
+          rgba(27,98,245,0.08) 92%,
           transparent 100%)`,
-        animation: `${id}_sweep 3.8s linear infinite`,
+        animation: `${id}_sweep 4.5s linear infinite`,
         pointerEvents: 'none',
       }} />
 
-      {/* Inner dashed ring — clockwise */}
+      {/* ── Inner dashed orbit ring ── */}
       <div style={{
         position: 'absolute',
-        width: size * 1.3,
-        height: size * 1.3,
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%,-50%) rotate(0deg)',
+        width: r1 * 2,
+        height: r1 * 2,
+        top: '50%', left: '50%',
         borderRadius: '50%',
-        border: '1px dashed rgba(124,58,237,0.5)',
-        animation: `${id}_cw 9s linear infinite`,
+        border: '1px dashed rgba(139,92,246,0.45)',
+        animation: `${id}_cw 11s linear infinite`,
         pointerEvents: 'none',
       }} />
 
-      {/* Outer dashed ring — counter-clockwise */}
+      {/* ── Outer dashed orbit ring ── */}
       <div style={{
         position: 'absolute',
-        width: size * 1.58,
-        height: size * 1.58,
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%,-50%) rotate(0deg)',
+        width: r2 * 2,
+        height: r2 * 2,
+        top: '50%', left: '50%',
         borderRadius: '50%',
-        border: '1px dashed rgba(27,98,245,0.35)',
-        animation: `${id}_ccw 15s linear infinite`,
+        border: '1px dashed rgba(27,98,245,0.28)',
+        animation: `${id}_ccw 18s linear infinite`,
         pointerEvents: 'none',
       }} />
 
-      {/* Orbiting dot — inner ring */}
+      {/* ── Orbiting dot – inner ring ── */}
       <div style={{
         position: 'absolute',
-        width: 6,
-        height: 6,
-        top: '50%',
-        left: '50%',
+        width: 5, height: 5,
+        top: '50%', left: '50%',
         borderRadius: '50%',
-        background: 'rgba(139,92,246,1)',
-        boxShadow: '0 0 8px 2px rgba(124,58,237,0.8)',
-        animation: `${id}_dot_cw 9s linear infinite`,
+        background: '#a78bfa',
+        boxShadow: '0 0 8px 3px rgba(124,58,237,0.9)',
+        animation: `${id}_d1 11s linear infinite`,
         pointerEvents: 'none',
       }} />
 
-      {/* Orbiting dot 1 — outer ring */}
+      {/* ── Orbiting dot 1 – outer ring ── */}
       <div style={{
         position: 'absolute',
-        width: 5,
-        height: 5,
-        top: '50%',
-        left: '50%',
+        width: 4, height: 4,
+        top: '50%', left: '50%',
         borderRadius: '50%',
-        background: 'rgba(96,165,250,1)',
-        boxShadow: '0 0 6px 2px rgba(27,98,245,0.7)',
-        animation: `${id}_dot_ccw 15s linear infinite`,
+        background: '#60a5fa',
+        boxShadow: '0 0 7px 2px rgba(27,98,245,0.9)',
+        animation: `${id}_d2 18s linear infinite`,
         pointerEvents: 'none',
       }} />
 
-      {/* Orbiting dot 2 — outer ring, offset */}
+      {/* ── Orbiting dot 2 – outer ring, offset ── */}
       <div style={{
         position: 'absolute',
-        width: 4,
-        height: 4,
-        top: '50%',
-        left: '50%',
+        width: 3, height: 3,
+        top: '50%', left: '50%',
         borderRadius: '50%',
-        background: 'rgba(99,102,241,0.9)',
-        boxShadow: '0 0 5px rgba(99,102,241,0.7)',
-        animation: `${id}_dot2_ccw 15s linear infinite`,
+        background: '#818cf8',
+        boxShadow: '0 0 5px 1px rgba(99,102,241,0.8)',
+        animation: `${id}_d3 18s linear infinite`,
         pointerEvents: 'none',
       }} />
 
-      {/* Globe circle */}
-      <div
-        style={{
-          width: size,
-          height: size,
-          borderRadius: '50%',
-          overflow: 'hidden',
-          position: 'relative',
-          background: 'radial-gradient(circle at 38% 35%, #0d1640, #070d28 55%, #030810)',
-          boxShadow: `0 0 ${Math.round(size * 0.16)}px rgba(124,58,237,0.45),
-                      0 0 ${Math.round(size * 0.35)}px rgba(124,58,237,0.12),
-                      inset 0 0 ${Math.round(size * 0.08)}px rgba(0,0,0,0.7)`,
-          zIndex: 1,
-        }}
-      >
-        {/* Scrolling map strip */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '200%',
-            height: '100%',
-            animation: `${id}_scroll 24s linear infinite`,
-          }}
-        >
+      {/* ── Globe sphere ── */}
+      <div style={{
+        width: g,
+        height: g,
+        borderRadius: '50%',
+        overflow: 'hidden',
+        position: 'relative',
+        flexShrink: 0,
+        background: 'radial-gradient(circle at 36% 30%, #0f1a50, #080f30 52%, #030a1e)',
+        boxShadow: `
+          0 0 ${Math.round(g * 0.22)}px rgba(124,58,237,0.55),
+          0 0 ${Math.round(g * 0.50)}px rgba(99,102,241,0.18),
+          0 0 ${Math.round(g * 0.90)}px rgba(27,98,245,0.09),
+          inset 0 0 ${Math.round(g * 0.12)}px rgba(0,0,0,0.9)
+        `,
+      }}>
+
+        {/* Scrolling equirectangular map */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0,
+          width: '200%',
+          height: '100%',
+          animation: `${id}_scroll 26s linear infinite`,
+        }}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox={`0 0 ${svgW * 2} ${svgH}`}
             style={{ width: '100%', height: '100%', display: 'block' }}
             preserveAspectRatio="xMidYMid slice"
           >
-            {/* Grid lines — two copies */}
+            {/* Graticule (subtle grid) */}
             {[0, svgW].map((ox) => (
-              <g key={ox} stroke="rgba(99,102,241,0.08)" strokeWidth="0.4" fill="none">
+              <g key={ox} stroke="rgba(99,102,241,0.06)" strokeWidth="0.5" fill="none">
                 {latLines.map((y) => <line key={y} x1={ox} y1={y} x2={ox + svgW} y2={y} />)}
                 {lonLines.map((x) => <line key={x} x1={ox + x} y1={0} x2={ox + x} y2={svgH} />)}
               </g>
             ))}
 
-            {/* Land — two copies */}
+            {/* Land masses – two copies for seamless scroll */}
             {[0, svgW].map((ox) => (
               <g
                 key={ox}
-                fill="rgba(99,102,241,0.20)"
-                stroke="rgba(139,92,246,0.55)"
-                strokeWidth="0.75"
+                fill="rgba(99,102,241,0.24)"
+                stroke="rgba(139,92,246,0.65)"
+                strokeWidth="0.7"
                 strokeLinejoin="round"
+                strokeLinecap="round"
               >
                 {landPaths.map((d, i) => {
                   const shifted = d.replace(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g,
@@ -254,31 +292,41 @@ export default function VybeGlobe({ size = 200 }) {
           </svg>
         </div>
 
-        {/* Sphere edge shading */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: '50%',
-            background: `radial-gradient(circle at 38% 38%,
-              transparent 12%,
-              rgba(3,8,20,0.12) 48%,
-              rgba(3,8,20,0.65) 80%,
-              rgba(3,8,20,0.94) 100%)`,
-            pointerEvents: 'none',
-          }}
-        />
+        {/* Edge vignette – deep shadow at rim */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          borderRadius: '50%',
+          background: `radial-gradient(circle at 36% 34%,
+            transparent 18%,
+            rgba(3,8,20,0.08) 52%,
+            rgba(3,8,20,0.72) 82%,
+            rgba(2,5,16,0.97) 100%)`,
+          pointerEvents: 'none',
+        }} />
 
-        {/* Specular highlight */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 30% 26%, rgba(167,139,250,0.20) 0%, transparent 50%)',
-            pointerEvents: 'none',
-          }}
-        />
+        {/* Atmospheric rim glow */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(99,102,241,0.10) 74%, rgba(27,98,245,0.22) 88%, rgba(99,102,241,0.10) 100%)',
+          pointerEvents: 'none',
+        }} />
+
+        {/* Primary specular highlight (top-left) */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle at 28% 22%, rgba(220,210,255,0.26) 0%, rgba(167,139,250,0.10) 28%, transparent 52%)',
+          pointerEvents: 'none',
+        }} />
+
+        {/* Secondary soft fill (bottom-right) */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle at 72% 78%, rgba(27,98,245,0.14) 0%, transparent 42%)',
+          pointerEvents: 'none',
+        }} />
       </div>
     </div>
   )
