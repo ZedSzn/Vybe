@@ -481,37 +481,6 @@ export default function ProfilePage() {
 
             {/* Badge collection (own profile only) */}
 
-            {/* Referral section (own profile only) */}
-            {isOwn && referral && (
-              <div className="bg-vybe-card border border-vybe-border rounded-2xl p-4">
-                <h3 className="text-sm font-black text-white mb-1">Your Referral Link</h3>
-                <p className="text-vybe-muted text-xs mb-3">
-                  Invite friends to Vybe. You've invited <span className="text-white font-bold">{referral.referralCount}</span> people.
-                </p>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-3 py-2 bg-vybe-bg border border-vybe-border rounded-xl text-vybe-muted text-xs truncate font-mono">
-                    {referral.referralLink}
-                  </div>
-                  <button
-                    onClick={copyReferral}
-                    className="px-3 py-2 rounded-xl bg-vybe-purple/20 border border-vybe-purple/30 text-vybe-purple hover:bg-vybe-purple/30 transition-colors"
-                  >
-                    {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-                  </button>
-                </div>
-                <div className="flex gap-2 mt-3">
-                  {[
-                    { label: 'WhatsApp', Icon: MessageSquare, url: `https://wa.me/?text=${encodeURIComponent('Join me on Vybe! ' + referral.referralLink)}` },
-                    { label: 'Twitter',  Icon: Twitter,       url: `https://twitter.com/intent/tweet?text=${encodeURIComponent('Join me on Vybe! ' + referral.referralLink)}` },
-                  ].map(({ label, Icon, url }) => (
-                    <a key={label} href={url} target="_blank" rel="noopener noreferrer"
-                      className="flex-1 py-2 rounded-xl border border-vybe-border text-vybe-muted hover:text-white hover:border-vybe-purple/40 text-xs text-center font-semibold transition-all flex items-center justify-center gap-1.5">
-                      <Icon size={12} />{label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

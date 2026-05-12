@@ -279,7 +279,6 @@ export default function WalletPage() {
             ['overview', 'Overview'],
             ['buy',      'Buy Coins'],
             ['history',  'History'],
-            ['referral', 'Refer'],
             ['cashout',  'Cash Out'],
           ].map(([t, label]) => (
             <TabBtn key={t} active={tab === t} onClick={() => switchTab(t)}>{label}</TabBtn>
@@ -459,58 +458,6 @@ export default function WalletPage() {
                 })}
               </div>
             )}
-          </div>
-        )}
-
-        {/* ── REFERRAL ── */}
-        {tab === 'referral' && (
-          <div className="grid gap-5">
-            <div className={cardCls} style={cardStyle}>
-              <h2 className="text-white font-bold text-base mb-1">Refer Friends</h2>
-              <p className="text-vybe-muted text-sm mb-5">Share your link and grow the Vybe community.</p>
-              {referralInfo ? (
-                <div className="space-y-4">
-                  <div className="flex gap-2">
-                    <input readOnly value={referralInfo.referralLink || ''} className={`${inputCls} flex-1`} />
-                    <button
-                      onClick={copyReferral}
-                      className="px-4 py-3 rounded-xl text-sm font-bold transition-all"
-                      style={{
-                        background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(27,98,245,0.15)',
-                        border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(27,98,245,0.3)'}`,
-                        color: copied ? '#4ade80' : '#4b88f7',
-                      }}
-                    >
-                      {copied ? '✓ Copied!' : 'Copy'}
-                    </button>
-                  </div>
-                  <div className="px-4 py-3 rounded-xl bg-white/4 border border-white/6 text-center">
-                    <p className="text-2xl font-extrabold text-white">{referralInfo.referralCount || 0}</p>
-                    <p className="text-vybe-muted text-xs mt-0.5">Friends referred</p>
-                  </div>
-                  <div className="flex gap-3 pt-1">
-                    <a
-                      href={`https://twitter.com/intent/tweet?text=Join+me+on+Vybe+for+random+video+chats!+${encodeURIComponent(referralInfo.referralLink)}`}
-                      target="_blank" rel="noreferrer"
-                      className="flex-1 py-2.5 rounded-xl text-sm font-bold text-center text-white transition-all"
-                      style={{ background: 'rgba(29,161,242,0.15)', border: '1px solid rgba(29,161,242,0.3)' }}
-                    >
-                      𝕏 Share
-                    </a>
-                    <a
-                      href={`https://wa.me/?text=Join+me+on+Vybe!+${encodeURIComponent(referralInfo.referralLink)}`}
-                      target="_blank" rel="noreferrer"
-                      className="flex-1 py-2.5 rounded-xl text-sm font-bold text-center text-white transition-all"
-                      style={{ background: 'rgba(37,211,102,0.15)', border: '1px solid rgba(37,211,102,0.3)' }}
-                    >
-                      WhatsApp
-                    </a>
-                  </div>
-                </div>
-              ) : (
-                <div className="py-8 text-center text-vybe-muted text-sm">Loading…</div>
-              )}
-            </div>
           </div>
         )}
 
