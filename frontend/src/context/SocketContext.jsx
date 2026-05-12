@@ -17,6 +17,8 @@ export function SocketProvider({ children }) {
   const [isConnected, setIsConnected] = useState(false)
   const [onlineCount, setOnlineCount] = useState(0)
   const [pendingWarnings, setPendingWarnings] = useState([])
+  const [pendingAnnouncements, setPendingAnnouncements] = useState([])
+  const [bannedInfo, setBannedInfo] = useState(null) // { reason, banType, banExpiresAt }
 
   // Keep a ref so the connect callback always reads fresh user data
   // without needing to recreate the socket when non-identity fields change
@@ -65,6 +67,16 @@ export function SocketProvider({ children }) {
       }
     })
 
+    // Ban handler — works on any page, not just ChatPage
+    s.on('you-are-banned', ({ reason, banType, banExpiresAt }) => {
+      setBannedInfo({ reason: reason || 'Your account has been suspended.', banType: banType || null, banExpiresAt: banExpiresAt ? new Date(banExpiresAt) : null })
+    })
+
+    // Live broadcast announcement from admin
+    s.on('announcement', ({ message }) => {
+      if (message) setPendingAnnouncements(prev => [...prev, message])
+    })
+
     setSocket(s)
 
     return () => {
@@ -73,12 +85,12 @@ export function SocketProvider({ children }) {
     }
   }, [user?.id]) // eslint-disable-line — only reconnect on identity change
 
-  const dismissWarning = useCallback(() => {
-    setPendingWarnings(prev => prev.slice(1))
-  }, [])
+  const dismissWarning      = useCallback(() => setPendingWarnings(prev => prev.slice(1)), [])
+  const dismissAnnouncement = useCallback(() => setPendingAnnouncements(prev => prev.slice(1)), [])
+  const clearBanned         = useCallback(() => setBannedInfo(null), [])
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected, onlineCount, pendingWarnings, dismissWarning }}>
+    <SocketContext.Provider value={{ socket, isConnected, onlineCount, pendingWarnings, dismissWarning, pendingAnnouncements, dismissAnnouncement, bannedInfo, clearBanned }}>
       {children}
     </SocketContext.Provider>
   )
