@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
   MessageSquare, X, ChevronRight, Shield, ShieldCheck, Loader2, Ban, UserX, UserPlus, Camera, Crown, Zap,
@@ -150,6 +150,12 @@ export default function ChatPage() {
   const localVideoDesktopRef = useRef(null)  // desktop panel
   const pipContainerRef     = useRef(null)
   const pipLastTapRef       = useRef(0)
+  const PIP_H = 190
+  const PIP_BOTTOM_GAP = 88
+  const pipX = useMotionValue(12)
+  const pipY = useMotionValue(
+    typeof window !== 'undefined' ? window.innerHeight - PIP_H - PIP_BOTTOM_GAP : 600
+  )
   const messagesEndRef  = useRef(null)
   const timerRef        = useRef(null)
   const prefsRef        = useRef(prefs)
@@ -189,6 +195,15 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     if (showChat) setUnread(0)
   }, [messages, showChat])
+
+  // Animate PiP above chat drawer when open, back to bottom-left when closed
+  useEffect(() => {
+    const bottomY = window.innerHeight - PIP_H - PIP_BOTTOM_GAP
+    const aboveDrawerY = window.innerHeight * 0.67 - PIP_H - 20
+    fmAnimate(pipY, showChat ? aboveDrawerY : bottomY, {
+      type: 'spring', damping: 28, stiffness: 260,
+    })
+  }, [showChat])
 
   // Connection timer
   useEffect(() => {
@@ -1114,7 +1129,12 @@ export default function ChatPage() {
           {/* Draggable PiP self-view */}
           <motion.div
             drag
-            dragConstraints={pipContainerRef}
+            dragConstraints={{
+              left: 0,
+              top: 0,
+              right: window.innerWidth - 138,
+              bottom: window.innerHeight - PIP_H,
+            }}
             dragElastic={0.08}
             dragMomentum={false}
             onTap={() => {
@@ -1126,7 +1146,7 @@ export default function ChatPage() {
                 pipLastTapRef.current = now
               }
             }}
-            initial={{ x: 0, y: 0, opacity: 0, scale: 0.85 }}
+            initial={{ opacity: 0, scale: 0.85 }}
             animate={{
               opacity: 1,
               scale: 1,
@@ -1137,11 +1157,10 @@ export default function ChatPage() {
             transition={{ type: 'spring', damping: 26, stiffness: 300 }}
             className="absolute z-[10] overflow-hidden"
             style={{
-              bottom: showChat
-                ? 'calc(33dvh + 20px)'
-                : 'max(88px, calc(env(safe-area-inset-bottom, 0px) + 80px))',
-              left: 12,
-              transition: 'bottom 0.38s cubic-bezier(0.34,1.56,0.64,1)',
+              x: pipX,
+              y: pipY,
+              top: 0,
+              left: 0,
               boxShadow: '0 8px 32px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.45)',
               border: '1.5px solid rgba(255,255,255,0.15)',
               touchAction: 'none',
