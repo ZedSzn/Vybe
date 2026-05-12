@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LogOut, Bell, User, Settings, ChevronDown, Trash2, Wallet, Globe, Users, Crown, Zap, UserPlus, Medal, AlertTriangle, Megaphone, DollarSign } from 'lucide-react'
+import { LogOut, Bell, User, Settings, ChevronDown, Trash2, Wallet, Globe, Users, Crown, Zap, UserPlus, Medal, AlertTriangle, Megaphone, DollarSign, Flame } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
 import { useLang } from '../context/LangContext'

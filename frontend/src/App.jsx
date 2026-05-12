@@ -142,6 +142,7 @@ function AppRoutes() {
           <Route path="/friends"                    element={<FriendsPage />} />
           <Route path="/private/:code"              element={<PrivateRoomJoinPage />} />
           <Route path="/earn"                       element={<EarnPage />} />
+          <Route path="*" element={<MainPage />} />
         </Routes>
       </Suspense>
     </>
