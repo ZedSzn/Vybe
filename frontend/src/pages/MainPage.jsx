@@ -8,18 +8,18 @@ import {
 } from 'lucide-react'
 
 const FEATURE_CARDS = [
-  { key: 'private', title: 'Private',         desc: 'Anonymous sessions. No data stored, no tracking.' },
-  { key: 'instant', title: 'Instant Match',   desc: 'Connect with someone new in under 2 seconds.' },
-  { key: 'global',  title: 'Global',          desc: 'Meet people from 150+ countries worldwide.' },
-  { key: 'safe',    title: 'Safe & Moderated',desc: 'Human moderation with instant ban enforcement.' },
+  { key: 'private', title: 'Private',          desc: 'Anonymous sessions. No data stored, no tracking.', color: 'rgba(124,58,237', hex: '#7c3aed' },
+  { key: 'instant', title: 'Instant Match',    desc: 'Connect with someone new in under 2 seconds.',     color: 'rgba(27,98,245',  hex: '#1b62f5' },
+  { key: 'global',  title: 'Global',           desc: 'Meet people from 150+ countries worldwide.',       color: 'rgba(16,185,129', hex: '#10b981' },
+  { key: 'safe',    title: 'Safe & Moderated', desc: 'Human moderation with instant ban enforcement.',   color: 'rgba(245,158,11', hex: '#f59e0b' },
 ]
 
-function FeatureIcon({ k }) {
-  const cls = 'text-vybe-purple-light'
-  if (k === 'private') return <Lock   size={20} className={cls} />
-  if (k === 'instant') return <Video  size={20} className={cls} />
-  if (k === 'global')  return <Globe  size={20} className={cls} />
-  if (k === 'safe')    return <Shield size={20} className={cls} />
+function FeatureIcon({ k, hex }) {
+  const s = { color: hex }
+  if (k === 'private') return <Lock   size={20} style={s} />
+  if (k === 'instant') return <Video  size={20} style={s} />
+  if (k === 'global')  return <Globe  size={20} style={s} />
+  if (k === 'safe')    return <Shield size={20} style={s} />
   return null
 }
 import Navbar from '../components/Navbar'
@@ -794,85 +794,77 @@ export default function MainPage() {
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
             {/* Live pill */}
-            <div
+            <motion.div
               className="inline-flex items-center gap-2 w-fit px-3 py-1.5 rounded-full"
-              style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.25)' }}
+              style={{ background: 'rgba(124,58,237,0.14)', border: '1px solid rgba(124,58,237,0.3)', boxShadow: '0 0 16px rgba(124,58,237,0.12)' }}
+              animate={{ boxShadow: ['0 0 12px rgba(124,58,237,0.1)', '0 0 22px rgba(124,58,237,0.22)', '0 0 12px rgba(124,58,237,0.1)'] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
-              <span
-                className="text-[10px] font-black tracking-[0.14em] uppercase"
-                style={{ color: '#a78bfa' }}
-              >
+              <motion.span className="w-1.5 h-1.5 rounded-full bg-green-400"
+                animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.4, repeat: Infinity }} />
+              <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#a78bfa' }}>
                 Live · Random · Real
               </span>
-            </div>
+            </motion.div>
 
             {/* Headline */}
-            <div className="flex flex-col" style={{ gap: '4px' }}>
-              <h1
-                className="font-extrabold leading-[1.1] tracking-[-0.03em] text-white"
-                style={{ fontSize: 'clamp(2rem, 3vw, 3.2rem)' }}
+            <div className="flex flex-col" style={{ gap: '2px' }}>
+              <motion.h1
+                className="font-extrabold leading-[1.08] tracking-[-0.03em] text-white"
+                style={{ fontSize: 'clamp(2.1rem, 3.2vw, 3.4rem)' }}
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, duration: 0.6 }}
               >
                 Meet faces.
-              </h1>
-              <h1
-                className="font-extrabold leading-[1.1] tracking-[-0.03em]"
+              </motion.h1>
+              <motion.h1
+                className="font-extrabold leading-[1.08] tracking-[-0.03em]"
                 style={{
-                  fontSize: 'clamp(2rem, 3vw, 3.2rem)',
+                  fontSize: 'clamp(2.1rem, 3.2vw, 3.4rem)',
                   background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                 }}
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16, duration: 0.6 }}
               >
                 Share vibes.
-              </h1>
+              </motion.h1>
             </div>
 
             {/* Subtitle */}
-            <p
-              className="text-sm leading-relaxed lg:max-w-[240px]"
-              style={{ color: '#6b7280' }}
-            >
-              Random video chat with real people from around the world. No sign-up needed.
+            <p className="text-sm leading-relaxed lg:max-w-[240px]" style={{ color: '#6b7280' }}>
+              Real video chat with real people worldwide. Spontaneous, genuine, instant.
             </p>
 
             {/* Avatars + online count */}
             <div className="flex items-center gap-3">
-              <div className="flex" style={{ marginRight: '4px' }}>
+              <div className="flex">
                 {AVATARS.map((n, i) => (
-                  <img
-                    key={n}
-                    src={`https://i.pravatar.cc/48?img=${n}`}
-                    alt=""
+                  <motion.img key={n} src={`https://i.pravatar.cc/48?img=${n}`} alt=""
                     className="w-8 h-8 rounded-full"
-                    style={{
-                      border: '2px solid #0a0a0f',
-                      marginLeft: i === 0 ? '0' : '-10px',
-                      zIndex: AVATARS.length - i,
-                      position: 'relative',
-                    }}
+                    initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05, duration: 0.4 }}
+                    style={{ border: '2px solid #0a0a0f', marginLeft: i === 0 ? '0' : '-10px', zIndex: AVATARS.length - i, position: 'relative', boxShadow: '0 0 0 1px rgba(124,58,237,0.15)' }}
                   />
                 ))}
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 online-pulse" />
+                  <motion.span className="w-2 h-2 rounded-full bg-emerald-400"
+                    animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }} transition={{ duration: 2, repeat: Infinity }} />
                   <span className="text-white font-bold text-sm tabular-nums">
-                    {onlineCount >= 20 ? onlineCount.toLocaleString() : 'Active'}
+                    {onlineCount >= 20 ? onlineCount.toLocaleString() : 'People connecting'}
                   </span>
                 </div>
-                <p className="text-[11px]" style={{ color: '#6b7280' }}>{onlineCount >= 20 ? 'online now' : 'people matching'}</p>
+                <p className="text-[11px]" style={{ color: '#6b7280' }}>{onlineCount >= 20 ? 'active right now' : 'matching now'}</p>
               </div>
             </div>
 
             {/* Start button */}
             <motion.button
               onClick={startVybing}
-              whileHover={{ scale: 1.03 }}
+              whileHover={{ scale: 1.04, boxShadow: '0 0 32px rgba(124,58,237,0.5)' }}
               whileTap={{ scale: 0.97 }}
-              className="btn-purple animate-glow w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-white font-extrabold"
-              style={{ fontSize: '15px' }}
+              className="btn-purple w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-white font-extrabold"
+              style={{ fontSize: '15px', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
             >
               <Video size={17} strokeWidth={2.5} />
               Start Video Chat
@@ -884,18 +876,11 @@ export default function MainPage() {
                 streamRef.current?.getTracks().forEach((t) => t.stop())
                 streamRef.current = null
                 setCameraOn(false)
-                navigate('/chat', {
-                  state: {
-                    mode,
-                    filterGender: filterGender === 'both' ? null : filterGender,
-                    filterCountry,
-                    noCam: true,
-                  },
-                })
+                navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } })
               }}
               whileTap={{ scale: 0.97 }}
               className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm"
-              style={{ color: 'rgba(107,114,128,0.55)', background: 'transparent' }}
+              style={{ color: 'rgba(107,114,128,0.45)', background: 'transparent' }}
             >
               <VideoOff size={13} strokeWidth={2} />
               Start Without Camera
@@ -903,7 +888,7 @@ export default function MainPage() {
 
             {/* Free forever */}
             <p className="text-center text-[12px]" style={{ color: '#4b5563' }}>
-              Free forever · No credit card required
+              Free forever · No sign-up required
             </p>
           </motion.div>
 
@@ -929,26 +914,48 @@ export default function MainPage() {
             />
 
             {!cameraOn || cameraErr ? (
-              <div
-                className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
-                style={{ background: 'radial-gradient(ellipse at 50% 35%, rgba(124,58,237,0.14) 0%, transparent 68%)' }}
-              >
-                {/* HTTPS warning — shown only in production on HTTP */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6" style={{ background: '#080810' }}>
+                {/* HTTPS warning */}
                 {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && (
                   <div className="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-semibold"
                     style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
-                    <Shield size={12} className="flex-shrink-0" />
-                    Camera requires HTTPS
+                    <Shield size={12} className="flex-shrink-0" />Camera requires HTTPS
                   </div>
                 )}
 
-                {/* Ambient pulse */}
-                <motion.div
-                  animate={{ opacity: [0.25, 0.5, 0.25], scale: [1, 1.1, 1] }}
-                  transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute w-32 h-32 rounded-full pointer-events-none"
-                  style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%)', top: '16%' }}
-                />
+                {/* ── Cinematic idle atmosphere ── */}
+                {!cameraErr && (
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    {/* Deep background glow */}
+                    <motion.div animate={{ opacity: [0.12, 0.22, 0.12], scale: [1, 1.12, 1] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                      className="absolute rounded-full" style={{ width: '80%', height: '80%', top: '10%', left: '10%', background: 'radial-gradient(ellipse, rgba(124,58,237,0.28) 0%, transparent 65%)' }} />
+                    <motion.div animate={{ opacity: [0.06, 0.12, 0.06], scale: [1, 1.08, 1] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+                      className="absolute rounded-full" style={{ width: '60%', height: '60%', bottom: '5%', right: '5%', background: 'radial-gradient(ellipse, rgba(27,98,245,0.2) 0%, transparent 65%)' }} />
+                    {/* Concentric rings */}
+                    {[0, 1, 2].map((i) => (
+                      <motion.div key={i} className="absolute rounded-full border border-white/[0.04]"
+                        animate={{ scale: [0.7 + i * 0.15, 1.1 + i * 0.15, 0.7 + i * 0.15], opacity: [0.0, 0.18, 0.0] }}
+                        transition={{ duration: 4 + i * 1.5, repeat: Infinity, ease: 'easeInOut', delay: i * 1.2 }}
+                        style={{ width: '55%', height: '55%', top: '22.5%', left: '22.5%' }} />
+                    ))}
+                    {/* Floating silhouette blobs */}
+                    <motion.div animate={{ y: [0, -12, 0], opacity: [0.06, 0.12, 0.06] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                      className="absolute rounded-full" style={{ width: 72, height: 72, bottom: '28%', left: '15%', background: 'rgba(124,58,237,0.35)', filter: 'blur(28px)' }} />
+                    <motion.div animate={{ y: [0, 10, 0], opacity: [0.04, 0.1, 0.04] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
+                      className="absolute rounded-full" style={{ width: 56, height: 56, bottom: '22%', right: '12%', background: 'rgba(27,98,245,0.3)', filter: 'blur(22px)' }} />
+                    {/* Live activity dots */}
+                    {[{ l: '18%', t: '20%', d: 0 }, { l: '72%', t: '15%', d: 0.8 }, { l: '82%', t: '62%', d: 1.6 }, { l: '12%', t: '68%', d: 2.4 }].map((dot, i) => (
+                      <motion.div key={i} animate={{ opacity: [0, 1, 0], scale: [0.6, 1, 0.6] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: dot.d }}
+                        className="absolute w-1.5 h-1.5 rounded-full" style={{ left: dot.l, top: dot.t, background: 'rgba(167,139,250,0.7)' }} />
+                    ))}
+                    {/* "Someone connecting..." ambient text */}
+                    <motion.div animate={{ opacity: [0, 0.5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                      className="absolute bottom-4 left-0 right-0 text-center text-[9px] tracking-widest uppercase font-semibold" style={{ color: 'rgba(124,58,237,0.6)' }}>
+                      People connecting now
+                    </motion.div>
+                  </div>
+                )}
+
 
                 {!permissionAsked || cameraErr ? (
                   /* ── Permission prompt (initial) or retry (error) ── */
@@ -1061,9 +1068,10 @@ export default function MainPage() {
           <motion.div
             className="flex flex-col gap-4 rounded-2xl p-5 order-2 lg:order-none"
             style={{
-              background: '#0d0d18',
-              border: '1px solid rgba(255,255,255,0.06)',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.55)',
+              background: 'rgba(10,10,20,0.65)',
+              backdropFilter: 'blur(28px) saturate(1.4)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.04) inset',
               alignSelf: 'start',
             }}
             initial={{ opacity: 0, x: 20 }}
@@ -1074,7 +1082,7 @@ export default function MainPage() {
             <div>
               <p
                 className="text-[10px] font-extrabold uppercase tracking-[0.16em] mb-2"
-                style={{ color: 'rgba(107,114,128,0.65)' }}
+                style={{ color: 'rgba(107,114,128,0.5)' }}
               >
                 Mode
               </p>
@@ -1100,142 +1108,82 @@ export default function MainPage() {
 
             {/* Gender */}
             <div>
-              <p
-                className="text-[10px] font-extrabold uppercase tracking-[0.16em] mb-2"
-                style={{ color: 'rgba(107,114,128,0.65)' }}
-              >
-                Gender
-              </p>
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] mb-2" style={{ color: 'rgba(107,114,128,0.5)' }}>Gender</p>
               <div className="flex gap-1.5">
                 {[
-                  { id: 'both',   label: 'Both',   free: true },
-                  { id: 'male',   label: 'Male',   free: false },
+                  { id: 'both', label: 'Both', free: true },
+                  { id: 'male', label: 'Male', free: false },
                   { id: 'female', label: 'Female', free: false },
                 ].map(({ id, label, free }) => (
-                  <motion.button
-                    key={id}
-                    onClick={() => handleGender(id)}
-                    whileTap={{ scale: 0.92 }}
+                  <motion.button key={id} onClick={() => handleGender(id)} whileTap={{ scale: 0.92 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors relative ${
-                      filterGender === id
-                        ? 'bg-vybe-purple text-white'
-                        : 'text-vybe-muted hover:text-white'
-                    }`}
-                    style={filterGender !== id ? { background: 'rgba(255,255,255,0.05)' } : {}}
-                  >
+                    className={`flex-1 py-2 rounded-xl text-xs font-bold relative ${filterGender === id ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'}`}
+                    style={filterGender !== id ? { background: 'rgba(255,255,255,0.05)' } : {}}>
                     {label}
-                    {!free && (
-                      <Lock size={8} className="absolute top-1 right-1 opacity-40" />
-                    )}
+                    {!free && <Lock size={8} className="absolute top-1 right-1 opacity-40" />}
                   </motion.button>
                 ))}
               </div>
             </div>
 
-            {/* Country */}
-            <div className="relative">
-              <div className="flex items-center justify-between mb-2">
-                <p
-                  className="text-[10px] font-extrabold uppercase tracking-[0.16em]"
-                  style={{ color: 'rgba(107,114,128,0.65)' }}
-                >
-                  Country
-                </p>
-                <span
-                  className="text-[9px] px-1.5 py-0.5 rounded-full font-bold"
-                  style={{
-                    background: 'rgba(234,179,8,0.1)',
-                    color: 'rgba(250,204,21,0.8)',
-                    border: '1px solid rgba(234,179,8,0.2)',
-                  }}
-                >
-                  <span className="inline-flex items-center gap-0.5"><Crown size={9} /> VIP</span>
+            {/* Advanced Filters collapse — desktop */}
+            <div>
+              <button onClick={() => setShowAdvanced(v => !v)}
+                className="w-full flex items-center justify-between py-2 text-xs font-semibold"
+                style={{ color: showAdvanced ? '#a78bfa' : 'rgba(107,114,128,0.5)' }}>
+                <span className="flex items-center gap-1.5">
+                  <ChevronDown size={11} className={`transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
+                  Advanced
                 </span>
-              </div>
-              <motion.button
-                onClick={handleCountryClick}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors ${
-                  user?.isVip ? 'text-white' : 'text-vybe-muted cursor-not-allowed'
-                }`}
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <span className="flex items-center gap-2">
-                  {user?.isVip ? <Globe size={12} /> : <Lock size={12} />}
-                  {filterCountry || 'Any country'}
-                </span>
-                <ChevronDown
-                  size={12}
-                  className={`transition-transform duration-200 ${showCountryDrop ? 'rotate-180' : ''}`}
-                />
-              </motion.button>
-              <AnimatePresence>
-                {showCountryDrop && user?.isVip && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-y-auto z-20 shadow-float"
-                    style={{
-                      background: '#0d0d1c',
-                      border: '1px solid rgba(255,255,255,0.09)',
-                      maxHeight: '160px',
-                    }}
-                  >
-                    <button
-                      onClick={() => { setFilterCountry(''); setShowCountryDrop(false) }}
-                      className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5 transition-colors"
-                    >
-                      🌍 Any country
-                    </button>
-                    {COUNTRIES.map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => { setFilterCountry(c); setShowCountryDrop(false) }}
-                        className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
-                      >
-                        {c}
+                {(filterCountry || !autoMatch) && (
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'rgba(124,58,237,0.18)', color: '#a78bfa' }}>active</span>
+                )}
+              </button>
+              <AnimatePresence initial={false}>
+                {showAdvanced && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+                    <div className="space-y-3 pt-2">
+                      {/* Country */}
+                      <div className="relative">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em]" style={{ color: 'rgba(107,114,128,0.45)' }}>Country</p>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'rgba(234,179,8,0.1)', color: 'rgba(250,204,21,0.8)', border: '1px solid rgba(234,179,8,0.2)' }}>
+                            <span className="inline-flex items-center gap-0.5"><Crown size={9} /> VIP</span>
+                          </span>
+                        </div>
+                        <motion.button onClick={handleCountryClick} whileTap={{ scale: 0.97 }}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs ${user?.isVip ? 'text-white' : 'text-vybe-muted cursor-not-allowed'}`}
+                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <span className="flex items-center gap-2">{user?.isVip ? <Globe size={11} /> : <Lock size={11} />}{filterCountry || 'Any country'}</span>
+                          <ChevronDown size={11} className={`transition-transform duration-200 ${showCountryDrop ? 'rotate-180' : ''}`} />
+                        </motion.button>
+                        <AnimatePresence>
+                          {showCountryDrop && user?.isVip && (
+                            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}
+                              className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-y-auto z-20"
+                              style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)', maxHeight: '160px' }}>
+                              <button onClick={() => { setFilterCountry(''); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5">🌍 Any country</button>
+                              {COUNTRIES.map((c) => (
+                                <button key={c} onClick={() => { setFilterCountry(c); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5">{c}</button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      {/* Auto match */}
+                      <button onClick={() => setAutoMatch(v => !v)}
+                        className="flex items-center justify-between py-2 px-3 rounded-xl w-full"
+                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <span className="text-xs font-semibold" style={{ color: '#9ca3af' }}>Auto match</span>
+                        <div className="relative" style={{ width: 36, height: 18, borderRadius: 9, background: autoMatch ? '#1B62F5' : 'rgba(255,255,255,0.1)' }}>
+                          <div className="absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white" style={{ left: autoMatch ? '19px' : '2px', transition: 'left 180ms', boxShadow: '0 1px 3px rgba(0,0,0,0.35)' }} />
+                        </div>
                       </button>
-                    ))}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-
-            {/* Auto match toggle */}
-            <button
-              onClick={() => setAutoMatch(v => !v)}
-              className="flex items-center justify-between py-2.5 px-3 rounded-xl transition-all"
-              style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
-            >
-              <div className="text-left">
-                <span className="text-xs font-semibold" style={{ color: '#9ca3af' }}>Auto match</span>
-                <p className="text-[10px] mt-0.5" style={{ color: 'rgba(107,114,128,0.6)' }}>Skip to next person automatically</p>
-              </div>
-              <div
-                className="relative transition-all duration-200"
-                style={{
-                  width: '38px',
-                  height: '20px',
-                  borderRadius: '10px',
-                  background: autoMatch ? '#1B62F5' : 'rgba(255,255,255,0.1)',
-                }}
-              >
-                <div
-                  className="absolute top-[3px] w-[14px] h-[14px] rounded-full bg-white transition-all duration-200"
-                  style={{
-                    left: autoMatch ? '21px' : '3px',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.35)',
-                  }}
-                />
-              </div>
-            </button>
 
             {/* Squad panel — expands when Duo mode is selected */}
             <AnimatePresence initial={false}>
@@ -1518,20 +1466,30 @@ export default function MainPage() {
       {/* ══════════════ FEATURES ROW ══════════════ */}
       <section className="relative z-10 px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 max-w-5xl mx-auto">
-          {FEATURE_CARDS.map(({ key, title, desc }, i) => (
+          {FEATURE_CARDS.map(({ key, title, desc, color, hex }, i) => (
             <motion.div
               key={key}
-              className="flex flex-col gap-2.5 lg:gap-3 p-4 lg:p-5 rounded-2xl"
+              className="flex flex-col gap-2.5 lg:gap-3 p-4 lg:p-5 rounded-2xl cursor-default"
               style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ delay: i * 0.07, duration: 0.45 }}
-              whileHover={{ borderColor: 'rgba(27,98,245,0.28)', background: 'rgba(27,98,245,0.04)' }}
+              whileHover={{
+                y: -3,
+                borderColor: `${color},0.3)`,
+                background: `${color},0.05)`,
+                boxShadow: `0 8px 28px ${color},0.12), 0 0 0 1px ${color},0.1)`,
+              }}
             >
-              <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(27,98,245,0.12)' }}>
-                <FeatureIcon k={key} />
-              </div>
+              <motion.div
+                className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center"
+                style={{ background: `${color},0.12)`, border: `1px solid ${color},0.15)` }}
+                whileHover={{ scale: 1.1, boxShadow: `0 0 16px ${color},0.3)` }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              >
+                <FeatureIcon k={key} hex={hex} />
+              </motion.div>
               <div>
                 <p className="text-white font-bold text-[13px] lg:text-sm mb-1">{title}</p>
                 <p className="text-[11px] lg:text-xs leading-relaxed" style={{ color: '#6b7280' }}>{desc}</p>
