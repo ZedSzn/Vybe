@@ -13,7 +13,6 @@ const PLANS = [
     badge: null,
     features: [
       'Gender filter (Male or Female)',
-      'No ads',
     ],
     extras: ['Country filter', 'Priority matching', 'VIP badge'],
   },
@@ -27,7 +26,6 @@ const PLANS = [
     badge: 'BEST VALUE',
     features: [
       'Gender filter (Male or Female)',
-      'No ads',
       'Country filter',
       'Priority matching',
       'VIP badge on profile',

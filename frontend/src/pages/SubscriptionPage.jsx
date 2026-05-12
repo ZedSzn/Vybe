@@ -23,7 +23,6 @@ const PLANS = [
     BadgeIcon: Zap,
     features: [
       { label: 'Gender filter (Male or Female)', included: true },
-      { label: 'No ads',                         included: true },
       { label: 'Country filter',                  included: false },
       { label: 'Priority matching',               included: false },
       { label: 'VIP badge on profile',            included: false },
@@ -40,7 +39,6 @@ const PLANS = [
     popular: true,
     features: [
       { label: 'Gender filter (Male or Female)', included: true },
-      { label: 'No ads',                         included: true },
       { label: 'Country filter',                  included: true },
       { label: 'Priority matching',               included: true },
       { label: 'VIP badge on profile',            included: true },
@@ -501,7 +499,6 @@ export default function SubscriptionPage() {
                 { label: 'Coin earning & spending',    basic: true,  vip: true  },
                 { label: 'Send gifts in chat',         basic: true,  vip: true  },
                 { label: 'Tip other users',            basic: true,  vip: true  },
-                { label: 'No ads',                     basic: true,  vip: true  },
                 { label: 'Gender filter',              basic: true,  vip: true  },
                 { label: 'Country filter',             basic: false, vip: true  },
                 { label: 'Priority matching',          basic: false, vip: true  },

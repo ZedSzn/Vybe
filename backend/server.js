@@ -2063,7 +2063,7 @@ app.post('/api/subscription/create', authMiddleware, async (req, res) => {
           product_data: {
             name: planInfo.name,
             description: plan === 'basic'
-              ? 'Gender filter, no ads'
+              ? 'Gender filter'
               : 'Everything in Basic + country filter, priority matching, VIP badge',
           },
           unit_amount: planInfo.amount,
