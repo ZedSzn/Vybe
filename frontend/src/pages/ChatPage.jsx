@@ -1128,8 +1128,11 @@ export default function ChatPage() {
             transition={{ type: 'spring', damping: 26, stiffness: 300 }}
             className="absolute z-[10] overflow-hidden"
             style={{
-              bottom: 'max(88px, calc(env(safe-area-inset-bottom, 0px) + 80px))',
-              right: 12,
+              bottom: showChat
+                ? 'calc(33dvh + 20px)'
+                : 'max(88px, calc(env(safe-area-inset-bottom, 0px) + 80px))',
+              left: 12,
+              transition: 'bottom 0.38s cubic-bezier(0.34,1.56,0.64,1)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.45)',
               border: '1.5px solid rgba(255,255,255,0.15)',
               touchAction: 'none',
