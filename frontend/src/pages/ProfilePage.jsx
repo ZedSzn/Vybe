@@ -480,61 +480,6 @@ export default function ProfilePage() {
             </div>
 
             {/* Badge collection (own profile only) */}
-            {isOwn && (
-              <div className="bg-vybe-card border border-vybe-border rounded-2xl p-4 mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-black text-white">Badge Collection</h3>
-                  <span className="text-xs text-vybe-muted">{ownedBadgeIds.length}/{BADGE_DEFS.length} owned</span>
-                </div>
-                {ownedBadgeIds.length === 0 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex flex-col items-center text-center py-4 mb-3"
-                  >
-                    <EmptyStateIllustration variant="badges" size={72} />
-                    <p className="text-white/60 text-xs font-semibold mt-1 mb-0.5">No badges yet</p>
-                    <p className="text-vybe-muted text-[11px]">Unlock your first badge below</p>
-                  </motion.div>
-                )}
-                <div className="grid grid-cols-2 gap-2">
-                  {BADGE_DEFS.map(def => {
-                    const owned    = ownedBadgeIds.includes(def.id)
-                    const equipped = (profile.equippedBadges || []).includes(def.id)
-                    const rs       = RARITY_STYLE[def.rarity]
-                    const BadgeIcon = BADGE_ICONS[def.id]
-                    return (
-                      <div
-                        key={def.id}
-                        onClick={() => !owned && navigate('/wallet?tab=spend')}
-                        className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all"
-                        style={{
-                          background: owned ? rs.bg : 'rgba(255,255,255,0.02)',
-                          border:     `1px solid ${owned ? rs.border : 'rgba(255,255,255,0.06)'}`,
-                          cursor:     owned ? 'default' : 'pointer',
-                          opacity:    owned ? 1 : 0.5,
-                          boxShadow:  equipped ? `0 0 10px ${rs.border}` : undefined,
-                        }}
-                      >
-                        {BadgeIcon && (
-                          <BadgeIcon size={20} style={{ color: owned ? rs.color : '#4b5563', flexShrink: 0 }} />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold truncate" style={{ color: owned ? rs.color : '#6b7280' }}>{def.name}</p>
-                          <p className="text-[10px]" style={{ color: owned ? rs.color + '99' : '#4b5563' }}>
-                            {owned ? (equipped ? 'Equipped' : rs.label) : `${def.cost.toLocaleString()} coins`}
-                          </p>
-                        </div>
-                        {owned
-                          ? <Check size={13} style={{ color: rs.color, flexShrink: 0 }} />
-                          : <Lock  size={11} style={{ color: '#4b5563', flexShrink: 0 }} />
-                        }
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
 
             {/* Referral section (own profile only) */}
             {isOwn && referral && (
