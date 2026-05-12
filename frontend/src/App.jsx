@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
-import { SocketProvider } from './context/SocketContext'
+import { SocketProvider, useSocket } from './context/SocketContext'
 import { LangProvider } from './context/LangContext'
 import { useState, useEffect, lazy, Suspense } from 'react'
 import axios from 'axios'
@@ -91,13 +91,34 @@ function MaintenancePage({ message }) {
 
 const ADMIN_PATHS = ['/admin-vybe-2024', '/admin-vybe-2024/dashboard']
 
+function WarningModal({ message, onDismiss }) {
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}>
+      <div className="w-full max-w-sm rounded-2xl p-6 text-center" style={{ background: 'rgba(20,10,10,0.98)', border: '1px solid rgba(239,68,68,0.35)', boxShadow: '0 0 48px rgba(239,68,68,0.18)' }}>
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <p className="text-red-400 text-xs font-black uppercase tracking-widest mb-2">Admin Warning</p>
+        <p className="text-white text-sm leading-relaxed mb-6">{message}</p>
+        <button
+          onClick={onDismiss}
+          className="w-full py-3 rounded-xl text-white font-black text-sm"
+          style={{ background: 'linear-gradient(135deg,#dc2626,#ef4444)' }}
+        >
+          I Understand
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function AppRoutes() {
   const location = useLocation()
   const [maintenance, setMaintenance]   = useState(false)
   const [maintMessage, setMaintMessage] = useState('')
+  const { pendingWarnings, dismissWarning } = useSocket()
 
-  // Check maintenance once on mount — not on every route change
-  useEffect(() => {
+  const checkSettings = () => {
     const adminToken = localStorage.getItem('vybe_admin_token') || ''
     axios.get(`/api/settings`, { headers: adminToken ? { 'x-admin-token': adminToken } : {} })
       .then(({ data }) => {
@@ -105,6 +126,13 @@ function AppRoutes() {
         setMaintMessage(data.maintenanceMessage || '')
       })
       .catch(() => {})
+  }
+
+  useEffect(() => {
+    checkSettings()
+    // Re-check every 60s so maintenance mode kicks in without a page reload
+    const interval = setInterval(checkSettings, 60000)
+    return () => clearInterval(interval)
   }, []) // eslint-disable-line
 
   const isAdminPath = ADMIN_PATHS.some(p => location.pathname.startsWith(p))
@@ -115,6 +143,9 @@ function AppRoutes() {
   return (
     <>
       <ScrollToTop />
+      {pendingWarnings.length > 0 && (
+        <WarningModal message={pendingWarnings[0]} onDismiss={dismissWarning} />
+      )}
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Eager routes */}

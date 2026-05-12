@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
 import { io } from 'socket.io-client'
 import { useAuth } from './AuthContext'
 
@@ -16,6 +16,7 @@ export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null)
   const [isConnected, setIsConnected] = useState(false)
   const [onlineCount, setOnlineCount] = useState(0)
+  const [pendingWarnings, setPendingWarnings] = useState([])
 
   // Keep a ref so the connect callback always reads fresh user data
   // without needing to recreate the socket when non-identity fields change
@@ -54,6 +55,16 @@ export function SocketProvider({ children }) {
     s.on('disconnect', () => setIsConnected(false))
     s.on('online-count', setOnlineCount)
 
+    // Global admin warning handlers — work on any page
+    s.on('admin-warning', ({ message }) => {
+      setPendingWarnings(prev => [...prev, message])
+    })
+    s.on('admin-warnings', (warnings) => {
+      if (warnings?.length) {
+        setPendingWarnings(prev => [...prev, ...warnings.map(w => w.message).filter(Boolean)])
+      }
+    })
+
     setSocket(s)
 
     return () => {
@@ -62,8 +73,12 @@ export function SocketProvider({ children }) {
     }
   }, [user?.id]) // eslint-disable-line — only reconnect on identity change
 
+  const dismissWarning = useCallback(() => {
+    setPendingWarnings(prev => prev.slice(1))
+  }, [])
+
   return (
-    <SocketContext.Provider value={{ socket, isConnected, onlineCount }}>
+    <SocketContext.Provider value={{ socket, isConnected, onlineCount, pendingWarnings, dismissWarning }}>
       {children}
     </SocketContext.Provider>
   )
