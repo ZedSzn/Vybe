@@ -126,7 +126,7 @@ export default function ChatPage() {
   const [noCamDismissed, setNoCamDismissed]   = useState(false)
   const [facingMode,     setFacingMode]       = useState('user')
   const [matchFlash,     setMatchFlash]       = useState(false)
-  const [selfViewExpanded, setSelfViewExpanded] = useState(false)
+  const [selfViewExpanded, setSelfViewExpanded] = useState(true)
 
   const searchTimerRef   = useRef(null)
   const searchTextTimer  = useRef(null)
