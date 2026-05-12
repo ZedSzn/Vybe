@@ -1067,7 +1067,7 @@ export default function ChatPage() {
                       <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
                     )}
                     <div className="flex items-center gap-1.5">
-                      <span className="text-white font-bold text-[12px]">{partnerUsername ? `@${partnerUsername}` : 'Stranger'}</span>
+                      <span className="text-white font-bold text-[12px]">{partnerUsername ? partnerUsername : 'Stranger'}</span>
                       {partnerEmailVerified && <ShieldCheck size={10} style={{ color: '#60a5fa', flexShrink: 0 }} />}
                       {partnerIsVip && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}><Crown size={7} /> VIP</span>}
                       {!partnerIsVip && partnerIsPremium && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(27,98,245,0.2)', color: '#60a5fa', border: '1px solid rgba(27,98,245,0.35)' }}><Zap size={7} /> Member</span>}
@@ -1129,7 +1129,7 @@ export default function ChatPage() {
                     {user.username[0].toUpperCase()}
                   </div>
                 ) : null}
-                <span className="text-white/70 font-semibold text-[11px]">{user ? `@${user.username}` : 'You'}</span>
+                <span className="text-white/70 font-semibold text-[11px]">{user ? user.username : 'You'}</span>
                 {user?.emailVerified && <ShieldCheck size={9} style={{ color: '#60a5fa', flexShrink: 0 }} />}
                 {user?.isVip && <span className="flex items-center gap-0.5 px-1 py-0.5 rounded-full text-[7px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}><Crown size={6} /> VIP</span>}
               </div>
@@ -1271,7 +1271,7 @@ export default function ChatPage() {
                         )}
                         <div className="flex items-center gap-1.5">
                           <span className="text-white font-bold text-[13px]">
-                            {partnerUsername ? `@${partnerUsername}` : 'Stranger'}
+                            {partnerUsername ? partnerUsername : 'Stranger'}
                           </span>
                           {partnerEmailVerified && (
                             <ShieldCheck size={11} style={{ color: '#60a5fa', flexShrink: 0 }} title="Verified" />
@@ -1392,7 +1392,7 @@ export default function ChatPage() {
                       </div>
                     ) : null}
                     <div className="flex items-center gap-1.5">
-                      <span className="text-white font-bold text-[13px]">{user ? `@${user.username}` : 'You'}</span>
+                      <span className="text-white font-bold text-[13px]">{user ? user.username : 'You'}</span>
                       {user?.emailVerified && (
                         <ShieldCheck size={11} style={{ color: '#60a5fa', flexShrink: 0 }} title="Verified" />
                       )}

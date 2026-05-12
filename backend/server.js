@@ -26,6 +26,15 @@ const stripe = process.env.STRIPE_SECRET_KEY
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+const twilioClient = (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
+  ? require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+  : null;
+
+async function sendSms(to, body) {
+  if (!twilioClient) { console.warn('[sms] Twilio not configured — skipping SMS to', to); return; }
+  await twilioClient.messages.create({ body, from: process.env.TWILIO_PHONE_NUMBER, to });
+}
+
 async function sendEmail({ to, subject, html }) {
   if (!resend) {
     console.warn('[email] RESEND_API_KEY not set — skipping email to', to);
@@ -339,6 +348,12 @@ const userSchema = new mongoose.Schema({
   animatedBorder:   { type: Boolean, default: false },
   accentColor:      { type: String, default: '' },
   bannerGradient:   { type: String, default: '' },
+  // Two-factor authentication
+  phone:              { type: String, default: '' },
+  phoneVerified:      { type: Boolean, default: false },
+  twoFactorEnabled:   { type: Boolean, default: false },
+  twoFactorCode:      { type: String, default: null },
+  twoFactorExpires:   { type: Date,   default: null },
 });
 
 const reportSchema = new mongoose.Schema({
@@ -809,6 +824,39 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     if (!await bcrypt.compare(password, user.password)) return res.status(400).json({ error: 'Incorrect password' });
     if (!user.isAdmin && user.email === process.env.ADMIN_EMAIL)
       await User.findByIdAndUpdate(user._id, { isAdmin: true });
+
+    // 2FA check
+    if (user.twoFactorEnabled && user.phoneVerified && user.phone) {
+      const code    = Math.floor(100000 + Math.random() * 900000).toString();
+      const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+      await User.findByIdAndUpdate(user._id, { twoFactorCode: await bcrypt.hash(code, 6), twoFactorExpires: expires });
+      await sendSms(user.phone, `Your Vybe verification code is: ${code}. It expires in 10 minutes.`);
+      const pendingToken = jwt.sign({ type: '2fa_pending', id: user._id }, process.env.JWT_SECRET || 'vybe_secret', { expiresIn: '10m' });
+      return res.json({ requires2FA: true, pendingToken });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'vybe_secret', { expiresIn: '7d' });
+    res.json({ token, user: serializeUser(user) });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// 2FA code verification (completes login)
+app.post('/api/auth/2fa/verify', authLimiter, async (req, res) => {
+  try {
+    const { pendingToken, code } = req.body;
+    if (!pendingToken || !code) return res.status(400).json({ error: 'Token and code required' });
+    let decoded;
+    try {
+      decoded = jwt.verify(pendingToken, process.env.JWT_SECRET || 'vybe_secret');
+    } catch { return res.status(400).json({ error: 'Session expired. Please log in again.' }); }
+    if (decoded.type !== '2fa_pending') return res.status(400).json({ error: 'Invalid token' });
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(400).json({ error: 'User not found' });
+    if (!user.twoFactorCode || !user.twoFactorExpires || user.twoFactorExpires < new Date())
+      return res.status(400).json({ error: 'Code expired. Please log in again.' });
+    const valid = await bcrypt.compare(String(code), user.twoFactorCode);
+    if (!valid) return res.status(400).json({ error: 'Incorrect code. Please try again.' });
+    await User.findByIdAndUpdate(user._id, { twoFactorCode: null, twoFactorExpires: null });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'vybe_secret', { expiresIn: '7d' });
     res.json({ token, user: serializeUser(user) });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -1643,6 +1691,66 @@ app.post('/api/auth/daily-login', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ─── Phone Verification & 2FA ─────────────────────────────────────────────────
+// Step 1: Send verification code to a phone number
+app.post('/api/user/phone/send-code', authMiddleware, async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone || typeof phone !== 'string') return res.status(400).json({ error: 'Phone number required' });
+    const cleaned = phone.replace(/\s/g, '');
+    if (!/^\+[1-9]\d{7,14}$/.test(cleaned)) return res.status(400).json({ error: 'Phone must be in international format, e.g. +447911123456' });
+    if (!twilioClient) return res.status(503).json({ error: 'SMS service not configured' });
+
+    const code    = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 10 * 60 * 1000);
+    await User.findByIdAndUpdate(req.user._id, {
+      phone: cleaned,
+      phoneVerified: false,
+      twoFactorCode: await bcrypt.hash(code, 6),
+      twoFactorExpires: expires,
+    });
+    await sendSms(cleaned, `Your Vybe phone verification code is: ${code}. It expires in 10 minutes.`);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Step 2: Confirm the code — marks phone as verified
+app.post('/api/user/phone/verify', authMiddleware, async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'Code required' });
+    const user = await User.findById(req.user._id).select('twoFactorCode twoFactorExpires');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user.twoFactorCode || !user.twoFactorExpires || user.twoFactorExpires < new Date())
+      return res.status(400).json({ error: 'Code expired. Please request a new one.' });
+    const valid = await bcrypt.compare(String(code), user.twoFactorCode);
+    if (!valid) return res.status(400).json({ error: 'Incorrect code.' });
+    await User.findByIdAndUpdate(req.user._id, { phoneVerified: true, twoFactorCode: null, twoFactorExpires: null });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Step 3: Enable or disable 2FA (requires verified phone)
+app.post('/api/user/2fa/toggle', authMiddleware, async (req, res) => {
+  try {
+    const { enabled } = req.body;
+    const user = await User.findById(req.user._id).select('phoneVerified');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (enabled && !user.phoneVerified) return res.status(400).json({ error: 'Verify your phone number first.' });
+    await User.findByIdAndUpdate(req.user._id, { twoFactorEnabled: !!enabled });
+    res.json({ success: true, twoFactorEnabled: !!enabled });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Get 2FA status
+app.get('/api/user/2fa/status', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('phone phoneVerified twoFactorEnabled');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({ phone: user.phone || '', phoneVerified: user.phoneVerified || false, twoFactorEnabled: user.twoFactorEnabled || false });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // Lightweight balance endpoint for navbar polling
 app.get('/api/me/balance', authMiddleware, async (req, res) => {
   try {
@@ -1855,7 +1963,6 @@ app.put('/api/user/cosmetics', authMiddleware, async (req, res) => {
 });
 
 const COIN_PACKAGES = [
-  { id: 'coins_test', coins: 1,    amountGbp: 0.30,  label: '1 Coin (Test)', popular: false },
   { id: 'coins_100',  coins: 100,  amountGbp: 1.49,  label: '100 Coins',   popular: false },
   { id: 'coins_500',  coins: 500,  amountGbp: 5.99,  label: '500 Coins',   popular: false },
   { id: 'coins_1200', coins: 1200, amountGbp: 11.99, label: '1,200 Coins', popular: true  },
