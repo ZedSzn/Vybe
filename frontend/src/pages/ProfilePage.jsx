@@ -91,10 +91,11 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState('')
   const [copied,    setCopied]    = useState(false)
   const [referral,  setReferral]  = useState(null)
-  const [editForm,  setEditForm]  = useState({ bio: '', gender: 'other', country: '', privacyShowBio: true, privacyShowCountry: true, accentColor: '', bannerGradient: '' })
+  const [editForm,  setEditForm]  = useState({ bio: '', gender: 'other', country: '', privacyShowBio: true, privacyShowCountry: true, accentColor: '', bannerGradient: '', bannerImage: '' })
   const [ownedBadgeIds, setOwnedBadgeIds] = useState([])
 
-  const fileRef = useRef(null)
+  const fileRef       = useRef(null)
+  const bannerFileRef = useRef(null)
 
   useEffect(() => {
     // Wait until AuthContext has hydrated from localStorage before making any decisions
@@ -115,6 +116,7 @@ export default function ProfilePage() {
             privacyShowCountry: data.user.privacyShowCountry ?? true,
             accentColor:       data.user.accentColor || '',
             bannerGradient:    data.user.bannerGradient || '',
+            bannerImage:       data.user.bannerImage || '',
           })
           axios.get('/api/referral/info').then(r => setReferral(r.data)).catch(() => {})
           axios.get('/api/badges/mine').then(r => setOwnedBadgeIds(r.data.owned || [])).catch(() => {})
@@ -144,6 +146,18 @@ export default function ProfilePage() {
     reader.readAsDataURL(file)
   }
 
+  const handleBannerChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 2000000) { setSaveError('Banner image must be under 2MB'); setTimeout(() => setSaveError(''), 4000); return }
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      setProfile((p) => ({ ...p, bannerImage: ev.target.result }))
+      setEditForm((f) => ({ ...f, bannerImage: ev.target.result }))
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleSave = async () => {
     setSaving(true)
     setSaveError('')
@@ -156,13 +170,14 @@ export default function ProfilePage() {
           privacyShowBio:    editForm.privacyShowBio,
           privacyShowCountry: editForm.privacyShowCountry,
           avatar:            editForm.avatar || profile.avatar,
+          bannerImage:       editForm.bannerImage,
         }),
         axios.put('/api/user/cosmetics', {
           accentColor:    editForm.accentColor,
           bannerGradient: editForm.bannerGradient,
         }).catch(() => {}),
       ])
-      const updated = { ...profileRes.data.user, accentColor: editForm.accentColor, bannerGradient: editForm.bannerGradient }
+      const updated = { ...profileRes.data.user, accentColor: editForm.accentColor, bannerGradient: editForm.bannerGradient, bannerImage: editForm.bannerImage }
       setProfile((p) => ({ ...p, ...updated }))
       if (updateUser) updateUser({ ...me, ...updated })
       setEditing(false)
@@ -183,7 +198,7 @@ export default function ProfilePage() {
       <Navbar />
       <div className="pt-24 pb-12 px-4 max-w-2xl mx-auto">
         <div className="glass-card rounded-3xl overflow-hidden">
-          <Skeleton className="h-36 w-full" rounded="rounded-none" />
+          <Skeleton className="h-32 w-full" rounded="rounded-none" />
           <div className="px-6 pb-6">
             <div className="flex items-end gap-4 -mt-10 mb-5">
               <Skeleton className="w-20 h-20 flex-shrink-0 ring-4 ring-vybe-bg" rounded="rounded-full" />
@@ -232,15 +247,32 @@ export default function ProfilePage() {
         <div className="glass-card rounded-3xl overflow-hidden">
           {/* Header banner */}
           {(() => {
+            const activeImage = editing ? editForm.bannerImage : profile.bannerImage
             const preset = BANNER_PRESETS.find(b => b.id === (editing ? editForm.bannerGradient : profile.bannerGradient)) || BANNER_PRESETS[0]
             return (
-              <div className="h-24 relative transition-all duration-500" style={{ background: preset.style }}>
+              <div className="h-32 relative overflow-hidden transition-all duration-500" style={{ background: preset.style }}>
+                {/* Custom banner image */}
+                {activeImage && (
+                  <img src={activeImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                )}
                 {/* Subtle noise grain overlay for depth */}
                 <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3CfeColorMatrix type=\'saturate\' values=\'0\'/%3E%3C/filter%3E%3Crect width=\'200\' height=\'200\' filter=\'url(%23n)\' opacity=\'0.04\'/%3E%3C/svg%3E")', mixBlendMode: 'overlay' }} />
+                {/* Upload overlay — only when editing */}
+                {isOwn && editing && (
+                  <button
+                    onClick={() => bannerFileRef.current?.click()}
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 transition-opacity opacity-0 hover:opacity-100"
+                    style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
+                  >
+                    <Camera size={20} className="text-white drop-shadow" />
+                    <span className="text-white text-xs font-bold drop-shadow">Change Banner</span>
+                  </button>
+                )}
               </div>
             )
           })()}
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+          <input ref={bannerFileRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
 
           <div className="px-6 pb-6">
             {/* Avatar */}
@@ -392,7 +424,29 @@ export default function ProfilePage() {
 
                 {/* Banner presets */}
                 <div>
-                  <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-2">Profile Banner</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider">Profile Banner</label>
+                    <button
+                      type="button"
+                      onClick={() => bannerFileRef.current?.click()}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold text-vybe-muted hover:text-white border border-vybe-border hover:border-vybe-purple/40 transition-all"
+                    >
+                      <Camera size={10} /> Upload Photo
+                    </button>
+                  </div>
+                  {editForm.bannerImage && (
+                    <div className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl border border-vybe-border" style={{ background: 'rgba(124,58,237,0.08)' }}>
+                      <img src={editForm.bannerImage} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+                      <span className="text-xs text-white/70 flex-1">Custom photo</span>
+                      <button
+                        type="button"
+                        onClick={() => { setEditForm(f => ({ ...f, bannerImage: '' })); setProfile(p => ({ ...p, bannerImage: '' })) }}
+                        className="text-vybe-muted hover:text-red-400 transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  )}
                   <div className="grid grid-cols-4 gap-2">
                     {BANNER_PRESETS.map(b => (
                       <button

@@ -339,6 +339,7 @@ const userSchema = new mongoose.Schema({
   animatedBorder:   { type: Boolean, default: false },
   accentColor:      { type: String, default: '' },
   bannerGradient:   { type: String, default: '' },
+  bannerImage:      { type: String, default: '' },
 });
 
 const reportSchema = new mongoose.Schema({
@@ -549,6 +550,7 @@ const serializeUser = (user, extra = {}) => ({
   animatedBorder: user.animatedBorder || false,
   accentColor:    user.accentColor    || '',
   bannerGradient: user.bannerGradient || '',
+  bannerImage:    user.bannerImage    || '',
   ...extra,
 });
 
@@ -1667,7 +1669,7 @@ app.get('/api/user/me', authMiddleware, async (req, res) => {
 
 app.get('/api/user/:id/profile', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient');
+    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient bannerImage');
     if (!user) return res.status(404).json({ error: 'User not found' });
     const friendCount = await Friendship.countDocuments({ $or: [{ requester: user._id }, { recipient: user._id }], status: 'accepted' });
     const isOnline    = [...onlineUsers.values()].some((s) => String(s.userId) === String(user._id));
@@ -1685,13 +1687,14 @@ app.get('/api/user/:id/profile', async (req, res) => {
       animatedBorder: user.animatedBorder || false,
       accentColor: user.accentColor || '',
       bannerGradient: user.bannerGradient || '',
+      bannerImage: user.bannerImage || '',
     }});
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.put('/api/user/profile', authMiddleware, async (req, res) => {
   try {
-    const { bio, avatar, gender, country, privacyShowCountry, privacyShowBio } = req.body;
+    const { bio, avatar, bannerImage, gender, country, privacyShowCountry, privacyShowBio } = req.body;
     const update = {};
     if (bio !== undefined)  update.bio    = String(bio).slice(0, 100);
     if (gender !== undefined) update.gender = gender;
@@ -1701,6 +1704,10 @@ app.put('/api/user/profile', authMiddleware, async (req, res) => {
     if (avatar !== undefined) {
       if (avatar && avatar.length > 700000) return res.status(400).json({ error: 'Avatar too large (max ~500KB)' });
       update.avatar = avatar;
+    }
+    if (bannerImage !== undefined) {
+      if (bannerImage && bannerImage.length > 2800000) return res.status(400).json({ error: 'Banner image too large (max ~2MB)' });
+      update.bannerImage = bannerImage;
     }
     const user = await User.findByIdAndUpdate(req.user._id, update, { new: true }).select('-password');
     res.json({ success: true, user: serializeUser(user) });
