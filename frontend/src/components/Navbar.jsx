@@ -228,9 +228,9 @@ export default function Navbar({ onPremiumClick }) {
             <Link
               to="/wallet?tab=buy"
               className="flex sm:hidden items-center px-2.5 py-1 rounded-lg text-[11px] font-extrabold text-white"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7)', boxShadow: '0 0 10px rgba(124,58,237,0.4)' }}
+              style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 14px rgba(27,98,245,0.35)' }}
             >
-              Buy
+              Buy Coins
             </Link>
 
             {/* Notification bell */}
