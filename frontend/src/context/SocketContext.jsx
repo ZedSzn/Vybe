@@ -27,12 +27,14 @@ export function SocketProvider({ children }) {
   useEffect(() => {
     pingBackend()
 
+    const token = localStorage.getItem('vybe_token')
     const s = io(BACKEND, {
       transports: ['polling', 'websocket'],
       withCredentials: true,
       reconnectionDelay: 2000,
       reconnectionDelayMax: 8000,
       reconnectionAttempts: 20,
+      auth: token ? { token } : {},
     })
 
     s.on('connect', () => {
@@ -45,6 +47,7 @@ export function SocketProvider({ children }) {
         country:   u?.country   || '',
         isPremium: u?.isPremium || false,
         isVip:     u?.isVip     || false,
+        token:     localStorage.getItem('vybe_token') || null,
       })
     })
 

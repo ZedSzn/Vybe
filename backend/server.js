@@ -8,7 +8,13 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { Resend } = require('resend');
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
+
+// Warn loudly if using default JWT secret in production
+if ((process.env.JWT_SECRET || 'vybe_secret') === 'vybe_secret') {
+  console.warn('⚠️  WARNING: JWT_SECRET is not set — using insecure default. Set JWT_SECRET in your .env file!');
+}
 
 // Disable Mongoose buffering globally — queries fail immediately if DB is down
 // instead of queuing for 10 seconds and timing out
@@ -92,11 +98,15 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
         if (purchaseType === 'coin_purchase') {
           const coinsAmount = Number(session.metadata?.coinsAmount || 0);
           if (coinsAmount > 0) {
-            await addCoins(userId, coinsAmount, `Purchased ${coinsAmount} coins`, 'purchase');
-            await CoinPurchase.findOneAndUpdate(
-              { stripeSessionId: session.id },
-              { status: 'completed', completedAt: new Date() },
-            );
+            // Idempotency: only process if not already completed
+            const existing = await CoinPurchase.findOne({ stripeSessionId: session.id, status: 'completed' });
+            if (!existing) {
+              await addCoins(userId, coinsAmount, `Purchased ${coinsAmount} coins`, 'purchase');
+              await CoinPurchase.findOneAndUpdate(
+                { stripeSessionId: session.id },
+                { status: 'completed', completedAt: new Date() },
+              );
+            }
           }
         } else if (purchaseType === 'subscription') {
           // Subscription checkout completed — activate plan
@@ -124,15 +134,18 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
               `Your Vybe ${plan === 'vip' ? 'VIP' : 'Basic'} plan is now active.`);
           }
         } else {
-          // Unban purchase
-          await User.findByIdAndUpdate(userId, {
-            isBanned: false, banReason: '', banType: null, banExpiresAt: null, bannedAt: null,
-            $push: { banHistory: { action: 'unban', unbannedBy: 'payment', note: 'Ban removed via £4.99 unban purchase', timestamp: new Date() } },
-          });
-          await UnbanPurchase.findOneAndUpdate(
-            { stripeSessionId: session.id },
-            { status: 'completed', completedAt: new Date() },
-          );
+          // Unban purchase — idempotency check
+          const existingUnban = await UnbanPurchase.findOne({ stripeSessionId: session.id, status: 'completed' });
+          if (!existingUnban) {
+            await User.findByIdAndUpdate(userId, {
+              isBanned: false, banReason: '', banType: null, banExpiresAt: null, bannedAt: null,
+              $push: { banHistory: { action: 'unban', unbannedBy: 'payment', note: 'Ban removed via £4.99 unban purchase', timestamp: new Date() } },
+            });
+            await UnbanPurchase.findOneAndUpdate(
+              { stripeSessionId: session.id },
+              { status: 'completed', completedAt: new Date() },
+            );
+          }
         }
       }
     } else if (event.type === 'customer.subscription.updated') {
@@ -596,8 +609,17 @@ function kickBannedUser(userId, reason, banType, banExpiresAt) {
   }
 }
 
+// ─── Auth Rate Limiters ───────────────────────────────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many attempts. Please try again in 15 minutes.' },
+});
+
 // ─── Auth Routes ───────────────────────────────────────────────────────────────
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', authLimiter, async (req, res) => {
   if (!dbConnected) return res.status(503).json({ error: 'Database not connected. Check MONGODB_URI in your .env file.' });
   try {
     const { username, email, password, referralCode: refCode, gender } = req.body;
@@ -778,7 +800,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', authLimiter, async (req, res) => {
   if (!dbConnected) return res.status(503).json({ error: 'Database not connected. Check MONGODB_URI in your .env file.' });
   try {
     const { email, password } = req.body;
@@ -1581,16 +1603,24 @@ app.get('/api/health',       (req, res) => res.json({ status: 'ok', online: onli
 // ─── Daily Login / Streak ──────────────────────────────────────────────────────
 app.post('/api/auth/daily-login', authMiddleware, async (req, res) => {
   try {
-    const user  = await User.findById(req.user._id);
-    if (!user)  return res.status(404).json({ error: 'User not found' });
     const now   = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const last  = user.lastLoginDate ? new Date(user.lastLoginDate.getFullYear(), user.lastLoginDate.getMonth(), user.lastLoginDate.getDate()) : null;
     const dayMs = 86400000;
-    const diff  = last ? today - last : null;
-    if (diff === 0) {
-      return res.json({ success: true, alreadyClaimed: true, streak: user.loginStreak, coins: user.coins });
+
+    // Atomic: only update if lastLoginDate is NOT today — prevents race condition double-claim
+    const user = await User.findOneAndUpdate(
+      { _id: req.user._id, $or: [{ lastLoginDate: null }, { lastLoginDate: { $lt: today } }] },
+      { lastLoginDate: now },
+      { new: false }, // return pre-update doc so we can compute streak from old values
+    );
+    if (!user) {
+      // Already claimed today
+      const current = await User.findById(req.user._id).select('loginStreak coins');
+      return res.json({ success: true, alreadyClaimed: true, streak: current.loginStreak, coins: current.coins });
     }
+
+    const last  = user.lastLoginDate ? new Date(user.lastLoginDate.getFullYear(), user.lastLoginDate.getMonth(), user.lastLoginDate.getDate()) : null;
+    const diff  = last ? today - last : null;
     let newStreak   = diff === dayMs ? (user.loginStreak || 0) + 1 : 1;
     let coinsEarned = 10;
     let milestoneHit = null;
@@ -1598,7 +1628,6 @@ app.post('/api/auth/daily-login', authMiddleware, async (req, res) => {
     if (newStreak === 7)  { coinsEarned += 100; milestoneHit = { streak: 7,  bonus: 100 }; }
     if (newStreak === 30) { coinsEarned += 500; milestoneHit = { streak: 30, bonus: 500 }; }
     await User.findByIdAndUpdate(user._id, {
-      lastLoginDate: now,
       loginStreak:   newStreak,
       longestStreak: Math.max(user.longestStreak || 0, newStreak),
     });
@@ -1687,6 +1716,14 @@ app.get('/api/user/coins/history', authMiddleware, async (req, res) => {
 });
 
 const adWatchLog = new Map();
+// Clean up stale entries daily — prevents unbounded memory growth
+setInterval(() => {
+  const today = new Date().toDateString();
+  for (const [uid, entry] of adWatchLog.entries()) {
+    if (entry.date !== today) adWatchLog.delete(uid);
+  }
+}, 24 * 60 * 60 * 1000);
+
 app.post('/api/user/watch-ad', authMiddleware, async (req, res) => {
   try {
     const uid   = String(req.user._id);
@@ -1849,18 +1886,25 @@ app.post('/api/coins/buy', authMiddleware, async (req, res) => {
 });
 
 // ─── Contact form ──────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 app.post('/api/contact', async (req, res) => {
   try {
     const { name, email, message } = req.body;
     if (!name || !email || !message) return res.status(400).json({ error: 'All fields are required.' });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email address.' });
     if (message.length > 2000) return res.status(400).json({ error: 'Message too long (max 2000 chars).' });
+    const safeName    = escapeHtml(name);
+    const safeEmail   = escapeHtml(email);
+    const safeMessage = escapeHtml(message).replace(/\n/g, '<br>');
     const to = process.env.ADMIN_EMAIL;
     if (to) {
       await sendEmail({
         to,
-        subject: `[Vybe Contact] ${name}`,
-        html: `<p><strong>From:</strong> ${name} &lt;${email}&gt;</p><p style="color:#aaa;font-size:12px;">Reply-to: ${email}</p><p>${message.replace(/\n/g, '<br>')}</p>`,
+        subject: `[Vybe Contact] ${safeName}`,
+        html: `<p><strong>From:</strong> ${safeName} &lt;${safeEmail}&gt;</p><p style="color:#aaa;font-size:12px;">Reply-to: ${safeEmail}</p><p>${safeMessage}</p>`,
       });
     }
     res.json({ success: true });
@@ -1970,10 +2014,15 @@ app.post('/api/cashout/request', authMiddleware, async (req, res) => {
     const pending = await CashOutRequest.findOne({ userId: req.user._id, status: 'pending' });
     if (pending) return res.status(400).json({ error: 'You already have a pending cash out request' });
     const gbpAmount = (amount / 1000) * GBP_PER_1K_COINS;
-    await User.findByIdAndUpdate(req.user._id, {
-      $inc: { cashableCoins: -amount },
-      $push: { coinHistory: { $each: [{ amount: -amount, reason: `Cash out request £${gbpAmount.toFixed(2)}`, type: 'cashout', timestamp: new Date() }], $slice: -200 } },
-    });
+    // Atomic deduction: only succeeds if cashableCoins is still sufficient
+    const updated = await User.findOneAndUpdate(
+      { _id: req.user._id, cashableCoins: { $gte: amount } },
+      {
+        $inc: { cashableCoins: -amount },
+        $push: { coinHistory: { $each: [{ amount: -amount, reason: `Cash out request £${gbpAmount.toFixed(2)}`, type: 'cashout', timestamp: new Date() }], $slice: -200 } },
+      },
+    );
+    if (!updated) return res.status(400).json({ error: 'Insufficient cashable coins' });
     const request = await CashOutRequest.create({ userId: req.user._id, coinsAmount: amount, gbpAmount, paypalEmail: user.paypalEmail });
     res.json({ success: true, request });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -2405,12 +2454,27 @@ io.on('connection', (socket) => {
 
   socket.on('register', async (data) => {
     let boostedUntil = null;
-    if (data.userId && dbConnected) {
+    // Verify JWT token if provided — prevents identity spoofing
+    let verifiedUserId = null;
+    const token = data.token || socket.handshake.auth?.token;
+    if (token) {
       try {
-        const u = await User.findById(data.userId).select('isBanned banReason banType banExpiresAt warnings isAdmin email boostedUntil');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'vybe_secret');
+        verifiedUserId = String(decoded.id);
+      } catch {
+        // Invalid token — treat as unauthenticated
+      }
+    }
+    // If a userId was claimed, it must match the verified token
+    const claimedUserId = data.userId ? String(data.userId) : null;
+    const resolvedUserId = verifiedUserId || (token ? null : claimedUserId);
+
+    if (resolvedUserId && dbConnected) {
+      try {
+        const u = await User.findById(resolvedUserId).select('isBanned banReason banType banExpiresAt warnings isAdmin email boostedUntil');
         if (u?.isBanned) {
           if (u.banType !== 'permanent' && u.banExpiresAt && u.banExpiresAt < new Date()) {
-            await User.findByIdAndUpdate(data.userId, {
+            await User.findByIdAndUpdate(resolvedUserId, {
               isBanned: false, banReason: '', banType: null, banExpiresAt: null, bannedAt: null,
               $push: { banHistory: { action: 'unban', unbannedBy: 'expired', note: 'Ban expired automatically', timestamp: new Date() } },
             });
@@ -2423,13 +2487,13 @@ io.on('connection', (socket) => {
           const unread = u.warnings.filter((w) => !w.read);
           if (unread.length) {
             socket.emit('admin-warnings', unread);
-            await User.updateMany({ _id: data.userId }, { $set: { 'warnings.$[].read': true } });
+            await User.updateMany({ _id: resolvedUserId }, { $set: { 'warnings.$[].read': true } });
           }
         }
         boostedUntil = u?.boostedUntil || null;
       } catch {}
     }
-    onlineUsers.set(socket.id, { ...data, socketId: socket.id, boostedUntil });
+    onlineUsers.set(socket.id, { ...data, userId: resolvedUserId, socketId: socket.id, boostedUntil });
     io.emit('online-count', onlineUsers.size);
 
     // Emit active announcement
@@ -2652,30 +2716,34 @@ io.on('connection', (socket) => {
   socket.on('send-tip', async ({ amount, recipientSocketId }) => {
     if (!dbConnected) { socket.emit('tip-error', { message: 'Server unavailable, try again' }); return; }
     const TIP_MIN = 10, VYBE_CUT = 0.30;
-    if (!amount || amount < TIP_MIN) { socket.emit('tip-error', { message: `Minimum tip is ${TIP_MIN} coins` }); return; }
+    const tipAmount = Math.floor(Number(amount));
+    if (!tipAmount || tipAmount < TIP_MIN || tipAmount <= 0) { socket.emit('tip-error', { message: `Minimum tip is ${TIP_MIN} coins` }); return; }
     const sender    = onlineUsers.get(socket.id);
     const recipient = onlineUsers.get(recipientSocketId);
     if (!sender?.userId) { socket.emit('tip-error', { message: 'You must be logged in to tip' }); return; }
     if (!recipient)      { socket.emit('tip-error', { message: 'Recipient not found' }); return; }
     try {
-      const senderUser = await User.findById(sender.userId).select('coins username');
-      if (!senderUser || senderUser.coins < amount) { socket.emit('tip-error', { message: 'Not enough coins' }); return; }
-      const recipientShare = Math.floor(amount * (1 - VYBE_CUT));
-      await User.findByIdAndUpdate(sender.userId, {
-        $inc: { coins: -amount },
-        $push: { coinHistory: { $each: [{ amount: -amount, reason: `Tip to ${recipient.username || 'user'}`, type: 'tip_sent', timestamp: new Date() }], $slice: -200 } },
-      });
+      const recipientShare = Math.floor(tipAmount * (1 - VYBE_CUT));
+      // Atomic deduction: only succeeds if sender has enough coins
+      const senderUpdated = await User.findOneAndUpdate(
+        { _id: sender.userId, coins: { $gte: tipAmount } },
+        {
+          $inc: { coins: -tipAmount },
+          $push: { coinHistory: { $each: [{ amount: -tipAmount, reason: `Tip to ${recipient.username || 'user'}`, type: 'tip_sent', timestamp: new Date() }], $slice: -200 } },
+        },
+        { new: true },
+      );
+      if (!senderUpdated) { socket.emit('tip-error', { message: 'Not enough coins' }); return; }
       if (recipient.userId) {
         await User.findByIdAndUpdate(recipient.userId, {
           $inc: { cashableCoins: recipientShare, tipsEarned: recipientShare },
-          $push: { coinHistory: { $each: [{ amount: recipientShare, reason: `Tip from ${senderUser.username}`, type: 'tip_received', timestamp: new Date() }], $slice: -200 } },
+          $push: { coinHistory: { $each: [{ amount: recipientShare, reason: `Tip from ${senderUpdated.username}`, type: 'tip_received', timestamp: new Date() }], $slice: -200 } },
         });
-        const recipientUpdated = await User.findById(recipient.userId).select('coins cashableCoins');
-        io.to(recipientSocketId).emit('tip-received', { from: senderUser.username, amount, yourShare: recipientShare, coins: recipientUpdated.coins, cashableCoins: recipientUpdated.cashableCoins });
-        await createNotification(recipient.userId, 'coin_reward', '💰 Tip received!', `${senderUser.username} tipped you ${recipientShare} coins`);
+        const recipientDoc = await User.findById(recipient.userId).select('coins cashableCoins');
+        io.to(recipientSocketId).emit('tip-received', { from: senderUpdated.username, amount: tipAmount, yourShare: recipientShare, coins: recipientDoc.coins, cashableCoins: recipientDoc.cashableCoins });
+        await createNotification(recipient.userId, 'coin_reward', '💰 Tip received!', `${senderUpdated.username} tipped you ${recipientShare} coins`);
       }
-      const senderUpdated = await User.findById(sender.userId).select('coins');
-      socket.emit('tip-sent', { to: recipient.username || 'user', amount, coins: senderUpdated.coins });
+      socket.emit('tip-sent', { to: recipient.username || 'user', amount: tipAmount, coins: senderUpdated.coins });
     } catch { socket.emit('tip-error', { message: 'Failed to send tip. Try again.' }); }
   });
 
