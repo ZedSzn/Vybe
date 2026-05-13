@@ -511,13 +511,13 @@ export default function MainPage() {
           transition={{ delay: 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
           <h1 className="font-extrabold leading-[1.1] tracking-[-0.03em] text-white mb-2" style={{ fontSize: 'clamp(1.7rem, 7vw, 2.3rem)' }}>
-            Meet faces.{' '}
+            Meet real people.{' '}
             <span style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              Share vibes.
+              Instantly.
             </span>
           </h1>
           <p className="text-sm leading-relaxed" style={{ color: '#6b7280' }}>
-            Video chat with real people worldwide. No sign-up needed.
+            Live video chat with strangers worldwide — free, anonymous, no sign-up.
           </p>
         </motion.div>
 
@@ -537,7 +537,7 @@ export default function MainPage() {
           </div>
         </div>
 
-        {/* Start Video Chat — dominant CTA */}
+        {/* Start Chatting Now — dominant CTA */}
         <motion.button
           onClick={startVybing}
           whileHover={{ scale: 1.02 }}
@@ -546,7 +546,16 @@ export default function MainPage() {
           style={{ fontSize: '16px' }}
         >
           <Video size={19} strokeWidth={2.5} />
-          Start Video Chat
+          Start Chatting Now
+        </motion.button>
+
+        <motion.button
+          onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+          whileTap={{ scale: 0.97 }}
+          className="w-full flex items-center justify-center gap-1.5 py-3 rounded-2xl text-sm font-semibold"
+          style={{ color: 'rgba(167,139,250,0.75)', background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.16)' }}
+        >
+          See How It Works ↓
         </motion.button>
 
         {/* ── Match Settings — lightweight, no heavy card ── */}
@@ -814,7 +823,7 @@ export default function MainPage() {
                 style={{ fontSize: 'clamp(2.1rem, 3.2vw, 3.4rem)' }}
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, duration: 0.6 }}
               >
-                Meet faces.
+                Meet real people.
               </motion.h1>
               <motion.h1
                 className="font-extrabold leading-[1.08] tracking-[-0.03em]"
@@ -825,13 +834,13 @@ export default function MainPage() {
                 }}
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16, duration: 0.6 }}
               >
-                Share vibes.
+                Instantly.
               </motion.h1>
             </div>
 
             {/* Subtitle */}
-            <p className="text-sm leading-relaxed lg:max-w-[240px]" style={{ color: '#6b7280' }}>
-              Real video chat with real people worldwide. Spontaneous, genuine, instant.
+            <p className="text-sm leading-relaxed lg:max-w-[260px]" style={{ color: '#6b7280' }}>
+              Skip the small talk. Face-to-face video chat with real people — free, anonymous, no account needed.
             </p>
 
             {/* Avatars + online count */}
@@ -867,7 +876,16 @@ export default function MainPage() {
               style={{ fontSize: '15px', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
             >
               <Video size={17} strokeWidth={2.5} />
-              Start Video Chat
+              Start Chatting Now
+            </motion.button>
+
+            <motion.button
+              onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              whileTap={{ scale: 0.97 }}
+              className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold"
+              style={{ color: 'rgba(167,139,250,0.75)', background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.16)' }}
+            >
+              See How It Works ↓
             </motion.button>
 
             {/* Start without camera */}
@@ -1493,6 +1511,215 @@ export default function MainPage() {
               <div>
                 <p className="text-white font-bold text-[13px] lg:text-sm mb-1">{title}</p>
                 <p className="text-[11px] lg:text-xs leading-relaxed" style={{ color: '#6b7280' }}>{desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══════════════ HOW IT WORKS ══════════════ */}
+      <section id="how-it-works" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-16 lg:py-24">
+        <motion.div
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55 }}
+        >
+          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#a78bfa' }}>Simple by design</p>
+          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+            Up and chatting in{' '}
+            <span style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              30 seconds
+            </span>
+          </h2>
+        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          {[
+            { num: '01', title: 'Open Your Camera', desc: 'Allow camera access when prompted. Takes two seconds. You can also start without a camera if you prefer.', icon: Camera, color: '#7c3aed' },
+            { num: '02', title: 'Set Your Preferences', desc: 'Choose who to match with — anyone, a specific gender, or people from your country. Free and paid options available.', icon: Globe, color: '#a855f7' },
+            { num: '03', title: 'Meet Someone Now', desc: "You're matched in under 2 seconds. Don't vibe with who you got? Hit Skip and find someone new instantly.", icon: Video, color: '#ec4899' },
+          ].map(({ num, title, desc, icon: Icon, color }, i) => (
+            <motion.div
+              key={num}
+              className="flex flex-col items-center text-center gap-4 p-6 rounded-2xl"
+              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              whileHover={{ y: -4, borderColor: `${color}40`, boxShadow: `0 12px 32px ${color}18` }}
+            >
+              <div className="relative">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: `${color}18`, border: `1px solid ${color}30` }}>
+                  <Icon size={22} style={{ color }} />
+                </div>
+                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black text-white" style={{ background: color }}>{i + 1}</span>
+              </div>
+              <div>
+                <p className="text-white font-bold text-base mb-2">{title}</p>
+                <p className="text-sm leading-relaxed" style={{ color: '#6b7280' }}>{desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══════════════ MEMBERSHIP VALUE ══════════════ */}
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
+        <div className="rounded-3xl overflow-hidden p-8 lg:p-12" style={{ background: 'linear-gradient(160deg, rgba(124,58,237,0.08) 0%, rgba(10,10,20,0) 100%)', border: '1px solid rgba(124,58,237,0.15)' }}>
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.55 }}
+            >
+              <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#a78bfa' }}>Membership</p>
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
+                Match smarter with{' '}
+                <span style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
+              </h2>
+              <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
+                Free gets you started. Membership gets you exactly who you want to meet — filter by gender, country, and more.
+              </p>
+              <motion.button
+                onClick={() => navigate('/subscription')}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="btn-purple px-6 py-3 rounded-xl text-white font-bold text-sm"
+                style={{ boxShadow: '0 0 20px rgba(124,58,237,0.28)' }}
+              >
+                View Membership Plans
+              </motion.button>
+            </motion.div>
+            <motion.div
+              className="flex flex-col gap-3"
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.55 }}
+            >
+              {[
+                { tier: 'Basic', price: '£6.99/mo', features: ['Filter by gender', 'Basic badge on profile'], borderColor: 'rgba(59,130,246,0.25)', bg: 'rgba(59,130,246,0.08)', labelColor: '#3b82f6', checkColor: '#3b82f6' },
+                { tier: 'VIP', price: '£12.99/mo', features: ['Filter by gender', 'Filter by country', 'VIP badge on profile'], borderColor: 'rgba(245,158,11,0.25)', bg: 'rgba(245,158,11,0.07)', labelColor: '#f59e0b', checkColor: '#f59e0b' },
+              ].map(({ tier, price, features, borderColor, bg, labelColor, checkColor }) => (
+                <div key={tier} className="p-4 rounded-2xl" style={{ background: bg, border: `1px solid ${borderColor}` }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-black text-white text-sm">{tier}</span>
+                    <span className="text-sm font-bold" style={{ color: labelColor }}>{price}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {features.map(f => (
+                      <div key={f} className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${checkColor}25` }}>
+                          <Check size={9} style={{ color: checkColor }} />
+                        </div>
+                        <span className="text-xs" style={{ color: 'rgba(220,220,240,0.75)' }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════ CREATOR MONETIZATION ══════════════ */}
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
+        <div className="rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(124,58,237,0.06) 100%)', border: '1px solid rgba(245,158,11,0.14)' }}>
+          <div className="p-8 lg:p-12">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55 }}
+              >
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.22)' }}>
+                  <DollarSign size={12} style={{ color: '#f59e0b' }} />
+                  <span className="text-[11px] font-black tracking-[0.1em] uppercase" style={{ color: '#f59e0b' }}>For Creators</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
+                  Go live. Get paid.{' '}
+                  <span style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
+                </h2>
+                <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
+                  Turn your conversations into income. Viewers send gifts, you earn real money — no middlemen taking the bulk of your earnings.
+                </p>
+                <motion.button
+                  onClick={() => navigate('/earn')}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2"
+                  style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b' }}
+                >
+                  <DollarSign size={15} /> Start Earning
+                </motion.button>
+              </motion.div>
+              <motion.div
+                className="grid grid-cols-2 gap-3"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1, duration: 0.55 }}
+              >
+                {[
+                  { label: '70%', sub: 'Creator cut', color: '#f59e0b' },
+                  { label: 'Live', sub: 'Real-time gifts', color: '#a855f7' },
+                  { label: '150+', sub: 'Countries', color: '#10b981' },
+                  { label: 'Free', sub: 'To start', color: '#3b82f6' },
+                ].map(({ label, sub, color }) => (
+                  <div key={label} className="p-4 rounded-2xl text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <p className="text-2xl font-black mb-1" style={{ color }}>{label}</p>
+                    <p className="text-[11px]" style={{ color: 'rgba(156,163,175,0.7)' }}>{sub}</p>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════ TRUST & SAFETY ══════════════ */}
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-24">
+        <motion.div
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55 }}
+        >
+          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#10b981' }}>Trust & Safety</p>
+          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+            Safe by{' '}
+            <span style={{ background: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>default</span>
+          </h2>
+        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { icon: Shield, title: '100% Anonymous', desc: 'No account needed. No data stored. Your sessions vanish the moment you leave.', color: '#7c3aed' },
+            { icon: Globe, title: 'Human Moderation', desc: 'Our moderation team reviews every report. Violations are acted on, not ignored.', color: '#3b82f6' },
+            { icon: Video, title: 'One-Tap Report', desc: 'Tap the flag icon during any chat to report instantly and anonymously.', color: '#10b981' },
+            { icon: Lock, title: 'Instant Bans', desc: 'Verified rule-breakers are suspended immediately — no second chances for serious violations.', color: '#ec4899' },
+          ].map(({ icon: Icon, title, desc, color }, i) => (
+            <motion.div
+              key={title}
+              className="p-5 rounded-2xl flex flex-col gap-3"
+              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.07, duration: 0.45 }}
+              whileHover={{ y: -3, borderColor: `${color}40`, boxShadow: `0 8px 28px ${color}18` }}
+            >
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${color}18`, border: `1px solid ${color}28` }}>
+                <Icon size={18} style={{ color }} />
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm mb-1">{title}</p>
+                <p className="text-[12px] leading-relaxed" style={{ color: '#6b7280' }}>{desc}</p>
               </div>
             </motion.div>
           ))}
