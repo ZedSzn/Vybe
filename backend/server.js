@@ -1355,6 +1355,12 @@ app.post('/api/admin-secure/users/:id/grant-membership', adminSecureMiddleware, 
     const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-password');
     if (!user) return res.status(404).json({ error: 'User not found' });
     await logAdminAction('grant-membership', user._id, user.username, plan ? `Granted free ${plan} membership` : 'Revoked membership');
+    // Push updated membership flags to the user in real-time so they can use the features immediately
+    for (const [socketId, data] of onlineUsers.entries()) {
+      if (String(data.userId) === String(user._id)) {
+        io.to(socketId).emit('membership-updated', { isPremium: user.isPremium, isVip: user.isVip });
+      }
+    }
     res.json({ success: true, isPremium: user.isPremium, isVip: user.isVip });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

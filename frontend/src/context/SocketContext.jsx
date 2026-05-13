@@ -12,7 +12,7 @@ function pingBackend() {
 }
 
 export function SocketProvider({ children }) {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [socket, setSocket] = useState(null)
   const [isConnected, setIsConnected] = useState(false)
   const [onlineCount, setOnlineCount] = useState(0)
@@ -75,6 +75,11 @@ export function SocketProvider({ children }) {
     // Live broadcast announcement from admin
     s.on('announcement', ({ message }) => {
       if (message) setPendingAnnouncements(prev => [...prev, message])
+    })
+
+    // Membership updated by admin — refresh auth state so features unlock immediately
+    s.on('membership-updated', () => {
+      refreshUser()
     })
 
     setSocket(s)
