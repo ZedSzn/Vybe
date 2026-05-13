@@ -1480,41 +1480,6 @@ export default function MainPage() {
         </div>
       </section>
 
-      {/* ══════════════ FEATURES ROW ══════════════ */}
-      <section className="relative z-10 px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 max-w-4xl mx-auto">
-          {FEATURE_CARDS.map(({ key, title, desc, color, hex }, i) => (
-            <motion.div
-              key={key}
-              className="flex flex-col gap-2.5 lg:gap-3 p-4 lg:p-5 rounded-2xl cursor-default"
-              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ delay: i * 0.07, duration: 0.45 }}
-              whileHover={{
-                y: -3,
-                borderColor: `${color},0.3)`,
-                background: `${color},0.05)`,
-                boxShadow: `0 8px 28px ${color},0.12), 0 0 0 1px ${color},0.1)`,
-              }}
-            >
-              <motion.div
-                className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center"
-                style={{ background: `${color},0.12)`, border: `1px solid ${color},0.15)` }}
-                whileHover={{ scale: 1.1, boxShadow: `0 0 16px ${color},0.3)` }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              >
-                <FeatureIcon k={key} hex={hex} />
-              </motion.div>
-              <div>
-                <p className="text-white font-bold text-[13px] lg:text-sm mb-1">{title}</p>
-                <p className="text-[11px] lg:text-xs leading-relaxed" style={{ color: '#6b7280' }}>{desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
 
       {/* ══════════════ HOW IT WORKS ══════════════ */}
       <section id="how-it-works" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-16 lg:py-24">
