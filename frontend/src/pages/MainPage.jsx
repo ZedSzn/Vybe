@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -137,6 +138,9 @@ export default function MainPage() {
   const [privateError,   setPrivateError]   = useState('')
   const [privateCopied,  setPrivateCopied]  = useState(false)
 
+  const countryBtnRef = useRef(null)
+  const [countryDropPos, setCountryDropPos] = useState({ top: 0, left: 0, width: 0 })
+
   const flipCamera = async () => {
     const newFacing = facingMode === 'user' ? 'environment' : 'user'
     setFacingMode(newFacing)
@@ -163,6 +167,13 @@ export default function MainPage() {
     if (!user?.isVip) { navigate('/subscription'); return }
     setShowCountryDrop(v => { if (v) setCountrySearch(''); return !v })
   }
+
+  useEffect(() => {
+    if (showCountryDrop && countryBtnRef.current) {
+      const r = countryBtnRef.current.getBoundingClientRect()
+      setCountryDropPos({ top: r.bottom + window.scrollY + 4, left: r.left + window.scrollX, width: r.width })
+    }
+  }, [showCountryDrop])
 
   const enableCamera = async () => {
     setPermissionAsked(true)
@@ -582,16 +593,19 @@ export default function MainPage() {
           See How It Works ↓
         </motion.button>
 
-        {/* ── Match Settings — lightweight, no heavy card ── */}
-        <div className="space-y-4">
+        {/* ── Match Settings ── */}
+        <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
 
           {/* Mode */}
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] mb-2" style={{ color: 'rgba(107,114,128,0.5)' }}>Mode</p>
+            <p className="text-[10px] font-black tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(160,160,180,0.45)' }}>MODE</p>
             <div className="flex gap-1.5 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
               {[{ id: 'solo', label: '👤 Solo' }, { id: 'squad', label: '👥 Duo' }, { id: 'private', label: '🔒 Private' }].map(({ id, label }) => (
                 <motion.button key={id} onClick={() => setMode(id)} whileTap={{ scale: 0.93 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${mode === id ? 'bg-vybe-purple text-white shadow-purple-sm' : 'text-vybe-muted hover:text-white'}`}>
+                  className="flex-1 py-2 text-xs font-bold transition-colors"
+                  style={mode === id
+                    ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', borderRadius: '10px' }
+                    : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}>
                   {label}
                 </motion.button>
               ))}
@@ -600,17 +614,44 @@ export default function MainPage() {
 
           {/* Gender */}
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] mb-2" style={{ color: 'rgba(107,114,128,0.5)' }}>Match with</p>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-[10px] font-black tracking-[0.18em] uppercase" style={{ color: 'rgba(160,160,180,0.45)' }}>MATCH WITH</p>
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(59,130,246,0.12)', color: 'rgba(147,197,253,0.85)' }}>Basic</span>
+            </div>
             <div className="flex gap-1.5">
               {[{ id: 'both', label: 'Anyone', free: true }, { id: 'male', label: '♂ Male', free: false }, { id: 'female', label: '♀ Female', free: false }].map(({ id, label, free }) => (
                 <motion.button key={id} onClick={() => handleGender(id)} whileTap={{ scale: 0.92 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors relative ${filterGender === id ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'}`}
-                  style={filterGender !== id ? { background: 'rgba(255,255,255,0.05)' } : {}}>
+                  className="flex-1 py-2 text-xs font-bold relative"
+                  style={filterGender === id
+                    ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', borderRadius: '10px' }
+                    : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}>
                   {label}
-                  {!free && <Lock size={8} className="absolute top-1 right-1 opacity-40" />}
+                  {!free && <Lock size={8} className="absolute top-1 right-1" style={{ opacity: 0.3 }} />}
                 </motion.button>
               ))}
             </div>
+          </div>
+
+          {/* Country — always visible */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-[10px] font-black tracking-[0.18em] uppercase" style={{ color: 'rgba(160,160,180,0.45)' }}>COUNTRY</p>
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(234,179,8,0.12)', color: 'rgba(250,204,21,0.85)' }}>VIP</span>
+            </div>
+            <motion.button
+              ref={countryBtnRef}
+              onClick={handleCountryClick}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-bold"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}
+            >
+              <span className="flex items-center gap-2">
+                {user?.isVip ? <Globe size={12} style={{ color: 'rgba(167,139,250,0.7)' }} /> : <Lock size={12} style={{ opacity: 0.3 }} />}
+                <span style={{ color: filterCountry ? 'white' : undefined }}>{filterCountry || 'Any country'}</span>
+              </span>
+              <ChevronDown size={12} style={{ transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+            </motion.button>
           </div>
 
           {/* Duo room inline panel */}
@@ -736,78 +777,68 @@ export default function MainPage() {
             )}
           </AnimatePresence>
 
-          {/* Advanced Filters collapse */}
-          <button
-            onClick={() => setShowAdvanced(v => !v)}
-            className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-xs font-semibold"
-            style={{ background: 'rgba(255,255,255,0.03)', color: showAdvanced ? '#a78bfa' : 'rgba(107,114,128,0.65)' }}
-          >
-            <span>⚙ Advanced Filters</span>
-            <ChevronDown size={13} className={`transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
-          </button>
-
-          <AnimatePresence initial={false}>
-            {showAdvanced && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
-                <div className="space-y-3 pt-1">
-                  {/* Country */}
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] font-extrabold uppercase tracking-[0.14em]" style={{ color: 'rgba(107,114,128,0.5)' }}>Country</p>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'rgba(234,179,8,0.1)', color: 'rgba(250,204,21,0.8)', border: '1px solid rgba(234,179,8,0.2)' }}>
-                        <span className="inline-flex items-center gap-0.5"><Crown size={9} /> VIP</span>
-                      </span>
-                    </div>
-                    <motion.button onClick={handleCountryClick} whileTap={{ scale: 0.97 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-colors ${user?.isVip ? 'text-white' : 'text-vybe-muted cursor-not-allowed'}`}
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                      <span className="flex items-center gap-2">{user?.isVip ? <Globe size={12} /> : <Lock size={12} />}{filterCountry || 'Any country'}</span>
-                      <ChevronDown size={12} className={`transition-transform duration-200 ${showCountryDrop ? 'rotate-180' : ''}`} />
-                    </motion.button>
-                    <AnimatePresence>
-                      {showCountryDrop && user?.isVip && (
-                        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 right-0 mt-1 rounded-xl z-20 shadow-float overflow-hidden"
-                          style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)' }}>
-                          <div className="p-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                            <input
-                              autoFocus
-                              value={countrySearch}
-                              onChange={e => setCountrySearch(e.target.value)}
-                              placeholder="Search country…"
-                              className="w-full bg-transparent text-xs text-white placeholder-gray-600 outline-none px-2 py-1"
-                            />
-                          </div>
-                          <div className="overflow-y-auto" style={{ maxHeight: '220px' }}>
-                            {!countrySearch && (
-                              <button onClick={() => { setFilterCountry(''); setShowCountryDrop(false); setCountrySearch('') }} className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5 transition-colors">🌍 Any country</button>
-                            )}
-                            {COUNTRIES.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())).map((c) => (
-                              <button key={c} onClick={() => { setFilterCountry(c); setShowCountryDrop(false); setCountrySearch('') }} className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5 transition-colors">{c}</button>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  {/* Auto match */}
-                  <button onClick={() => setAutoMatch(v => !v)}
-                    className="flex items-center justify-between py-2.5 px-3 rounded-xl w-full"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div className="text-left">
-                      <span className="text-xs font-semibold" style={{ color: '#9ca3af' }}>Auto match</span>
-                      <p className="text-[10px] mt-0.5" style={{ color: 'rgba(107,114,128,0.6)' }}>Skip to next person automatically</p>
-                    </div>
-                    <div className="relative" style={{ width: '38px', height: '20px', borderRadius: '10px', background: autoMatch ? '#1B62F5' : 'rgba(255,255,255,0.1)', transition: 'background 200ms' }}>
-                      <div className="absolute top-[3px] w-[14px] h-[14px] rounded-full bg-white" style={{ left: autoMatch ? '21px' : '3px', transition: 'left 200ms', boxShadow: '0 1px 4px rgba(0,0,0,0.35)' }} />
-                    </div>
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
         </div>
+
+        {/* Country dropdown portal */}
+        {showCountryDrop && user?.isVip && createPortal(
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15 }}
+              style={{
+                position: 'fixed',
+                top: countryDropPos.top,
+                left: countryDropPos.left,
+                width: countryDropPos.width,
+                zIndex: 9999,
+                background: '#0c0c1a',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 14,
+                boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
+                overflow: 'hidden',
+              }}
+            >
+              <div style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                <input
+                  autoFocus
+                  value={countrySearch}
+                  onChange={e => setCountrySearch(e.target.value)}
+                  placeholder="Search country…"
+                  style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: 'none', outline: 'none', color: 'white', fontSize: '12px', padding: '10px 12px', borderRadius: 8 }}
+                  className="placeholder-[rgba(120,120,140,0.5)]"
+                />
+              </div>
+              <div style={{ overflowY: 'auto', maxHeight: 240 }}>
+                {!countrySearch && (
+                  <button
+                    onClick={() => { setFilterCountry(''); setShowCountryDrop(false); setCountrySearch('') }}
+                    className="w-full text-left text-xs"
+                    style={{ padding: '8px 12px', color: 'rgba(160,160,180,0.6)', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.15)'; e.currentTarget.style.color = 'white' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(160,160,180,0.6)' }}
+                  >
+                    🌍 Any country
+                  </button>
+                )}
+                {COUNTRIES.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())).map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => { setFilterCountry(c); setShowCountryDrop(false); setCountrySearch('') }}
+                    className="w-full text-left text-xs"
+                    style={{ padding: '8px 12px', color: 'rgba(200,200,220,0.75)', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.15)'; e.currentTarget.style.color = 'white' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(200,200,220,0.75)' }}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>,
+          document.body
+        )}
 
         {/* Start Without Camera — ghost secondary */}
         <motion.button
@@ -1121,39 +1152,28 @@ export default function MainPage() {
 
           {/* ── RIGHT COLUMN — Settings Card ── */}
           <motion.div
-            className="flex flex-col gap-4 rounded-2xl p-5 order-2 lg:order-none"
-            style={{
-              background: 'rgba(10,10,20,0.65)',
-              backdropFilter: 'blur(28px) saturate(1.4)',
-              border: '1px solid rgba(255,255,255,0.07)',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.04) inset',
-              alignSelf: 'start',
-            }}
+            className="order-2 lg:order-none"
+            style={{ alignSelf: 'start' }}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.14, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
+            <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+
             {/* Mode */}
             <div>
-              <p
-                className="text-[10px] font-extrabold uppercase tracking-[0.16em] mb-2"
-                style={{ color: 'rgba(107,114,128,0.5)' }}
-              >
-                Mode
-              </p>
-              <div className="flex gap-2">
+              <p className="text-[10px] font-black tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(160,160,180,0.45)' }}>MODE</p>
+              <div className="flex gap-1.5 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
                 {[{ id: 'solo', label: '👤 Solo' }, { id: 'squad', label: '👥 Duo' }, { id: 'private', label: '🔒 Private' }].map(({ id, label }) => (
                   <motion.button
                     key={id}
                     onClick={() => setMode(id)}
                     whileTap={{ scale: 0.93 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                      mode === id
-                        ? 'bg-vybe-purple text-white shadow-purple-sm'
-                        : 'text-vybe-muted hover:text-white'
-                    }`}
-                    style={mode !== id ? { background: 'rgba(255,255,255,0.05)' } : {}}
+                    className="flex-1 py-2.5 text-xs font-bold"
+                    style={mode === id
+                      ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', borderRadius: '10px' }
+                      : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}
                   >
                     {label}
                   </motion.button>
@@ -1163,94 +1183,49 @@ export default function MainPage() {
 
             {/* Gender */}
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] mb-2" style={{ color: 'rgba(107,114,128,0.5)' }}>Gender</p>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-[10px] font-black tracking-[0.18em] uppercase" style={{ color: 'rgba(160,160,180,0.45)' }}>MATCH WITH</p>
+                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(59,130,246,0.12)', color: 'rgba(147,197,253,0.85)' }}>Basic</span>
+              </div>
               <div className="flex gap-1.5">
                 {[
-                  { id: 'both', label: 'Both', free: true },
-                  { id: 'male', label: 'Male', free: false },
-                  { id: 'female', label: 'Female', free: false },
+                  { id: 'both', label: 'Anyone', free: true },
+                  { id: 'male', label: '♂ Male', free: false },
+                  { id: 'female', label: '♀ Female', free: false },
                 ].map(({ id, label, free }) => (
                   <motion.button key={id} onClick={() => handleGender(id)} whileTap={{ scale: 0.92 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold relative ${filterGender === id ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'}`}
-                    style={filterGender !== id ? { background: 'rgba(255,255,255,0.05)' } : {}}>
+                    className="flex-1 py-2 text-xs font-bold relative"
+                    style={filterGender === id
+                      ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', borderRadius: '10px' }
+                      : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}>
                     {label}
-                    {!free && <Lock size={8} className="absolute top-1 right-1 opacity-40" />}
+                    {!free && <Lock size={8} className="absolute top-1 right-1" style={{ opacity: 0.3 }} />}
                   </motion.button>
                 ))}
               </div>
             </div>
 
-            {/* Advanced Filters collapse — desktop */}
+            {/* Country — always visible */}
             <div>
-              <button onClick={() => setShowAdvanced(v => !v)}
-                className="w-full flex items-center justify-between py-2 text-xs font-semibold"
-                style={{ color: showAdvanced ? '#a78bfa' : 'rgba(107,114,128,0.5)' }}>
-                <span className="flex items-center gap-1.5">
-                  <ChevronDown size={11} className={`transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
-                  Advanced
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-[10px] font-black tracking-[0.18em] uppercase" style={{ color: 'rgba(160,160,180,0.45)' }}>COUNTRY</p>
+                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(234,179,8,0.12)', color: 'rgba(250,204,21,0.85)' }}>VIP</span>
+              </div>
+              <motion.button
+                ref={countryBtnRef}
+                onClick={handleCountryClick}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-bold"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}
+              >
+                <span className="flex items-center gap-2">
+                  {user?.isVip ? <Globe size={12} style={{ color: 'rgba(167,139,250,0.7)' }} /> : <Lock size={12} style={{ opacity: 0.3 }} />}
+                  <span style={{ color: filterCountry ? 'white' : undefined }}>{filterCountry || 'Any country'}</span>
                 </span>
-                {(filterCountry || !autoMatch) && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'rgba(124,58,237,0.18)', color: '#a78bfa' }}>active</span>
-                )}
-              </button>
-              <AnimatePresence initial={false}>
-                {showAdvanced && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                    <div className="space-y-3 pt-2">
-                      {/* Country */}
-                      <div className="relative">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em]" style={{ color: 'rgba(107,114,128,0.45)' }}>Country</p>
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'rgba(234,179,8,0.1)', color: 'rgba(250,204,21,0.8)', border: '1px solid rgba(234,179,8,0.2)' }}>
-                            <span className="inline-flex items-center gap-0.5"><Crown size={9} /> VIP</span>
-                          </span>
-                        </div>
-                        <motion.button onClick={handleCountryClick} whileTap={{ scale: 0.97 }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs ${user?.isVip ? 'text-white' : 'text-vybe-muted cursor-not-allowed'}`}
-                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                          <span className="flex items-center gap-2">{user?.isVip ? <Globe size={11} /> : <Lock size={11} />}{filterCountry || 'Any country'}</span>
-                          <ChevronDown size={11} className={`transition-transform duration-200 ${showCountryDrop ? 'rotate-180' : ''}`} />
-                        </motion.button>
-                        <AnimatePresence>
-                          {showCountryDrop && user?.isVip && (
-                            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}
-                              className="absolute top-full left-0 right-0 mt-1 rounded-xl z-20 overflow-hidden"
-                              style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)' }}>
-                              <div className="p-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                                <input
-                                  autoFocus
-                                  value={countrySearch}
-                                  onChange={e => setCountrySearch(e.target.value)}
-                                  placeholder="Search country…"
-                                  className="w-full bg-transparent text-xs text-white placeholder-gray-600 outline-none px-2 py-1"
-                                />
-                              </div>
-                              <div className="overflow-y-auto" style={{ maxHeight: '220px' }}>
-                                {!countrySearch && (
-                                  <button onClick={() => { setFilterCountry(''); setShowCountryDrop(false); setCountrySearch('') }} className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5">🌍 Any country</button>
-                                )}
-                                {COUNTRIES.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())).map((c) => (
-                                  <button key={c} onClick={() => { setFilterCountry(c); setShowCountryDrop(false); setCountrySearch('') }} className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5">{c}</button>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                      {/* Auto match */}
-                      <button onClick={() => setAutoMatch(v => !v)}
-                        className="flex items-center justify-between py-2 px-3 rounded-xl w-full"
-                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <span className="text-xs font-semibold" style={{ color: '#9ca3af' }}>Auto match</span>
-                        <div className="relative" style={{ width: 36, height: 18, borderRadius: 9, background: autoMatch ? '#1B62F5' : 'rgba(255,255,255,0.1)' }}>
-                          <div className="absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white" style={{ left: autoMatch ? '19px' : '2px', transition: 'left 180ms', boxShadow: '0 1px 3px rgba(0,0,0,0.35)' }} />
-                        </div>
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                <ChevronDown size={12} style={{ transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              </motion.button>
             </div>
 
             {/* Squad panel — expands when Duo mode is selected */}
@@ -1527,6 +1502,8 @@ export default function MainPage() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            </div>{/* end card */}
           </motion.div>
         </div>
       </section>
