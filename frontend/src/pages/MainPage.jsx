@@ -8,7 +8,6 @@ import {
 } from 'lucide-react'
 
 const FEATURE_CARDS = [
-  { key: 'private', title: 'Private',          desc: 'Anonymous sessions. No data stored, no tracking.', color: 'rgba(124,58,237', hex: '#7c3aed' },
   { key: 'instant', title: 'Instant Match',    desc: 'Connect with someone new in under 2 seconds.',     color: 'rgba(27,98,245',  hex: '#1b62f5' },
   { key: 'global',  title: 'Global',           desc: 'Meet people from 150+ countries worldwide.',       color: 'rgba(16,185,129', hex: '#10b981' },
   { key: 'safe',    title: 'Safe & Moderated', desc: 'Human moderation with instant ban enforcement.',   color: 'rgba(245,158,11', hex: '#f59e0b' },
@@ -1483,7 +1482,7 @@ export default function MainPage() {
 
       {/* ══════════════ FEATURES ROW ══════════════ */}
       <section className="relative z-10 px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 max-w-4xl mx-auto">
           {FEATURE_CARDS.map(({ key, title, desc, color, hex }, i) => (
             <motion.div
               key={key}
