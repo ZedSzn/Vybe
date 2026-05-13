@@ -15,6 +15,12 @@ export function AuthProvider({ children }) {
       setUser(JSON.parse(storedUser))
       setToken(storedToken)
       axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
+      // Always refresh from server on load so membership/ban changes are picked up
+      // even if the user was offline when admin made changes
+      axios.get('/api/user/me').then(({ data }) => {
+        setUser(data.user)
+        localStorage.setItem('vybe_user', JSON.stringify(data.user))
+      }).catch(() => {})
     }
     setLoading(false)
   }, [])
