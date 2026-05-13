@@ -53,7 +53,7 @@ const REASON_LABELS = {
 }
 
 // ─── User Profile Modal ───────────────────────────────────────────────────────
-function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDelete }) {
+function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDelete, onGrantMembership }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [banModal, setBanModal]   = useState(false)
@@ -63,6 +63,17 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
   const [warnMsg,   setWarnMsg]   = useState('')
   const [unbanNote, setUnbanNote] = useState('')
   const [unbanModal, setUnbanModal] = useState(false)
+  const [membershipLoad, setMembershipLoad] = useState(false)
+
+  const handleMembership = async (plan) => {
+    setMembershipLoad(true)
+    try {
+      const { data } = await axios.post(`/api/admin-secure/users/${userId}/grant-membership`, { plan }, ah(token))
+      setProfile(p => ({ ...p, user: { ...p.user, isPremium: data.isPremium, isVip: data.isVip } }))
+      if (onGrantMembership) onGrantMembership(plan)
+    } catch (e) { /* showToast handled by parent */ }
+    finally { setMembershipLoad(false) }
+  }
 
   useEffect(() => {
     axios.get(`/api/admin-secure/users/${userId}/profile`, ah(token))
@@ -150,6 +161,44 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
               </div>
             </div>
           )}
+
+          {/* Free Membership */}
+          <div className="bg-vybe-card border border-vybe-border rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-black text-white">Free Membership</h4>
+              <div className="flex items-center gap-1.5">
+                {user.isVip     && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 border border-yellow-500/25 font-bold">VIP Active</span>}
+                {user.isPremium && !user.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25 font-bold">Basic Active</span>}
+                {!user.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-vybe-card2 text-vybe-muted font-bold">None</span>}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => handleMembership('basic')}
+                disabled={membershipLoad || (user.isPremium && !user.isVip)}
+                className="py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
+                style={{ background: 'rgba(27,98,245,0.15)', border: '1px solid rgba(27,98,245,0.3)', color: '#60a5fa' }}
+              >
+                {membershipLoad ? '…' : 'Basic'}
+              </button>
+              <button
+                onClick={() => handleMembership('vip')}
+                disabled={membershipLoad || user.isVip}
+                className="py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
+                style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24' }}
+              >
+                {membershipLoad ? '…' : 'VIP'}
+              </button>
+              <button
+                onClick={() => handleMembership(null)}
+                disabled={membershipLoad || !user.isPremium}
+                className="py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
+                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
+              >
+                {membershipLoad ? '…' : 'Revoke'}
+              </button>
+            </div>
+          </div>
 
           {/* Actions */}
           <div className="grid grid-cols-2 gap-2">
@@ -316,6 +365,7 @@ export default function AdminDashboard() {
           <UserProfileModal userId={profileId} token={token}
             onClose={() => setProfileId(null)}
             onBan={banUser} onUnban={unbanUser} onWarn={warnUser} onDelete={deleteUser}
+            onGrantMembership={(plan) => showToast(plan ? `Free ${plan.toUpperCase()} membership granted` : 'Membership revoked')}
           />
         )}
         <div className="flex gap-2 mb-5">

@@ -1344,6 +1344,21 @@ app.post('/api/admin-secure/users/:id/unban', adminSecureMiddleware, async (req,
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Grant or revoke free membership
+app.post('/api/admin-secure/users/:id/grant-membership', adminSecureMiddleware, async (req, res) => {
+  try {
+    const { plan } = req.body; // 'basic' | 'vip' | null (revoke)
+    if (plan !== 'basic' && plan !== 'vip' && plan !== null) {
+      return res.status(400).json({ error: 'Invalid plan — use basic, vip, or null' });
+    }
+    const update = { isPremium: plan !== null, isVip: plan === 'vip' };
+    const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    await logAdminAction('grant-membership', user._id, user.username, plan ? `Granted free ${plan} membership` : 'Revoked membership');
+    res.json({ success: true, isPremium: user.isPremium, isVip: user.isVip });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // Warn user
 app.post('/api/admin-secure/users/:id/warn', adminSecureMiddleware, async (req, res) => {
   try {

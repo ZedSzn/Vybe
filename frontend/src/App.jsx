@@ -165,15 +165,26 @@ function AppRoutes() {
 
   useEffect(() => {
     checkSettings()
-    const interval = setInterval(checkSettings, 60000)
+    const interval = setInterval(checkSettings, 30000)
     return () => clearInterval(interval)
   }, []) // eslint-disable-line
 
-  // Instant maintenance mode via socket — no 60s poll wait
+  // Re-check on every page navigation — catches it within 1 click for active users
+  useEffect(() => {
+    const adminToken = localStorage.getItem('vybe_admin_token') || ''
+    if (adminToken) return
+    axios.get('/api/settings')
+      .then(({ data }) => {
+        setMaintenance(data.maintenanceMode || false)
+        setMaintMessage(data.maintenanceMessage || '')
+      })
+      .catch(() => {})
+  }, [location.pathname]) // eslint-disable-line
+
+  // Instant maintenance mode via socket — fires immediately for all connected users
   useEffect(() => {
     if (!socket) return
     const handler = ({ active, message }) => {
-      // Admins bypass maintenance — they can see the site while it's down
       if (localStorage.getItem('vybe_admin_token')) return
       setMaintenance(active)
       if (message) setMaintMessage(message)
