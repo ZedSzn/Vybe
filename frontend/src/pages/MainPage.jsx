@@ -115,6 +115,7 @@ export default function MainPage() {
   const [filterGender,    setFilterGender]    = useState('both')
   const [filterCountry,   setFilterCountry]   = useState('')
   const [showCountryDrop, setShowCountryDrop] = useState(false)
+  const [countrySearch,   setCountrySearch]   = useState('')
   const [showPremium,     setShowPremium]     = useState(false)
   const [cameraOn,           setCameraOn]           = useState(false)
   const [cameraErr,          setCameraErr]          = useState(false)
@@ -160,7 +161,7 @@ export default function MainPage() {
 
   const handleCountryClick = () => {
     if (!user?.isVip) { navigate('/subscription'); return }
-    setShowCountryDrop(v => !v)
+    setShowCountryDrop(v => { if (v) setCountrySearch(''); return !v })
   }
 
   const enableCamera = async () => {
@@ -766,12 +767,25 @@ export default function MainPage() {
                     <AnimatePresence>
                       {showCountryDrop && user?.isVip && (
                         <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-y-auto z-20 shadow-float"
-                          style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)', maxHeight: '260px' }}>
-                          <button onClick={() => { setFilterCountry(''); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5 transition-colors">🌍 Any country</button>
-                          {COUNTRIES.map((c) => (
-                            <button key={c} onClick={() => { setFilterCountry(c); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5 transition-colors">{c}</button>
-                          ))}
+                          className="absolute top-full left-0 right-0 mt-1 rounded-xl z-20 shadow-float overflow-hidden"
+                          style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)' }}>
+                          <div className="p-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                            <input
+                              autoFocus
+                              value={countrySearch}
+                              onChange={e => setCountrySearch(e.target.value)}
+                              placeholder="Search country…"
+                              className="w-full bg-transparent text-xs text-white placeholder-gray-600 outline-none px-2 py-1"
+                            />
+                          </div>
+                          <div className="overflow-y-auto" style={{ maxHeight: '220px' }}>
+                            {!countrySearch && (
+                              <button onClick={() => { setFilterCountry(''); setShowCountryDrop(false); setCountrySearch('') }} className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5 transition-colors">🌍 Any country</button>
+                            )}
+                            {COUNTRIES.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())).map((c) => (
+                              <button key={c} onClick={() => { setFilterCountry(c); setShowCountryDrop(false); setCountrySearch('') }} className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5 transition-colors">{c}</button>
+                            ))}
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -1201,12 +1215,25 @@ export default function MainPage() {
                         <AnimatePresence>
                           {showCountryDrop && user?.isVip && (
                             <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}
-                              className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-y-auto z-20"
-                              style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)', maxHeight: '260px' }}>
-                              <button onClick={() => { setFilterCountry(''); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5">🌍 Any country</button>
-                              {COUNTRIES.map((c) => (
-                                <button key={c} onClick={() => { setFilterCountry(c); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5">{c}</button>
-                              ))}
+                              className="absolute top-full left-0 right-0 mt-1 rounded-xl z-20 overflow-hidden"
+                              style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)' }}>
+                              <div className="p-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                                <input
+                                  autoFocus
+                                  value={countrySearch}
+                                  onChange={e => setCountrySearch(e.target.value)}
+                                  placeholder="Search country…"
+                                  className="w-full bg-transparent text-xs text-white placeholder-gray-600 outline-none px-2 py-1"
+                                />
+                              </div>
+                              <div className="overflow-y-auto" style={{ maxHeight: '220px' }}>
+                                {!countrySearch && (
+                                  <button onClick={() => { setFilterCountry(''); setShowCountryDrop(false); setCountrySearch('') }} className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5">🌍 Any country</button>
+                                )}
+                                {COUNTRIES.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())).map((c) => (
+                                  <button key={c} onClick={() => { setFilterCountry(c); setShowCountryDrop(false); setCountrySearch('') }} className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5">{c}</button>
+                                ))}
+                              </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
