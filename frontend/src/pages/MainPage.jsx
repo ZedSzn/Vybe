@@ -28,9 +28,33 @@ import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
 
 const COUNTRIES = [
-  '🇺🇸 United States', '🇬🇧 United Kingdom', '🇨🇦 Canada', '🇦🇺 Australia',
-  '🇩🇪 Germany', '🇫🇷 France', '🇯🇵 Japan', '🇧🇷 Brazil', '🇮🇳 India',
-  '🇲🇽 Mexico', '🇪🇸 Spain', '🇮🇹 Italy', '🇳🇱 Netherlands', '🇸🇪 Sweden',
+  '🇦🇫 Afghanistan', '🇦🇱 Albania', '🇩🇿 Algeria', '🇦🇴 Angola', '🇦🇷 Argentina',
+  '🇦🇲 Armenia', '🇦🇺 Australia', '🇦🇹 Austria', '🇦🇿 Azerbaijan', '🇧🇭 Bahrain',
+  '🇧🇩 Bangladesh', '🇧🇪 Belgium', '🇧🇴 Bolivia', '🇧🇦 Bosnia & Herzegovina',
+  '🇧🇷 Brazil', '🇧🇬 Bulgaria', '🇰🇭 Cambodia', '🇨🇲 Cameroon', '🇨🇦 Canada',
+  '🇨🇱 Chile', '🇨🇳 China', '🇨🇴 Colombia', '🇨🇬 Congo', '🇨🇷 Costa Rica',
+  '🇭🇷 Croatia', '🇨🇺 Cuba', '🇨🇿 Czech Republic', '🇩🇰 Denmark', '🇩🇴 Dominican Republic',
+  '🇪🇨 Ecuador', '🇪🇬 Egypt', '🇸🇻 El Salvador', '🇪🇹 Ethiopia', '🇫🇮 Finland',
+  '🇫🇷 France', '🇬🇪 Georgia', '🇩🇪 Germany', '🇬🇭 Ghana', '🇬🇷 Greece',
+  '🇬🇹 Guatemala', '🇬🇳 Guinea', '🇭🇹 Haiti', '🇭🇳 Honduras', '🇭🇰 Hong Kong',
+  '🇭🇺 Hungary', '🇮🇸 Iceland', '🇮🇳 India', '🇮🇩 Indonesia', '🇮🇷 Iran',
+  '🇮🇶 Iraq', '🇮🇪 Ireland', '🇮🇱 Israel', '🇮🇹 Italy', '🇯🇲 Jamaica',
+  '🇯🇵 Japan', '🇯🇴 Jordan', '🇰🇿 Kazakhstan', '🇰🇪 Kenya', '🇰🇼 Kuwait',
+  '🇰🇬 Kyrgyzstan', '🇱🇦 Laos', '🇱🇧 Lebanon', '🇱🇾 Libya', '🇱🇹 Lithuania',
+  '🇲🇾 Malaysia', '🇲🇱 Mali', '🇲🇽 Mexico', '🇲🇩 Moldova', '🇲🇳 Mongolia',
+  '🇲🇦 Morocco', '🇲🇿 Mozambique', '🇲🇲 Myanmar', '🇳🇵 Nepal', '🇳🇱 Netherlands',
+  '🇳🇿 New Zealand', '🇳🇬 Nigeria', '🇲🇰 North Macedonia', '🇳🇴 Norway',
+  '🇴🇲 Oman', '🇵🇰 Pakistan', '🇵🇦 Panama', '🇵🇬 Papua New Guinea', '🇵🇾 Paraguay',
+  '🇵🇪 Peru', '🇵🇭 Philippines', '🇵🇱 Poland', '🇵🇹 Portugal', '🇵🇷 Puerto Rico',
+  '🇶🇦 Qatar', '🇷🇴 Romania', '🇷🇺 Russia', '🇷🇼 Rwanda', '🇸🇦 Saudi Arabia',
+  '🇸🇳 Senegal', '🇷🇸 Serbia', '🇸🇱 Sierra Leone', '🇸🇬 Singapore', '🇸🇰 Slovakia',
+  '🇸🇴 Somalia', '🇿🇦 South Africa', '🇰🇷 South Korea', '🇸🇸 South Sudan',
+  '🇪🇸 Spain', '🇱🇰 Sri Lanka', '🇸🇩 Sudan', '🇸🇪 Sweden', '🇨🇭 Switzerland',
+  '🇸🇾 Syria', '🇹🇼 Taiwan', '🇹🇯 Tajikistan', '🇹🇿 Tanzania', '🇹🇭 Thailand',
+  '🇹🇳 Tunisia', '🇹🇷 Turkey', '🇹🇲 Turkmenistan', '🇺🇬 Uganda', '🇺🇦 Ukraine',
+  '🇦🇪 United Arab Emirates', '🇬🇧 United Kingdom', '🇺🇸 United States',
+  '🇺🇾 Uruguay', '🇺🇿 Uzbekistan', '🇻🇪 Venezuela', '🇻🇳 Vietnam',
+  '🇾🇪 Yemen', '🇿🇲 Zambia', '🇿🇼 Zimbabwe',
 ]
 
 const FAQ_ITEMS = [
@@ -743,7 +767,7 @@ export default function MainPage() {
                       {showCountryDrop && user?.isVip && (
                         <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}
                           className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-y-auto z-20 shadow-float"
-                          style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)', maxHeight: '160px' }}>
+                          style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)', maxHeight: '260px' }}>
                           <button onClick={() => { setFilterCountry(''); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5 transition-colors">🌍 Any country</button>
                           {COUNTRIES.map((c) => (
                             <button key={c} onClick={() => { setFilterCountry(c); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5 transition-colors">{c}</button>
@@ -1178,7 +1202,7 @@ export default function MainPage() {
                           {showCountryDrop && user?.isVip && (
                             <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}
                               className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-y-auto z-20"
-                              style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)', maxHeight: '160px' }}>
+                              style={{ background: '#0d0d1c', border: '1px solid rgba(255,255,255,0.09)', maxHeight: '260px' }}>
                               <button onClick={() => { setFilterCountry(''); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-vybe-muted hover:text-white hover:bg-white/5">🌍 Any country</button>
                               {COUNTRIES.map((c) => (
                                 <button key={c} onClick={() => { setFilterCountry(c); setShowCountryDrop(false) }} className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:text-white hover:bg-white/5">{c}</button>
