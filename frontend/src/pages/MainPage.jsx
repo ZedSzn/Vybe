@@ -1162,7 +1162,7 @@ export default function MainPage() {
                   </div>
                 </motion.div>
 
-                <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 4, letterSpacing: '-0.01em' }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
                   {cameraErr ? 'Camera access needed' : 'Your video preview'}
                 </p>
                 <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', marginBottom: 24, textAlign: 'center', maxWidth: 200, lineHeight: 1.45 }}>
