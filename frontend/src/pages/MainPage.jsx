@@ -859,13 +859,13 @@ export default function MainPage() {
       {/* Desktop Layout — Azar-style */}
       <section
         className="hidden lg:flex flex-col relative z-10"
-        style={{ height: 'calc(100vh - 64px)', marginTop: '64px', background: '#0a0a0f', overflow: 'hidden' }}>
+        style={{ height: 'calc(100vh - 64px)', marginTop: '64px', background: '#0a0a0f', overflow: 'hidden', position: 'relative' }}>
 
         {/* Main 2-column area */}
         <div className="flex flex-1 min-h-0 overflow-hidden">
 
           {/* LEFT: Camera panel (55%) */}
-          <div className="relative flex flex-col" style={{ width: '55%', background: '#0d0d18' }}>
+          <div className="relative flex flex-col" style={{ width: '55%', background: '#0d0d18', height: '100%', minHeight: 0 }}>
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
@@ -926,7 +926,7 @@ export default function MainPage() {
             )}
 
             {/* Matching count */}
-            <div className="absolute bottom-5 left-0 right-0 flex justify-center z-20 pointer-events-none">
+            <div className="absolute bottom-5 left-5 z-20 pointer-events-none">
               <div className="flex items-center gap-2.5 px-5 py-2 rounded-full"
                 style={{ background: 'rgba(0,0,0,0.58)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <motion.span
@@ -946,32 +946,32 @@ export default function MainPage() {
 
           {/* RIGHT: Live users grid */}
           <div className="flex-1 overflow-y-auto" style={{ background: '#0a0a0f' }}>
-            <p className="text-right text-[10px] px-3 pt-2.5 pb-1"
-              style={{ color: 'rgba(255,255,255,0.12)' }}>
-              All images are of models used for illustrative purposes.
+            <p className="text-right text-[10px] px-3 pt-1 pb-0.5"
+              style={{ color: 'rgba(255,255,255,0.08)', fontSize: '9px' }}>
+              Illustrative images
             </p>
-            <div className="grid grid-cols-3 gap-1.5 px-2 pb-2">
+            <div className="grid grid-cols-3 gap-1 px-1 pb-1">
               {GRID_USERS.map((u) => (
                 <div key={u.name}
-                  className="relative rounded-[18px] overflow-hidden cursor-pointer group"
+                  className="relative rounded-xl overflow-hidden cursor-pointer group"
                   style={{ aspectRatio: '2/3', background: '#111118' }}>
                   <img src={u.photo} alt={u.name}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                   <div className="absolute inset-0 pointer-events-none"
-                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.05) 52%, transparent 100%)' }} />
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.1) 65%, transparent 100%)' }} />
                   {u.online && (
                     <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full"
-                      style={{ background: 'rgba(0,0,0,0.58)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                      <span className="text-[8.5px] font-bold text-white tracking-widest uppercase">Online</span>
+                      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', border: '1px solid rgba(16,185,129,0.3)' }}>
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#10b981', boxShadow: '0 0 4px #10b981' }} />
+                      <span className="text-[9px] font-black text-white tracking-widest uppercase">ONLINE</span>
                     </div>
                   )}
-                  <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2.5">
+                  <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
                     <div className="flex items-end justify-between">
-                      <p className="text-white font-bold text-[13px] leading-tight">
-                        {u.name}<span className="font-normal" style={{ color: 'rgba(255,255,255,0.52)' }}>, {u.age}</span>
+                      <p className="text-white font-bold text-[15px] leading-tight">
+                        {u.name}<span className="font-semibold text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>, {u.age}</span>
                       </p>
-                      <span className="text-[10px] font-bold" style={{ color: 'rgba(255,255,255,0.3)' }}>{u.country}</span>
+                      <span className="text-[12px] font-black tracking-wide" style={{ color: 'rgba(255,255,255,0.5)' }}>{u.country}</span>
                     </div>
                   </div>
                 </div>
@@ -983,15 +983,15 @@ export default function MainPage() {
 
         {/* BOTTOM CONTROL BAR */}
         <div className="flex-shrink-0 flex items-center gap-3 px-5"
-          style={{ height: '72px', background: 'rgba(10,10,15,0.98)', borderTop: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', zIndex: 30 }}>
+          style={{ height: '80px', background: 'rgba(8,8,14,0.96)', borderTop: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(32px) saturate(1.5)', WebkitBackdropFilter: 'blur(32px) saturate(1.5)', zIndex: 30 }}>
 
           {/* Gender pill */}
           <div className="relative flex-shrink-0">
             <motion.button
               onClick={() => setShowGenderPop(v => !v)}
               whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              className="flex items-center gap-2.5 px-5 py-3 rounded-full"
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
               <User size={14} style={{ color: 'rgba(255,255,255,0.55)' }} />
               <span className="text-[13px] font-semibold text-white whitespace-nowrap">
                 {filterGender === 'both' ? 'Gender' : filterGender === 'male' ? 'Male' : 'Female'}
@@ -1025,8 +1025,8 @@ export default function MainPage() {
               ref={countryBtnRef}
               onClick={handleCountryClick}
               whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              className="flex items-center gap-2.5 px-5 py-3 rounded-full"
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
               {user?.isVip
                 ? <Globe size={14} style={{ color: 'rgba(255,255,255,0.55)' }} />
                 : <Lock size={14} style={{ color: 'rgba(255,255,255,0.28)' }} />}
@@ -1044,10 +1044,11 @@ export default function MainPage() {
             whileTap={{ scale: 0.98 }}
             className="flex-1 flex items-center gap-3.5 px-5 rounded-full text-white font-bold"
             style={{
-              height: '48px',
-              background: 'linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)',
-              boxShadow: '0 0 18px rgba(59,130,246,0.2)',
+              height: '52px',
+              background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%)',
+              boxShadow: '0 0 24px rgba(59,130,246,0.28), 0 4px 16px rgba(0,0,0,0.4)',
               fontSize: '15px',
+              fontWeight: 800,
               letterSpacing: '-0.01em',
             }}>
             <div className="flex items-center flex-shrink-0">

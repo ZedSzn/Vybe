@@ -144,7 +144,7 @@ export default function Navbar({ onPremiumClick }) {
       <div className="flex-none">
         <Link to="/" className="inline-flex items-baseline gap-0 hover:opacity-80 transition-opacity">
           <span
-            className="text-[27px] font-extrabold tracking-[0.1em]"
+            className="text-[32px] font-extrabold tracking-[0.08em]"
             style={{
               background: 'linear-gradient(135deg, #60a5fa 0%, #818cf8 100%)',
               WebkitBackgroundClip: 'text',
@@ -152,7 +152,7 @@ export default function Navbar({ onPremiumClick }) {
               backgroundClip: 'text',
             }}
           >VY</span>
-          <span className="text-[27px] font-extrabold tracking-[0.1em] text-white">BE</span>
+          <span className="text-[32px] font-extrabold tracking-[0.06em] text-white">BE</span>
         </Link>
       </div>
 
