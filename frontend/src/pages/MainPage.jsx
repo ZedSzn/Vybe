@@ -989,43 +989,51 @@ export default function MainPage() {
           </div>
         </motion.div>
 
-        {/* ── RIGHT — Concept 1: scattered floating person cards ── */}
+        {/* ── RIGHT — Concept 1: 2-col card grid with floating emojis ── */}
         <div className="relative overflow-hidden"
-          style={{ flex: '1.05', background: 'linear-gradient(145deg, #080717 0%, #0b0920 100%)' }}>
+          style={{
+            flex: '1.05',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gridTemplateRows: '1fr 1fr',
+            gap: '10px',
+            padding: '16px',
+            background: 'linear-gradient(145deg, #07061a 0%, #0a091e 100%)',
+          }}>
 
-          {/* Subtle purple ambient glow */}
+          {/* Ambient glow — sits over grid, below cards */}
           <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse at 58% 44%, rgba(124,58,237,0.09) 0%, transparent 60%)' }} />
+            style={{ background: 'radial-gradient(ellipse at 60% 40%, rgba(124,58,237,0.08) 0%, transparent 55%)', zIndex: 0 }} />
 
-          {/* ── Card A — tall main card, left side ── */}
+          {/* Card A — spans both rows (tall left card) */}
           <motion.div
-            className="absolute overflow-hidden cursor-pointer group"
-            style={{ borderRadius: '22px', width: '35%', top: '5%', bottom: '5%', left: '6%', boxShadow: '0 32px 80px rgba(0,0,0,0.72)' }}
-            initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1, duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ scale: 1.015 }}>
-            <img src="https://randomuser.me/api/portraits/women/33.jpg" alt="Amelia"
-              className="w-full h-full object-cover" style={{ filter: 'brightness(0.88)' }} />
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 52%, rgba(0,0,0,0.88) 100%)' }} />
+            className="relative overflow-hidden cursor-pointer group"
+            style={{ gridRow: '1 / 3', borderRadius: '20px', zIndex: 1, boxShadow: '0 20px 56px rgba(0,0,0,0.65)' }}
+            initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.012 }}>
+            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Amelia"
+              className="w-full h-full object-cover" style={{ filter: 'brightness(0.9)', objectPosition: 'center top' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.9) 100%)' }} />
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: 'rgba(124,58,237,0.09)' }} />
+              style={{ background: 'rgba(124,58,237,0.08)' }} />
             <div className="absolute bottom-5 left-5">
-              <p className="text-white font-bold drop-shadow-lg" style={{ fontSize: '15px' }}>🇺🇸 Amelia, 22</p>
+              <p className="text-white font-bold drop-shadow-lg" style={{ fontSize: '16px' }}>🇺🇸 Amelia, 22</p>
             </div>
           </motion.div>
 
-          {/* ── Card B — top right ── */}
+          {/* Card B — top-right */}
           <motion.div
-            className="absolute overflow-hidden cursor-pointer group"
-            style={{ borderRadius: '22px', width: '33%', top: '5%', right: '5%', height: '45%', boxShadow: '0 24px 60px rgba(0,0,0,0.65)' }}
-            initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18, duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ scale: 1.015 }}>
-            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Liam"
-              className="w-full h-full object-cover" style={{ filter: 'brightness(0.88)' }} />
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.86) 100%)' }} />
+            className="relative overflow-hidden cursor-pointer group"
+            style={{ borderRadius: '20px', zIndex: 1, boxShadow: '0 16px 40px rgba(0,0,0,0.55)' }}
+            initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.012 }}>
+            <img src="https://randomuser.me/api/portraits/men/57.jpg" alt="Liam"
+              className="w-full h-full object-cover" style={{ filter: 'brightness(0.9)', objectPosition: 'center top' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.88) 100%)' }} />
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: 'rgba(124,58,237,0.09)' }} />
+              style={{ background: 'rgba(124,58,237,0.08)' }} />
             <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
               style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-green-400" style={{ boxShadow: '0 0 5px #4ade80' }} />
@@ -1036,18 +1044,18 @@ export default function MainPage() {
             </div>
           </motion.div>
 
-          {/* ── Card C — bottom right ── */}
+          {/* Card C — bottom-right */}
           <motion.div
-            className="absolute overflow-hidden cursor-pointer group"
-            style={{ borderRadius: '22px', width: '33%', right: '5%', top: '52%', bottom: '5%', boxShadow: '0 24px 60px rgba(0,0,0,0.65)' }}
-            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.28, duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ scale: 1.015 }}>
-            <img src="https://randomuser.me/api/portraits/women/22.jpg" alt="Emma"
-              className="w-full h-full object-cover" style={{ filter: 'brightness(0.88)' }} />
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.86) 100%)' }} />
+            className="relative overflow-hidden cursor-pointer group"
+            style={{ borderRadius: '20px', zIndex: 1, boxShadow: '0 16px 40px rgba(0,0,0,0.55)' }}
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.012 }}>
+            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Emma"
+              className="w-full h-full object-cover" style={{ filter: 'brightness(0.9)', objectPosition: 'center top' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.88) 100%)' }} />
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: 'rgba(124,58,237,0.09)' }} />
+              style={{ background: 'rgba(124,58,237,0.08)' }} />
             <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
               style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-green-400" style={{ boxShadow: '0 0 5px #4ade80' }} />
@@ -1058,41 +1066,20 @@ export default function MainPage() {
             </div>
           </motion.div>
 
-          {/* ── Floating emoji: ❤️ top-right ── */}
-          <motion.div
-            className="absolute pointer-events-none select-none"
-            style={{ top: '9%', right: '3.5%', fontSize: '32px', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
-            animate={{ y: [0, -12, 0], rotate: [-8, 8, -8] }}
-            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}>
-            ❤️
-          </motion.div>
+          {/* Floating emoji: ❤️ — top-right corner */}
+          <motion.div className="absolute pointer-events-none select-none" style={{ zIndex: 10, top: '10%', right: '5%', fontSize: '30px', filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.6))' }}
+            animate={{ y: [0, -11, 0], rotate: [-8, 8, -8] }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}>❤️</motion.div>
 
-          {/* ── Floating emoji: 😍 mid-center ── */}
-          <motion.div
-            className="absolute pointer-events-none select-none"
-            style={{ top: '46%', left: '43%', fontSize: '28px', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+          {/* Floating emoji: 😍 — mid gap between columns */}
+          <motion.div className="absolute pointer-events-none select-none" style={{ zIndex: 10, top: '43%', left: '50%', transform: 'translateX(-50%)', fontSize: '26px', filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.6))' }}
             animate={{ y: [0, -9, 0], rotate: [5, -5, 5] }}
-            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }}>
-            😍
-          </motion.div>
+            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}>😍</motion.div>
 
-          {/* ── Floating emoji: 🔥 lower-center ── */}
-          <motion.div
-            className="absolute pointer-events-none select-none"
-            style={{ bottom: '22%', left: '44%', fontSize: '24px', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+          {/* Floating emoji: 🔥 — lower gap */}
+          <motion.div className="absolute pointer-events-none select-none" style={{ zIndex: 10, bottom: '20%', left: '50%', transform: 'translateX(-50%)', fontSize: '22px', filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.6))' }}
             animate={{ y: [0, -7, 0], scale: [1, 1.14, 1] }}
-            transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}>
-            🔥
-          </motion.div>
-
-          {/* ── Floating emoji: 💜 near card A top ── */}
-          <motion.div
-            className="absolute pointer-events-none select-none"
-            style={{ top: '14%', left: '43%', fontSize: '20px', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
-            animate={{ y: [0, -8, 0], rotate: [10, -10, 10] }}
-            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 2 }}>
-            💜
-          </motion.div>
+            transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}>🔥</motion.div>
         </div>
 
       </section>
