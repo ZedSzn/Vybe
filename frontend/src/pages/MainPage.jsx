@@ -858,14 +858,14 @@ export default function MainPage() {
 
 
       {/* ══════════════ DESKTOP LAYOUT — Premium 2-Column Hero ══════════════ */}
-      <section className="hidden lg:flex flex-col relative z-10 overflow-hidden" style={{ height: 'calc(100vh - 108px)', minHeight: '700px', background: '#0a0a0f' }}>
+      <section className="hidden lg:flex flex-col relative z-10 overflow-hidden" style={{ height: 'calc(100vh - 108px)', minHeight: '700px', background: '#080c14' }}>
 
-        {/* Unified atmospheric lighting — purple only */}
+        {/* Unified blue atmospheric lighting */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 70% 42%, rgba(109,40,217,0.2) 0%, rgba(88,28,135,0.07) 38%, transparent 62%)' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 90% 88%, rgba(124,58,237,0.07) 0%, transparent 40%)' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 15% 55%, rgba(109,40,217,0.06) 0%, transparent 48%)' }} />
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(109,40,217,0.25) 35%, rgba(147,114,245,0.18) 58%, transparent 100%)' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 72% 42%, rgba(37,99,235,0.18) 0%, rgba(14,165,233,0.05) 40%, transparent 62%)' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 88% 85%, rgba(14,165,233,0.07) 0%, transparent 40%)' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 12% 58%, rgba(37,99,235,0.06) 0%, transparent 48%)' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(37,99,235,0.28) 35%, rgba(14,165,233,0.18) 58%, transparent 100%)' }} />
         </div>
 
         {/* ── 2-column main area ── */}
@@ -880,167 +880,172 @@ export default function MainPage() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
 
             {/* Live badge */}
-            <div className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-full w-fit"
-              style={{ background: 'rgba(109,40,217,0.1)', border: '1px solid rgba(124,58,237,0.2)', boxShadow: '0 0 18px rgba(109,40,217,0.1)' }}>
+            <div className="inline-flex items-center gap-2 mb-5 px-3.5 py-1.5 rounded-full w-fit"
+              style={{ background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', boxShadow: '0 0 16px rgba(14,165,233,0.08)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 online-pulse" />
-              <span className="text-[9.5px] font-black tracking-[0.2em] uppercase" style={{ color: '#b39dfc' }}>Live · Random · Real</span>
+              <span className="text-[9.5px] font-black tracking-[0.2em] uppercase" style={{ color: '#7dd3fc' }}>Live · Random · Real</span>
             </div>
 
             {/* Headline */}
-            <h1 className="font-black text-white leading-[1.05] mb-4" style={{ fontSize: 'clamp(2.1rem, 2.7vw, 3.4rem)', letterSpacing: '-0.035em' }}>
+            <h1 className="font-black text-white leading-[1.04] mb-3" style={{ fontSize: 'clamp(2rem, 2.6vw, 3.2rem)', letterSpacing: '-0.038em' }}>
               Meet someone real.<br />
-              <span style={{ background: 'linear-gradient(125deg, #a78bfa 0%, #ec4899 62%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ background: 'linear-gradient(125deg, #60a5fa 0%, #0ea5e9 65%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Share authentic vibes.
               </span>
             </h1>
 
             {/* Subtext */}
-            <p className="mb-5 text-[14px] leading-[1.65]" style={{ color: 'rgba(145,145,170,0.65)', maxWidth: '340px' }}>
+            <p className="mb-4 text-[13.5px] leading-[1.6]" style={{ color: 'rgba(148,163,184,0.6)', maxWidth: '320px' }}>
               Meet real people from around the world. Instantly.
             </p>
 
             {/* Avatars + online count */}
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-5">
               <div className="flex">
                 {AVATARS.map((n, i) => (
                   <img key={n} src={`https://i.pravatar.cc/48?img=${n}`} alt=""
                     className="w-7 h-7 rounded-full"
-                    style={{ border: '2px solid #0a0a0f', marginLeft: i === 0 ? '0' : '-8px', zIndex: AVATARS.length - i, position: 'relative' }} />
+                    style={{ border: '2px solid #080c14', marginLeft: i === 0 ? '0' : '-8px', zIndex: AVATARS.length - i, position: 'relative' }} />
                 ))}
               </div>
               <div className="flex items-center gap-1.5">
-                <motion.span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"
-                  animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }} />
-                <span className="text-[13.5px] font-semibold text-white">{onlineCount >= 20 ? onlineCount.toLocaleString() : '—'}</span>
-                <span className="text-[13.5px]" style={{ color: 'rgba(255,255,255,0.35)' }}>people online now</span>
+                <motion.span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"
+                  animate={{ scale: [1, 1.5, 1], opacity: [1, 0.4, 1] }}
+                  transition={{ duration: 2.2, repeat: Infinity }} />
+                <span className="text-[13px] font-semibold text-white">{onlineCount >= 20 ? onlineCount.toLocaleString() : '—'}</span>
+                <span className="text-[13px]" style={{ color: 'rgba(148,163,184,0.45)' }}>online now</span>
               </div>
             </div>
 
-            {/* Primary CTA */}
+            {/* Primary CTA — deep blue */}
             <motion.button
               onClick={startVybing}
-              whileHover={{ scale: 1.012, boxShadow: '0 0 0 1px rgba(167,139,250,0.4), 0 0 40px rgba(109,40,217,0.45), 0 8px 28px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.22)' }}
+              whileHover={{ scale: 1.012, boxShadow: '0 0 0 1px rgba(96,165,250,0.35), 0 0 36px rgba(37,99,235,0.45), 0 8px 28px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.22)' }}
               whileTap={{ scale: 0.97 }}
               className="relative flex items-center justify-center gap-2.5 py-[13px] rounded-[14px] text-white mb-2.5 w-full overflow-hidden"
               style={{
-                background: 'linear-gradient(140deg, #6d28d9 0%, #9333ea 52%, #c026d3 100%)',
-                boxShadow: '0 0 0 1px rgba(147,51,234,0.35), 0 0 28px rgba(109,40,217,0.35), 0 4px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.15)',
+                background: 'linear-gradient(140deg, #1e3a8a 0%, #2563eb 50%, #0891b2 100%)',
+                boxShadow: '0 0 0 1px rgba(37,99,235,0.4), 0 0 24px rgba(37,99,235,0.32), 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -1px 0 rgba(0,0,0,0.18)',
                 fontSize: '14.5px', fontWeight: '600', letterSpacing: '0.01em',
               }}>
               <span className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 55%)' }} />
-              <span className="absolute inset-x-0 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent 15%, rgba(255,255,255,0.4) 50%, transparent 85%)' }} />
+              <span className="absolute inset-x-0 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent 15%, rgba(255,255,255,0.38) 50%, transparent 85%)' }} />
               <Video size={15} strokeWidth={2.2} />
               Start Video Chat
             </motion.button>
 
-            {/* Secondary CTA */}
+            {/* Secondary CTA — dark blue glass */}
             <motion.button
               onClick={() => { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setCameraOn(false); navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } }) }}
-              whileHover={{ scale: 1.01, borderColor: 'rgba(124,58,237,0.3)', boxShadow: '0 0 16px rgba(109,40,217,0.1)' }}
+              whileHover={{ scale: 1.01, borderColor: 'rgba(37,99,235,0.28)', boxShadow: '0 0 14px rgba(37,99,235,0.1)' }}
               whileTap={{ scale: 0.98 }}
               className="flex items-center justify-center gap-2 py-[11px] rounded-[14px] mb-4 w-full"
               style={{
                 background: 'rgba(255,255,255,0.03)',
                 backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.07)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
-                color: 'rgba(255,255,255,0.45)',
+                color: 'rgba(148,163,184,0.6)',
                 fontSize: '13.5px', fontWeight: '500', letterSpacing: '0.01em',
               }}>
               <VideoOff size={14} strokeWidth={1.8} />
               Start Without Camera
             </motion.button>
 
-            {/* ── Premium pill filter panel ── */}
-            <div className="rounded-[16px] px-4 py-3.5"
+            {/* ── Premium horizontal filter bar ── */}
+            <div className="rounded-[14px] overflow-hidden"
               style={{
-                background: 'rgba(14,12,24,0.85)',
-                backdropFilter: 'blur(48px) saturate(2)',
-                border: '1px solid rgba(124,58,237,0.22)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 0 24px rgba(109,40,217,0.1), 0 4px 28px rgba(0,0,0,0.5)',
+                background: 'rgba(8,12,22,0.9)',
+                backdropFilter: 'blur(48px) saturate(1.8)',
+                border: '1px solid rgba(37,99,235,0.2)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 20px rgba(37,99,235,0.08), 0 4px 24px rgba(0,0,0,0.5)',
               }}>
+              <div className="flex items-stretch">
 
-              {/* Gender row */}
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-[9px] font-bold uppercase tracking-[0.18em] w-14 flex-shrink-0" style={{ color: 'rgba(148,110,255,0.45)' }}>Gender</span>
-                <div className="flex gap-1.5 flex-1">
-                  {[['Both','both'],['Male','male'],['Female','female']].map(([label, val]) => (
-                    <motion.button key={val}
-                      onClick={() => handleGender(val)}
-                      whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                      className="flex-1 py-1.5 rounded-[9px] text-[12px] font-medium transition-all"
-                      style={filterGender === val ? {
-                        background: 'rgba(109,40,217,0.28)',
-                        border: '1px solid rgba(124,58,237,0.5)',
-                        color: '#c4b5fd',
-                        boxShadow: '0 0 12px rgba(109,40,217,0.2)',
-                      } : {
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.07)',
-                        color: 'rgba(255,255,255,0.3)',
-                      }}>
-                      {label}
-                    </motion.button>
-                  ))}
+                {/* Gender */}
+                <div className="flex flex-col gap-1.5 px-3.5 py-3 flex-shrink-0">
+                  <span className="text-[8.5px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(96,165,250,0.4)' }}>Gender</span>
+                  <div className="flex gap-1">
+                    {[['Both','both'],['Male','male'],['Female','female']].map(([label, val]) => (
+                      <motion.button key={val}
+                        onClick={() => handleGender(val)}
+                        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                        className="px-2.5 py-1 rounded-[7px] text-[11px] font-medium transition-all"
+                        style={filterGender === val ? {
+                          background: 'rgba(37,99,235,0.3)',
+                          border: '1px solid rgba(59,130,246,0.5)',
+                          color: '#93c5fd',
+                          boxShadow: '0 0 10px rgba(37,99,235,0.2)',
+                        } : {
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid rgba(255,255,255,0.07)',
+                          color: 'rgba(148,163,184,0.45)',
+                        }}>
+                        {label}
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Divider */}
-              <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', marginBottom: '12px' }} />
+                <div style={{ width: '1px', alignSelf: 'stretch', margin: '10px 0', background: 'rgba(37,99,235,0.15)', flexShrink: 0 }} />
 
-              {/* Mode row */}
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-[9px] font-bold uppercase tracking-[0.18em] w-14 flex-shrink-0" style={{ color: 'rgba(148,110,255,0.45)' }}>Mode</span>
-                <div className="flex gap-1.5 flex-1">
-                  {[['Solo','solo'],['Duo','squad'],['Private','private']].map(([label, val]) => (
-                    <motion.button key={val}
-                      onClick={() => setMode(val)}
-                      whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                      className="flex-1 py-1.5 rounded-[9px] text-[12px] font-medium transition-all"
-                      style={mode === val ? {
-                        background: 'rgba(109,40,217,0.28)',
-                        border: '1px solid rgba(124,58,237,0.5)',
-                        color: '#c4b5fd',
-                        boxShadow: '0 0 12px rgba(109,40,217,0.2)',
-                      } : {
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.07)',
-                        color: 'rgba(255,255,255,0.3)',
-                      }}>
-                      {label}
-                    </motion.button>
-                  ))}
+                {/* Mode */}
+                <div className="flex flex-col gap-1.5 px-3.5 py-3 flex-shrink-0">
+                  <span className="text-[8.5px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(96,165,250,0.4)' }}>Mode</span>
+                  <div className="flex gap-1">
+                    {[['Solo','solo'],['Duo','squad'],['Private','private']].map(([label, val]) => (
+                      <motion.button key={val}
+                        onClick={() => setMode(val)}
+                        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                        className="px-2.5 py-1 rounded-[7px] text-[11px] font-medium transition-all"
+                        style={mode === val ? {
+                          background: 'rgba(37,99,235,0.3)',
+                          border: '1px solid rgba(59,130,246,0.5)',
+                          color: '#93c5fd',
+                          boxShadow: '0 0 10px rgba(37,99,235,0.2)',
+                        } : {
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid rgba(255,255,255,0.07)',
+                          color: 'rgba(148,163,184,0.45)',
+                        }}>
+                        {label}
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Divider */}
-              <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', marginBottom: '12px' }} />
+                <div style={{ width: '1px', alignSelf: 'stretch', margin: '10px 0', background: 'rgba(37,99,235,0.15)', flexShrink: 0 }} />
 
-              {/* Country row */}
-              <div className="flex items-center gap-3">
-                <span className="text-[9px] font-bold uppercase tracking-[0.18em] w-14 flex-shrink-0" style={{ color: 'rgba(148,110,255,0.45)' }}>Country</span>
+                {/* Country */}
                 <motion.button
                   ref={countryBtnRef}
                   onClick={handleCountryClick}
-                  whileHover={{ scale: 1.01, borderColor: 'rgba(124,58,237,0.35)', boxShadow: '0 0 12px rgba(109,40,217,0.1)' }}
+                  whileHover={{ background: 'rgba(37,99,235,0.06)' }}
                   whileTap={{ scale: 0.97 }}
-                  className="flex-1 flex items-center justify-between px-3 py-1.5 rounded-[9px]"
-                  style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                    color: filterCountry ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.3)',
-                  }}>
-                  <div className="flex items-center gap-2">
+                  className="flex flex-col gap-1.5 px-3.5 py-3 flex-1 min-w-0 transition-colors">
+                  <span className="text-[8.5px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(96,165,250,0.4)' }}>Country</span>
+                  <div className="flex items-center gap-1.5">
                     {user?.isVip
-                      ? <Globe size={11} style={{ color: 'rgba(148,110,255,0.6)' }} />
-                      : <Lock size={11} style={{ color: 'rgba(148,110,255,0.4)' }} />}
-                    <span className="text-[12px] font-medium">{filterCountry ? filterCountry.split(' ').slice(1).join(' ') : 'Any country'}</span>
+                      ? <Globe size={11} style={{ color: 'rgba(96,165,250,0.6)' }} />
+                      : <Lock size={11} style={{ color: 'rgba(96,165,250,0.4)' }} />}
+                    <span className="text-[12px] font-medium truncate" style={{ color: filterCountry ? 'rgba(255,255,255,0.8)' : 'rgba(148,163,184,0.45)' }}>
+                      {filterCountry ? filterCountry.split(' ').slice(1).join(' ') : 'Any country'}
+                    </span>
+                    <ChevronDown size={10} style={{ color: 'rgba(148,163,184,0.3)', flexShrink: 0, transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                   </div>
-                  <ChevronDown size={11} style={{ color: 'rgba(255,255,255,0.22)', transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </motion.button>
-              </div>
 
+                <div style={{ width: '1px', alignSelf: 'stretch', margin: '10px 0', background: 'rgba(37,99,235,0.15)', flexShrink: 0 }} />
+
+                {/* Settings */}
+                <motion.div
+                  whileHover={{ scale: 1.1, background: 'rgba(37,99,235,0.08)' }}
+                  whileTap={{ scale: 0.93 }}
+                  className="flex items-center justify-center px-3.5 cursor-pointer transition-colors rounded-r-[14px]">
+                  <SlidersHorizontal size={13} style={{ color: 'rgba(96,165,250,0.45)' }} />
+                </motion.div>
+
+              </div>
             </div>
 
             {/* Duo room panel */}
@@ -1142,8 +1147,8 @@ export default function MainPage() {
             <motion.div
               className="relative flex-1 rounded-[24px] overflow-hidden"
               style={{
-                background: '#09090e',
-                boxShadow: 'inset 0 0 0 1px rgba(109,40,217,0.14), 0 0 80px rgba(109,40,217,0.06)',
+                background: '#070b12',
+                boxShadow: 'inset 0 0 0 1px rgba(37,99,235,0.12), 0 0 60px rgba(37,99,235,0.05)',
               }}
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -1157,35 +1162,34 @@ export default function MainPage() {
               {/* Idle / error state */}
               {(!cameraOn || cameraErr) && (
                 <div className="absolute inset-0 flex items-center justify-center"
-                  style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(109,40,217,0.18) 0%, rgba(9,9,14,0.96) 52%, #09090e 100%)' }}>
-                  {/* Soft ambient glow — no rings */}
+                  style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(37,99,235,0.14) 0%, rgba(7,11,18,0.96) 52%, #070b12 100%)' }}>
+                  {/* Soft blue ambient glow */}
                   <div className="absolute pointer-events-none rounded-full"
-                    style={{ width: 220, height: 220, background: 'radial-gradient(ellipse, rgba(109,40,217,0.08) 0%, transparent 70%)', filter: 'blur(24px)' }} />
+                    style={{ width: 200, height: 200, background: 'radial-gradient(ellipse, rgba(37,99,235,0.07) 0%, transparent 70%)', filter: 'blur(28px)' }} />
                   <div className="relative z-10 flex flex-col items-center text-center px-12">
-                    {/* Icon box */}
-                    <div className="relative w-[64px] h-[64px] rounded-2xl flex items-center justify-center mb-4"
+                    <div className="relative w-[60px] h-[60px] rounded-2xl flex items-center justify-center mb-4"
                       style={{
-                        background: cameraErr ? 'rgba(180,80,0,0.1)' : 'rgba(109,40,217,0.1)',
-                        border: `1px solid ${cameraErr ? 'rgba(200,100,0,0.2)' : 'rgba(109,40,217,0.25)'}`,
-                        boxShadow: cameraErr ? '0 0 20px rgba(180,80,0,0.08)' : '0 0 24px rgba(109,40,217,0.12)',
+                        background: 'rgba(37,99,235,0.1)',
+                        border: '1px solid rgba(37,99,235,0.22)',
+                        boxShadow: '0 0 20px rgba(37,99,235,0.1)',
                       }}>
-                      <span className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${cameraErr ? 'rgba(200,120,0,0.25)' : 'rgba(147,114,245,0.3)'}, transparent)` }} />
-                      {cameraErr ? <VideoOff size={26} style={{ color: 'rgba(220,140,60,0.85)' }} /> : <Camera size={26} style={{ color: 'rgba(167,139,250,0.75)' }} />}
+                      <span className="absolute inset-x-0 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(96,165,250,0.3), transparent)' }} />
+                      {cameraErr ? <VideoOff size={24} style={{ color: 'rgba(148,163,184,0.7)' }} /> : <Camera size={24} style={{ color: 'rgba(96,165,250,0.7)' }} />}
                     </div>
-                    <p className="font-semibold text-[13.5px] mb-1.5 tracking-[-0.01em]" style={{ color: 'rgba(255,255,255,0.85)' }}>{cameraErr ? 'Camera Blocked' : 'Your preview'}</p>
-                    <p className="text-[11px] mb-5 leading-relaxed" style={{ color: 'rgba(138,138,175,0.38)', maxWidth: '180px' }}>
+                    <p className="font-semibold text-[13px] mb-1.5 tracking-[-0.01em]" style={{ color: 'rgba(255,255,255,0.8)' }}>{cameraErr ? 'Camera Blocked' : 'Your preview'}</p>
+                    <p className="text-[11px] mb-5 leading-relaxed" style={{ color: 'rgba(148,163,184,0.35)', maxWidth: '175px' }}>
                       {cameraErr ? (cameraErrMsg || 'Allow camera access in browser settings.') : 'Only visible to you — ready when you are'}
                     </p>
                     <motion.button onClick={enableCamera}
-                      whileHover={{ scale: 1.04, boxShadow: '0 0 20px rgba(109,40,217,0.25)' }}
+                      whileHover={{ scale: 1.04, boxShadow: '0 0 18px rgba(37,99,235,0.22)' }}
                       whileTap={{ scale: 0.96 }}
                       className="flex items-center gap-2 px-6 py-2 rounded-[10px] text-[12.5px] font-medium"
                       style={{
-                        background: 'rgba(109,40,217,0.12)',
-                        border: '1px solid rgba(109,40,217,0.28)',
+                        background: 'rgba(37,99,235,0.1)',
+                        border: '1px solid rgba(37,99,235,0.25)',
                         backdropFilter: 'blur(16px)',
-                        color: '#c4b5fd',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+                        color: '#93c5fd',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
                       }}>
                       {cameraErr ? <VideoOff size={13} /> : <Camera size={13} />}
                       {cameraErr ? 'Try Again' : 'Enable Camera'}
@@ -1207,9 +1211,9 @@ export default function MainPage() {
                 </>
               )}
 
-              {/* Cinematic vignette + edge glow */}
+              {/* Vignette + edge */}
               <div className="absolute inset-0 pointer-events-none rounded-[24px] z-10"
-                style={{ boxShadow: 'inset 0 0 60px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(109,40,217,0.12)' }} />
+                style={{ boxShadow: 'inset 0 0 60px rgba(0,0,0,0.38), inset 0 0 0 1px rgba(37,99,235,0.1)' }} />
 
             </motion.div>
           </div>
