@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Lock, Globe, ChevronDown, UserPlus, Copy, Check,
   Crown, Loader2, X as XIcon, Video, VideoOff, Shield,
-  Camera, DollarSign, SlidersHorizontal,
+  Camera, DollarSign, SlidersHorizontal, User, Users,
 } from 'lucide-react'
 
 const FEATURE_CARDS = [
@@ -923,104 +923,109 @@ export default function MainPage() {
               </div>
             </div>
 
-            {/* Primary CTA — neon glass */}
+            {/* Primary CTA — purple → pink gradient */}
             <motion.button
               onClick={startVybing}
-              whileHover={{ scale: 1.012, boxShadow: '0 0 0 1px rgba(167,139,250,0.45), 0 0 44px rgba(109,40,217,0.52), 0 8px 28px rgba(0,0,0,0.36), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.15)' }}
+              whileHover={{ scale: 1.013, boxShadow: '0 0 0 1px rgba(236,72,153,0.35), 0 0 52px rgba(168,85,247,0.5), 0 8px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.22)' }}
               whileTap={{ scale: 0.97 }}
-              className="relative flex items-center justify-center gap-2.5 py-3.5 rounded-[14px] text-white mb-3 w-full overflow-hidden"
+              className="relative flex items-center justify-center gap-2.5 py-[14px] rounded-[18px] text-white mb-3 w-full overflow-hidden"
               style={{
-                background: 'linear-gradient(158deg, rgba(118,50,235,0.92) 0%, rgba(144,68,252,0.88) 42%, rgba(172,100,255,0.84) 100%)',
-                backdropFilter: 'blur(20px)',
-                boxShadow: '0 0 0 1px rgba(155,110,255,0.32), 0 0 30px rgba(109,40,217,0.38), 0 6px 22px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.14)',
-                fontSize: '14.5px', fontWeight: '600', letterSpacing: '0.01em',
+                background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)',
+                boxShadow: '0 0 0 1px rgba(236,72,153,0.22), 0 0 36px rgba(168,85,247,0.38), 0 6px 24px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.18)',
+                fontSize: '14.5px', fontWeight: '650', letterSpacing: '0.005em',
               }}>
-              <span className="absolute inset-x-0 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)' }} />
-              <span className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 55%)' }} />
-              <Video size={16} strokeWidth={2.2} />
+              {/* Gloss sweep */}
+              <span className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 52%)' }} />
+              <span className="absolute inset-x-0 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.45) 50%, transparent 90%)' }} />
+              <Video size={16} strokeWidth={2.3} />
               Start Video Chat
             </motion.button>
 
-            {/* Secondary CTA — dark glass */}
+            {/* Secondary CTA — glass ghost */}
             <motion.button
               onClick={() => { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setCameraOn(false); navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } }) }}
-              whileHover={{ scale: 1.01, borderColor: 'rgba(255,255,255,0.13)', background: 'rgba(255,255,255,0.055)' }}
+              whileHover={{ scale: 1.01, boxShadow: '0 0 0 1px rgba(168,85,247,0.2), 0 0 20px rgba(168,85,247,0.1)', borderColor: 'rgba(168,85,247,0.25)' }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center justify-center gap-2 py-3 rounded-[14px] mb-5 w-full"
+              className="flex items-center justify-center gap-2 py-[13px] rounded-[18px] mb-5 w-full"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(32px) saturate(2)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07), 0 2px 14px rgba(0,0,0,0.28)',
-                color: 'rgba(255,255,255,0.52)',
-                fontSize: '13.5px', fontWeight: '500', letterSpacing: '0.01em',
+                background: 'rgba(255,255,255,0.03)',
+                backdropFilter: 'blur(24px)',
+                border: '1px solid rgba(255,255,255,0.09)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+                color: 'rgba(255,255,255,0.48)',
+                fontSize: '14px', fontWeight: '500', letterSpacing: '0.005em',
               }}>
-              <VideoOff size={14} strokeWidth={2} />
+              <VideoOff size={15} strokeWidth={1.8} />
               Start Without Camera
             </motion.button>
 
-            {/* ── Premium glass filter bar ── */}
-            <div className="rounded-[14px] overflow-hidden"
+            {/* ── Concept 2 glass filter bar ── */}
+            <div className="rounded-[16px] overflow-hidden"
               style={{
-                background: 'rgba(12,12,20,0.72)',
-                backdropFilter: 'blur(52px) saturate(2.4) brightness(1.08)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), inset 0 0 0 0.5px rgba(255,255,255,0.03), 0 4px 40px rgba(0,0,0,0.55), 0 1px 6px rgba(0,0,0,0.35)',
+                background: 'rgba(16,14,28,0.82)',
+                backdropFilter: 'blur(40px) saturate(2)',
+                border: '1px solid rgba(124,58,237,0.28)',
+                boxShadow: '0 0 0 1px rgba(124,58,237,0.08) inset, 0 0 28px rgba(109,40,217,0.14), 0 4px 32px rgba(0,0,0,0.5)',
               }}>
               <div className="flex">
 
                 {/* Gender */}
                 <motion.button
                   onClick={() => { const o = ['both','male','female']; handleGender(o[(o.indexOf(filterGender)+1)%o.length]) }}
-                  whileHover={{ background: 'rgba(109,40,217,0.07)' }}
+                  whileHover={{ background: 'rgba(124,58,237,0.08)' }}
                   whileTap={{ scale: 0.97 }}
-                  className="flex-1 flex flex-col gap-[3px] px-4 py-3 transition-colors rounded-l-[14px]">
-                  <span className="text-[8px] font-bold uppercase tracking-[0.22em]" style={{ color: 'rgba(155,115,255,0.42)' }}>Gender</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[12.5px] font-medium text-white leading-none">{filterGender === 'both' ? 'Both' : filterGender === 'male' ? 'Male' : 'Female'}</span>
-                    <ChevronDown size={9} style={{ color: 'rgba(255,255,255,0.2)' }} />
+                  className="flex-1 flex flex-col gap-1.5 px-5 py-3.5 transition-colors rounded-l-[16px]">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(148,110,255,0.5)' }}>Gender</span>
+                  <div className="flex items-center gap-1.5">
+                    <User size={13} style={{ color: 'rgba(148,110,255,0.75)' }} />
+                    <span className="text-[13px] font-semibold text-white leading-none">{filterGender === 'both' ? 'Both' : filterGender === 'male' ? 'Male' : 'Female'}</span>
+                    <ChevronDown size={11} style={{ color: 'rgba(255,255,255,0.25)', marginLeft: '1px' }} />
                   </div>
                 </motion.button>
 
-                <div style={{ width: '1px', alignSelf: 'stretch', margin: '8px 0', background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+                <div style={{ width: '1px', alignSelf: 'stretch', margin: '10px 0', background: 'rgba(124,58,237,0.2)', flexShrink: 0 }} />
 
                 {/* Country */}
                 <motion.button
                   ref={countryBtnRef}
                   onClick={handleCountryClick}
-                  whileHover={{ background: 'rgba(109,40,217,0.07)' }}
+                  whileHover={{ background: 'rgba(124,58,237,0.08)' }}
                   whileTap={{ scale: 0.97 }}
-                  className="flex-1 flex flex-col gap-[3px] px-4 py-3 transition-colors">
-                  <span className="text-[8px] font-bold uppercase tracking-[0.22em]" style={{ color: 'rgba(155,115,255,0.42)' }}>Country</span>
-                  <div className="flex items-center gap-1">
-                    {user?.isVip ? <Globe size={10} style={{ color: 'rgba(167,139,250,0.6)' }} /> : <Lock size={10} style={{ color: 'rgba(255,255,255,0.18)' }} />}
-                    <span className="text-[12.5px] font-medium text-white leading-none">{filterCountry ? filterCountry.split(' ').slice(1).join(' ').slice(0, 9) : 'Any'}</span>
-                    <ChevronDown size={9} style={{ color: 'rgba(255,255,255,0.2)', transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                  className="flex-1 flex flex-col gap-1.5 px-5 py-3.5 transition-colors">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(148,110,255,0.5)' }}>Country</span>
+                  <div className="flex items-center gap-1.5">
+                    {user?.isVip
+                      ? <Globe size={13} style={{ color: 'rgba(148,110,255,0.75)' }} />
+                      : <Lock size={12} style={{ color: 'rgba(148,110,255,0.5)' }} />}
+                    <span className="text-[13px] font-semibold text-white leading-none">{filterCountry ? filterCountry.split(' ').slice(1).join(' ').slice(0, 10) : 'Any Country'}</span>
+                    <ChevronDown size={11} style={{ color: 'rgba(255,255,255,0.25)', marginLeft: '1px', transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                   </div>
                 </motion.button>
 
-                <div style={{ width: '1px', alignSelf: 'stretch', margin: '8px 0', background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+                <div style={{ width: '1px', alignSelf: 'stretch', margin: '10px 0', background: 'rgba(124,58,237,0.2)', flexShrink: 0 }} />
 
                 {/* Mode */}
                 <motion.button
                   onClick={() => { const o = ['solo','squad','private']; setMode(o[(o.indexOf(mode)+1)%o.length]) }}
-                  whileHover={{ background: 'rgba(109,40,217,0.07)' }}
+                  whileHover={{ background: 'rgba(124,58,237,0.08)' }}
                   whileTap={{ scale: 0.97 }}
-                  className="flex-1 flex flex-col gap-[3px] px-4 py-3 transition-colors">
-                  <span className="text-[8px] font-bold uppercase tracking-[0.22em]" style={{ color: 'rgba(155,115,255,0.42)' }}>Mode</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[12.5px] font-medium text-white leading-none capitalize">{mode === 'squad' ? 'Duo' : mode}</span>
-                    <ChevronDown size={9} style={{ color: 'rgba(255,255,255,0.2)' }} />
+                  className="flex-1 flex flex-col gap-1.5 px-5 py-3.5 transition-colors">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(148,110,255,0.5)' }}>Mode</span>
+                  <div className="flex items-center gap-1.5">
+                    <Users size={13} style={{ color: 'rgba(148,110,255,0.75)' }} />
+                    <span className="text-[13px] font-semibold text-white leading-none capitalize">{mode === 'squad' ? 'Duo' : mode}</span>
+                    <ChevronDown size={11} style={{ color: 'rgba(255,255,255,0.25)', marginLeft: '1px' }} />
                   </div>
                 </motion.button>
 
-                <div style={{ width: '1px', alignSelf: 'stretch', margin: '8px 0', background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+                <div style={{ width: '1px', alignSelf: 'stretch', margin: '10px 0', background: 'rgba(124,58,237,0.2)', flexShrink: 0 }} />
 
-                {/* Settings */}
+                {/* Settings icon */}
                 <motion.div
-                  whileHover={{ background: 'rgba(109,40,217,0.07)' }}
-                  className="flex items-center justify-center px-3.5 rounded-r-[14px] cursor-pointer transition-colors">
-                  <SlidersHorizontal size={12} style={{ color: 'rgba(155,115,255,0.36)' }} />
+                  whileHover={{ scale: 1.1, background: 'rgba(124,58,237,0.12)' }}
+                  whileTap={{ scale: 0.93 }}
+                  className="flex items-center justify-center px-4 rounded-r-[16px] cursor-pointer transition-colors">
+                  <SlidersHorizontal size={15} style={{ color: 'rgba(148,110,255,0.6)' }} />
                 </motion.div>
 
               </div>
