@@ -885,11 +885,11 @@ export default function MainPage() {
           {/* ────────── LEFT: Controls ────────── */}
           <div
             className="flex flex-col justify-center"
-            style={{ width: '46%', flexShrink: 0, padding: '0 52px 0 60px' }}>
+            style={{ width: '46%', flexShrink: 0, padding: '0 44px 0 56px' }}>
 
             {/* Live badge */}
             <motion.div
-              className="inline-flex items-center gap-2.5 mb-8"
+              className="inline-flex items-center gap-2.5 mb-5"
               style={{ width: 'fit-content', padding: '7px 16px', borderRadius: 999, background: 'rgba(47,107,255,0.08)', border: '1px solid rgba(80,140,255,0.2)' }}>
               <motion.span
                 className="w-1.5 h-1.5 rounded-full flex-shrink-0"
@@ -902,7 +902,7 @@ export default function MainPage() {
             </motion.div>
 
             {/* Headline */}
-            <h1 style={{ fontSize: 'clamp(38px,3.6vw,58px)', lineHeight: 1.01, fontWeight: 900, letterSpacing: '-0.035em', marginBottom: 16 }}>
+            <h1 style={{ fontSize: 'clamp(36px,3.2vw,54px)', lineHeight: 1.02, fontWeight: 900, letterSpacing: '-0.035em', marginBottom: 12 }}>
               <span style={{ color: '#ffffff', display: 'block' }}>Meet someone real.</span>
               <span style={{ display: 'block', background: 'linear-gradient(120deg,#2F6BFF 0%,#7AACFF 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Share authentic vibes.
@@ -910,12 +910,12 @@ export default function MainPage() {
             </h1>
 
             {/* Subtitle */}
-            <p style={{ fontSize: 15, lineHeight: 1.65, color: 'rgba(255,255,255,0.32)', maxWidth: 320, marginBottom: 28 }}>
+            <p style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,0.32)', maxWidth: 320, marginBottom: 20 }}>
               Random video chat with real people from around the world. Instantly.
             </p>
 
             {/* Social proof */}
-            <div className="flex items-center gap-3" style={{ marginBottom: 28 }}>
+            <div className="flex items-center gap-3" style={{ marginBottom: 20 }}>
               <div className="flex items-center">
                 {AVATARS.map((n, i) => (
                   <img key={n} src={"https://i.pravatar.cc/48?img=" + n} alt=""
@@ -934,7 +934,7 @@ export default function MainPage() {
             </div>
 
             {/* CTA buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
 
               {/* Primary */}
               <motion.button
@@ -974,7 +974,7 @@ export default function MainPage() {
 
             {/* ── Filter bar ── */}
             <div style={{
-              borderRadius: 18, padding: '12px 16px',
+              borderRadius: 16, padding: '10px 14px',
               background: 'rgba(10,18,40,0.65)', backdropFilter: 'blur(24px) saturate(1.4)',
               border: '1px solid rgba(80,140,255,0.15)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(80,140,255,0.05) inset',
@@ -983,7 +983,7 @@ export default function MainPage() {
 
                 {/* GENDER */}
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', marginBottom: 8 }}>GENDER</p>
+                  <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', marginBottom: 6 }}>GENDER</p>
                   <div style={{ display: 'flex', gap: 4 }}>
                     {[['Both', 'both'], ['Male', 'male'], ['Female', 'female']].map(([label, val]) => (
                       <motion.button key={val}
@@ -1006,7 +1006,7 @@ export default function MainPage() {
 
                 {/* COUNTRY */}
                 <div style={{ flexShrink: 0 }}>
-                  <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', marginBottom: 8 }}>COUNTRY</p>
+                  <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', marginBottom: 6 }}>COUNTRY</p>
                   <motion.button
                     ref={countryBtnRef}
                     onClick={handleCountryClick}
@@ -1030,7 +1030,7 @@ export default function MainPage() {
 
                 {/* MODE */}
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', marginBottom: 8 }}>MODE</p>
+                  <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', marginBottom: 6 }}>MODE</p>
                   <div style={{ display: 'flex', gap: 4 }}>
                     {[['Solo', 'solo'], ['Duo', 'squad'], ['Private', 'private']].map(([label, val]) => (
                       <motion.button key={val}
@@ -1061,22 +1061,19 @@ export default function MainPage() {
 
           </div>
 
-          {/* Subtle column divider */}
-          <div style={{ width: 1, background: 'rgba(80,140,255,0.07)', flexShrink: 0 }} />
 
           {/* ────────── RIGHT: Camera panel ────────── */}
-          <div className="flex-1 relative overflow-hidden" style={{ background: '#050816' }}>
+          <div className="flex-1 flex items-center" style={{ padding: '28px 52px 28px 20px', background: '#050816' }}>
+          <div className="relative overflow-hidden" style={{
+            width: '100%', height: '100%', borderRadius: 28,
+            background: '#080e1c',
+            border: '1px solid rgba(59,130,246,0.12)',
+            boxShadow: '0 0 80px rgba(47,107,255,0.07), 0 24px 48px rgba(0,0,0,0.4)',
+          }}>
 
             {/* Cinematic ambient layers */}
-            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 70% at 50% 35%, rgba(47,107,255,0.1) 0%, transparent 65%)' }} />
-            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 50% 40% at 20% 80%, rgba(20,50,150,0.08) 0%, transparent 60%)' }} />
-            {/* Subtle grid */}
-            <div className="absolute inset-0" style={{
-              backgroundImage: 'linear-gradient(rgba(80,140,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(80,140,255,0.025) 1px, transparent 1px)',
-              backgroundSize: '64px 64px',
-            }} />
-            {/* Edge vignette */}
-            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 50%, rgba(5,8,22,0.7) 100%)' }} />
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 75% 65% at 50% 35%, rgba(47,107,255,0.09) 0%, transparent 70%)' }} />
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 45% 35% at 15% 85%, rgba(20,50,150,0.06) 0%, transparent 65%)' }} />
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
@@ -1144,6 +1141,7 @@ export default function MainPage() {
               </div>
             )}
 
+          </div>
           </div>
 
         </div>
