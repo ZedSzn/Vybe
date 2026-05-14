@@ -862,7 +862,7 @@ export default function MainPage() {
         {/* ── LEFT — Camera panel ── */}
         <motion.div
           className="relative overflow-hidden"
-          style={{ flex: '1', background: '#06060f', borderRight: '1px solid rgba(255,255,255,0.05)' }}
+          style={{ flex: '1', background: '#06060f', borderRight: '1px solid rgba(255,255,255,0.06)' }}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -870,7 +870,7 @@ export default function MainPage() {
           <video ref={videoRefDesktop} autoPlay muted playsInline
             className={`w-full h-full object-cover absolute inset-0 ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
 
-          {/* Idle — clean Azar-like: just logo + count */}
+          {/* Idle — VYBE watermark + count */}
           {(!cameraOn || cameraErr) && (
             <div className="absolute inset-0 flex flex-col items-center justify-center"
               style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(124,58,237,0.08) 0%, rgba(6,6,15,1) 70%)' }}>
@@ -890,77 +890,77 @@ export default function MainPage() {
 
           {/* Camera error — compact top bar */}
           {cameraErr && (
-            <div className="absolute top-4 left-4 right-4 z-20 flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
-              style={{ background: 'rgba(239,68,68,0.14)', border: '1px solid rgba(239,68,68,0.25)', backdropFilter: 'blur(12px)' }}>
+            <div className="absolute top-4 left-4 right-4 z-20 flex items-center gap-2.5 px-3 py-2.5 rounded-2xl"
+              style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', backdropFilter: 'blur(16px)' }}>
               <VideoOff size={14} style={{ color: '#f87171', flexShrink: 0 }} />
               <span className="text-[11px] text-red-300 font-medium flex-1">Camera blocked</span>
               <motion.button onClick={enableCamera} whileTap={{ scale: 0.95 }}
-                className="text-[10px] font-bold px-2.5 py-1 rounded-lg flex-shrink-0"
-                style={{ background: 'rgba(239,68,68,0.22)', color: '#fca5a5' }}>
-                Try Again
-              </motion.button>
+                className="text-[10px] font-bold px-2.5 py-1 rounded-xl flex-shrink-0"
+                style={{ background: 'rgba(239,68,68,0.22)', color: '#fca5a5' }}>Try Again</motion.button>
             </div>
           )}
           {!permissionAsked && !cameraErr && !cameraOn && (
-            <div className="absolute top-4 left-4 right-4 z-20 flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
-              style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.22)', backdropFilter: 'blur(12px)' }}>
+            <div className="absolute top-4 left-4 right-4 z-20 flex items-center gap-2.5 px-3 py-2.5 rounded-2xl"
+              style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)', backdropFilter: 'blur(16px)' }}>
               <Camera size={14} style={{ color: '#a78bfa', flexShrink: 0 }} />
               <span className="text-[11px] text-purple-300 font-medium flex-1">Enable camera for video chat</span>
               <motion.button onClick={enableCamera} whileTap={{ scale: 0.95 }}
-                className="text-[10px] font-bold px-2.5 py-1 rounded-lg flex-shrink-0"
-                style={{ background: 'rgba(124,58,237,0.28)', color: '#c4b5fd' }}>
-                Allow
-              </motion.button>
+                className="text-[10px] font-bold px-2.5 py-1 rounded-xl flex-shrink-0"
+                style={{ background: 'rgba(124,58,237,0.28)', color: '#c4b5fd' }}>Allow</motion.button>
             </div>
           )}
 
           {/* LIVE + flip when camera on */}
           {cameraOn && !cameraErr && (
             <>
-              <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-lg z-10"
-                style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}>
+              <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-xl z-10"
+                style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 online-pulse" />
                 <span className="text-white text-[9px] font-extrabold tracking-[0.2em]">LIVE</span>
               </div>
               <motion.button onClick={flipCamera} whileTap={{ scale: 0.9 }}
                 className="absolute top-4 right-4 w-9 h-9 rounded-xl flex items-center justify-center z-10"
-                style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}>
+                style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <Camera size={16} className="text-white" />
               </motion.button>
             </>
           )}
 
           {/* Bottom gradient */}
-          <div className="absolute bottom-0 left-0 right-0 h-52 pointer-events-none"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)' }} />
+          <div className="absolute bottom-0 left-0 right-0 h-56 pointer-events-none"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.96) 0%, transparent 100%)' }} />
 
-          {/* ── Bottom overlay: mode tabs + filter bar ── */}
-          <div className="absolute bottom-0 left-0 right-0 px-5 pb-5 z-10">
-            <div className="flex gap-2 justify-center mb-4">
+          {/* ── Bottom overlay ── */}
+          <div className="absolute bottom-0 left-0 right-0 px-4 pb-5 z-10">
+            {/* Mode pills — glass */}
+            <div className="flex gap-2 justify-center mb-3.5">
               {[{ id: 'solo', label: '👤 Solo' }, { id: 'squad', label: '👥 Duo' }, { id: 'private', label: '🔒 Private' }].map(({ id, label }) => (
                 <motion.button key={id} onClick={() => setMode(id)} whileTap={{ scale: 0.93 }}
                   className="px-4 py-1.5 text-[10px] font-bold rounded-full"
                   style={mode === id
-                    ? { background: 'rgba(124,58,237,0.9)', color: 'white', backdropFilter: 'blur(10px)' }
-                    : { background: 'rgba(0,0,0,0.45)', color: 'rgba(200,200,220,0.45)', backdropFilter: 'blur(10px)' }}>
+                    ? { background: 'rgba(124,58,237,0.82)', color: 'white', border: '1px solid rgba(167,139,250,0.45)', backdropFilter: 'blur(16px)', boxShadow: '0 0 18px rgba(124,58,237,0.38)' }
+                    : { background: 'rgba(255,255,255,0.07)', color: 'rgba(200,200,220,0.55)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }}>
                   {label}
                 </motion.button>
               ))}
             </div>
-            <div className="flex items-center gap-2.5">
+            {/* Filter row */}
+            <div className="flex items-center gap-2">
+              {/* Gender — frosted glass pill */}
               <motion.button
                 onClick={() => { const o = ['both','male','female']; handleGender(o[(o.indexOf(filterGender)+1)%o.length]) }}
                 whileTap={{ scale: 0.95 }}
                 className="flex items-center gap-2 px-4 py-3.5 rounded-2xl text-[12px] font-bold flex-shrink-0"
-                style={{ background: 'rgba(12,12,24,0.88)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', color: filterGender !== 'both' ? '#c4b5fd' : 'rgba(230,230,250,0.75)', minWidth: '92px' }}>
+                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.16)', color: filterGender !== 'both' ? '#c4b5fd' : 'rgba(230,230,250,0.82)', minWidth: '96px', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)' }}>
                 <span>{filterGender === 'both' ? '⚤ Gender' : filterGender === 'male' ? '♂ Male' : '♀ Female'}</span>
-                <ChevronDown size={11} style={{ opacity: 0.45, marginLeft: 'auto' }} />
+                <ChevronDown size={11} style={{ opacity: 0.5, marginLeft: 'auto' }} />
               </motion.button>
+              {/* Start CTA */}
               <motion.button
                 onClick={startVybing}
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 className="flex-1 flex items-center justify-center gap-3 py-3.5 rounded-2xl text-white font-extrabold"
-                style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 0 28px rgba(124,58,237,0.5)', fontSize: '13px' }}>
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 0 32px rgba(124,58,237,0.52)', fontSize: '13px' }}>
                 <div className="flex -space-x-1.5 flex-shrink-0">
                   {[33, 44, 55].map(n => (
                     <img key={n} src={`https://randomuser.me/api/portraits/women/${n}.jpg`} alt=""
@@ -969,49 +969,130 @@ export default function MainPage() {
                 </div>
                 Start Video Chat
               </motion.button>
+              {/* Country — frosted glass pill */}
               <motion.button
                 ref={countryBtnRef}
                 onClick={handleCountryClick}
                 whileTap={{ scale: 0.95 }}
                 className="flex items-center gap-2 px-4 py-3.5 rounded-2xl text-[12px] font-bold flex-shrink-0"
-                style={{ background: 'rgba(12,12,24,0.88)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', color: filterCountry ? '#c4b5fd' : 'rgba(230,230,250,0.75)', minWidth: '92px' }}>
+                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.16)', color: filterCountry ? '#c4b5fd' : 'rgba(230,230,250,0.82)', minWidth: '96px', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)' }}>
                 <span>{filterCountry ? '🌍 ' + filterCountry.split(' ').slice(1).join(' ').slice(0,8) : '🌍 Country'}</span>
-                <ChevronDown size={11} style={{ transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)', opacity: 0.45, marginLeft: 'auto' }} />
+                <ChevronDown size={11} style={{ transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)', opacity: 0.5, marginLeft: 'auto' }} />
               </motion.button>
             </div>
             <button
               onClick={() => { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setCameraOn(false); navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } }) }}
-              className="w-full text-center mt-2.5 py-1 text-[10px]"
-              style={{ color: 'rgba(160,160,180,0.28)' }}>
+              className="w-full text-center mt-2 py-1 text-[10px]"
+              style={{ color: 'rgba(160,160,180,0.25)' }}>
               Start without camera
             </button>
           </div>
         </motion.div>
 
-        {/* ── RIGHT — Live user photo grid ── */}
+        {/* ── RIGHT — Concept 1: scattered floating person cards ── */}
         <div className="relative overflow-hidden"
-          style={{ flex: '1.05', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'repeat(2, 1fr)', gap: '2px', background: '#000' }}>
-          {GRID_USERS.map(({ name, age, flag, photo }, i) => (
-            <motion.div key={name} className="relative overflow-hidden cursor-pointer group"
-              initial={{ opacity: 0, scale: 1.04 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.08 + i * 0.07, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ scale: 1.02 }}
-            >
-              <img src={photo} alt={name} className="w-full h-full object-cover" style={{ filter: 'brightness(0.88)' }} />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.78) 100%)' }} />
-              <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)' }}>
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400" style={{ boxShadow: '0 0 5px #4ade80' }} />
-                <span className="text-[9px] text-white font-black tracking-[0.1em]">ONLINE</span>
-              </div>
-              <div className="absolute bottom-3 left-3">
-                <p className="text-white font-bold text-sm drop-shadow-lg">{flag} {name}, {age}</p>
-              </div>
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none"
-                style={{ background: 'rgba(124,58,237,0.1)' }} />
-            </motion.div>
-          ))}
+          style={{ flex: '1.05', background: 'linear-gradient(145deg, #080717 0%, #0b0920 100%)' }}>
+
+          {/* Subtle purple ambient glow */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse at 58% 44%, rgba(124,58,237,0.09) 0%, transparent 60%)' }} />
+
+          {/* ── Card A — tall main card, left side ── */}
+          <motion.div
+            className="absolute overflow-hidden cursor-pointer group"
+            style={{ borderRadius: '22px', width: '35%', top: '5%', bottom: '5%', left: '6%', boxShadow: '0 32px 80px rgba(0,0,0,0.72)' }}
+            initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1, duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.015 }}>
+            <img src="https://randomuser.me/api/portraits/women/33.jpg" alt="Amelia"
+              className="w-full h-full object-cover" style={{ filter: 'brightness(0.88)' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 52%, rgba(0,0,0,0.88) 100%)' }} />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ background: 'rgba(124,58,237,0.09)' }} />
+            <div className="absolute bottom-5 left-5">
+              <p className="text-white font-bold drop-shadow-lg" style={{ fontSize: '15px' }}>🇺🇸 Amelia, 22</p>
+            </div>
+          </motion.div>
+
+          {/* ── Card B — top right ── */}
+          <motion.div
+            className="absolute overflow-hidden cursor-pointer group"
+            style={{ borderRadius: '22px', width: '33%', top: '5%', right: '5%', height: '45%', boxShadow: '0 24px 60px rgba(0,0,0,0.65)' }}
+            initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18, duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.015 }}>
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Liam"
+              className="w-full h-full object-cover" style={{ filter: 'brightness(0.88)' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.86) 100%)' }} />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ background: 'rgba(124,58,237,0.09)' }} />
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400" style={{ boxShadow: '0 0 5px #4ade80' }} />
+              <span className="text-[9px] text-white font-black tracking-[0.1em]">ONLINE</span>
+            </div>
+            <div className="absolute bottom-3.5 left-4">
+              <p className="text-white font-bold drop-shadow-lg" style={{ fontSize: '13px' }}>🇨🇦 Liam, 23</p>
+            </div>
+          </motion.div>
+
+          {/* ── Card C — bottom right ── */}
+          <motion.div
+            className="absolute overflow-hidden cursor-pointer group"
+            style={{ borderRadius: '22px', width: '33%', right: '5%', top: '52%', bottom: '5%', boxShadow: '0 24px 60px rgba(0,0,0,0.65)' }}
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28, duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.015 }}>
+            <img src="https://randomuser.me/api/portraits/women/22.jpg" alt="Emma"
+              className="w-full h-full object-cover" style={{ filter: 'brightness(0.88)' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.86) 100%)' }} />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ background: 'rgba(124,58,237,0.09)' }} />
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400" style={{ boxShadow: '0 0 5px #4ade80' }} />
+              <span className="text-[9px] text-white font-black tracking-[0.1em]">ONLINE</span>
+            </div>
+            <div className="absolute bottom-3.5 left-4">
+              <p className="text-white font-bold drop-shadow-lg" style={{ fontSize: '13px' }}>🇬🇧 Emma, 21</p>
+            </div>
+          </motion.div>
+
+          {/* ── Floating emoji: ❤️ top-right ── */}
+          <motion.div
+            className="absolute pointer-events-none select-none"
+            style={{ top: '9%', right: '3.5%', fontSize: '32px', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+            animate={{ y: [0, -12, 0], rotate: [-8, 8, -8] }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}>
+            ❤️
+          </motion.div>
+
+          {/* ── Floating emoji: 😍 mid-center ── */}
+          <motion.div
+            className="absolute pointer-events-none select-none"
+            style={{ top: '46%', left: '43%', fontSize: '28px', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+            animate={{ y: [0, -9, 0], rotate: [5, -5, 5] }}
+            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }}>
+            😍
+          </motion.div>
+
+          {/* ── Floating emoji: 🔥 lower-center ── */}
+          <motion.div
+            className="absolute pointer-events-none select-none"
+            style={{ bottom: '22%', left: '44%', fontSize: '24px', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+            animate={{ y: [0, -7, 0], scale: [1, 1.14, 1] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}>
+            🔥
+          </motion.div>
+
+          {/* ── Floating emoji: 💜 near card A top ── */}
+          <motion.div
+            className="absolute pointer-events-none select-none"
+            style={{ top: '14%', left: '43%', fontSize: '20px', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}
+            animate={{ y: [0, -8, 0], rotate: [10, -10, 10] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 2 }}>
+            💜
+          </motion.div>
         </div>
 
       </section>
