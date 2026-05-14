@@ -421,7 +421,7 @@ export default function MainPage() {
   return (
     <motion.div
       className="min-h-screen font-space"
-      style={{ background: '#0a0a0f' }}
+      style={{ background: '#050816' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -573,7 +573,7 @@ export default function MainPage() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-white font-extrabold"
-          style={{ fontSize: '16px', background: 'linear-gradient(140deg, #1e3a8a 0%, #2563eb 55%, #0891b2 100%)', boxShadow: '0 0 20px rgba(37,99,235,0.28), 0 4px 20px rgba(0,0,0,0.4)' }}
+          style={{ fontSize: '16px', background: 'linear-gradient(140deg, #1a3a8f 0%, #2F6BFF 55%, #4D8DFF 100%)', boxShadow: '0 0 20px rgba(37,99,235,0.28), 0 4px 20px rgba(0,0,0,0.4)' }}
         >
           <Video size={19} strokeWidth={2.5} />
           Start Chatting Now
@@ -857,133 +857,144 @@ export default function MainPage() {
 
 
 
-      {/* Desktop Layout — Hero */}
+
+      {/* ─── Desktop Hero ─────────────────────────────────────── */}
       <section
         className="hidden lg:flex flex-col relative z-10"
-        style={{ height: 'calc(100vh - 64px)', marginTop: '64px', background: '#080810', overflow: 'hidden' }}>
+        style={{ height: 'calc(100vh - 64px)', marginTop: '64px', background: '#050816', overflow: 'hidden' }}>
 
-        {/* Announcement banner */}
-        <div className="flex-shrink-0 flex items-center justify-center gap-3 py-3"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <span className="px-2 py-0.5 rounded-md text-[11px] font-black text-white tracking-wide"
-            style={{ background: '#1d4ed8' }}>NEW</span>
-          <DollarSign size={13} style={{ color: 'rgba(255,255,255,0.35)' }} />
-          <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+        {/* ── Announcement strip ── */}
+        <div className="flex-shrink-0 flex items-center justify-center gap-3 py-2.5"
+          style={{ borderBottom: '1px solid rgba(80,140,255,0.09)', background: 'rgba(5,8,22,0.6)' }}>
+          <span className="px-2 py-0.5 rounded text-[10px] font-black text-white tracking-widest uppercase"
+            style={{ background: '#2F6BFF', letterSpacing: '0.12em' }}>NEW</span>
+          <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.38)' }}>
             Earn coins by chatting, daily rewards &amp; more.
           </span>
-          <button className="text-[13px] font-semibold flex items-center gap-1"
-            style={{ color: '#60a5fa' }}
+          <button
+            className="text-[13px] font-semibold"
+            style={{ color: '#4D8DFF' }}
             onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>
             Learn more &rarr;
           </button>
         </div>
 
-        {/* Two-column main area */}
+        {/* ── Two-column area ── */}
         <div className="flex flex-1 min-h-0">
 
-          {/* LEFT: Hero content */}
-          <div className="flex flex-col justify-center px-12 xl:px-16 py-8"
-            style={{ width: '46%', flexShrink: 0 }}>
+          {/* ────────── LEFT: Controls ────────── */}
+          <div
+            className="flex flex-col justify-center"
+            style={{ width: '46%', flexShrink: 0, padding: '0 52px 0 60px' }}>
 
-            {/* LIVE badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-7"
-              style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', width: 'fit-content' }}>
+            {/* Live badge */}
+            <motion.div
+              className="inline-flex items-center gap-2.5 mb-8"
+              style={{ width: 'fit-content', padding: '7px 16px', borderRadius: 999, background: 'rgba(47,107,255,0.08)', border: '1px solid rgba(80,140,255,0.2)' }}>
               <motion.span
-                className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{ background: '#3b82f6' }}
-                animate={{ opacity: [1, 0.4, 1] }}
-                transition={{ duration: 2, repeat: Infinity }} />
-              <span className="text-[11px] font-black tracking-[0.2em]"
-                style={{ color: 'rgba(255,255,255,0.6)' }}>LIVE &middot; RANDOM &middot; REAL</span>
-            </div>
+                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                style={{ background: '#2F6BFF' }}
+                animate={{ opacity: [1, 0.3, 1], scale: [1, 1.3, 1] }}
+                transition={{ duration: 2.4, repeat: Infinity }} />
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.5)' }}>
+                LIVE &middot; RANDOM &middot; REAL
+              </span>
+            </motion.div>
 
             {/* Headline */}
-            <h1 className="font-black leading-[1.04] mb-3" style={{ fontSize: 'clamp(36px, 3.2vw, 52px)' }}>
-              <span className="block text-white">Meet someone real.</span>
-              <span className="block" style={{ color: '#3b82f6' }}>Share authentic vibes.</span>
+            <h1 style={{ fontSize: 'clamp(38px,3.6vw,58px)', lineHeight: 1.01, fontWeight: 900, letterSpacing: '-0.035em', marginBottom: 16 }}>
+              <span style={{ color: '#ffffff', display: 'block' }}>Meet someone real.</span>
+              <span style={{ display: 'block', background: 'linear-gradient(120deg,#2F6BFF 0%,#7AACFF 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                Share authentic vibes.
+              </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-[15px] leading-relaxed mb-7"
-              style={{ color: 'rgba(255,255,255,0.45)', maxWidth: '340px' }}>
+            <p style={{ fontSize: 15, lineHeight: 1.65, color: 'rgba(255,255,255,0.32)', maxWidth: 320, marginBottom: 28 }}>
               Random video chat with real people from around the world. Instantly.
             </p>
 
             {/* Social proof */}
-            <div className="flex items-center gap-3 mb-7">
+            <div className="flex items-center gap-3" style={{ marginBottom: 28 }}>
               <div className="flex items-center">
                 {AVATARS.map((n, i) => (
                   <img key={n} src={"https://i.pravatar.cc/48?img=" + n} alt=""
-                    className="w-9 h-9 rounded-full flex-shrink-0 object-cover"
-                    style={{ border: '2px solid #080810', marginLeft: i === 0 ? 0 : -10, position: 'relative', zIndex: 10 - i }} />
+                    style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '2px solid #050816', marginLeft: i === 0 ? 0 : -9, position: 'relative', zIndex: 10 - i, flexShrink: 0 }} />
                 ))}
               </div>
               <div className="flex items-center gap-2">
                 <motion.span
-                  className="w-2 h-2 rounded-full flex-shrink-0 bg-emerald-400"
+                  style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', flexShrink: 0, display: 'block' }}
                   animate={{ opacity: [1, 0.4, 1] }}
                   transition={{ duration: 2.2, repeat: Infinity }} />
-                <span className="text-[14px] font-semibold" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
                   {onlineCount >= 20 ? onlineCount.toLocaleString() : '12,846'} people online now
                 </span>
               </div>
             </div>
 
             {/* CTA buttons */}
-            <div className="flex flex-col gap-3 mb-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+
+              {/* Primary */}
               <motion.button
                 onClick={startVybing}
-                whileHover={{ scale: 1.015, boxShadow: '0 0 32px rgba(37,99,235,0.45)' }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl text-white font-black text-[15px]"
+                whileHover={{ scale: 1.012 }}
+                whileTap={{ scale: 0.985 }}
                 style={{
-                  background: 'linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)',
-                  boxShadow: '0 0 20px rgba(59,130,246,0.25)',
-                  letterSpacing: '-0.01em',
+                  width: '100%', height: 52, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  background: 'linear-gradient(135deg, #2056e8 0%, #2F6BFF 50%, #4D8DFF 100%)',
+                  boxShadow: '0 4px 24px rgba(47,107,255,0.35), 0 1px 0 rgba(255,255,255,0.12) inset',
+                  border: 'none', color: 'white', fontSize: 15, fontWeight: 800, letterSpacing: '-0.01em', cursor: 'pointer',
                 }}>
-                <Video size={18} />
+                <Video size={17} />
                 Start Video Chat
               </motion.button>
 
+              {/* Secondary */}
               <motion.button
                 onClick={() => {
                   streamRef.current?.getTracks().forEach(t => t.stop());
-                  streamRef.current = null;
-                  setCameraOn(false);
+                  streamRef.current = null; setCameraOn(false);
                   navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } });
                 }}
-                whileHover={{ scale: 1.015 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl font-black text-[15px]"
+                whileHover={{ scale: 1.012, borderColor: 'rgba(80,140,255,0.28)' }}
+                whileTap={{ scale: 0.985 }}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(255,255,255,0.7)',
-                  letterSpacing: '-0.01em',
+                  width: '100%', height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  background: 'rgba(10,18,40,0.55)', backdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(80,140,255,0.18)',
+                  color: 'rgba(255,255,255,0.55)', fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em', cursor: 'pointer',
                 }}>
-                <VideoOff size={18} />
+                <VideoOff size={16} />
                 Start Without Camera
               </motion.button>
+
             </div>
 
-            {/* Filter card */}
-            <div className="rounded-2xl px-4 py-3.5"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="flex items-start gap-5">
+            {/* ── Filter bar ── */}
+            <div style={{
+              borderRadius: 18, padding: '12px 16px',
+              background: 'rgba(10,18,40,0.65)', backdropFilter: 'blur(24px) saturate(1.4)',
+              border: '1px solid rgba(80,140,255,0.15)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(80,140,255,0.05) inset',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
 
                 {/* GENDER */}
-                <div className="flex-1">
-                  <p className="text-[9.5px] font-black tracking-[0.18em] uppercase mb-2"
-                    style={{ color: 'rgba(255,255,255,0.25)' }}>GENDER</p>
-                  <div className="flex gap-1">
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', marginBottom: 8 }}>GENDER</p>
+                  <div style={{ display: 'flex', gap: 4 }}>
                     {[['Both', 'both'], ['Male', 'male'], ['Female', 'female']].map(([label, val]) => (
                       <motion.button key={val}
                         onClick={() => handleGender(val)}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex-1 py-1.5 text-[12px] font-bold rounded-lg"
-                        style={filterGender === val
-                          ? { background: '#2563eb', color: 'white' }
-                          : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)' }}>
+                        whileTap={{ scale: 0.94 }}
+                        style={{
+                          flex: 1, padding: '6px 0', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none',
+                          ...(filterGender === val
+                            ? { background: '#2F6BFF', color: 'white', boxShadow: '0 2px 10px rgba(47,107,255,0.4)' }
+                            : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.38)' }),
+                        }}>
                         {label}
                       </motion.button>
                     ))}
@@ -991,54 +1002,58 @@ export default function MainPage() {
                 </div>
 
                 {/* Divider */}
-                <div style={{ width: '1px', background: 'rgba(255,255,255,0.06)', alignSelf: 'stretch', marginTop: 4 }} />
+                <div style={{ width: 1, background: 'rgba(80,140,255,0.1)', margin: '0 14px', flexShrink: 0 }} />
 
                 {/* COUNTRY */}
-                <div>
-                  <p className="text-[9.5px] font-black tracking-[0.18em] uppercase mb-2"
-                    style={{ color: 'rgba(255,255,255,0.25)' }}>COUNTRY</p>
+                <div style={{ flexShrink: 0 }}>
+                  <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', marginBottom: 8 }}>COUNTRY</p>
                   <motion.button
                     ref={countryBtnRef}
                     onClick={handleCountryClick}
-                    whileTap={{ scale: 0.97 }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold"
-                    style={{ background: 'rgba(255,255,255,0.06)', color: filterCountry ? 'white' : 'rgba(255,255,255,0.45)', whiteSpace: 'nowrap' }}>
+                    whileTap={{ scale: 0.96 }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10,
+                      background: 'rgba(255,255,255,0.05)', border: 'none',
+                      color: filterCountry ? 'white' : 'rgba(255,255,255,0.38)',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+                    }}>
                     {user?.isVip
-                      ? <Globe size={12} style={{ color: 'rgba(255,255,255,0.4)' }} />
-                      : <Lock size={12} style={{ opacity: 0.3 }} />}
+                      ? <Globe size={12} style={{ color: 'rgba(80,140,255,0.6)', flexShrink: 0 }} />
+                      : <Lock size={12} style={{ color: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />}
                     {filterCountry || 'Any country'}
-                    <ChevronDown size={11} style={{ color: 'rgba(255,255,255,0.25)', transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                    <ChevronDown size={10} style={{ color: 'rgba(255,255,255,0.2)', transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }} />
                   </motion.button>
                 </div>
 
                 {/* Divider */}
-                <div style={{ width: '1px', background: 'rgba(255,255,255,0.06)', alignSelf: 'stretch', marginTop: 4 }} />
+                <div style={{ width: 1, background: 'rgba(80,140,255,0.1)', margin: '0 14px', flexShrink: 0 }} />
 
                 {/* MODE */}
-                <div className="flex-1">
-                  <p className="text-[9.5px] font-black tracking-[0.18em] uppercase mb-2"
-                    style={{ color: 'rgba(255,255,255,0.25)' }}>MODE</p>
-                  <div className="flex gap-1">
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', marginBottom: 8 }}>MODE</p>
+                  <div style={{ display: 'flex', gap: 4 }}>
                     {[['Solo', 'solo'], ['Duo', 'squad'], ['Private', 'private']].map(([label, val]) => (
                       <motion.button key={val}
                         onClick={() => setMode(val)}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex-1 py-1.5 text-[12px] font-bold rounded-lg"
-                        style={mode === val
-                          ? { background: '#2563eb', color: 'white' }
-                          : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)' }}>
+                        whileTap={{ scale: 0.94 }}
+                        style={{
+                          flex: 1, padding: '6px 0', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none',
+                          ...(mode === val
+                            ? { background: '#2F6BFF', color: 'white', boxShadow: '0 2px 10px rgba(47,107,255,0.4)' }
+                            : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.38)' }),
+                        }}>
                         {label}
                       </motion.button>
                     ))}
                   </div>
                 </div>
 
-                {/* Settings icon */}
-                <motion.button whileTap={{ scale: 0.9 }}
+                {/* Settings */}
+                <motion.button
                   onClick={() => setShowAdvanced(v => !v)}
-                  className="self-end mb-0.5"
-                  style={{ color: 'rgba(255,255,255,0.25)' }}>
-                  <SlidersHorizontal size={17} />
+                  whileTap={{ scale: 0.9 }}
+                  style={{ alignSelf: 'flex-end', marginBottom: 2, marginLeft: 10, color: 'rgba(255,255,255,0.2)', background: 'none', border: 'none', cursor: 'pointer', padding: 4, flexShrink: 0 }}>
+                  <SlidersHorizontal size={16} />
                 </motion.button>
 
               </div>
@@ -1046,68 +1061,88 @@ export default function MainPage() {
 
           </div>
 
-          {/* RIGHT: Camera preview */}
-          <div className="flex-1 relative overflow-hidden"
-            style={{ borderRadius: '16px 0 0 16px', margin: '12px 0 12px 0' }}>
+          {/* Subtle column divider */}
+          <div style={{ width: 1, background: 'rgba(80,140,255,0.07)', flexShrink: 0 }} />
 
-            {/* Live feed */}
+          {/* ────────── RIGHT: Camera panel ────────── */}
+          <div className="flex-1 relative overflow-hidden" style={{ background: '#050816' }}>
+
+            {/* Cinematic ambient layers */}
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 70% at 50% 35%, rgba(47,107,255,0.1) 0%, transparent 65%)' }} />
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 50% 40% at 20% 80%, rgba(20,50,150,0.08) 0%, transparent 60%)' }} />
+            {/* Subtle grid */}
+            <div className="absolute inset-0" style={{
+              backgroundImage: 'linear-gradient(rgba(80,140,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(80,140,255,0.025) 1px, transparent 1px)',
+              backgroundSize: '64px 64px',
+            }} />
+            {/* Edge vignette */}
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 50%, rgba(5,8,22,0.7) 100%)' }} />
+
+            {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s' }} />
+              style={{ objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
 
-            {/* Idle state */}
+            {/* Idle state — no photo, cinematic dark */}
             {(!cameraOn || cameraErr) && (
-              <div className="absolute inset-0">
-                <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=900&auto=format&fit=crop&q=80" alt=""
-                  className="absolute inset-0 w-full h-full object-cover object-top" />
-                <div className="absolute inset-0"
-                  style={{ background: 'linear-gradient(135deg, rgba(8,8,16,0.18) 0%, rgba(15,20,50,0.12) 100%)' }} />
-                {cameraErr && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center"
-                    style={{ background: 'rgba(8,8,16,0.72)' }}>
-                    <VideoOff size={28} style={{ color: 'rgba(255,255,255,0.3)', marginBottom: 12 }} />
-                    <p className="text-white/60 text-sm font-semibold mb-1">Camera blocked</p>
-                    <p className="text-white/25 text-xs mb-5 text-center" style={{ maxWidth: 180 }}>
-                      {cameraErrMsg || 'Allow camera access in browser settings'}
-                    </p>
-                    <motion.button onClick={enableCamera}
-                      whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold text-white"
-                      style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.14)' }}>
-                      <Camera size={14} /> Try Again
-                    </motion.button>
+              <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ zIndex: 10 }}>
+                {/* Pulsing ring */}
+                <motion.div
+                  className="relative flex items-center justify-center"
+                  style={{ marginBottom: 24 }}>
+                  <motion.div
+                    style={{ position: 'absolute', width: 96, height: 96, borderRadius: '50%', border: '1px solid rgba(47,107,255,0.25)' }}
+                    animate={{ scale: [1, 1.18, 1], opacity: [0.6, 0.15, 0.6] }}
+                    transition={{ duration: 3, repeat: Infinity }} />
+                  <motion.div
+                    style={{ position: 'absolute', width: 72, height: 72, borderRadius: '50%', border: '1px solid rgba(47,107,255,0.18)' }}
+                    animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.08, 0.4] }}
+                    transition={{ duration: 3, repeat: Infinity, delay: 0.3 }} />
+                  <div style={{
+                    width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(10,18,40,0.8)', border: '1px solid rgba(80,140,255,0.2)',
+                    backdropFilter: 'blur(12px)',
+                  }}>
+                    {cameraErr
+                      ? <VideoOff size={24} style={{ color: 'rgba(80,140,255,0.4)' }} />
+                      : <Camera size={24} style={{ color: 'rgba(80,140,255,0.5)' }} />
+                    }
                   </div>
-                )}
-              </div>
-            )}
+                </motion.div>
 
-            {/* Subtle enable-camera button (when idle, no error) */}
-            {!cameraOn && !cameraErr && (
-              <div className="absolute bottom-6 left-0 right-0 flex justify-center z-20">
-                <motion.button onClick={enableCamera}
-                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold text-white"
-                  style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  <Camera size={14} />
-                  Enable your camera
+                <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 8, letterSpacing: '-0.01em' }}>
+                  {cameraErr ? 'Camera access needed' : 'Your video preview'}
+                </p>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', marginBottom: 28, textAlign: 'center', maxWidth: 180, lineHeight: 1.5 }}>
+                  {cameraErr ? (cameraErrMsg || 'Allow camera access in browser settings') : 'Only you can see this preview'}
+                </p>
+
+                <motion.button
+                  onClick={enableCamera}
+                  whileHover={{ scale: 1.04, boxShadow: '0 0 24px rgba(47,107,255,0.3)' }}
+                  whileTap={{ scale: 0.96 }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', borderRadius: 99,
+                    background: 'rgba(10,18,40,0.75)', backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(80,140,255,0.3)',
+                    color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    boxShadow: '0 0 0 1px rgba(47,107,255,0.06) inset',
+                  }}>
+                  {cameraErr ? <VideoOff size={14} /> : <Camera size={14} />}
+                  {cameraErr ? 'Try Again' : 'Enable Camera'}
                 </motion.button>
               </div>
             )}
 
-            {/* Top-left icons (when live) */}
+            {/* Top-left camera controls (when live) */}
             {cameraOn && !cameraErr && (
               <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
                 <motion.button onClick={flipCamera} whileTap={{ scale: 0.9 }}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <Camera size={15} className="text-white/70" />
+                  style={{ width: 38, height: 38, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(5,8,22,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(80,140,255,0.18)', cursor: 'pointer' }}>
+                  <Camera size={15} style={{ color: 'rgba(255,255,255,0.65)' }} />
                 </motion.button>
               </div>
             )}
-
-            {/* Vignette edges */}
-            <div className="absolute inset-0 pointer-events-none"
-              style={{ background: 'linear-gradient(to right, rgba(8,8,16,0.25) 0%, transparent 20%, transparent 80%, rgba(8,8,16,0.1) 100%)' }} />
 
           </div>
 
@@ -1115,7 +1150,7 @@ export default function MainPage() {
 
       </section>
 
-                  {/* ══════════════ HOW IT WORKS ══════════════ */}
+                        {/* ══════════════ HOW IT WORKS ══════════════ */}
       <section id="how-it-works" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-16 lg:py-24">
         <motion.div
           className="text-center mb-12"
@@ -1124,10 +1159,10 @@ export default function MainPage() {
           viewport={{ once: true }}
           transition={{ duration: 0.55 }}
         >
-          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#60a5fa' }}>Simple by design</p>
+          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#7AACFF' }}>Simple by design</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             Up and chatting in{' '}
-            <span style={{ background: 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 55%, #38bdf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(135deg, #2F6BFF 0%, #4D8DFF 55%, #7AACFF 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               30 seconds
             </span>
           </h2>
@@ -1165,7 +1200,7 @@ export default function MainPage() {
 
       {/* ══════════════ MEMBERSHIP VALUE ══════════════ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
-        <div className="rounded-3xl overflow-hidden p-8 lg:p-12" style={{ background: 'linear-gradient(160deg, rgba(37,99,235,0.08) 0%, rgba(10,10,20,0) 100%)', border: '1px solid rgba(37,99,235,0.15)' }}>
+        <div className="rounded-3xl overflow-hidden p-8 lg:p-12" style={{ background: 'linear-gradient(160deg, rgba(47,107,255,0.07) 0%, rgba(5,8,22,0) 100%)', border: '1px solid rgba(80,140,255,0.14)' }}>
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -1173,7 +1208,7 @@ export default function MainPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
             >
-              <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#60a5fa' }}>Membership</p>
+              <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#7AACFF' }}>Membership</p>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                 Match smarter with{' '}
                 <span style={{ background: 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
@@ -1268,7 +1303,7 @@ export default function MainPage() {
               >
                 {[
                   { label: '70%', sub: 'Creator cut', color: '#f59e0b' },
-                  { label: 'Live', sub: 'Real-time gifts', color: '#60a5fa' },
+                  { label: 'Live', sub: 'Real-time gifts', color: '#7AACFF' },
                   { label: '150+', sub: 'Countries', color: '#10b981' },
                   { label: 'Free', sub: 'To start', color: '#38bdf8' },
                 ].map(({ label, sub, color }) => (

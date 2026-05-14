@@ -136,8 +136,9 @@ export default function Navbar({ onPremiumClick }) {
     <nav
       className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-4 sm:px-6 font-space"
       style={{
-        background: '#0a0a0f',
-        backdropFilter: 'none',
+        background: '#050816',
+        backdropFilter: 'blur(20px) saturate(1.6)',
+        borderBottom: '1px solid rgba(80,140,255,0.07)',
       }}
     >
       {/* Logo */}
@@ -195,7 +196,7 @@ export default function Navbar({ onPremiumClick }) {
               <Link
                 to="/wallet?tab=buy"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold text-white transition-all"
-                style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 14px rgba(27,98,245,0.35)' }}
+                style={{ background: 'linear-gradient(135deg,#2F6BFF,#4D8DFF)', boxShadow: '0 0 14px rgba(27,98,245,0.35)' }}
               >
                 {t('buy_coins')}
               </Link>
@@ -443,7 +444,7 @@ export default function Navbar({ onPremiumClick }) {
             </Link>
             <Link to="/auth?tab=signup"
               className="px-4 py-1.5 rounded-lg text-white text-sm font-black transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg,#2065f5,#7c3aed)', boxShadow: '0 0 16px rgba(124,58,237,0.35)' }}>
+              style={{ background: 'linear-gradient(135deg,#2F6BFF,#4D8DFF)', boxShadow: '0 0 16px rgba(47,107,255,0.3)' }}>
               {t('signup')}
             </Link>
           </>
