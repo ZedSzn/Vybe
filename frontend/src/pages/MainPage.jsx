@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Lock, Globe, ChevronDown, UserPlus, Copy, Check,
   Crown, Loader2, X as XIcon, Video, VideoOff, Shield,
-  Camera, DollarSign,
+  Camera, DollarSign, SlidersHorizontal,
 } from 'lucide-react'
 
 const FEATURE_CARDS = [
@@ -856,428 +856,384 @@ export default function MainPage() {
         <p className="text-center text-[11px]" style={{ color: 'rgba(75,85,99,0.4)' }}>Free forever Â· No sign-up required</p>
       </div>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• DESKTOP LAYOUT â€” Premium 3-Column Hero â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
-      <section className="hidden lg:block relative z-10 overflow-hidden" style={{ height: 'calc(100vh - 108px)', minHeight: '700px', background: '#07070f' }}>
+
+      {/* ══════════════ DESKTOP LAYOUT — Premium 2-Column Hero ══════════════ */}
+      <section className="hidden lg:flex flex-col relative z-10 overflow-hidden" style={{ height: 'calc(100vh - 108px)', minHeight: '700px', background: '#07070f' }}>
 
         {/* Ambient background */}
         <div className="absolute inset-0 pointer-events-none">
-          <div style={{ position: 'absolute', top: '-15%', left: '50%', transform: 'translateX(-50%)', width: '65%', height: '100%', background: 'radial-gradient(ellipse at 50% 18%, rgba(124,58,237,0.08) 0%, transparent 60%)' }} />
-          <div style={{ position: 'absolute', top: '5%', left: '-8%', width: '42%', height: '80%', background: 'radial-gradient(ellipse, rgba(59,130,246,0.035) 0%, transparent 70%)' }} />
-          <div style={{ position: 'absolute', bottom: '-5%', right: '-5%', width: '40%', height: '65%', background: 'radial-gradient(ellipse, rgba(168,85,247,0.035) 0%, transparent 70%)' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 68% 38%, rgba(124,58,237,0.11) 0%, transparent 58%)' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 18% 65%, rgba(59,130,246,0.04) 0%, transparent 52%)' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(124,58,237,0.14) 40%, rgba(124,58,237,0.14) 60%, transparent 100%)' }} />
         </div>
 
-        {/* 3-column grid */}
-        <div className="absolute inset-0 grid" style={{ gridTemplateColumns: '1fr 1.65fr 1fr', paddingBottom: '72px' }}>
+        {/* ── 2-column main area ── */}
+        <div className="relative flex flex-1 min-h-0 z-10">
 
-          {/* â”€â”€ LEFT: Content â”€â”€ */}
+          {/* LEFT: Content */}
           <motion.div
-            className="flex flex-col justify-center"
-            style={{ paddingLeft: '8%', paddingRight: '5%' }}
-            initial={{ opacity: 0, x: -22 }}
+            className="flex flex-col justify-center flex-shrink-0"
+            style={{ width: '44%', paddingLeft: '5%', paddingRight: '3%' }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}>
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
 
             {/* Live badge */}
-            <div className="inline-flex items-center gap-2 mb-7 px-3 py-1.5 rounded-full w-fit"
+            <div className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full w-fit"
               style={{ background: 'rgba(124,58,237,0.09)', border: '1px solid rgba(124,58,237,0.18)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 online-pulse" />
-              <span className="text-[10px] font-black tracking-[0.16em] uppercase" style={{ color: '#a78bfa' }}>Live Â· Random Â· Real</span>
+              <span className="text-[10px] font-black tracking-[0.16em] uppercase" style={{ color: '#a78bfa' }}>Live · Random · Real</span>
             </div>
 
             {/* Headline */}
-            <h1 className="font-black text-white leading-[1.04] mb-4" style={{ fontSize: 'clamp(2rem, 2.6vw, 3.2rem)', letterSpacing: '-0.035em' }}>
-              Meet someone<br />
-              <span style={{ background: 'linear-gradient(125deg, #a78bfa 0%, #ec4899 65%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>real.</span>{' '}
-              Now.
+            <h1 className="font-black text-white leading-[1.05] mb-4" style={{ fontSize: 'clamp(2.1rem, 2.7vw, 3.4rem)', letterSpacing: '-0.035em' }}>
+              Meet someone real.<br />
+              <span style={{ background: 'linear-gradient(125deg, #a78bfa 0%, #ec4899 62%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                Share authentic vibes.
+              </span>
             </h1>
 
             {/* Subtext */}
-            <p className="mb-7 leading-[1.7] text-[14px]" style={{ color: 'rgba(148,148,172,0.62)', maxWidth: '285px' }}>
-              Random video chat with real people worldwide. No scripts, no bots.
+            <p className="mb-5 text-[14px] leading-[1.65]" style={{ color: 'rgba(145,145,170,0.65)', maxWidth: '340px' }}>
+              Meet real people from around the world. Instantly.
             </p>
 
-            {/* Social proof */}
-            <div className="flex items-center gap-3 mb-7">
+            {/* Avatars + online count */}
+            <div className="flex items-center gap-3 mb-6">
               <div className="flex">
-                {AVATARS.slice(0, 5).map((n, i) => (
+                {AVATARS.map((n, i) => (
                   <img key={n} src={`https://i.pravatar.cc/48?img=${n}`} alt=""
                     className="w-7 h-7 rounded-full"
-                    style={{ border: '2px solid #07070f', marginLeft: i === 0 ? '0' : '-8px', zIndex: 5 - i, position: 'relative' }} />
+                    style={{ border: '2px solid #07070f', marginLeft: i === 0 ? '0' : '-8px', zIndex: AVATARS.length - i, position: 'relative' }} />
                 ))}
               </div>
               <div className="flex items-center gap-1.5">
-                <motion.span className="w-1.5 h-1.5 rounded-full bg-emerald-400"
+                <motion.span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"
                   animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
                   transition={{ duration: 2, repeat: Infinity }} />
-                <span className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.38)' }}>
-                  {onlineCount >= 20 ? `${onlineCount.toLocaleString()} online` : 'People connecting now'}
-                </span>
+                <span className="text-[13.5px] font-semibold text-white">{onlineCount >= 20 ? onlineCount.toLocaleString() : '—'}</span>
+                <span className="text-[13.5px]" style={{ color: 'rgba(255,255,255,0.35)' }}>people online now</span>
               </div>
             </div>
 
             {/* Primary CTA */}
             <motion.button
               onClick={startVybing}
-              whileHover={{ scale: 1.025 }} whileTap={{ scale: 0.97 }}
-              className="flex items-center justify-center gap-2.5 py-3.5 rounded-2xl text-white font-extrabold mb-2.5"
-              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 60%, #c084fc 100%)', boxShadow: '0 0 26px rgba(124,58,237,0.34), 0 8px 24px rgba(0,0,0,0.28)', fontSize: '13.5px', letterSpacing: '-0.01em' }}>
-              <Video size={16} strokeWidth={2.5} />
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+              className="flex items-center justify-center gap-2.5 py-4 rounded-2xl text-white font-extrabold mb-3 w-full"
+              style={{ background: 'linear-gradient(135deg, #6d28d9 0%, #a855f7 55%, #c084fc 100%)', boxShadow: '0 0 30px rgba(124,58,237,0.38), 0 8px 24px rgba(0,0,0,0.22)', fontSize: '15px', letterSpacing: '-0.01em' }}>
+              <Video size={18} strokeWidth={2.5} />
               Start Video Chat
             </motion.button>
 
             {/* Secondary CTA */}
-            <button
+            <motion.button
               onClick={() => { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setCameraOn(false); navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } }) }}
-              className="text-center py-2 text-[11px] font-medium"
-              style={{ color: 'rgba(108,108,132,0.4)', background: 'transparent', border: 'none' }}>
-              Start without camera
-            </button>
+              whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+              className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white font-semibold mb-5 w-full"
+              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '14px' }}>
+              <VideoOff size={15} strokeWidth={2} />
+              Start Without Camera
+            </motion.button>
 
-            {/* Trust badges */}
-            <div className="flex gap-5 mt-7">
-              {['Anonymous', 'No sign-up', 'Free forever'].map(t => (
-                <div key={t} className="flex items-center gap-1.5">
-                  <div className="w-1 h-1 rounded-full bg-emerald-400 opacity-35" />
-                  <span className="text-[10px] font-medium" style={{ color: 'rgba(132,132,158,0.32)' }}>{t}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+            {/* Glassmorphism filter bar */}
+            <div className="rounded-2xl"
+              style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(24px) saturate(1.5)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 32px rgba(0,0,0,0.28)' }}>
+              <div className="flex items-stretch">
 
-          {/* â”€â”€ CENTER: Camera â”€â”€ */}
-          <div className="flex items-center justify-center" style={{ padding: '20px 0', minWidth: 0 }}>
-            <motion.div
-              className="relative"
-              style={{ width: '100%', maxWidth: '415px', height: '100%', maxHeight: '568px' }}
-              initial={{ opacity: 0, scale: 0.94, y: 14 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}>
-
-              {/* Outer ambient glow */}
-              <div className="absolute pointer-events-none" style={{ inset: '-18px', borderRadius: '42px', background: 'radial-gradient(ellipse, rgba(124,58,237,0.15) 0%, transparent 68%)', filter: 'blur(14px)' }} />
-
-              {/* Gradient border */}
-              <div className="absolute pointer-events-none" style={{ inset: '-1.5px', borderRadius: '27px', background: 'linear-gradient(145deg, rgba(167,139,250,0.4) 0%, rgba(124,58,237,0.07) 48%, rgba(236,72,153,0.2) 100%)', zIndex: -1 }} />
-
-              {/* Frame */}
-              <div className="relative w-full h-full overflow-hidden" style={{ borderRadius: '26px', background: '#060610', boxShadow: '0 40px 90px rgba(0,0,0,0.72), 0 0 0 1px rgba(255,255,255,0.03) inset' }}>
-
-                {/* Live video */}
-                <video ref={videoRefDesktop} autoPlay muted playsInline
-                  className={`w-full h-full object-cover absolute inset-0 ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
-
-                {/* Idle / error state */}
-                {(!cameraOn || cameraErr) && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center"
-                    style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(124,58,237,0.07) 0%, #060610 58%)' }}>
-
-                    {/* Pulsing rings */}
-                    <motion.div className="absolute pointer-events-none rounded-full"
-                      style={{ width: 200, height: 200, border: '1px solid rgba(124,58,237,0.11)' }}
-                      animate={{ scale: [1, 1.35, 1], opacity: [0.5, 0.1, 0.5] }}
-                      transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }} />
-                    <motion.div className="absolute pointer-events-none rounded-full"
-                      style={{ width: 128, height: 128, border: '1px solid rgba(124,58,237,0.16)' }}
-                      animate={{ scale: [1, 1.42, 1], opacity: [0.6, 0.12, 0.6] }}
-                      transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.65 }} />
-
-                    <div className="relative z-10 flex flex-col items-center text-center px-10">
-                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
-                        style={{ background: cameraErr ? 'rgba(239,68,68,0.09)' : 'rgba(124,58,237,0.11)', border: `1px solid ${cameraErr ? 'rgba(239,68,68,0.22)' : 'rgba(124,58,237,0.24)'}` }}>
-                        {cameraErr ? <VideoOff size={26} style={{ color: '#f87171' }} /> : <Camera size={26} style={{ color: 'rgba(167,139,250,0.7)' }} />}
-                      </div>
-
-                      {cameraErr ? (
-                        <>
-                          <p className="text-white font-bold text-sm mb-1.5">Camera Blocked</p>
-                          <p className="text-[11px] mb-5 leading-relaxed" style={{ color: 'rgba(248,113,113,0.68)' }}>
-                            {cameraErrMsg || 'Allow camera in your browser settings.'}
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-white font-semibold text-[13px] mb-1.5">Your camera preview</p>
-                          <p className="text-[11px] mb-5" style={{ color: 'rgba(140,140,168,0.4)' }}>Only visible to you</p>
-                        </>
-                      )}
-
-                      <motion.button onClick={enableCamera}
-                        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-[12.5px]"
-                        style={{ background: cameraErr ? 'rgba(239,68,68,0.1)' : 'rgba(124,58,237,0.13)', border: `1px solid ${cameraErr ? 'rgba(239,68,68,0.24)' : 'rgba(124,58,237,0.28)'}`, color: cameraErr ? '#fca5a5' : '#c4b5fd' }}>
-                        {cameraErr ? <VideoOff size={13} /> : <Camera size={13} />}
-                        {cameraErr ? 'Try Again' : 'Enable Camera'}
-                      </motion.button>
-
-                      <div className="flex items-center gap-1.5 mt-6">
-                        <motion.span className="w-1.5 h-1.5 rounded-full bg-emerald-400"
-                          animate={{ scale: [1, 1.35, 1], opacity: [1, 0.5, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }} />
-                        <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.16)' }}>
-                          {onlineCount >= 20 ? `${onlineCount.toLocaleString()} matching now` : 'People ready to connect'}
-                        </span>
-                      </div>
-                    </div>
+                {/* Gender */}
+                <motion.button
+                  onClick={() => { const o = ['both','male','female']; handleGender(o[(o.indexOf(filterGender)+1)%o.length]) }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 flex flex-col items-start gap-0.5 px-4 py-3.5 hover:bg-white/[0.04] transition-colors rounded-l-2xl">
+                  <span className="text-[9.5px] font-bold uppercase tracking-[0.14em]" style={{ color: 'rgba(145,145,175,0.5)' }}>Gender</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[13px] font-semibold text-white">
+                      {filterGender === 'both' ? 'Both' : filterGender === 'male' ? 'Male' : 'Female'}
+                    </span>
+                    <ChevronDown size={11} style={{ color: 'rgba(255,255,255,0.3)', marginTop: '1px' }} />
                   </div>
-                )}
+                </motion.button>
 
-                {/* Camera-on overlays */}
-                {cameraOn && !cameraErr && (
-                  <>
-                    <div className="absolute inset-0 pointer-events-none"
-                      style={{ background: 'radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,0.3) 100%)' }} />
-                    <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-xl z-10"
-                      style={{ background: 'rgba(0,0,0,0.48)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 online-pulse" />
-                      <span className="text-white text-[9px] font-extrabold tracking-[0.2em]">LIVE</span>
-                    </div>
-                    <motion.button onClick={flipCamera} whileTap={{ scale: 0.9 }}
-                      className="absolute top-4 right-4 w-9 h-9 rounded-xl flex items-center justify-center z-10"
-                      style={{ background: 'rgba(0,0,0,0.48)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <Camera size={15} className="text-white" />
-                    </motion.button>
-                    <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
-                      style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.46) 0%, transparent 100%)' }} />
-                    <p className="absolute bottom-3 left-0 right-0 text-center text-[9px] pointer-events-none"
-                      style={{ color: 'rgba(255,255,255,0.11)' }}>Your preview Â· only you can see this</p>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          </div>
+                <div style={{ width: '1px', background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
 
-          {/* â”€â”€ RIGHT: Filter panel â”€â”€ */}
-          <motion.div
-            className="flex flex-col justify-center"
-            style={{ paddingRight: '8%', paddingLeft: '4%' }}
-            initial={{ opacity: 0, x: 22 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.08, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}>
-
-            <div className="rounded-2xl p-5 space-y-5"
-              style={{ background: 'rgba(9,9,20,0.9)', backdropFilter: 'blur(28px) saturate(1.5)', border: '1px solid rgba(255,255,255,0.062)', boxShadow: '0 24px 60px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.042)' }}>
-
-              <p className="text-[8.5px] font-black tracking-[0.22em] uppercase" style={{ color: 'rgba(142,142,168,0.36)' }}>Match Settings</p>
-
-              {/* Mode */}
-              <div>
-                <p className="text-[8px] font-bold tracking-[0.16em] uppercase mb-2" style={{ color: 'rgba(142,142,168,0.3)' }}>Mode</p>
-                <div className="flex gap-0.5 p-0.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                  {[{ id: 'solo', label: 'Solo' }, { id: 'squad', label: 'Duo' }, { id: 'private', label: 'Private' }].map(({ id, label }) => (
-                    <motion.button key={id} onClick={() => setMode(id)} whileTap={{ scale: 0.92 }}
-                      className="flex-1 py-1.5 text-[10px] font-bold rounded-[10px]"
-                      style={mode === id
-                        ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', boxShadow: '0 0 10px rgba(124,58,237,0.28)' }
-                        : { color: 'rgba(152,152,178,0.4)', background: 'transparent' }}>
-                      {label}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Gender */}
-              <div>
-                <div className="flex items-center gap-1.5 mb-2">
-                  <p className="text-[8px] font-bold tracking-[0.16em] uppercase" style={{ color: 'rgba(142,142,168,0.3)' }}>Match With</p>
-                  <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(59,130,246,0.1)', color: 'rgba(147,197,253,0.72)' }}>Basic</span>
-                </div>
-                <div className="flex gap-1">
-                  {[{ id: 'both', label: 'Anyone' }, { id: 'male', label: 'Male' }, { id: 'female', label: 'Female' }].map(({ id, label }) => (
-                    <motion.button key={id} onClick={() => handleGender(id)} whileTap={{ scale: 0.91 }}
-                      className="flex-1 py-1.5 text-[10px] font-bold rounded-xl relative"
-                      style={filterGender === id
-                        ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white' }
-                        : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.065)', color: 'rgba(152,152,178,0.4)' }}>
-                      {label}
-                      {id !== 'both' && <Lock size={7} className="absolute top-1 right-1" style={{ opacity: 0.2 }} />}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Country */}
-              <div>
-                <div className="flex items-center gap-1.5 mb-2">
-                  <p className="text-[8px] font-bold tracking-[0.16em] uppercase" style={{ color: 'rgba(142,142,168,0.3)' }}>Country</p>
-                  <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(234,179,8,0.1)', color: 'rgba(250,204,21,0.72)' }}>VIP</span>
-                </div>
+                {/* Country */}
                 <motion.button
                   ref={countryBtnRef}
                   onClick={handleCountryClick}
-                  whileTap={{ scale: 0.97 }}
-                  className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-bold rounded-xl"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.065)', color: filterCountry ? '#c4b5fd' : 'rgba(152,152,178,0.4)' }}>
-                  <span className="flex items-center gap-1.5">
-                    {user?.isVip ? <Globe size={10} style={{ color: 'rgba(167,139,250,0.6)' }} /> : <Lock size={10} style={{ opacity: 0.2 }} />}
-                    {filterCountry || 'Any country'}
-                  </span>
-                  <ChevronDown size={10} style={{ opacity: 0.28, transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 flex flex-col items-start gap-0.5 px-4 py-3.5 hover:bg-white/[0.04] transition-colors">
+                  <span className="text-[9.5px] font-bold uppercase tracking-[0.14em]" style={{ color: 'rgba(145,145,175,0.5)' }}>Country</span>
+                  <div className="flex items-center gap-1">
+                    {user?.isVip ? <Globe size={11} style={{ color: 'rgba(167,139,250,0.65)' }} /> : <Lock size={11} style={{ color: 'rgba(255,255,255,0.25)' }} />}
+                    <span className="text-[13px] font-semibold text-white">
+                      {filterCountry ? filterCountry.split(' ').slice(1).join(' ').slice(0, 11) : 'Any country'}
+                    </span>
+                    <ChevronDown size={11} style={{ color: 'rgba(255,255,255,0.3)', marginTop: '1px', transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                  </div>
                 </motion.button>
-              </div>
 
-              {/* Auto Match */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10.5px] font-semibold text-white mb-0.5">Auto Match</p>
-                  <p className="text-[9px]" style={{ color: 'rgba(128,128,155,0.36)' }}>Auto-skip to next</p>
+                <div style={{ width: '1px', background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+
+                {/* Mode */}
+                <motion.button
+                  onClick={() => { const o = ['solo','squad','private']; setMode(o[(o.indexOf(mode)+1)%o.length]) }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 flex flex-col items-start gap-0.5 px-4 py-3.5 hover:bg-white/[0.04] transition-colors">
+                  <span className="text-[9.5px] font-bold uppercase tracking-[0.14em]" style={{ color: 'rgba(145,145,175,0.5)' }}>Mode</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[13px] font-semibold text-white capitalize">{mode === 'squad' ? 'Duo' : mode}</span>
+                    <ChevronDown size={11} style={{ color: 'rgba(255,255,255,0.3)', marginTop: '1px' }} />
+                  </div>
+                </motion.button>
+
+                <div style={{ width: '1px', background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+
+                {/* Settings icon */}
+                <div className="flex items-center justify-center px-4 rounded-r-2xl">
+                  <SlidersHorizontal size={14} style={{ color: 'rgba(175,175,205,0.35)' }} />
                 </div>
-                <button
-                  onClick={() => setAutoMatch(v => !v)}
-                  className="relative w-9 h-5 rounded-full flex-shrink-0"
-                  style={{ background: autoMatch ? 'rgba(124,58,237,0.75)' : 'rgba(255,255,255,0.09)', border: `1px solid ${autoMatch ? 'rgba(124,58,237,0.45)' : 'rgba(255,255,255,0.07)'}`, transition: 'background 300ms, border-color 300ms' }}>
-                  <div className="absolute w-3.5 h-3.5 rounded-full bg-white"
-                    style={{ top: '3px', left: autoMatch ? '17px' : '3px', transition: 'left 280ms cubic-bezier(0.3,0,0.2,1)' }} />
-                </button>
+
               </div>
-
-              {/* Duo room panel */}
-              <AnimatePresence initial={false}>
-                {mode === 'squad' && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
-                    <div className="rounded-xl p-3 space-y-2.5" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.052)' }}>
-                      <div className="flex items-center justify-between">
-                        <p className="text-[8px] font-bold uppercase tracking-widest" style={{ color: 'rgba(142,142,168,0.32)' }}>My Duo</p>
-                        <div className="flex items-center gap-2">
-                          {squadReady && <span className="text-[7px] px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/20 font-bold">Ready</span>}
-                          {squad && timeLeft != null && <span className="text-[7px] text-gray-600 font-mono">{fmtTime(timeLeft)}</span>}
-                          {squad && <button onClick={leaveSquad} className="w-3.5 h-3.5 flex items-center justify-center rounded text-gray-600 hover:text-white"><XIcon size={9} /></button>}
-                        </div>
-                      </div>
-                      {!squad ? (
-                        <>
-                          {squadError && <p className="text-red-400 text-[9px] text-center">{squadError}</p>}
-                          <button onClick={createSquad} disabled={squadLoading || !isConnected}
-                            className="w-full py-2 rounded-lg btn-purple text-white font-bold text-[9px] flex items-center justify-center gap-1 disabled:opacity-60">
-                            {squadLoading ? <><Loader2 size={9} className="animate-spin" /> Creatingâ€¦</> : <><UserPlus size={9} /> Create Duo Room</>}
-                          </button>
-                        </>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="flex gap-1.5">
-                            {squad.members.map((m) => (
-                              <div key={m.socketId} className="flex-1 flex flex-col items-center gap-0.5 p-1.5 rounded-lg relative group" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.058)' }}>
-                                <div className="w-6 h-6 rounded-full bg-purple-900/40 flex items-center justify-center text-purple-300 font-black text-[8px]">{m.username?.[0]?.toUpperCase() || '?'}</div>
-                                <span className="text-[7.5px] text-white font-semibold truncate w-full text-center">{m.username || 'User'}</span>
-                                {m.socketId === squad.leaderId && <Crown size={6} className="text-yellow-400" />}
-                                {squad.leaderId === socket?.id && m.socketId !== socket?.id && (
-                                  <button onClick={() => kickMember(m.socketId)} className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><XIcon size={6} /></button>
-                                )}
-                              </div>
-                            ))}
-                            {squad.members.length < 2 && (
-                              <div className="flex-1 flex flex-col items-center gap-0.5 p-1.5 rounded-lg border border-dashed" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}>
-                                <div className="w-6 h-6 rounded-full border border-dashed flex items-center justify-center" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><UserPlus size={8} className="text-gray-600" /></div>
-                                <span className="text-[7px] text-gray-600">Waitingâ€¦</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-1">
-                            <div className="flex-1 px-2 py-1 rounded-lg text-[7.5px] text-gray-600 font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.058)' }}>{inviteUrl}</div>
-                            <motion.button onClick={copyLink} whileTap={{ scale: 0.85 }} className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${copied ? 'bg-green-500/20 text-green-400' : 'text-gray-600 hover:text-white'}`} style={!copied ? { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.058)' } : {}}>
-                              <AnimatePresence mode="wait">
-                                {copied ? <motion.span key="c" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check size={9} /></motion.span> : <motion.span key="cp" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={9} /></motion.span>}
-                              </AnimatePresence>
-                            </motion.button>
-                          </div>
-                          {squadError && <p className="text-red-400 text-[9px] text-center">{squadError}</p>}
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Private room panel */}
-              <AnimatePresence initial={false}>
-                {mode === 'private' && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
-                    <div className="rounded-xl p-3 space-y-2.5" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.052)' }}>
-                      <div className="flex items-center justify-between">
-                        <p className="text-[8px] font-bold uppercase tracking-widest" style={{ color: 'rgba(142,142,168,0.32)' }}>Private Room</p>
-                        {privateCode && <button onClick={() => { setPrivateCode(''); setPrivateError('') }} className="w-3.5 h-3.5 flex items-center justify-center rounded text-gray-600 hover:text-white"><XIcon size={9} /></button>}
-                      </div>
-                      {!privateCode ? (
-                        <>
-                          {privateError && <p className="text-red-400 text-[9px] text-center">{privateError}</p>}
-                          <button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
-                            className="w-full py-2 rounded-lg btn-purple text-white font-bold text-[9px] flex items-center justify-center gap-1 disabled:opacity-60">
-                            {privateLoading ? <><Loader2 size={9} className="animate-spin" /> Creatingâ€¦</> : <><Lock size={9} /> Create Private Room</>}
-                          </button>
-                        </>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="flex gap-1">
-                            <div className="flex-1 px-2 py-1 rounded-lg text-[7.5px] text-gray-600 font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.058)' }}>{privateInviteUrl}</div>
-                            <motion.button onClick={copyPrivateLink} whileTap={{ scale: 0.85 }} className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${privateCopied ? 'bg-green-500/20 text-green-400' : 'text-gray-600 hover:text-white'}`} style={!privateCopied ? { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.058)' } : {}}>
-                              <AnimatePresence mode="wait">
-                                {privateCopied ? <motion.span key="c" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check size={9} /></motion.span> : <motion.span key="cp" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={9} /></motion.span>}
-                              </AnimatePresence>
-                            </motion.button>
-                          </div>
-                          {privateError && <p className="text-red-400 text-[9px] text-center">{privateError}</p>}
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
             </div>
+
+            {/* Duo room panel */}
+            <AnimatePresence initial={false}>
+              {mode === 'squad' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+                  <div className="mt-3 rounded-xl p-3 space-y-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="flex items-center justify-between">
+                      <p className="text-[8.5px] font-bold uppercase tracking-widest" style={{ color: 'rgba(145,145,170,0.35)' }}>My Duo</p>
+                      <div className="flex items-center gap-2">
+                        {squadReady && <span className="text-[7px] px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/20 font-bold">Ready</span>}
+                        {squad && timeLeft != null && <span className="text-[7px] text-gray-600 font-mono">{fmtTime(timeLeft)}</span>}
+                        {squad && <button onClick={leaveSquad} className="w-3.5 h-3.5 flex items-center justify-center rounded text-gray-600 hover:text-white"><XIcon size={9} /></button>}
+                      </div>
+                    </div>
+                    {!squad ? (
+                      <>
+                        {squadError && <p className="text-red-400 text-[9px] text-center">{squadError}</p>}
+                        <button onClick={createSquad} disabled={squadLoading || !isConnected}
+                          className="w-full py-2 rounded-lg btn-purple text-white font-bold text-[10px] flex items-center justify-center gap-1 disabled:opacity-60">
+                          {squadLoading ? <><Loader2 size={9} className="animate-spin" /> Creating…</> : <><UserPlus size={9} /> Create Duo Room</>}
+                        </button>
+                      </>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex gap-1.5">
+                          {squad.members.map((m) => (
+                            <div key={m.socketId} className="flex-1 flex flex-col items-center gap-0.5 p-1.5 rounded-lg relative group" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                              <div className="w-6 h-6 rounded-full bg-purple-900/40 flex items-center justify-center text-purple-300 font-black text-[8px]">{m.username?.[0]?.toUpperCase() || '?'}</div>
+                              <span className="text-[7.5px] text-white font-semibold truncate w-full text-center">{m.username || 'User'}</span>
+                              {m.socketId === squad.leaderId && <Crown size={6} className="text-yellow-400" />}
+                              {squad.leaderId === socket?.id && m.socketId !== socket?.id && (
+                                <button onClick={() => kickMember(m.socketId)} className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><XIcon size={6} /></button>
+                              )}
+                            </div>
+                          ))}
+                          {squad.members.length < 2 && (
+                            <div className="flex-1 flex flex-col items-center gap-0.5 p-1.5 rounded-lg border border-dashed" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}>
+                              <div className="w-6 h-6 rounded-full border border-dashed flex items-center justify-center" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><UserPlus size={8} className="text-gray-600" /></div>
+                              <span className="text-[7px] text-gray-600">Waiting…</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-1">
+                          <div className="flex-1 px-2 py-1 rounded-lg text-[7.5px] text-gray-600 font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>{inviteUrl}</div>
+                          <motion.button onClick={copyLink} whileTap={{ scale: 0.85 }} className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${copied ? 'bg-green-500/20 text-green-400' : 'text-gray-600 hover:text-white'}`} style={!copied ? { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } : {}}>
+                            <AnimatePresence mode="wait">
+                              {copied ? <motion.span key="c" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check size={9} /></motion.span> : <motion.span key="cp" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={9} /></motion.span>}
+                            </AnimatePresence>
+                          </motion.button>
+                        </div>
+                        {squadError && <p className="text-red-400 text-[9px] text-center">{squadError}</p>}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Private room panel */}
+            <AnimatePresence initial={false}>
+              {mode === 'private' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+                  <div className="mt-3 rounded-xl p-3 space-y-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div className="flex items-center justify-between">
+                      <p className="text-[8.5px] font-bold uppercase tracking-widest" style={{ color: 'rgba(145,145,170,0.35)' }}>Private Room</p>
+                      {privateCode && <button onClick={() => { setPrivateCode(''); setPrivateError('') }} className="w-3.5 h-3.5 flex items-center justify-center rounded text-gray-600 hover:text-white"><XIcon size={9} /></button>}
+                    </div>
+                    {!privateCode ? (
+                      <>
+                        {privateError && <p className="text-red-400 text-[9px] text-center">{privateError}</p>}
+                        <button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
+                          className="w-full py-2 rounded-lg btn-purple text-white font-bold text-[10px] flex items-center justify-center gap-1 disabled:opacity-60">
+                          {privateLoading ? <><Loader2 size={9} className="animate-spin" /> Creating…</> : <><Lock size={9} /> Create Private Room</>}
+                        </button>
+                      </>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex gap-1">
+                          <div className="flex-1 px-2 py-1 rounded-lg text-[7.5px] text-gray-600 font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>{privateInviteUrl}</div>
+                          <motion.button onClick={copyPrivateLink} whileTap={{ scale: 0.85 }} className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${privateCopied ? 'bg-green-500/20 text-green-400' : 'text-gray-600 hover:text-white'}`} style={!privateCopied ? { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } : {}}>
+                            <AnimatePresence mode="wait">
+                              {privateCopied ? <motion.span key="c" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check size={9} /></motion.span> : <motion.span key="cp" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={9} /></motion.span>}
+                            </AnimatePresence>
+                          </motion.button>
+                        </div>
+                        {privateError && <p className="text-red-400 text-[9px] text-center">{privateError}</p>}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
           </motion.div>
 
-        </div>{/* end grid */}
+          {/* ── RIGHT: Camera panel ── */}
+          <div className="flex-1 flex flex-col py-4 pr-5 pl-2 min-w-0">
+            <motion.div
+              className="relative flex-1 rounded-3xl overflow-hidden"
+              style={{ background: '#09091a' }}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.07, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
 
-        {/* â”€â”€ BOTTOM: Floating action bar â”€â”€ */}
-        <motion.div
-          className="absolute left-0 right-0 flex justify-center z-30"
-          style={{ bottom: '16px' }}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.42, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-[18px]"
-            style={{ background: 'rgba(7,7,16,0.86)', backdropFilter: 'blur(36px) saturate(1.8)', border: '1px solid rgba(255,255,255,0.062)', boxShadow: '0 20px 56px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.048)' }}>
+              {/* Camera feed */}
+              <video ref={videoRefDesktop} autoPlay muted playsInline
+                className={`w-full h-full object-cover absolute inset-0 ${cameraOn && !cameraErr ? 'block' : 'hidden'}`}
+                style={{ objectPosition: 'center top' }} />
 
-            {/* Mode */}
-            <div className="flex items-center gap-0.5 p-0.5 rounded-[13px]" style={{ background: 'rgba(255,255,255,0.05)' }}>
-              {[{ id: 'solo', label: 'ðŸ‘¤ Solo' }, { id: 'squad', label: 'ðŸ‘¥ Duo' }, { id: 'private', label: 'ðŸ”’ Private' }].map(({ id, label }) => (
-                <motion.button key={id} onClick={() => setMode(id)} whileTap={{ scale: 0.91 }}
-                  className="px-3 py-1.5 rounded-[11px] text-[10px] font-bold"
-                  style={mode === id
-                    ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', boxShadow: '0 0 10px rgba(124,58,237,0.38)' }
-                    : { color: 'rgba(152,152,180,0.42)', background: 'transparent' }}>
-                  {label}
-                </motion.button>
+              {/* Idle / error state */}
+              {(!cameraOn || cameraErr) && (
+                <div className="absolute inset-0 flex items-center justify-center"
+                  style={{ background: 'radial-gradient(ellipse at 58% 32%, rgba(124,58,237,0.22) 0%, rgba(9,9,26,0.96) 52%, #09091a 100%)' }}>
+                  <motion.div className="absolute pointer-events-none rounded-full"
+                    style={{ width: 240, height: 240, border: '1px solid rgba(124,58,237,0.1)' }}
+                    animate={{ scale: [1, 1.32, 1], opacity: [0.45, 0.08, 0.45] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }} />
+                  <motion.div className="absolute pointer-events-none rounded-full"
+                    style={{ width: 150, height: 150, border: '1px solid rgba(124,58,237,0.16)' }}
+                    animate={{ scale: [1, 1.48, 1], opacity: [0.55, 0.1, 0.55] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.75 }} />
+                  <div className="relative z-10 flex flex-col items-center text-center px-12">
+                    <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
+                      style={{ background: cameraErr ? 'rgba(239,68,68,0.1)' : 'rgba(124,58,237,0.12)', border: `1.5px solid ${cameraErr ? 'rgba(239,68,68,0.26)' : 'rgba(124,58,237,0.3)'}` }}>
+                      {cameraErr ? <VideoOff size={32} style={{ color: '#f87171' }} /> : <Camera size={32} style={{ color: 'rgba(167,139,250,0.72)' }} />}
+                    </div>
+                    <p className="text-white font-bold text-[15px] mb-2">{cameraErr ? 'Camera Blocked' : 'Your preview'}</p>
+                    <p className="text-[12px] mb-7 leading-relaxed" style={{ color: 'rgba(138,138,166,0.45)' }}>
+                      {cameraErr ? (cameraErrMsg || 'Allow camera access in browser settings.') : 'Only visible to you — ready when you are'}
+                    </p>
+                    <motion.button onClick={enableCamera}
+                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-2.5 px-8 py-3 rounded-xl font-bold text-[13.5px]"
+                      style={{ background: cameraErr ? 'rgba(239,68,68,0.12)' : 'rgba(124,58,237,0.16)', border: `1.5px solid ${cameraErr ? 'rgba(239,68,68,0.28)' : 'rgba(124,58,237,0.32)'}`, color: cameraErr ? '#fca5a5' : '#c4b5fd' }}>
+                      {cameraErr ? <VideoOff size={16} /> : <Camera size={16} />}
+                      {cameraErr ? 'Try Again' : 'Enable Camera'}
+                    </motion.button>
+                  </div>
+                </div>
+              )}
+
+              {/* Camera-on overlays */}
+              {cameraOn && !cameraErr && (
+                <>
+                  <div className="absolute inset-0 pointer-events-none"
+                    style={{ background: 'radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.28) 100%)' }} />
+                  <motion.button onClick={flipCamera} whileTap={{ scale: 0.9 }}
+                    className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center z-20"
+                    style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <Camera size={16} className="text-white" />
+                  </motion.button>
+                </>
+              )}
+
+              {/* LIVE badge */}
+              <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl z-20"
+                style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 online-pulse" />
+                <span className="text-white text-[10px] font-extrabold tracking-[0.2em]">LIVE</span>
+              </div>
+
+              {/* Heart reactions */}
+              {[
+                { top: '18%', right: '5%', size: '28px', color: 'rgba(236,72,153,0.88)', delay: 0, dur: 3.8 },
+                { top: '38%', right: '3.5%', size: '18px', color: 'rgba(167,139,250,0.52)', delay: 1.1, dur: 4.4 },
+                { top: '58%', right: '5.5%', size: '22px', color: 'rgba(236,72,153,0.72)', delay: 0.55, dur: 3.5 },
+              ].map((h, i) => (
+                <motion.div key={i} className="absolute pointer-events-none select-none z-20 font-black"
+                  style={{ top: h.top, right: h.right, fontSize: h.size, color: h.color, filter: `drop-shadow(0 2px 12px ${h.color})` }}
+                  animate={{ y: [0, -9, 0], scale: [1, 1.08, 1] }}
+                  transition={{ duration: h.dur, repeat: Infinity, ease: 'easeInOut', delay: h.delay }}>
+                  ♥
+                </motion.div>
               ))}
-            </div>
 
-            {/* Divider */}
-            <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+              {/* Bottom gradient */}
+              <div className="absolute bottom-0 left-0 right-0 h-44 pointer-events-none z-10"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 70%, transparent 100%)' }} />
 
-            {/* Gender quick-toggle */}
-            <motion.button
-              onClick={() => { const o = ['both','male','female']; handleGender(o[(o.indexOf(filterGender)+1)%o.length]) }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-[11px] text-[10px] font-bold"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: filterGender !== 'both' ? '#c4b5fd' : 'rgba(192,192,220,0.52)', minWidth: '82px' }}>
-              {filterGender === 'both' ? 'âš¤ Anyone' : filterGender === 'male' ? 'â™‚ Male' : 'â™€ Female'}
-              <ChevronDown size={9} style={{ opacity: 0.35, marginLeft: 'auto' }} />
-            </motion.button>
+              {/* User info card — bottom left */}
+              <motion.div className="absolute bottom-5 left-5 flex items-center gap-3 px-4 py-3 rounded-2xl z-20"
+                style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45, duration: 0.5 }}>
+                <img src="https://randomuser.me/api/portraits/men/35.jpg" alt=""
+                  className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                <div>
+                  <p className="text-white font-bold text-[13px] leading-tight">Alex, 24</p>
+                  <p className="text-[11.5px] mt-0.5" style={{ color: 'rgba(255,255,255,0.52)' }}>🇺🇸 United States</p>
+                </div>
+              </motion.div>
 
-            {/* Divider */}
-            <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+              {/* People connecting card — bottom right */}
+              <motion.div className="absolute bottom-5 right-5 flex items-center gap-3 px-4 py-3 rounded-2xl z-20"
+                style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.5 }}>
+                <div className="flex -space-x-2 flex-shrink-0">
+                  {[11, 26, 44, 65].map(n => (
+                    <img key={n} src={`https://i.pravatar.cc/48?img=${n}`} alt=""
+                      className="w-7 h-7 rounded-full" style={{ border: '2px solid rgba(0,0,0,0.55)' }} />
+                  ))}
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-[8.5px] font-bold text-white flex-shrink-0"
+                    style={{ background: 'rgba(124,58,237,0.85)', border: '2px solid rgba(0,0,0,0.55)' }}>+24</div>
+                </div>
+                <div>
+                  <p className="text-white font-semibold text-[12px] leading-tight">People connecting</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.42)' }}>right now</p>
+                </div>
+              </motion.div>
 
-            {/* Start CTA */}
-            <motion.button
-              onClick={startVybing}
-              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-[12px] text-white font-extrabold flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 0 18px rgba(124,58,237,0.38)', fontSize: '11.5px', letterSpacing: '-0.01em' }}>
-              <Video size={14} strokeWidth={2.5} />
-              Start Video Chat
-            </motion.button>
-
+            </motion.div>
           </div>
-        </motion.div>
+
+        </div>{/* end 2-column */}
+
+        {/* ── Feature row ── */}
+        <div className="relative z-10 grid grid-cols-4 px-[5%] py-4 flex-shrink-0"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          {[
+            { icon: Lock,   title: 'Private & Safe',     text: 'Your privacy comes first',         color: '#7c3aed' },
+            { icon: Video,  title: 'Instant Match',      text: 'Get matched in seconds',            color: '#a855f7' },
+            { icon: Globe,  title: 'Global Community',   text: 'Meet people from 180+ countries',   color: '#3b82f6' },
+            { icon: Shield, title: 'Secure & Moderated', text: '24/7 protection for your safety',   color: '#10b981' },
+          ].map(({ icon: Icon, title, text, color }, i) => (
+            <div key={title} className={`flex items-center gap-3 px-4 py-1 ${i > 0 ? 'border-l' : ''}`}
+              style={i > 0 ? { borderColor: 'rgba(255,255,255,0.05)' } : {}}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: `${color}14`, border: `1px solid ${color}22` }}>
+                <Icon size={17} style={{ color }} />
+              </div>
+              <div>
+                <p className="text-white font-semibold text-[12.5px] leading-tight mb-0.5">{title}</p>
+                <p className="text-[11px] leading-tight" style={{ color: 'rgba(135,135,162,0.5)' }}>{text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
 
       </section>
 
