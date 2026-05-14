@@ -849,50 +849,19 @@ export default function MainPage() {
 
       {/* ══════════════ DESKTOP LAYOUT — Azar-style ══════════════ */}
       <section className="hidden lg:block relative z-10 pt-4 pb-6">
-        <div className="grid [grid-template-columns:1.55fr_1fr] gap-8 px-10 items-start w-full">
+        <div className="grid [grid-template-columns:1.15fr_1fr] gap-5 px-10 items-stretch w-full">
 
-          {/* ── LEFT COLUMN — Camera hero + filters + CTA ── */}
+          {/* ── LEFT COLUMN — Full camera hero (Azar-style) ── */}
           <motion.div
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-3"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
-            {/* Headline */}
-            <div className="flex flex-col gap-2">
-              <motion.div
-                className="inline-flex w-fit items-center gap-2 px-3 py-1.5 rounded-full"
-                style={{ background: 'rgba(124,58,237,0.14)', border: '1px solid rgba(124,58,237,0.3)' }}
-                animate={{ boxShadow: ['0 0 12px rgba(124,58,237,0.1)', '0 0 22px rgba(124,58,237,0.22)', '0 0 12px rgba(124,58,237,0.1)'] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <motion.span className="w-1.5 h-1.5 rounded-full bg-green-400"
-                  animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.4, repeat: Infinity }} />
-                <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#a78bfa' }}>Live · Random · Real</span>
-              </motion.div>
-              <motion.h1
-                className="font-extrabold leading-[1.08] tracking-[-0.03em] text-white"
-                style={{ fontSize: 'clamp(2.1rem, 3.1vw, 3.4rem)' }}
-                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, duration: 0.6 }}
-              >
-                Meet real people.{' '}
-                <span style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                  Instantly.
-                </span>
-              </motion.h1>
-              <motion.p
-                className="text-sm leading-relaxed"
-                style={{ color: '#6b7280' }}
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16, duration: 0.55 }}
-              >
-                Live video chat with smarter filters, creator gifting, and built-in moderation.
-              </motion.p>
-            </div>
-
-            {/* Camera — full-width */}
+            {/* Camera hero — fills height, filters overlaid at bottom */}
             <motion.div
-              className="relative rounded-2xl overflow-hidden w-full"
-              style={{ aspectRatio: '4/3', background: '#080812', border: '1px solid rgba(124,58,237,0.22)', boxShadow: '0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(124,58,237,0.06) inset' }}
+              className="relative rounded-2xl overflow-hidden flex-1"
+              style={{ minHeight: '560px', background: '#06060f', border: '1px solid rgba(124,58,237,0.2)', boxShadow: '0 24px 64px rgba(0,0,0,0.7)' }}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -900,26 +869,45 @@ export default function MainPage() {
               <video
                 ref={videoRefDesktop}
                 autoPlay muted playsInline
-                className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`}
+                className={`w-full h-full object-cover absolute inset-0 ${cameraOn && !cameraErr ? 'block' : 'hidden'}`}
               />
-              {!cameraOn || cameraErr ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
-                  style={{ background: 'radial-gradient(ellipse at 40% 35%, rgba(124,58,237,0.12) 0%, rgba(8,8,18,1) 70%)' }}>
+
+              {/* Idle / error state */}
+              {(!cameraOn || cameraErr) && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center"
+                  style={{ background: 'radial-gradient(ellipse at 40% 30%, rgba(124,58,237,0.1) 0%, rgba(6,6,15,1) 65%)' }}>
                   {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && (
-                    <div className="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-semibold"
+                    <div className="absolute top-4 left-4 right-4 z-20 flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-semibold"
                       style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
                       <Shield size={12} className="flex-shrink-0" /> Camera requires HTTPS
                     </div>
                   )}
+
+                  {/* VYBE brand watermark (like Azar's centered logo) */}
+                  <p className="font-black tracking-[-0.04em] select-none pointer-events-none mb-4"
+                    style={{ fontSize: 'clamp(4rem, 8vw, 7rem)', color: 'rgba(255,255,255,0.04)', lineHeight: 1 }}>
+                    VYBE
+                  </p>
+
+                  {/* Online count */}
+                  <div className="flex items-center gap-2 mb-8">
+                    <motion.span className="w-2 h-2 rounded-full bg-emerald-400"
+                      animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+                    <span className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                      {onlineCount >= 20 ? `${onlineCount.toLocaleString()} are matching now!` : 'People connecting now'}
+                    </span>
+                  </div>
+
+                  {/* Camera permission UI */}
                   {!permissionAsked || cameraErr ? (
-                    <div className="relative z-10 flex flex-col items-center w-full max-w-[220px]">
+                    <div className="flex flex-col items-center w-full max-w-[200px]">
                       <div className="flex items-center justify-center mb-3 rounded-2xl"
                         style={{ width: 52, height: 52, background: cameraErr ? 'rgba(220,38,38,0.12)' : 'rgba(124,58,237,0.15)', border: `1.5px solid ${cameraErr ? 'rgba(220,38,38,0.28)' : 'rgba(124,58,237,0.35)'}` }}>
                         {cameraErr ? <VideoOff size={22} style={{ color: '#f87171' }} /> : <Camera size={22} style={{ color: 'rgba(167,139,250,0.85)' }} />}
                       </div>
                       {cameraErr ? (
                         <>
-                          <p className="text-white font-bold text-sm text-center mb-1 leading-snug">Camera blocked</p>
+                          <p className="text-white font-bold text-sm text-center mb-1">Camera blocked</p>
                           <p className="text-[12px] text-center mb-3 leading-relaxed px-2" style={{ color: 'rgba(248,113,113,0.8)' }}>
                             {cameraErrMsg || 'Allow camera in your browser settings.'}
                           </p>
@@ -938,8 +926,8 @@ export default function MainPage() {
                         </>
                       ) : (
                         <>
-                          <p className="text-white font-bold text-sm text-center mb-1 leading-snug">Allow camera access</p>
-                          <p className="text-[12px] text-center mb-4 leading-relaxed" style={{ color: 'rgba(160,160,180,0.55)' }}>Required to start video chatting</p>
+                          <p className="text-white font-bold text-sm text-center mb-1">Allow camera access</p>
+                          <p className="text-[12px] text-center mb-4 leading-relaxed" style={{ color: 'rgba(160,160,180,0.45)' }}>Required to start video chatting</p>
                         </>
                       )}
                       <motion.button onClick={enableCamera} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
@@ -948,32 +936,33 @@ export default function MainPage() {
                       </motion.button>
                     </div>
                   ) : (
-                    <div className="relative z-10 flex flex-col items-center gap-3">
+                    <div className="flex flex-col items-center gap-3">
                       <Loader2 size={28} className="animate-spin" style={{ color: 'rgba(167,139,250,0.7)' }} />
-                      <p className="text-[12px]" style={{ color: 'rgba(160,160,180,0.6)' }}>Waiting for permission…</p>
+                      <p className="text-[12px]" style={{ color: 'rgba(160,160,180,0.5)' }}>Waiting for permission…</p>
                     </div>
                   )}
                 </div>
-              ) : null}
+              )}
 
-              {/* Vignette */}
+              {/* Vignette overlay */}
               <div className="absolute inset-0 pointer-events-none"
-                style={{ background: 'radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.5) 100%)' }} />
+                style={{ background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%)' }} />
 
-              {/* Bottom gradient */}
-              <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75), transparent)' }} />
+              {/* Bottom gradient for filter bar readability */}
+              <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)' }} />
 
-              {/* Preview label */}
-              <p className="absolute bottom-3 left-0 right-0 text-center text-[11px] pointer-events-none"
-                style={{ color: 'rgba(255,255,255,0.3)' }}>
-                Your preview · only you can see this
-              </p>
+              {/* Preview label (only when camera active) */}
+              {cameraOn && !cameraErr && (
+                <p className="absolute top-3 left-0 right-0 text-center text-[10px] pointer-events-none"
+                  style={{ color: 'rgba(255,255,255,0.25)' }}>
+                  Your preview · only you can see this
+                </p>
+              )}
 
               {/* LIVE badge */}
               {cameraOn && (
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
-                  style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}>
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}>
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 online-pulse" />
                   <span className="text-white text-[9px] font-extrabold tracking-[0.2em]">LIVE</span>
                 </div>
@@ -985,209 +974,218 @@ export default function MainPage() {
                   <Camera size={16} className="text-white" />
                 </motion.button>
               )}
-            </motion.div>
 
-            {/* ── Horizontal filter bar ── */}
-            <div className="rounded-2xl p-4" style={{ background: 'rgba(14,10,28,0.9)', backdropFilter: 'blur(20px)', border: '1px solid rgba(124,58,237,0.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
-              <div className="grid grid-cols-3 gap-4">
-                {/* MODE */}
-                <div>
-                  <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-2" style={{ color: 'rgba(160,160,180,0.4)' }}>MODE</p>
-                  <div className="flex gap-1 p-0.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                    {[{ id: 'solo', label: '👤 Solo' }, { id: 'squad', label: '👥 Duo' }, { id: 'private', label: '🔒 Private' }].map(({ id, label }) => (
-                      <motion.button key={id} onClick={() => setMode(id)} whileTap={{ scale: 0.93 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                        className="flex-1 py-2 text-[10px] font-bold"
-                        style={mode === id
-                          ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', borderRadius: '9px' }
-                          : { color: 'rgba(160,160,180,0.45)', borderRadius: '9px' }}>
-                        {label}
-                      </motion.button>
-                    ))}
-                  </div>
+              {/* ── Azar-style bottom overlay: Mode + Gender/CTA/Country ── */}
+              <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-2 z-10">
+                {/* Mode row */}
+                <div className="flex gap-2 justify-center mb-3">
+                  {[{ id: 'solo', label: '👤 Solo' }, { id: 'squad', label: '👥 Duo' }, { id: 'private', label: '🔒 Private' }].map(({ id, label }) => (
+                    <motion.button key={id} onClick={() => setMode(id)} whileTap={{ scale: 0.93 }}
+                      className="px-3.5 py-1.5 text-[10px] font-bold rounded-full"
+                      style={mode === id
+                        ? { background: 'rgba(124,58,237,0.9)', color: 'white', border: '1px solid rgba(167,139,250,0.4)', backdropFilter: 'blur(10px)' }
+                        : { background: 'rgba(0,0,0,0.5)', color: 'rgba(200,200,220,0.5)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+                      {label}
+                    </motion.button>
+                  ))}
                 </div>
 
-                {/* MATCH WITH */}
-                <div>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <p className="text-[9px] font-black tracking-[0.2em] uppercase" style={{ color: 'rgba(160,160,180,0.4)' }}>MATCH WITH</p>
-                    <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(59,130,246,0.12)', color: 'rgba(147,197,253,0.85)' }}>Basic</span>
-                  </div>
-                  <div className="flex gap-1 p-0.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                    {[{ id: 'both', label: 'Anyone', free: true }, { id: 'male', label: '♂ Male', free: false }, { id: 'female', label: '♀ Female', free: false }].map(({ id, label, free }) => (
-                      <motion.button key={id} onClick={() => handleGender(id)} whileTap={{ scale: 0.92 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                        className="flex-1 py-2 text-[10px] font-bold relative"
-                        style={filterGender === id
-                          ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', borderRadius: '9px' }
-                          : { color: 'rgba(160,160,180,0.45)', borderRadius: '9px' }}>
-                        {label}
-                        {!free && <Lock size={7} className="absolute top-0.5 right-0.5" style={{ opacity: 0.3 }} />}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
+                {/* Gender pill | Start CTA | Country pill */}
+                <div className="flex items-center gap-2">
+                  {/* Gender */}
+                  <motion.button
+                    onClick={() => { const o = ['both','male','female']; handleGender(o[(o.indexOf(filterGender)+1)%o.length]) }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center justify-between gap-2 px-3 py-3 rounded-2xl text-[11px] font-bold flex-shrink-0"
+                    style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.13)', color: filterGender !== 'both' ? '#c4b5fd' : 'rgba(220,220,240,0.75)', minWidth: '88px' }}
+                  >
+                    <span>{filterGender === 'both' ? 'Gender' : filterGender === 'male' ? '♂ Male' : '♀ Female'}</span>
+                    <ChevronDown size={11} style={{ opacity: 0.55, flexShrink: 0 }} />
+                  </motion.button>
 
-                {/* COUNTRY */}
-                <div>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <p className="text-[9px] font-black tracking-[0.2em] uppercase" style={{ color: 'rgba(160,160,180,0.4)' }}>COUNTRY</p>
-                    <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(234,179,8,0.12)', color: 'rgba(250,204,21,0.85)' }}>VIP</span>
-                  </div>
+                  {/* Start Now — dominant center CTA */}
+                  <motion.button
+                    onClick={startVybing}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-white font-extrabold"
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', boxShadow: '0 0 28px rgba(124,58,237,0.55)', fontSize: '13px' }}
+                  >
+                    <Video size={14} strokeWidth={2.5} /> Start Video Chat
+                  </motion.button>
+
+                  {/* Country */}
                   <motion.button
                     ref={countryBtnRef}
                     onClick={handleCountryClick}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-bold rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)' }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center justify-between gap-2 px-3 py-3 rounded-2xl text-[11px] font-bold flex-shrink-0"
+                    style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.13)', color: filterCountry ? '#c4b5fd' : 'rgba(220,220,240,0.75)', minWidth: '88px' }}
                   >
-                    <span className="flex items-center gap-1.5">
-                      {user?.isVip ? <Globe size={11} style={{ color: 'rgba(167,139,250,0.7)' }} /> : <Lock size={11} style={{ opacity: 0.3 }} />}
-                      <span style={{ color: filterCountry ? 'white' : undefined }}>{filterCountry || 'Any country'}</span>
-                    </span>
-                    <ChevronDown size={11} style={{ transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                    <span>{filterCountry ? filterCountry.split(' ').slice(1).join(' ').slice(0,8) : 'Country'}</span>
+                    <ChevronDown size={11} style={{ transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)', opacity: 0.55, flexShrink: 0 }} />
                   </motion.button>
                 </div>
+
+                {/* Start without camera */}
+                <button
+                  onClick={() => { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setCameraOn(false); navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } }) }}
+                  className="w-full text-center mt-2 py-1 text-[10px]"
+                  style={{ color: 'rgba(160,160,180,0.3)' }}
+                >
+                  Start without camera
+                </button>
               </div>
+            </motion.div>
 
-              {/* Squad expand */}
-              <AnimatePresence initial={false}>
-                {mode === 'squad' && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden mt-3">
-                    <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <div className="flex items-center justify-between mb-2.5">
-                        <div className="flex items-center gap-2">
-                          <p className="text-[10px] font-bold text-vybe-muted uppercase tracking-widest">My Duo</p>
-                          {squadReady && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/25 font-bold">✓ Ready</span>}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {squad && timeLeft != null && <span className="text-[9px] text-vybe-muted font-mono">Expires {fmtTime(timeLeft)}</span>}
-                          {squad && <button onClick={leaveSquad} className="w-4 h-4 flex items-center justify-center rounded text-vybe-muted hover:text-white"><XIcon size={10} /></button>}
-                        </div>
+            {/* Squad expand — below camera */}
+            <AnimatePresence initial={false}>
+              {mode === 'squad' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+                  <div className="rounded-2xl p-4" style={{ background: 'rgba(14,10,28,0.95)', border: '1px solid rgba(124,58,237,0.2)' }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <p className="text-[11px] font-bold text-white uppercase tracking-widest">My Duo</p>
+                        {squadReady && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/25 font-bold">✓ Ready</span>}
                       </div>
-                      {!squad ? (
-                        <div>
-                          <p className="text-vybe-muted text-[11px] text-center mb-2.5">Invite a friend to chat as a duo</p>
-                          {squadError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{squadError}</p>}
-                          <button onClick={createSquad} disabled={squadLoading || !isConnected}
-                            className="w-full py-2.5 rounded-xl btn-purple text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed">
-                            {squadLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><UserPlus size={11} /> Create Duo Room</>}
-                          </button>
-                          {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
-                        </div>
-                      ) : (
-                        <div className="space-y-2.5">
-                          <div className="flex gap-2">
-                            {squad.members.map((m) => (
-                              <div key={m.socketId} className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border relative group" style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.08)' }}>
-                                <div className="w-8 h-8 rounded-full bg-vybe-purple/20 flex items-center justify-center text-vybe-purple-light font-black text-xs">{m.username?.[0]?.toUpperCase() || '?'}</div>
-                                <span className="text-[9px] text-white font-semibold truncate w-full text-center" style={{ maxWidth: '52px' }}>{m.username || 'User'}</span>
-                                {m.socketId === squad.leaderId && <Crown size={8} className="text-yellow-400" />}
-                                {squad.leaderId === socket?.id && m.socketId !== socket?.id && (
-                                  <button onClick={() => kickMember(m.socketId)} className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><XIcon size={7} /></button>
-                                )}
-                              </div>
-                            ))}
-                            {squad.members.length < 2 && (
-                              <div className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border border-dashed" style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)' }}>
-                                <div className="w-8 h-8 rounded-full border-2 border-dashed border-vybe-border flex items-center justify-center"><UserPlus size={11} className="text-vybe-muted" /></div>
-                                <span className="text-[9px] text-vybe-muted">Waiting…</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-1.5">
-                            <div className="flex-1 px-2 py-1.5 rounded-lg text-[9px] text-vybe-muted font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>{inviteUrl}</div>
-                            <motion.button onClick={copyLink} whileTap={{ scale: 0.85 }} animate={copied ? { scale: [1, 1.2, 1] } : {}} transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                              className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${copied ? 'bg-green-500/20 text-green-400' : 'text-vybe-muted hover:text-white'}`}
-                              style={!copied ? { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } : {}}>
-                              <AnimatePresence mode="wait">
-                                {copied ? <motion.span key="check" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }}><Check size={10} /></motion.span>
-                                  : <motion.span key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={10} /></motion.span>}
-                              </AnimatePresence>
-                            </motion.button>
-                          </div>
-                          <div className="grid grid-cols-3 gap-1.5">
-                            <a href={shareUrls.whatsapp} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-1.5 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 transition-all">
-                              <svg viewBox="0 0 24 24" className="w-3 h-3 fill-[#25D366]"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
-                              <span className="text-[7px] text-[#25D366] font-bold">WhatsApp</span>
-                            </a>
-                            <a href={shareUrls.twitter} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-                              <svg viewBox="0 0 24 24" className="w-3 h-3 fill-white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
-                              <span className="text-[7px] text-white/70 font-bold">Twitter</span>
-                            </a>
-                            <a href={shareUrls.facebook} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-1.5 rounded-lg bg-[#1877F2]/10 border border-[#1877F2]/20 hover:bg-[#1877F2]/20 transition-all">
-                              <svg viewBox="0 0 24 24" className="w-3 h-3 fill-[#1877F2]"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
-                              <span className="text-[7px] text-[#1877F2] font-bold">Facebook</span>
-                            </a>
-                          </div>
-                          {squadError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 text-center">{squadError}</p>}
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Private expand */}
-              <AnimatePresence initial={false}>
-                {mode === 'private' && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden mt-3">
-                    <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <div className="flex items-center justify-between mb-2.5">
-                        <p className="text-[10px] font-bold text-vybe-muted uppercase tracking-widest">Private Room</p>
-                        {privateCode && <button onClick={() => { setPrivateCode(''); setPrivateError('') }} className="w-4 h-4 flex items-center justify-center rounded text-vybe-muted hover:text-white"><XIcon size={10} /></button>}
+                      <div className="flex items-center gap-2">
+                        {squad && timeLeft != null && <span className="text-[9px] text-vybe-muted font-mono">Expires {fmtTime(timeLeft)}</span>}
+                        {squad && <button onClick={leaveSquad} className="w-4 h-4 flex items-center justify-center rounded text-vybe-muted hover:text-white"><XIcon size={10} /></button>}
                       </div>
-                      {!privateCode ? (
-                        <div>
-                          <p className="text-vybe-muted text-[11px] text-center mb-2.5">Create a private room and share the link with one friend</p>
-                          {privateError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{privateError}</p>}
-                          <button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
-                            className="w-full py-2.5 rounded-xl btn-purple text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60">
-                            {privateLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><Lock size={11} /> Create Private Room</>}
-                          </button>
-                          {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
-                        </div>
-                      ) : (
-                        <div className="space-y-2.5">
-                          <div className="flex items-center gap-2 p-2 rounded-xl" style={{ background: 'rgba(27,98,245,0.08)', border: '1px solid rgba(27,98,245,0.18)' }}>
-                            <Lock size={11} className="text-blue-400 flex-shrink-0" />
-                            <p className="text-[11px] text-blue-300 flex-1">Room ready — share the link below</p>
-                          </div>
-                          <div className="flex gap-1.5">
-                            <div className="flex-1 px-2 py-1.5 rounded-lg text-[9px] text-vybe-muted font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>{privateInviteUrl}</div>
-                            <motion.button onClick={copyPrivateLink} whileTap={{ scale: 0.85 }} animate={privateCopied ? { scale: [1, 1.2, 1] } : {}} transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                              className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${privateCopied ? 'bg-green-500/20 text-green-400' : 'text-vybe-muted hover:text-white'}`}
-                              style={!privateCopied ? { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } : {}}>
-                              <AnimatePresence mode="wait">
-                                {privateCopied ? <motion.span key="check" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }}><Check size={10} /></motion.span>
-                                  : <motion.span key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={10} /></motion.span>}
-                              </AnimatePresence>
-                            </motion.button>
-                          </div>
-                          <p className="text-[10px] text-center text-vybe-muted">Once your friend clicks the link, hit <span className="text-white font-bold">Start Vybe</span> to connect</p>
-                          {privateError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 text-center">{privateError}</p>}
-                        </div>
-                      )}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                    {!squad ? (
+                      <div>
+                        <p className="text-vybe-muted text-[11px] text-center mb-3">Invite a friend to chat as a duo</p>
+                        {squadError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{squadError}</p>}
+                        <button onClick={createSquad} disabled={squadLoading || !isConnected}
+                          className="w-full py-2.5 rounded-xl btn-purple text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed">
+                          {squadLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><UserPlus size={11} /> Create Duo Room</>}
+                        </button>
+                        {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5">
+                        <div className="flex gap-2">
+                          {squad.members.map((m) => (
+                            <div key={m.socketId} className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border relative group" style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.08)' }}>
+                              <div className="w-8 h-8 rounded-full bg-vybe-purple/20 flex items-center justify-center text-vybe-purple-light font-black text-xs">{m.username?.[0]?.toUpperCase() || '?'}</div>
+                              <span className="text-[9px] text-white font-semibold truncate w-full text-center" style={{ maxWidth: '52px' }}>{m.username || 'User'}</span>
+                              {m.socketId === squad.leaderId && <Crown size={8} className="text-yellow-400" />}
+                              {squad.leaderId === socket?.id && m.socketId !== socket?.id && (
+                                <button onClick={() => kickMember(m.socketId)} className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><XIcon size={7} /></button>
+                              )}
+                            </div>
+                          ))}
+                          {squad.members.length < 2 && (
+                            <div className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border border-dashed" style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)' }}>
+                              <div className="w-8 h-8 rounded-full border-2 border-dashed border-vybe-border flex items-center justify-center"><UserPlus size={11} className="text-vybe-muted" /></div>
+                              <span className="text-[9px] text-vybe-muted">Waiting…</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-1.5">
+                          <div className="flex-1 px-2 py-1.5 rounded-lg text-[9px] text-vybe-muted font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>{inviteUrl}</div>
+                          <motion.button onClick={copyLink} whileTap={{ scale: 0.85 }} animate={copied ? { scale: [1, 1.2, 1] } : {}} transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${copied ? 'bg-green-500/20 text-green-400' : 'text-vybe-muted hover:text-white'}`}
+                            style={!copied ? { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } : {}}>
+                            <AnimatePresence mode="wait">
+                              {copied ? <motion.span key="check" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }}><Check size={10} /></motion.span> : <motion.span key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={10} /></motion.span>}
+                            </AnimatePresence>
+                          </motion.button>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          <a href={shareUrls.whatsapp} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-1.5 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 transition-all">
+                            <svg viewBox="0 0 24 24" className="w-3 h-3 fill-[#25D366]"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
+                            <span className="text-[7px] text-[#25D366] font-bold">WhatsApp</span>
+                          </a>
+                          <a href={shareUrls.twitter} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                            <svg viewBox="0 0 24 24" className="w-3 h-3 fill-white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                            <span className="text-[7px] text-white/70 font-bold">Twitter</span>
+                          </a>
+                          <a href={shareUrls.facebook} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-1.5 rounded-lg bg-[#1877F2]/10 border border-[#1877F2]/20 hover:bg-[#1877F2]/20 transition-all">
+                            <svg viewBox="0 0 24 24" className="w-3 h-3 fill-[#1877F2]"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                            <span className="text-[7px] text-[#1877F2] font-bold">Facebook</span>
+                          </a>
+                        </div>
+                        {squadError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 text-center">{squadError}</p>}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* CTA */}
-            <motion.button
-              onClick={startVybing}
-              whileHover={{ scale: 1.03, boxShadow: '0 0 32px rgba(124,58,237,0.5)' }}
-              whileTap={{ scale: 0.97 }}
-              className="btn-purple w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-white font-extrabold"
-              style={{ fontSize: '15px', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
-            >
-              <Video size={17} strokeWidth={2.5} /> Start Chatting Now
-            </motion.button>
+            {/* Private expand — below camera */}
+            <AnimatePresence initial={false}>
+              {mode === 'private' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+                  <div className="rounded-2xl p-4" style={{ background: 'rgba(14,10,28,0.95)', border: '1px solid rgba(124,58,237,0.2)' }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-[11px] font-bold text-white uppercase tracking-widest">Private Room</p>
+                      {privateCode && <button onClick={() => { setPrivateCode(''); setPrivateError('') }} className="w-4 h-4 flex items-center justify-center rounded text-vybe-muted hover:text-white"><XIcon size={10} /></button>}
+                    </div>
+                    {!privateCode ? (
+                      <div>
+                        <p className="text-vybe-muted text-[11px] text-center mb-3">Create a room and share the link with one friend</p>
+                        {privateError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{privateError}</p>}
+                        <button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
+                          className="w-full py-2.5 rounded-xl btn-purple text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60">
+                          {privateLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><Lock size={11} /> Create Private Room</>}
+                        </button>
+                        {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5">
+                        <div className="flex items-center gap-2 p-2 rounded-xl" style={{ background: 'rgba(27,98,245,0.08)', border: '1px solid rgba(27,98,245,0.18)' }}>
+                          <Lock size={11} className="text-blue-400 flex-shrink-0" />
+                          <p className="text-[11px] text-blue-300 flex-1">Room ready — share the link below</p>
+                        </div>
+                        <div className="flex gap-1.5">
+                          <div className="flex-1 px-2 py-1.5 rounded-lg text-[9px] text-vybe-muted font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>{privateInviteUrl}</div>
+                          <motion.button onClick={copyPrivateLink} whileTap={{ scale: 0.85 }} animate={privateCopied ? { scale: [1, 1.2, 1] } : {}} transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${privateCopied ? 'bg-green-500/20 text-green-400' : 'text-vybe-muted hover:text-white'}`}
+                            style={!privateCopied ? { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } : {}}>
+                            <AnimatePresence mode="wait">
+                              {privateCopied ? <motion.span key="check" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }}><Check size={10} /></motion.span> : <motion.span key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={10} /></motion.span>}
+                            </AnimatePresence>
+                          </motion.button>
+                        </div>
+                        <p className="text-[10px] text-center text-vybe-muted">Once your friend clicks the link, hit <span className="text-white font-bold">Start Vybe</span> to connect</p>
+                        {privateError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 text-center">{privateError}</p>}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
-            {/* Bottom row */}
-            <div className="flex items-center justify-between">
+          {/* ── RIGHT COLUMN — Headline + feature cards ── */}
+          <motion.div
+            className="flex flex-col gap-5 justify-center"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.12, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {/* Headline */}
+            <div>
+              <motion.div className="inline-flex w-fit items-center gap-2 mb-3 px-3 py-1.5 rounded-full"
+                style={{ background: 'rgba(124,58,237,0.14)', border: '1px solid rgba(124,58,237,0.3)' }}
+                animate={{ boxShadow: ['0 0 10px rgba(124,58,237,0.08)', '0 0 20px rgba(124,58,237,0.2)', '0 0 10px rgba(124,58,237,0.08)'] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+                <motion.span className="w-1.5 h-1.5 rounded-full bg-green-400" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.4, repeat: Infinity }} />
+                <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#a78bfa' }}>Live · Random · Real</span>
+              </motion.div>
+              <h1 className="font-extrabold leading-[1.08] tracking-[-0.03em] text-white mb-3" style={{ fontSize: 'clamp(2rem, 2.8vw, 3.2rem)' }}>
+                Meet real people.{' '}
+                <span style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                  Instantly.
+                </span>
+              </h1>
+              <p className="text-sm leading-relaxed mb-4" style={{ color: '#6b7280' }}>
+                Live video chat with smarter filters, creator gifting, and built-in moderation.
+              </p>
+              {/* Avatars + online */}
               <div className="flex items-center gap-3">
                 <div className="flex">
                   {AVATARS.map((n, i) => (
@@ -1198,48 +1196,17 @@ export default function MainPage() {
                 <div className="flex items-center gap-1.5">
                   <motion.span className="w-1.5 h-1.5 rounded-full bg-emerald-400" animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }} transition={{ duration: 2, repeat: Infinity }} />
                   <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                    {onlineCount >= 20 ? `${onlineCount.toLocaleString()} online` : 'People connecting now'}
+                    {onlineCount >= 20 ? `${onlineCount.toLocaleString()} matching now` : 'People connecting now'}
                   </span>
                 </div>
               </div>
-              <motion.button
-                onClick={() => { streamRef.current?.getTracks().forEach(t => t.stop()); streamRef.current = null; setCameraOn(false); navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } }) }}
-                whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-1.5 text-sm"
-                style={{ color: 'rgba(107,114,128,0.45)' }}
-              >
-                <VideoOff size={13} strokeWidth={2} /> Start Without Camera
-              </motion.button>
-            </div>
-          </motion.div>
-
-          {/* ── RIGHT COLUMN — info cards ── */}
-          <motion.div
-            className="flex flex-col gap-4"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {/* Online counter */}
-            <div className="rounded-2xl p-6" style={{ background: 'rgba(14,10,28,0.9)', border: '1px solid rgba(124,58,237,0.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
-              <div className="flex items-center gap-2 mb-2">
-                <motion.span className="w-2 h-2 rounded-full bg-emerald-400"
-                  animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }} transition={{ duration: 2, repeat: Infinity }} />
-                <span className="text-[10px] font-black tracking-[0.16em] uppercase" style={{ color: 'rgba(160,160,180,0.5)' }}>Live now</span>
-              </div>
-              <p className="text-4xl font-black text-white tabular-nums mb-1">
-                {onlineCount >= 20 ? onlineCount.toLocaleString() : '—'}
-              </p>
-              <p className="text-sm" style={{ color: '#6b7280' }}>
-                {onlineCount >= 20 ? 'people matching worldwide' : 'People connecting now'}
-              </p>
             </div>
 
             {/* Feature cards */}
             {[
-              { icon: Video,   title: 'Instant Match',    desc: 'Connect with someone new in under 2 seconds. Hit skip to find someone else.', color: '#7c3aed' },
-              { icon: Globe,   title: '150+ Countries',   desc: 'Real people from around the world. VIP members can filter by country.',       color: '#3b82f6' },
-              { icon: Shield,  title: 'Human Moderated',  desc: 'Every report reviewed by a human. Serious violations earn instant bans.',      color: '#10b981' },
+              { icon: Video,   title: 'Instant Match',    desc: 'Connect with someone new in under 2 seconds. Hit skip anytime.',            color: '#7c3aed' },
+              { icon: Globe,   title: '150+ Countries',   desc: 'Real people from around the world. VIP members filter by country.',         color: '#3b82f6' },
+              { icon: Shield,  title: 'Human Moderated',  desc: 'Every report reviewed by a real person. Serious violations = instant ban.', color: '#10b981' },
             ].map(({ icon: Icon, title, desc, color }, i) => (
               <motion.div key={title}
                 className="flex gap-4 p-4 rounded-2xl"
