@@ -422,7 +422,7 @@ export default function SubscriptionPage() {
                           {included
                             ? <Check size={15} className="flex-shrink-0" style={{ color: plan.color }} />
                             : <X     size={15} className="flex-shrink-0 opacity-30" style={{ color: '#888899' }} />}
-                          <span style={{ color: included ? '#e5e7eb' : '#6b7280' }}>{label}</span>
+                          <span style={{ color: included ? '#e5e7eb' : '#6b7280', wordSpacing: '0.08em' }}>{label}</span>
                         </li>
                       ))}
                     </ul>
@@ -499,7 +499,7 @@ export default function SubscriptionPage() {
               ].map(({ label, basic, vip }, i) => (
                 <div key={label} className="grid grid-cols-4 items-center px-5 py-3 text-sm"
                   style={{ borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent' }}>
-                  <div className="col-span-2 text-gray-300">{label}</div>
+                  <div className="col-span-2 text-gray-300" style={{ wordSpacing: '0.08em' }}>{label}</div>
                   <div className="flex justify-center">
                     {basic
                       ? <Check size={15} style={{ color: '#00D4FF' }} />
