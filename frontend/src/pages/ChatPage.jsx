@@ -68,15 +68,17 @@ function GlassBtn({ onClick, children, active, red, disabled: dis, title: t }) {
       onClick={onClick}
       disabled={dis}
       title={t}
-      whileHover={!dis ? { scale: 1.08 } : {}}
+      whileHover={!dis ? { scale: 1.05, background: 'rgba(255,255,255,0.12)' } : {}}
       whileTap={!dis ? { scale: 0.9 } : {}}
       className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-30"
       style={{
-        background: red && active ? 'rgba(220,38,38,0.85)' : red ? 'rgba(239,68,68,0.1)' : active ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.08)',
-        border: red && active ? '1px solid rgba(220,38,38,0.5)' : red ? '1px solid rgba(239,68,68,0.2)' : active ? '1px solid rgba(0,212,255,0.4)' : '1px solid rgba(255,255,255,0.15)',
-        color: red && active ? '#fff' : red ? '#f87171' : active ? '#00D4FF' : 'rgba(255,255,255,0.75)',
-        boxShadow: active && !red ? '0 0 14px rgba(0,212,255,0.25)' : 'none',
-        transition: 'background 140ms ease, border-color 140ms ease, box-shadow 140ms ease',
+        background: red ? 'rgba(255,50,50,0.18)' : active ? 'rgba(0,212,255,0.18)' : 'rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: red ? '1px solid rgba(255,50,50,0.3)' : active ? '1px solid rgba(0,212,255,0.4)' : '1px solid rgba(255,255,255,0.12)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15)',
+        color: red ? '#ff6b6b' : active ? '#00D4FF' : 'rgba(255,255,255,0.8)',
+        transition: 'all 200ms ease',
       }}
     >
       {children}
@@ -786,11 +788,20 @@ export default function ChatPage() {
         ) : (
           messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[82%] px-3.5 py-2 rounded-2xl text-[13px] leading-relaxed ${
-                msg.from === 'me'
-                  ? 'bg-vybe-blue text-white rounded-br-sm'
-                  : 'bg-white/8 text-gray-200 rounded-bl-sm border border-white/10'
-              }`}>
+              <div className="max-w-[82%] px-3.5 py-2 text-[13px] leading-relaxed text-white"
+                style={msg.from === 'me' ? {
+                  background: 'rgba(0,212,255,0.15)',
+                  border: '1px solid rgba(0,212,255,0.2)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  borderRadius: '18px 18px 4px 18px',
+                } : {
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  borderRadius: '18px 18px 18px 4px',
+                }}>
                 {msg.text}
               </div>
             </div>
@@ -799,19 +810,21 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-3 border-t border-white/10 flex-shrink-0">
+      <form onSubmit={handleSend} className="p-3 border-t flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
         <div className="flex gap-2">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={status === 'matched' ? 'Type a message…' : 'Connecting…'}
             disabled={status !== 'matched'}
-            className="flex-1 px-3.5 py-2.5 bg-white/6 border border-white/10 rounded-xl text-white placeholder-white/30 text-sm focus:border-vybe-blue focus:outline-none transition-colors disabled:opacity-40"
+            className="flex-1 px-4 py-2.5 text-white placeholder-white/30 text-sm focus:outline-none disabled:opacity-40"
+            style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50 }}
           />
           <button
             type="submit"
             disabled={!input.trim() || status !== 'matched'}
-            className="w-10 h-10 rounded-xl bg-vybe-blue text-vybe-bg flex items-center justify-center hover:bg-vybe-blue-light transition-colors disabled:opacity-40 flex-shrink-0"
+            className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-40 flex-shrink-0"
+            style={{ background: 'rgba(0,212,255,0.85)', color: '#000', boxShadow: '0 0 16px rgba(0,212,255,0.3)' }}
           >
             <Send size={13} />
           </button>
@@ -1153,21 +1166,13 @@ export default function ChatPage() {
               <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}
                 className="absolute z-[6] flex items-center gap-2"
                 style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', left: 12 }}>
-                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  {partnerAvatar ? (
-                    <img src={partnerAvatar} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
-                  ) : partnerUsername ? (
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
-                      {partnerUsername[0].toUpperCase()}
-                    </div>
-                  ) : (
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 online-pulse" />
-                  )}
+                <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
                   <div className="flex items-center gap-1.5">
                     <span className="text-white font-bold text-[12px]">{partnerUsername ? partnerUsername : 'Stranger'}</span>
                     {partnerEmailVerified && <ShieldCheck size={10} style={{ color: '#00B8E0', flexShrink: 0 }} />}
-                    {partnerIsVip && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}><Crown size={7} /> VIP</span>}
-                    {!partnerIsVip && partnerIsPremium && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(0,212,255,0.2)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}><Zap size={7} /> Member</span>}
+                    {partnerIsVip && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(124,58,237,0.3))', color: '#e0f0ff', border: '1px solid rgba(0,212,255,0.3)' }}><Crown size={7} /> VIP</span>}
+                    {!partnerIsVip && partnerIsPremium && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}><Zap size={7} /> Member</span>}
                   </div>
                   {user && partnerUid && !friendReqSent && (
                     <button onClick={handleAddFriend} disabled={friendReqLoad} className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95" style={{ background: 'rgba(0,212,255,0.25)', border: '1px solid rgba(0,212,255,0.4)', color: '#00B8E0', flexShrink: 0 }}>
@@ -1372,10 +1377,12 @@ export default function ChatPage() {
                 bottom: 'max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px))',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                background: 'rgba(7,7,18,0.84)',
-                backdropFilter: 'blur(44px) saturate(1.5)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                boxShadow: '0 8px 40px rgba(0,0,0,0.72), 0 1px 0 rgba(255,255,255,0.04) inset',
+                background: 'rgba(255,255,255,0.04)',
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
+                borderRadius: 60,
                 padding: '8px 12px',
                 gap: '5px',
               }}
@@ -1505,16 +1512,11 @@ export default function ChatPage() {
                       exit={{ opacity: 0, y: -4, scale: 0.97 }}
                       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                       className="absolute top-3 left-3 z-10 flex items-center gap-2">
-                      <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
+                      <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
                         {partnerAvatar ? (
-                          <img src={partnerAvatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
-                        ) : partnerUsername ? (
-                          <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
-                            style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
-                            {partnerUsername[0].toUpperCase()}
-                          </div>
+                          <img src={partnerAvatar} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                         ) : (
-                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 online-pulse" />
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
                         )}
                         <div className="flex items-center gap-1.5">
                           <span className="text-white font-bold text-[13px]">
@@ -1524,29 +1526,23 @@ export default function ChatPage() {
                             <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />
                           )}
                           {partnerIsVip && (
-                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}>
+                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(124,58,237,0.3))', color: '#e0f0ff', border: '1px solid rgba(0,212,255,0.3)' }}>
                               <Crown size={8} /> VIP
                             </span>
                           )}
                           {!partnerIsVip && partnerIsPremium && (
-                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.2)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}>
+                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}>
                               <Zap size={8} /> Member
                             </span>
                           )}
                         </div>
                         {user && partnerUid && !friendReqSent && (
-                          <button
-                            onClick={handleAddFriend}
-                            disabled={friendReqLoad}
-                            title="Add friend"
-                            className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95"
-                            style={{ background: 'rgba(0,212,255,0.25)', border: '1px solid rgba(0,212,255,0.4)', color: '#00B8E0', flexShrink: 0 }}
-                          >
+                          <button onClick={handleAddFriend} disabled={friendReqLoad} title="Add friend" className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95" style={{ background: 'rgba(0,212,255,0.2)', border: '1px solid rgba(0,212,255,0.35)', color: '#00D4FF', flexShrink: 0 }}>
                             {friendReqLoad ? <Loader2 size={9} className="animate-spin" /> : <UserPlus size={9} />}
                           </button>
                         )}
                         {user && partnerUid && friendReqSent && (
-                          <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(0,212,255,0.2)', border: '1px solid rgba(0,212,255,0.35)', color: '#4ade80', flexShrink: 0 }}>
+                          <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(74,222,128,0.2)', border: '1px solid rgba(74,222,128,0.35)', color: '#4ade80', flexShrink: 0 }}>
                             <UserPlus size={9} />
                           </span>
                         )}
@@ -1554,14 +1550,14 @@ export default function ChatPage() {
                       <button
                         onClick={() => setStrangerHidden(h => !h)}
                         title={strangerHidden ? 'Reveal camera (exit safe mode)' : 'Safe Mode — hide camera instantly'}
-                        className="flex items-center justify-center w-7 h-7 rounded-lg"
+                        className="flex items-center justify-center w-7 h-7 rounded-full"
                         style={{
-                          backdropFilter: 'blur(12px)',
-                          background: strangerHidden ? 'rgba(0,212,255,0.18)' : 'rgba(0,0,0,0.55)',
-                          border:     strangerHidden ? '1px solid rgba(0,212,255,0.4)' : '1px solid rgba(255,255,255,0.1)',
-                          transition: 'background-color 150ms ease, border-color 150ms ease',
+                          backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                          background: strangerHidden ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.05)',
+                          border: strangerHidden ? '1px solid rgba(0,212,255,0.4)' : '1px solid rgba(255,255,255,0.12)',
+                          transition: 'all 200ms ease',
                         }}>
-                        <Shield size={13} style={{ color: strangerHidden ? '#00B8E0' : 'rgba(255,255,255,0.6)' }} />
+                        <Shield size={13} style={{ color: strangerHidden ? '#00D4FF' : 'rgba(255,255,255,0.7)' }} />
                       </button>
                     </motion.div>
                   )}
@@ -1569,14 +1565,14 @@ export default function ChatPage() {
 
                 {/* Timer */}
                 {status === 'matched' && (
-                  <div className="absolute top-3 right-3 z-10 px-2.5 py-1.5 rounded-xl font-mono text-[12px] text-white/70" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
+                  <div className="absolute top-3 right-3 z-10 px-2.5 py-1.5 rounded-full font-mono text-[12px] text-white/80" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
                     {fmt(elapsed)}
                   </div>
                 )}
 
                 {status === 'matched' && (
                   <div className="absolute bottom-3 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
-                    <div className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(8px)' }}>
+                    <div className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
                       STRANGER
                     </div>
                   </div>
@@ -1636,7 +1632,7 @@ export default function ChatPage() {
 
                 {/* You label */}
                 <div className="absolute top-3 left-3 z-10">
-                  <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}>
+                  <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
                     {user?.avatar ? (
                       <img src={user.avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
                     ) : user?.username ? (
@@ -1686,7 +1682,7 @@ export default function ChatPage() {
             {/* ── Desktop bottom control bar — floating glass pill ── */}
             <div className="flex-shrink-0 relative z-40 flex items-center justify-center flex-wrap gap-2" style={{ background: 'rgba(6,6,14,0.98)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 14, paddingBottom: 22, paddingLeft: 16, paddingRight: 16 }}>
               {/* Main glass pill */}
-              <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24 }}>
+              <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 60, boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
 
                 {/* Mic */}
                 <GlassBtn onClick={toggleMute} red={isMuted} active={isMuted} title={isMuted ? 'Unmute' : 'Mute'}>
@@ -1707,21 +1703,19 @@ export default function ChatPage() {
 
                 <div className="w-px h-7 mx-0.5 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
 
-                {/* SKIP — prominent cyan pill */}
+                {/* SKIP — solid cyan pill */}
                 {status === 'matched' && (
-                  <motion.button onClick={handleSkip} whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}
+                  <motion.button onClick={handleSkip} whileHover={{ scale: 1.06, opacity: 0.9 }} whileTap={{ scale: 0.94 }}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm flex-shrink-0"
-                    style={{ background: 'rgba(0,212,255,0.18)', border: '1px solid rgba(0,212,255,0.45)', color: '#00D4FF', boxShadow: '0 0 18px rgba(0,212,255,0.22)', transition: 'box-shadow 150ms ease' }}>
+                    style={{ background: 'rgba(0,212,255,0.85)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(0,212,255,0.4)', borderRadius: 50, color: '#000', fontWeight: 700, boxShadow: '0 0 20px rgba(0,212,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2)', transition: 'all 200ms ease' }}>
                     <SkipForward size={16} /> Next
                   </motion.button>
                 )}
 
-                {/* End / Leave — red pill */}
-                <motion.button onClick={handleEnd} whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-white flex-shrink-0"
-                  style={{ background: status === 'matched' ? 'rgba(220,38,38,0.85)' : 'rgba(220,38,38,0.18)', border: '1px solid rgba(220,38,38,0.45)', boxShadow: status === 'matched' ? '0 0 20px rgba(220,38,38,0.4)' : 'none', transition: 'all 150ms ease' }}>
-                  <PhoneOff size={16} /> {status === 'matched' ? 'End' : 'Leave'}
-                </motion.button>
+                {/* End / Leave — red glass circle */}
+                <GlassBtn onClick={handleEnd} red={status === 'matched'} active={status === 'matched'} title={status === 'matched' ? 'End Chat' : 'Leave'}>
+                  <PhoneOff size={18} />
+                </GlassBtn>
 
                 <div className="w-px h-7 mx-0.5 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
 
@@ -1769,8 +1763,8 @@ export default function ChatPage() {
           </div>
 
           {/* Desktop chat sidebar */}
-          <motion.div className="flex flex-col flex-shrink-0 overflow-hidden border-l border-white/[0.07]"
-            style={{ background: '#0d0d18' }}
+          <motion.div className="flex flex-col flex-shrink-0 overflow-hidden"
+            style={{ background: 'rgba(10,10,20,0.6)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', borderLeft: '1px solid rgba(255,255,255,0.08)' }}
             animate={{ width: showChat ? 320 : 0 }}
             transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
             <div className="w-[320px] h-full flex flex-col">{ChatContent()}</div>
