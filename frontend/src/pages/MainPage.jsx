@@ -406,17 +406,21 @@ export default function MainPage() {
       {/* Animated ambient background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
         <motion.div className="absolute rounded-full"
-          animate={{ scale: [1, 1.15, 1], opacity: [0.07, 0.13, 0.07] }}
+          animate={{ scale: [1, 1.18, 1], opacity: [0.12, 0.22, 0.12] }}
           transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ top: '-10%', left: '10%', width: '700px', height: '700px', background: 'radial-gradient(ellipse at 50% 50%, rgba(124,58,237,0.16) 0%, transparent 65%)' }} />
+          style={{ top: '-10%', left: '5%', width: '800px', height: '800px', background: 'radial-gradient(ellipse at 50% 50%, rgba(124,58,237,0.22) 0%, transparent 65%)' }} />
         <motion.div className="absolute rounded-full"
-          animate={{ scale: [1, 1.1, 1], opacity: [0.05, 0.09, 0.05] }}
+          animate={{ scale: [1, 1.12, 1], opacity: [0.08, 0.16, 0.08] }}
           transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          style={{ top: '25%', right: '-8%', width: '500px', height: '500px', background: 'radial-gradient(ellipse at 50% 50%, rgba(37,99,235,0.1) 0%, transparent 65%)' }} />
+          style={{ top: '20%', right: '-10%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(37,99,235,0.18) 0%, transparent 65%)' }} />
         <motion.div className="absolute rounded-full"
-          animate={{ scale: [1, 1.08, 1], opacity: [0.04, 0.07, 0.04] }}
+          animate={{ scale: [1, 1.1, 1], opacity: [0.07, 0.14, 0.07] }}
           transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
-          style={{ bottom: '5%', left: '-8%', width: '420px', height: '420px', background: 'radial-gradient(ellipse at 50% 50%, rgba(124,58,237,0.08) 0%, transparent 65%)' }} />
+          style={{ bottom: '0%', left: '-5%', width: '500px', height: '500px', background: 'radial-gradient(ellipse at 50% 50%, rgba(168,85,247,0.14) 0%, transparent 65%)' }} />
+        <motion.div className="absolute rounded-full"
+          animate={{ scale: [1, 1.08, 1], opacity: [0.05, 0.1, 0.05] }}
+          transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut', delay: 6 }}
+          style={{ top: '50%', left: '40%', width: '400px', height: '400px', background: 'radial-gradient(ellipse at 50% 50%, rgba(236,72,153,0.08) 0%, transparent 65%)' }} />
       </div>
 
       <Navbar onPremiumClick={() => setShowPremium(true)} />
@@ -457,7 +461,7 @@ export default function MainPage() {
         {/* Camera preview — dominant, full-width */}
         <motion.div
           className="relative rounded-2xl overflow-hidden w-full"
-          style={{ aspectRatio: '4/3', background: '#0d0d18', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset' }}
+          style={{ aspectRatio: '4/3', background: '#080812', border: '1px solid rgba(124,58,237,0.22)', boxShadow: '0 0 0 1px rgba(124,58,237,0.08) inset, 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(124,58,237,0.1)' }}
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -594,7 +598,7 @@ export default function MainPage() {
         </motion.button>
 
         {/* ── Match Settings ── */}
-        <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(10,8,20,0.72)', backdropFilter: 'blur(24px) saturate(1.5)', border: '1px solid rgba(124,58,237,0.2)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.08) inset' }}>
 
           {/* Mode */}
           <div>
@@ -861,7 +865,7 @@ export default function MainPage() {
 
       {/* ══════════════ DESKTOP LAYOUT ══════════════ */}
       <section className="hidden lg:block relative z-10 pt-4">
-        <div className="grid [grid-template-columns:1fr_1.85fr_1.15fr] gap-5 px-10 py-8 items-center w-full">
+        <div className="grid [grid-template-columns:1fr_1.9fr_1.1fr] gap-6 px-10 py-6 items-center w-full">
 
           {/* ── LEFT COLUMN ── */}
           <motion.div
@@ -982,9 +986,9 @@ export default function MainPage() {
           <motion.div
             className="relative rounded-3xl overflow-hidden"
             style={{
-              background: '#0d0d18',
-              border: '1px solid rgba(255,255,255,0.06)',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) inset',
+              background: '#080812',
+              border: '1px solid rgba(124,58,237,0.25)',
+              boxShadow: '0 0 0 1px rgba(124,58,237,0.1) inset, 0 30px 90px rgba(0,0,0,0.7), 0 0 60px rgba(124,58,237,0.12)',
               aspectRatio: '4/3',
             }}
             initial={{ opacity: 0, scale: 0.97 }}
@@ -1158,7 +1162,7 @@ export default function MainPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.14, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(10,8,20,0.72)', backdropFilter: 'blur(24px) saturate(1.5)', border: '1px solid rgba(124,58,237,0.2)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.08) inset' }}>
 
             {/* Mode */}
             <div>
