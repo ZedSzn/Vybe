@@ -62,6 +62,22 @@ function MobileFloatBtn({ onClick, children, active, red, amber, primary, disabl
   )
 }
 
+function AnimatedDots() {
+  return (
+    <span className="inline-flex items-end gap-[3px] ml-1 mb-[1px]">
+      {[0, 0.22, 0.44].map((delay, i) => (
+        <motion.span
+          key={i}
+          className="inline-block w-[3px] h-[3px] rounded-full"
+          style={{ background: '#00D4FF' }}
+          animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+          transition={{ duration: 1.3, delay, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      ))}
+    </span>
+  )
+}
+
 const REPORT_REASONS = [
   { id: 'nudity',     label: '🔞 Nudity / Sexual content' },
   { id: 'harassment', label: '😤 Harassment or bullying' },
@@ -128,6 +144,7 @@ export default function ChatPage() {
   const [matchFlash,     setMatchFlash]       = useState(false)
   const [selfViewExpanded, setSelfViewExpanded] = useState(true)
   const [duoPipExpanded,   setDuoPipExpanded]   = useState(false)
+  const [tipIdx,           setTipIdx]           = useState(0)
 
   const searchTimerRef   = useRef(null)
   const searchTextTimer  = useRef(null)
@@ -141,6 +158,13 @@ export default function ChatPage() {
     'Almost there…',
     'Looking for the perfect match…',
     'Hang tight…',
+  ]
+
+  const TIPS = [
+    'Tip: Users with a webcam get 3× more matches',
+    'Tip: Say hi first — it breaks the ice instantly',
+    'Tip: Upgrade to filter by gender or country',
+    'Tip: VIP badge makes your profile stand out',
   ]
 
   const socketRef       = useRef(null)
@@ -231,8 +255,10 @@ export default function ChatPage() {
     if (status === 'searching') {
       setSearchElapsed(0)
       setSearchTextIdx(0)
+      setTipIdx(0)
       searchTimerRef.current  = setInterval(() => setSearchElapsed((t) => t + 1), 1000)
       searchTextTimer.current = setInterval(() => setSearchTextIdx((i) => (i + 1) % SEARCH_TEXTS.length), 3000)
+      const tipTimer = setInterval(() => setTipIdx((i) => i + 1), 5000)
       // Fetch online count every 10s
       const fetchCount = () => axios.get('/api/online-count').then(({ data }) => setOnlineCount(data.count)).catch(() => {})
       fetchCount()
@@ -240,6 +266,7 @@ export default function ChatPage() {
       return () => {
         clearInterval(searchTimerRef.current)
         clearInterval(searchTextTimer.current)
+        clearInterval(tipTimer)
         clearInterval(countTimer)
       }
     } else {
@@ -1011,7 +1038,7 @@ export default function ChatPage() {
         {/* ── No webcam banner ─────────────────────────────────────── */}
         {!hasCamera && !noCamDismissed && (
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2rem)] max-w-sm">
-            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl" style={{ background: 'rgba(10,10,22,0.92)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }}>
+            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl" style={{ background: 'rgba(10,10,22,0.92)', border: '1px solid rgba(0,212,255,0.25)', borderLeft: '3px solid #00D4FF', backdropFilter: 'blur(16px)', boxShadow: '0 0 20px rgba(0,0,0,0.5), 0 0 30px rgba(0,212,255,0.08)' }}>
               <span className="text-xl flex-shrink-0 mt-0.5">📷</span>
               <div className="flex-1"><p className="text-white font-bold text-[13px]">No webcam detected</p><p className="text-white/50 text-[11px] mt-0.5">Adding a webcam gives you a <span className="text-cyan-400 font-semibold">much better chance</span> of matching.</p></div>
               <button onClick={() => setNoCamDismissed(true)} className="text-white/30 hover:text-white/60 text-base leading-none">✕</button>
@@ -1025,24 +1052,32 @@ export default function ChatPage() {
 
           {/* Fullscreen background: stranger video OR searching state */}
           {status === 'searching' ? (
-            <div className="absolute inset-0 bg-[#080812] flex flex-col items-center justify-center gap-5 px-6">
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="absolute rounded-full animate-pulse" style={{ width: 340, height: 340, background: 'radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%)' }} />
-                <div className="absolute rounded-full animate-pulse" style={{ width: 220, height: 220, background: 'radial-gradient(circle, rgba(0,212,255,0.11) 0%, transparent 65%)', animationDelay: '0.5s' }} />
+            <div className="absolute inset-0 bg-[#060d14] flex flex-col items-center justify-center gap-5 px-6">
+              <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 45%, rgba(0,212,255,0.07) 0%, transparent 65%)' }} />
+              {/* Globe with glow rings */}
+              <div className="relative flex items-center justify-center">
+                <motion.div className="absolute rounded-full" style={{ width: 280, height: 280, border: '1px solid rgba(0,212,255,0.3)', boxShadow: '0 0 50px rgba(0,212,255,0.15)' }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
+                <motion.div className="absolute rounded-full" style={{ width: 245, height: 245, border: '1px solid rgba(0,212,255,0.15)' }} animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
+                <VybeGlobe size={200} />
               </div>
-              <VybeGlobe size={200} />
               <div className="text-center relative z-10">
                 <AnimatePresence mode="wait">
-                  <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-white font-bold text-base mb-1">
+                  <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-white font-bold text-lg mb-1" style={{ letterSpacing: '-0.01em' }}>
                     {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
+                    <AnimatedDots />
                   </motion.p>
                 </AnimatePresence>
                 {onlineCount > 0 && (
-                  <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#888899' }}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse flex-shrink-0" />
-                    {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
+                  <p className="text-sm flex items-center justify-center gap-1.5 mb-2.5" style={{ color: '#00D4FF' }}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" />
+                    {onlineCount.toLocaleString()} {onlineCount === 1 ? 'person' : 'people'} online now
                   </p>
                 )}
+                <AnimatePresence mode="wait">
+                  <motion.p key={tipIdx} initial={{ opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: 0.4 }} className="text-[11px]" style={{ color: '#888899' }}>
+                    {TIPS[tipIdx % TIPS.length]}
+                  </motion.p>
+                </AnimatePresence>
               </div>
             </div>
           ) : opponentSocketIds.length === 0 ? (
@@ -1397,22 +1432,36 @@ export default function ChatPage() {
             <div className="flex-1 grid grid-cols-2 gap-1.5 p-2 min-h-0">
 
               {/* Stranger video */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] min-h-0 min-w-0">
+              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] min-h-0 min-w-0" style={{ border: '1px solid rgba(0,212,255,0.18)', transition: 'box-shadow 0.5s ease', boxShadow: status === 'matched' ? '0 0 30px rgba(0,212,255,0.12), inset 0 0 30px rgba(0,212,255,0.04)' : '0 0 20px rgba(0,212,255,0.06)' }}>
                 {status === 'searching' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-6 px-4">
-                    <VybeGlobe size={180} />
-                    <div className="text-center">
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-5 px-4 relative overflow-hidden">
+                    <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 45%, rgba(0,212,255,0.06) 0%, transparent 65%)' }} />
+                    {/* Globe with glow rings */}
+                    <div className="relative flex items-center justify-center">
+                      <motion.div className="absolute rounded-full" style={{ width: 310, height: 310, border: '1px solid rgba(0,212,255,0.3)', boxShadow: '0 0 60px rgba(0,212,255,0.18)' }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
+                      <motion.div className="absolute rounded-full" style={{ width: 270, height: 270, border: '1px solid rgba(0,212,255,0.15)' }} animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
+                      <VybeGlobe size={230} />
+                    </div>
+                    <div className="text-center relative z-10">
                       <AnimatePresence mode="wait">
-                        <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-white font-bold text-base mb-1.5">
-                          {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
-                        </motion.p>
+                        <motion.div key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }}>
+                          <p className="text-white font-bold text-xl mb-2" style={{ letterSpacing: '-0.01em' }}>
+                            {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
+                            <AnimatedDots />
+                          </p>
+                        </motion.div>
                       </AnimatePresence>
                       {onlineCount > 0 && (
-                        <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#888899' }}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse flex-shrink-0" />
-                          {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
+                        <p className="text-sm flex items-center justify-center gap-1.5 mb-3" style={{ color: '#00D4FF' }}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" />
+                          {onlineCount.toLocaleString()} {onlineCount === 1 ? 'person' : 'people'} online now
                         </p>
                       )}
+                      <AnimatePresence mode="wait">
+                        <motion.p key={tipIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.4 }} className="text-[13px]" style={{ color: '#888899' }}>
+                          {TIPS[tipIdx % TIPS.length]}
+                        </motion.p>
+                      </AnimatePresence>
                     </div>
                   </div>
                 ) : opponentSocketIds.length === 0 ? (
@@ -1513,6 +1562,13 @@ export default function ChatPage() {
                   </div>
                 )}
 
+                {status === 'matched' && (
+                  <div className="absolute bottom-3 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
+                    <div className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(8px)' }}>
+                      STRANGER
+                    </div>
+                  </div>
+                )}
                 <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
 
                 {/* Safe Mode overlay */}
@@ -1551,7 +1607,7 @@ export default function ChatPage() {
               </div>
 
               {/* Your video — desktop only, uses localVideoDesktopRef */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] min-h-0 min-w-0">
+              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] min-h-0 min-w-0" style={{ border: '1px solid rgba(0,212,255,0.18)', boxShadow: '0 0 30px rgba(0,212,255,0.08), inset 0 0 20px rgba(0,212,255,0.03)' }}>
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
@@ -1604,13 +1660,18 @@ export default function ChatPage() {
                   </div>
                 ))}
 
+                <div className="absolute bottom-3 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
+                  <div className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.28)', color: 'rgba(0,212,255,0.75)', backdropFilter: 'blur(8px)' }}>
+                    YOUR PREVIEW
+                  </div>
+                </div>
                 <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
               </div>
 
             </div>
 
             {/* ── Desktop bottom control bar ── */}
-            <div className="flex-shrink-0 px-4 sm:px-6 py-3 relative z-40" style={{ background: '#0a0a0f', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="flex-shrink-0 px-4 sm:px-6 py-3 relative z-40" style={{ background: 'rgba(8,8,18,0.98)', borderTop: '1px solid rgba(0,212,255,0.12)', boxShadow: '0 -8px 40px rgba(0,0,0,0.5)' }}>
               <div className="flex items-center justify-between max-w-5xl mx-auto">
 
                 {/* Left: secondary controls */}
@@ -1672,19 +1733,19 @@ export default function ChatPage() {
                   {status === 'matched' ? (
                     <>
                       <motion.button onClick={handleSkip} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white/80"
-                        style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm text-white/80"
+                        style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', transition: 'background 150ms ease' }}>
                         <SkipForward size={16} /> Next
                       </motion.button>
                       <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 text-white font-bold text-sm"
-                        style={{ boxShadow: '0 0 20px rgba(220,38,38,0.3)' }}>
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-full text-white font-bold text-sm"
+                        style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 0 24px rgba(220,38,38,0.4), 0 4px 12px rgba(0,0,0,0.4)' }}>
                         <PhoneOff size={16} /> End Chat
                       </motion.button>
                     </>
                   ) : (
                     <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                      className="flex items-center gap-2 px-8 py-2.5 rounded-xl font-bold text-sm"
+                      className="flex items-center gap-2 px-8 py-2.5 rounded-full font-bold text-sm"
                       style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
                       <PhoneOff size={16} /> Cancel &amp; Leave
                     </motion.button>
