@@ -484,9 +484,9 @@ export default function MainPage() {
                         const isIOS = /iPad|iPhone|iPod/.test(ua)
                         const isAndroid = /Android/.test(ua)
                         const steps = isIOS
-                          ? ['Settings â†’ Chrome/Safari â†’ Camera â†’ Allow']
+                          ? ['Settings > Chrome/Safari > Camera > Allow']
                           : isAndroid
-                          ? ['Address bar lock â†’ Permissions â†’ Camera â†’ Allow']
+                          ? ['Address bar lock > Permissions > Camera > Allow']
                           : null
                         if (!steps) return null
                         return (
@@ -585,7 +585,7 @@ export default function MainPage() {
           className="w-full flex items-center justify-center gap-1.5 py-3 rounded-2xl text-sm font-semibold"
           style={{ color: 'rgba(148,163,184,0.65)', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
         >
-          See How It Works â†“
+          See How It Works 
         </motion.button>
 
         {/* â”€â”€ Match Settings â”€â”€ */}
@@ -814,7 +814,7 @@ export default function MainPage() {
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(37,99,235,0.15)'; e.currentTarget.style.color = 'white' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(160,160,180,0.6)' }}
                   >
-                    ðŸŒ Any country
+                     Any country
                   </button>
                 )}
                 {COUNTRIES.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())).map((c) => (
