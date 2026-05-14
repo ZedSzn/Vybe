@@ -848,29 +848,23 @@ export default function MainPage() {
       </div>
 
       {/* ══════════════ DESKTOP LAYOUT — Azar-style ══════════════ */}
-      <section className="hidden lg:block relative z-10 pt-4 pb-6">
-        <div className="grid [grid-template-columns:1.15fr_1fr] gap-5 px-10 items-stretch w-full">
+      <section className="hidden lg:flex relative z-10" style={{ height: 'calc(100vh - 108px)', minHeight: '640px' }}>
 
-          {/* ── LEFT COLUMN — Full camera hero (Azar-style) ── */}
-          <motion.div
-            className="flex flex-col gap-3"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {/* Camera hero — fills height, filters overlaid at bottom */}
-            <motion.div
-              className="relative rounded-2xl overflow-hidden flex-1"
-              style={{ minHeight: '560px', background: '#06060f', border: '1px solid rgba(124,58,237,0.2)', boxShadow: '0 24px 64px rgba(0,0,0,0.7)' }}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <video
-                ref={videoRefDesktop}
-                autoPlay muted playsInline
-                className={`w-full h-full object-cover absolute inset-0 ${cameraOn && !cameraErr ? 'block' : 'hidden'}`}
-              />
+        {/* ── LEFT — Full-height camera panel ── */}
+        <motion.div
+          className="relative flex flex-col overflow-hidden flex-shrink-0"
+          style={{ flex: '1.15', background: '#06060f', borderRight: '1px solid rgba(124,58,237,0.08)' }}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {/* Camera fills all remaining height */}
+          <div className="relative flex-1 overflow-hidden">
+            <video
+              ref={videoRefDesktop}
+              autoPlay muted playsInline
+              className={`w-full h-full object-cover absolute inset-0 ${cameraOn && !cameraErr ? 'block' : 'hidden'}`}
+            />
 
               {/* Idle / error state */}
               {(!cameraOn || cameraErr) && (
@@ -1036,9 +1030,9 @@ export default function MainPage() {
                   Start without camera
                 </button>
               </div>
-            </motion.div>
+          </div>
 
-            {/* Squad expand — below camera */}
+          {/* Squad expand — below camera */}
             <AnimatePresence initial={false}>
               {mode === 'squad' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
@@ -1256,7 +1250,6 @@ export default function MainPage() {
             </motion.button>
           </motion.div>
 
-        </div>
       </section>
 
 
