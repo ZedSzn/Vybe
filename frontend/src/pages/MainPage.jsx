@@ -200,10 +200,10 @@ export default function MainPage() {
     }
     calcPos()
     const close = () => setShowCountryDrop(false)
-    window.addEventListener('scroll', close, { passive: true, capture: true })
+    window.addEventListener('scroll', close, { passive: true })
     window.addEventListener('resize', close, { passive: true })
     return () => {
-      window.removeEventListener('scroll', close, { capture: true })
+      window.removeEventListener('scroll', close)
       window.removeEventListener('resize', close)
     }
   }, [showCountryDrop])
