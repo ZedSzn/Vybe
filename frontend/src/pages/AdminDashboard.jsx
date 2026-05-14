@@ -16,7 +16,7 @@ function Toast({ toast }) {
   if (!toast) return null
   return (
     <div className={`fixed top-4 right-4 z-[100] px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl flex items-center gap-2 border ${
-      toast.type === 'error' ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-green-500/20 border-green-500/40 text-green-300'
+      toast.type === 'error' ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-cyan-500/20 border-cyan-400/40 text-cyan-400'
     }`}>
       {toast.type === 'error' ? <AlertTriangle size={14} /> : <CheckCircle size={14} />}
       {toast.msg}
@@ -109,7 +109,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-black text-white">{user.username}</h3>
-                  {profile.isOnline && <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />}
+                  {profile.isOnline && <span className="w-2 h-2 rounded-full bg-cyan-500 flex-shrink-0" />}
                   {user.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>}
                   {user.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-400 font-bold">MEMBER</span>}
                   {user.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 font-bold">VIP</span>}
@@ -152,7 +152,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
               <h4 className="text-sm font-black text-white mb-3">Ban History</h4>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {[...user.banHistory].reverse().map((h, i) => (
-                  <div key={i} className={`text-xs flex items-start gap-2 px-3 py-2 rounded-lg ${h.action === 'ban' ? 'bg-red-500/10 text-red-300' : 'bg-green-500/10 text-green-300'}`}>
+                  <div key={i} className={`text-xs flex items-start gap-2 px-3 py-2 rounded-lg ${h.action === 'ban' ? 'bg-red-500/10 text-red-300' : 'bg-cyan-500/10 text-cyan-400'}`}>
                     <span className="font-bold uppercase flex-shrink-0">{h.action}</span>
                     <span className="text-white/60 flex-1 truncate">{h.reason || h.note || (h.unbannedBy ? `by ${h.unbannedBy}` : '')}</span>
                     <span className="text-white/40 flex-shrink-0">{new Date(h.timestamp).toLocaleDateString()}</span>
@@ -203,7 +203,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
           {/* Actions */}
           <div className="grid grid-cols-2 gap-2">
             {user.isBanned ? (
-              <button onClick={() => setUnbanModal(true)} className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 text-sm font-bold transition-all">
+              <button onClick={() => setUnbanModal(true)} className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/25 text-sm font-bold transition-all">
                 <UserCheck size={14} /> Unban
               </button>
             ) : (
@@ -247,7 +247,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
               <input value={unbanNote} onChange={(e) => setUnbanNote(e.target.value)} placeholder="Unban note, e.g. false ban…" className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none mb-4" />
               <div className="flex gap-2">
                 <button onClick={() => setUnbanModal(false)} className="flex-1 py-2.5 rounded-xl border border-vybe-border text-vybe-muted text-sm">Cancel</button>
-                <button onClick={() => { onUnban(user._id, unbanNote); setUnbanModal(false) }} className="flex-1 py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-bold">Unban</button>
+                <button onClick={() => { onUnban(user._id, unbanNote); setUnbanModal(false) }} className="flex-1 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-500 text-white text-sm font-bold">Unban</button>
               </div>
             </div>
           </div>
@@ -394,7 +394,7 @@ export default function AdminDashboard() {
                       <tr key={u._id} className="hover:bg-vybe-card2/50 transition-colors">
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-2">
-                            {u.isOnline && <span className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />}
+                            {u.isOnline && <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 flex-shrink-0" />}
                             <div>
                               <p className="font-semibold text-white">{u.username}</p>
                               <p className="text-vybe-muted text-[11px]">{u.email}</p>
@@ -404,7 +404,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3.5">
                           <div className="flex flex-wrap gap-1">
                             {u.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>}
-                            {!u.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 font-bold">ACTIVE</span>}
+                            {!u.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 font-bold">ACTIVE</span>}
                             {u.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-400 font-bold">MEMBER</span>}
                             {u.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 font-bold">VIP</span>}
                           </div>
@@ -483,7 +483,7 @@ export default function AdminDashboard() {
                   {u.banExpiresAt && <p className="text-vybe-muted/60 text-[11px] mt-0.5">Expires: {new Date(u.banExpiresAt).toLocaleString()}</p>}
                 </div>
                 {u.banType !== 'permanent' && (
-                  <button onClick={() => doUnban(u._id)} className="px-3 py-1.5 rounded-lg bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 text-xs font-bold transition-all flex items-center gap-1">
+                  <button onClick={() => doUnban(u._id)} className="px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/25 text-xs font-bold transition-all flex items-center gap-1">
                     <UserCheck size={12} /> Unban
                   </button>
                 )}
@@ -543,14 +543,14 @@ export default function AdminDashboard() {
         ) : (
           <div className="space-y-3">
             {reports.map((r) => (
-              <div key={r._id} className={`bg-vybe-card border rounded-xl p-4 ${r.dismissed ? 'border-vybe-border opacity-50' : r.resolved ? 'border-green-500/15' : 'border-red-500/15'}`}>
+              <div key={r._id} className={`bg-vybe-card border rounded-xl p-4 ${r.dismissed ? 'border-vybe-border opacity-50' : r.resolved ? 'border-cyan-400/15' : 'border-red-500/15'}`}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-red-500/15 text-red-400 border border-red-500/20">
                         {REASON_LABELS[r.reason] || r.reason}
                       </span>
-                      {r.resolved && !r.dismissed && <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-green-500/15 text-green-400 border border-green-500/25">✓ Resolved</span>}
+                      {r.resolved && !r.dismissed && <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-400/25">✓ Resolved</span>}
                       {r.dismissed && <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-gray-500/15 text-gray-400 border border-gray-500/25">Dismissed</span>}
                     </div>
                     <p className="text-[13px] text-vybe-muted">
@@ -567,7 +567,7 @@ export default function AdminDashboard() {
                       {r.reportedUserId && !r.reportedUserId.isBanned && (
                         <button onClick={() => banFromReport(r.reportedUserId._id, `Banned after report: ${r.reason}`)} className="px-3 py-1.5 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 hover:bg-red-500/25 text-xs font-bold transition-all">Ban</button>
                       )}
-                      <button onClick={() => resolve(r._id)} className="px-3 py-1.5 rounded-lg bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 text-xs font-bold transition-all">Resolve</button>
+                      <button onClick={() => resolve(r._id)} className="px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/25 text-xs font-bold transition-all">Resolve</button>
                       <button onClick={() => dismiss(r._id)} className="px-3 py-1.5 rounded-lg bg-gray-500/15 border border-gray-500/30 text-gray-400 hover:bg-gray-500/25 text-xs font-bold transition-all">Dismiss</button>
                     </div>
                   )}
@@ -874,7 +874,7 @@ export default function AdminDashboard() {
     useEffect(() => { fetchLogs() }, []) // eslint-disable-line
 
     const ACTION_COLORS = {
-      ban: 'text-red-400', unban: 'text-green-400', warn: 'text-cyan-400',
+      ban: 'text-red-400', unban: 'text-cyan-400', warn: 'text-cyan-400',
       delete: 'text-red-500', broadcast: 'text-vybe-purple', 'change-admin-password': 'text-cyan-400',
       'update-settings': 'text-gray-400', 'remove-friendship': 'text-orange-400',
     }
@@ -1011,7 +1011,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-col gap-2 flex-shrink-0">
                     <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border capitalize text-center ${
                       r.status === 'pending' ? 'bg-cyan-500/15 text-cyan-400 border-yellow-500/25' :
-                      r.status === 'approved' ? 'bg-green-500/15 text-green-400 border-green-500/25' :
+                      r.status === 'approved' ? 'bg-cyan-500/15 text-cyan-400 border-cyan-400/25' :
                       'bg-red-500/15 text-red-400 border-red-500/25'
                     }`}>{r.status}</span>
                     {r.status === 'pending' && (
@@ -1085,7 +1085,7 @@ export default function AdminDashboard() {
                 <button onClick={() => reject(reviewId)} className="flex-1 py-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 hover:bg-red-500/25 text-sm font-bold transition-all">
                   Reject & Refund
                 </button>
-                <button onClick={() => approve(reviewId)} className="flex-1 py-2.5 rounded-xl bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 text-sm font-bold transition-all">
+                <button onClick={() => approve(reviewId)} className="flex-1 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/25 text-sm font-bold transition-all">
                   Approve Payout
                 </button>
               </div>
@@ -1146,7 +1146,7 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="px-4 py-4 border-t border-vybe-border">
-          <div className="flex items-center gap-1.5 text-xs text-green-400 mb-3">
+          <div className="flex items-center gap-1.5 text-xs text-cyan-400 mb-3">
             <Wifi size={11} />
             {stats?.online ?? 0} online
           </div>
@@ -1172,7 +1172,7 @@ export default function AdminDashboard() {
           {section === 'overview' && stats && (
             <div className="space-y-6">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <StatCard label="Total Users"    value={stats.totalUsers}     color="text-green-400"    bg="bg-green-500/10"    border="border-green-500/20"   icon={Users} />
+                <StatCard label="Total Users"    value={stats.totalUsers}     color="text-cyan-400"    bg="bg-cyan-500/10"    border="border-cyan-400/20"   icon={Users} />
                 <StatCard label="Online Now"     value={stats.online}         color="text-cyan-400"     bg="bg-cyan-400/10"     border="border-cyan-400/20"    icon={Wifi} />
                 <StatCard label="Banned Users"   value={stats.bannedUsers}    color="text-red-400"      bg="bg-red-500/10"      border="border-red-500/20"     icon={UserX} />
                 <StatCard label="Friendships"    value={stats.totalFriendships} color="text-pink-400"   bg="bg-pink-500/10"     border="border-pink-500/20"    icon={Heart} />

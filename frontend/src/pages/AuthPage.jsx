@@ -70,10 +70,10 @@ export default function AuthPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-card rounded-2xl p-6 mb-5 border border-green-500/30 text-center"
+            className="glass-card rounded-2xl p-6 mb-5 border border-cyan-400/30 text-center"
           >
-            <div className="w-12 h-12 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
-              <Mail size={22} className="text-green-400" />
+            <div className="w-12 h-12 rounded-full bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center mx-auto mb-4">
+              <Mail size={22} className="text-cyan-400" />
             </div>
             <h2 className="text-white font-black text-lg mb-2">Check your email!</h2>
             <p className="text-vybe-muted text-sm leading-relaxed">

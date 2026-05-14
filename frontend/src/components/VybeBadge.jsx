@@ -160,9 +160,9 @@ export function BadgeOrb({ size = 64 }) {
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <radialGradient id="bor_bg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="rgba(139,92,246,0.38)"/>
-          <stop offset="60%"  stopColor="rgba(139,92,246,0.12)"/>
-          <stop offset="100%" stopColor="rgba(139,92,246,0)"/>
+          <stop offset="0%"   stopColor="rgba(0,212,255,0.38)"/>
+          <stop offset="60%"  stopColor="rgba(0,212,255,0.12)"/>
+          <stop offset="100%" stopColor="rgba(0,212,255,0)"/>
         </radialGradient>
         <radialGradient id="bor_sphere" cx="33%" cy="28%" r="72%">
           <stop offset="0%"   stopColor="#ede9fe"/>
@@ -172,8 +172,8 @@ export function BadgeOrb({ size = 64 }) {
           <stop offset="100%" stopColor="#1e0038"/>
         </radialGradient>
         <radialGradient id="bor_inner" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="rgba(167,139,250,0.6)"/>
-          <stop offset="100%" stopColor="rgba(109,40,217,0)"/>
+          <stop offset="0%"   stopColor="rgba(0,184,224,0.6)"/>
+          <stop offset="100%" stopColor="rgba(0,212,255,0)"/>
         </radialGradient>
         <filter id="bor_glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="4.5" result="blur"/>
@@ -186,10 +186,10 @@ export function BadgeOrb({ size = 64 }) {
       {/* Ambient glow */}
       <circle cx="32" cy="32" r="30" fill="url(#bor_bg)"/>
       {/* Outer orbital rings */}
-      <ellipse cx="32" cy="32" rx="28" ry="10" stroke="rgba(167,139,250,0.38)" strokeWidth="1.5" fill="none" transform="rotate(-22 32 32)"/>
-      <ellipse cx="32" cy="32" rx="28" ry="10" stroke="rgba(167,139,250,0.22)" strokeWidth="1"   fill="none" transform="rotate(58 32 32)"/>
+      <ellipse cx="32" cy="32" rx="28" ry="10" stroke="rgba(0,184,224,0.38)" strokeWidth="1.5" fill="none" transform="rotate(-22 32 32)"/>
+      <ellipse cx="32" cy="32" rx="28" ry="10" stroke="rgba(0,184,224,0.22)" strokeWidth="1"   fill="none" transform="rotate(58 32 32)"/>
       {/* Outer ring border */}
-      <circle cx="32" cy="32" r="29" stroke="rgba(167,139,250,0.3)" strokeWidth="1" fill="none"/>
+      <circle cx="32" cy="32" r="29" stroke="rgba(0,212,255,0.2)" strokeWidth="1" fill="none"/>
       {/* Inner pre-glow */}
       <circle cx="32" cy="32" r="22" fill="url(#bor_inner)" filter="url(#bor_glow)"/>
       {/* Main sphere */}
@@ -205,10 +205,10 @@ export function BadgeOrb({ size = 64 }) {
       <ellipse cx="25.5" cy="23.5" rx="6.5" ry="4" fill="white" opacity="0.32" transform="rotate(-22 25.5 23.5)"/>
       <ellipse cx="23.5" cy="22"   rx="2.5" ry="1.5" fill="white" opacity="0.55" transform="rotate(-22 23.5 22)"/>
       {/* Electric arcs */}
-      <path d="M7  19 L9.5 21.5 L7  24" stroke="rgba(167,139,250,0.75)" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-      <path d="M57 40 L54.5 42.5 L57 45" stroke="rgba(167,139,250,0.6)"  strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-      <path d="M14 52 L16.5 54 L14 56" stroke="rgba(167,139,250,0.5)"  strokeWidth="1"   strokeLinecap="round" fill="none"/>
-      <path d="M52 8  L54 10 L52 12"  stroke="rgba(167,139,250,0.45)" strokeWidth="1"   strokeLinecap="round" fill="none"/>
+      <path d="M7  19 L9.5 21.5 L7  24" stroke="rgba(0,184,224,0.75)" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+      <path d="M57 40 L54.5 42.5 L57 45" stroke="rgba(0,184,224,0.6)"  strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+      <path d="M14 52 L16.5 54 L14 56" stroke="rgba(0,184,224,0.5)"  strokeWidth="1"   strokeLinecap="round" fill="none"/>
+      <path d="M52 8  L54 10 L52 12"  stroke="rgba(0,184,224,0.45)" strokeWidth="1"   strokeLinecap="round" fill="none"/>
     </svg>
   )
 }
@@ -218,9 +218,9 @@ export function BadgeCrown({ size = 64 }) {
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <radialGradient id="bcr_bg" cx="50%" cy="48%" r="52%">
-          <stop offset="0%"   stopColor="rgba(251,191,36,0.42)"/>
-          <stop offset="55%"  stopColor="rgba(251,191,36,0.15)"/>
-          <stop offset="100%" stopColor="rgba(251,191,36,0)"/>
+          <stop offset="0%"   stopColor="rgba(0,184,224,0.42)"/>
+          <stop offset="55%"  stopColor="rgba(0,212,255,0.1)"/>
+          <stop offset="100%" stopColor="rgba(0,184,224,0)"/>
         </radialGradient>
         <linearGradient id="bcr_body" x1="32" y1="14" x2="32" y2="50" gradientUnits="userSpaceOnUse">
           <stop offset="0%"   stopColor="#fef9c3"/>
@@ -250,9 +250,9 @@ export function BadgeCrown({ size = 64 }) {
       {/* Strong golden ambient glow */}
       <circle cx="32" cy="32" r="30" fill="url(#bcr_bg)"/>
       {/* Pre-glow for the crown */}
-      <circle cx="32" cy="31" r="22" fill="rgba(251,191,36,0.1)" filter="url(#bcr_glow)"/>
+      <circle cx="32" cy="31" r="22" fill="rgba(0,212,255,0.08)" filter="url(#bcr_glow)"/>
       {/* Outer ring */}
-      <circle cx="32" cy="32" r="29" stroke="rgba(251,191,36,0.38)" strokeWidth="1.5" fill="none"/>
+      <circle cx="32" cy="32" r="29" stroke="rgba(0,184,224,0.38)" strokeWidth="1.5" fill="none"/>
       {/* Crown body */}
       <path d="M11 49 L15 25 L24 39 L32 15 L40 39 L49 25 L53 49 Z"
         fill="url(#bcr_body)" filter="url(#bcr_glow)"/>
@@ -276,11 +276,11 @@ export function BadgeCrown({ size = 64 }) {
       <circle cx="15" cy="24" r="4" stroke="rgba(191,219,254,0.85)" strokeWidth="1"/>
       <ellipse cx="13.5" cy="22.5" rx="1.4" ry="0.9" fill="rgba(255,255,255,0.55)"/>
       {/* GEM — Right: emerald */}
-      <circle cx="49" cy="24" r="4" fill="#10b981"/>
+      <circle cx="49" cy="24" r="4" fill="#00D4FF"/>
       <circle cx="49" cy="24" r="4" stroke="rgba(167,243,208,0.85)" strokeWidth="1"/>
       <ellipse cx="47.5" cy="22.5" rx="1.4" ry="0.9" fill="rgba(255,255,255,0.55)"/>
       {/* GEM — Left inner: amethyst */}
-      <circle cx="24" cy="38" r="3" fill="#a855f7"/>
+      <circle cx="24" cy="38" r="3" fill="#00D4FF"/>
       <circle cx="24" cy="38" r="3" stroke="rgba(233,213,255,0.75)" strokeWidth="0.8"/>
       <ellipse cx="23" cy="36.8" rx="1.1" ry="0.7" fill="rgba(255,255,255,0.5)"/>
       {/* GEM — Right inner: aquamarine */}

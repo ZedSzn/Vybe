@@ -15,14 +15,14 @@ function Avatar({ name, size = 9, online }) {
   return (
     <div className="relative flex-shrink-0">
       <div
-        className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-cyan-400 to-blue-900 flex items-center justify-center text-white font-black`}
+        className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-cyan-400 to-cyan-400 flex items-center justify-center text-white font-black`}
         style={{ fontSize: size > 8 ? 16 : 13 }}
       >
         {name?.[0]?.toUpperCase() || '?'}
       </div>
       {online !== undefined && (
         <span
-          className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-black transition-colors duration-500 ${online ? 'bg-green-400' : 'bg-gray-600'}`}
+          className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-black transition-colors duration-500 ${online ? 'bg-cyan-500' : 'bg-gray-600'}`}
         />
       )}
     </div>
@@ -399,7 +399,7 @@ export default function FriendsPage() {
                             disabled={!!actionLoading}
                             whileTap={{ scale: 0.88 }}
                             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-green-500/20 disabled:opacity-50"
+                            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-cyan-500/20 disabled:opacity-50"
                             style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80' }}
                             title="Accept"
                           >

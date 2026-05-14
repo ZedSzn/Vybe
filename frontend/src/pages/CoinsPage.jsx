@@ -39,7 +39,7 @@ const PACKAGES = [
     price:   '£11.99',
     label:   'Best Value',
     icon:    '⭐',
-    color:   '#a855f7',
+    color:   '#7C3AED',
     glow:    'rgba(168,85,247,0.3)',
     popular: true,
     desc:    'Best value — more coins, more fun',

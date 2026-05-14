@@ -22,7 +22,7 @@ const PLANS = [
     price: '£12.99',
     icon: Crown,
     color: '#00D4FF',
-    glow: 'rgba(245,158,11,0.35)',
+    glow: 'rgba(0,212,255,0.25)',
     badge: 'BEST VALUE',
     features: [
       'Gender filter (Male or Female)',
@@ -96,7 +96,7 @@ export default function PremiumModal({ isOpen, onClose }) {
                         {plan.badge && (
                           <div
                             className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-black whitespace-nowrap tracking-wide text-white"
-                            style={{ background: `linear-gradient(135deg, ${plan.color}, #fbbf24)`, color: '#0a0a0f' }}
+                            style={{ background: `linear-gradient(135deg, ${plan.color}, #00B8E0)`, color: '#0a0a0f' }}
                           >
                             {plan.badge}
                           </div>
@@ -134,7 +134,7 @@ export default function PremiumModal({ isOpen, onClose }) {
                           className="w-full py-3 rounded-xl font-extrabold text-sm text-white transition-all hover:opacity-90 active:scale-95"
                           style={{
                             background: plan.badge
-                              ? `linear-gradient(135deg, ${plan.color}, #fbbf24)`
+                              ? `linear-gradient(135deg, ${plan.color}, #00B8E0)`
                               : `linear-gradient(135deg, #00D4FF, #00B8E0)`,
                             boxShadow: `0 0 20px ${plan.glow}`,
                           }}

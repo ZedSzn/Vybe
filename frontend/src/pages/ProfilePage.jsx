@@ -17,12 +17,12 @@ const COUNTRY_FLAGS = {
 const countryFlag = (c) => COUNTRY_FLAGS[c] || '🌍'
 
 const BANNER_PRESETS = [
-  { id: 'default',  name: 'Vybe',     style: 'linear-gradient(135deg, rgba(124,58,237,0.5) 0%, rgba(99,102,241,0.3) 40%, rgba(0,212,255,0.35) 100%)' },
-  { id: 'sunset',   name: 'Sunset',   style: 'linear-gradient(135deg, rgba(234,88,12,0.5) 0%, rgba(236,72,153,0.35) 50%, rgba(124,58,237,0.4) 100%)' },
+  { id: 'default',  name: 'Vybe',     style: 'linear-gradient(135deg, rgba(0,212,255,0.4) 0%, rgba(99,102,241,0.3) 40%, rgba(0,212,255,0.35) 100%)' },
+  { id: 'sunset',   name: 'Sunset',   style: 'linear-gradient(135deg, rgba(234,88,12,0.5) 0%, rgba(236,72,153,0.35) 50%, rgba(0,212,255,0.3) 100%)' },
   { id: 'ocean',    name: 'Ocean',    style: 'linear-gradient(135deg, rgba(6,182,212,0.5) 0%, rgba(0,212,255,0.4) 50%, rgba(0,68,102,0.5) 100%)' },
-  { id: 'forest',   name: 'Forest',   style: 'linear-gradient(135deg, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.35) 50%, rgba(6,95,70,0.5) 100%)' },
+  { id: 'forest',   name: 'Forest',   style: 'linear-gradient(135deg, rgba(0,212,255,0.45) 0%, rgba(0,212,255,0.35) 50%, rgba(6,95,70,0.5) 100%)' },
   { id: 'ember',    name: 'Ember',    style: 'linear-gradient(135deg, rgba(239,68,68,0.5) 0%, rgba(0,212,255,0.3) 50%, rgba(234,88,12,0.4) 100%)' },
-  { id: 'aurora',   name: 'Aurora',   style: 'linear-gradient(135deg, rgba(99,102,241,0.5) 0%, rgba(167,139,250,0.4) 40%, rgba(236,72,153,0.35) 100%)' },
+  { id: 'aurora',   name: 'Aurora',   style: 'linear-gradient(135deg, rgba(99,102,241,0.5) 0%, rgba(0,212,255,0.3) 40%, rgba(236,72,153,0.35) 100%)' },
   { id: 'midnight', name: 'Midnight', style: 'linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.8) 50%, rgba(17,24,39,0.9) 100%)' },
   { id: 'rose',     name: 'Rose',     style: 'linear-gradient(135deg, rgba(244,63,94,0.45) 0%, rgba(251,113,133,0.3) 50%, rgba(190,18,60,0.4) 100%)' },
 ]
@@ -32,7 +32,7 @@ const ACCENT_COLORS = [
   { hex: '#00D4FF', name: 'Blue'   },
   { hex: '#ec4899', name: 'Pink'   },
   { hex: '#00D4FF', name: 'Gold'   },
-  { hex: '#10b981', name: 'Green'  },
+  { hex: '#00D4FF', name: 'Green'  },
   { hex: '#06b6d4', name: 'Cyan'   },
 ]
 
@@ -54,7 +54,7 @@ const RARITY_STYLE = {
   uncommon:  { label: 'Uncommon',  color: '#4ade80', bg: 'rgba(74,222,128,0.1)',   border: 'rgba(74,222,128,0.25)'   },
   rare:      { label: 'Rare',      color: '#00B8E0', bg: 'rgba(0,184,224,0.1)',   border: 'rgba(0,184,224,0.25)'   },
   epic:      { label: 'Epic',      color: '#c084fc', bg: 'rgba(192,132,252,0.1)',  border: 'rgba(192,132,252,0.25)'  },
-  legendary: { label: 'Legendary', color: '#00B8E0', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.35)'   },
+  legendary: { label: 'Legendary', color: '#00B8E0', bg: 'rgba(0,184,224,0.12)', border: 'rgba(0,184,224,0.35)'   },
 }
 
 const BADGE_ICONS = {
@@ -226,7 +226,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen animated-bg font-space">
-      <style>{`@keyframes borderPulse { 0%,100%{ box-shadow:0 0 0 2px #ec4899, 0 0 0 4px #06b6d4, 0 0 20px rgba(124,58,237,0.6) } 50%{ box-shadow:0 0 0 2px #06b6d4, 0 0 0 4px #fbbf24, 0 0 28px rgba(124,58,237,0.9) } }`}</style>
+      <style>{`@keyframes borderPulse { 0%,100%{ box-shadow:0 0 0 2px #ec4899, 0 0 0 4px #06b6d4, 0 0 20px rgba(0,212,255,0.5) } 50%{ box-shadow:0 0 0 2px #06b6d4, 0 0 0 4px #00B8E0, 0 0 28px rgba(0,212,255,0.9) } }`}</style>
       <Navbar />
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-vybe-purple/8 rounded-full blur-3xl" />
@@ -278,11 +278,11 @@ export default function ProfilePage() {
             {/* Avatar */}
             <div className="relative -mt-10 mb-4 w-fit">
               <div
-                className="w-20 h-20 rounded-2xl border-4 overflow-hidden bg-gradient-to-br from-vybe-purple to-blue-900 flex items-center justify-center"
+                className="w-20 h-20 rounded-2xl border-4 overflow-hidden bg-gradient-to-br from-vybe-purple to-cyan-400 flex items-center justify-center"
                 style={{
                   borderColor: profile.borderColor || (profile.accentColor ? `${profile.accentColor}55` : '#0a0a0f'),
                   boxShadow: profile.animatedBorder
-                    ? '0 0 0 2px #ec4899, 0 0 0 4px #06b6d4, 0 0 20px rgba(124,58,237,0.6)'
+                    ? '0 0 0 2px #ec4899, 0 0 0 4px #06b6d4, 0 0 20px rgba(0,212,255,0.5)'
                     : profile.accentColor
                       ? `0 0 16px ${profile.accentColor}66`
                       : profile.borderColor
@@ -307,7 +307,7 @@ export default function ProfilePage() {
               )}
               {/* Online indicator */}
               {profile.isOnline && (
-                <span className="absolute top-1 right-1 w-3 h-3 rounded-full bg-green-400 border-2 border-vybe-bg" />
+                <span className="absolute top-1 right-1 w-3 h-3 rounded-full bg-cyan-500 border-2 border-vybe-bg" />
               )}
             </div>
 
@@ -340,7 +340,7 @@ export default function ProfilePage() {
               {profile.emailVerified && <Badge icon={Shield}     label="Verified"                        color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
               {(profile.loginStreak ?? 0) >= 7  && <Badge icon={Flame}   label={`${profile.loginStreak}d Streak`} color="border-orange-500/30 text-orange-400 bg-orange-500/10" />}
               {(profile.longestStreak ?? 0) >= 30 && <Badge icon={Trophy} label="Veteran"               color="border-yellow-500/30 text-cyan-300 bg-cyan-500/10" />}
-              {(profile.totalChats ?? 0) >= 100  && <Badge icon={MessageCircle} label="Chatter"         color="border-green-500/30 text-green-400 bg-green-500/10" />}
+              {(profile.totalChats ?? 0) >= 100  && <Badge icon={MessageCircle} label="Chatter"         color="border-cyan-400/30 text-cyan-400 bg-cyan-500/10" />}
             </div>
 
             {/* Equipped custom badges */}
@@ -435,7 +435,7 @@ export default function ProfilePage() {
                     </button>
                   </div>
                   {editForm.bannerImage && (
-                    <div className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl border border-vybe-border" style={{ background: 'rgba(124,58,237,0.08)' }}>
+                    <div className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl border border-vybe-border" style={{ background: 'rgba(0,212,255,0.07)' }}>
                       <img src={editForm.bannerImage} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
                       <span className="text-xs text-white/70 flex-1">Custom photo</span>
                       <button

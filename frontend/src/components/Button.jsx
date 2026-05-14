@@ -14,9 +14,9 @@ const VARIANTS = {
     base: 'text-white font-extrabold',
     style: {
       background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 55%, #33DDFF 100%)',
-      boxShadow: '0 0 0 1px rgba(167,139,250,0.2), 0 0 24px rgba(124,58,237,0.35)',
+      boxShadow: '0 0 0 1px rgba(0,212,255,0.15), 0 0 24px rgba(0,212,255,0.25)',
     },
-    hover: { boxShadow: '0 0 0 1px rgba(167,139,250,0.45), 0 0 36px rgba(124,58,237,0.55)' },
+    hover: { boxShadow: '0 0 0 1px rgba(0,184,224,0.45), 0 0 36px rgba(0,212,255,0.55)' },
   },
   secondary: {
     base: 'text-white/80 font-semibold hover:text-white',
@@ -35,8 +35,8 @@ const VARIANTS = {
   },
   success: {
     base: 'text-white font-extrabold',
-    style: { background: '#059669', boxShadow: '0 0 20px rgba(5,150,105,0.28)' },
-    hover: { boxShadow: '0 0 32px rgba(5,150,105,0.45)' },
+    style: { background: '#00B8E0', boxShadow: '0 0 20px rgba(0,212,255,0.28)' },
+    hover: { boxShadow: '0 0 32px rgba(0,212,255,0.45)' },
   },
   glass: {
     base: 'text-white/70 font-semibold hover:text-white',

@@ -21,7 +21,7 @@ function Toast({ toast }) {
     <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-sm font-semibold shadow-card animate-fade-in flex items-center gap-2 ${
       toast.type === 'error'
         ? 'bg-red-500/20 border border-red-500/40 text-red-300'
-        : 'bg-green-500/20 border border-green-500/40 text-green-300'
+        : 'bg-cyan-500/20 border border-cyan-400/40 text-cyan-400'
     }`}>
       {toast.type === 'error' ? <AlertTriangle size={14} /> : <CheckCircle size={14} />}
       {toast.msg}
@@ -169,7 +169,7 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <span className="hidden sm:flex items-center gap-1.5 text-xs text-green-400">
+            <span className="hidden sm:flex items-center gap-1.5 text-xs text-cyan-400">
               <Wifi size={12} />
               {stats?.online ?? 0} online
             </span>
@@ -188,7 +188,7 @@ export default function AdminPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
             <StatCard label="Total Reports"   value={stats.totalReports}   color="text-vybe-purple"  bg="bg-vybe-purple/10"   border="border-vybe-purple/20"  icon={Flag} />
             <StatCard label="Pending"          value={stats.pendingReports} color="text-cyan-400"   bg="bg-cyan-500/10"   border="border-yellow-500/20"  icon={AlertTriangle} />
-            <StatCard label="Total Users"      value={stats.totalUsers}     color="text-green-400"    bg="bg-green-500/10"    border="border-green-500/20"   icon={Users} />
+            <StatCard label="Total Users"      value={stats.totalUsers}     color="text-cyan-400"    bg="bg-cyan-500/10"    border="border-cyan-400/20"   icon={Users} />
             <StatCard label="Banned"           value={stats.bannedUsers}    color="text-red-400"      bg="bg-red-500/10"      border="border-red-500/20"     icon={UserX} />
             <StatCard label="Online Now"       value={stats.online}         color="text-cyan-400"     bg="bg-cyan-400/10"     border="border-cyan-400/20"    icon={TrendingUp} />
             <StatCard label="Unban Sales"      value={stats.unbanCount}     color="text-emerald-400"  bg="bg-emerald-500/10"  border="border-emerald-500/20" icon={DollarSign} />
@@ -258,7 +258,7 @@ export default function AdminPage() {
                               {reason.label}
                             </span>
                             {r.resolved && (
-                              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-green-500/15 text-green-400 border border-green-500/25 flex items-center gap-1">
+                              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-400/25 flex items-center gap-1">
                                 <CheckCircle size={10} /> Resolved
                               </span>
                             )}
@@ -290,7 +290,7 @@ export default function AdminPage() {
                             )}
                             <button
                               onClick={() => resolveReport(r._id)}
-                              className="px-3 py-1.5 rounded-lg bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 text-xs font-bold transition-all"
+                              className="px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/25 text-xs font-bold transition-all"
                             >
                               Resolve
                             </button>
@@ -367,14 +367,14 @@ export default function AdminPage() {
                               {u.isBanned  ? (
                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>
                               ) : (
-                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 font-bold">ACTIVE</span>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 font-bold">ACTIVE</span>
                               )}
                             </div>
                           </td>
                           <td className="px-4 py-3.5 text-right">
                             {!u.isAdmin && (
                               u.isBanned ? (
-                                <button onClick={() => unbanUser(u._id)} className="px-3 py-1.5 rounded-lg bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 text-xs font-bold transition-all">
+                                <button onClick={() => unbanUser(u._id)} className="px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/25 text-xs font-bold transition-all">
                                   Unban
                                 </button>
                               ) : (

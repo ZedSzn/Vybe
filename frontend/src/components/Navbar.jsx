@@ -147,7 +147,7 @@ export default function Navbar({ onPremiumClick }) {
           <span
             className="text-[32px] font-extrabold tracking-[0.08em]"
             style={{
-              background: 'linear-gradient(135deg, #00B8E0 0%, #7C3AED 100%)',
+              background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -207,7 +207,7 @@ export default function Navbar({ onPremiumClick }) {
               <Link
                 to="/wallet?tab=cashout"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all"
-                style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.28)', color: 'rgb(52,211,153)' }}
+                style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.28)', color: 'rgb(52,211,153)' }}
               >
                 <DollarSign size={13} /> Cash Out
               </Link>
@@ -324,7 +324,7 @@ export default function Navbar({ onPremiumClick }) {
                 {user?.avatar ? (
                   <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover border border-cyan-400/40" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-900 flex items-center justify-center text-white text-sm font-black border border-cyan-400/40">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-400 flex items-center justify-center text-white text-sm font-black border border-cyan-400/40">
                     {user?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
                 )}
@@ -351,7 +351,7 @@ export default function Navbar({ onPremiumClick }) {
                       {user?.avatar ? (
                         <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-900 flex items-center justify-center text-white text-sm font-black">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-400 flex items-center justify-center text-white text-sm font-black">
                           {user?.username?.[0]?.toUpperCase()}
                         </div>
                       )}
@@ -403,7 +403,7 @@ export default function Navbar({ onPremiumClick }) {
                     </Link>
                     <Link to="/wallet?tab=cashout" onClick={() => setShowUserMenu(false)}
                       className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-extrabold"
-                      style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.28)', color: 'rgb(52,211,153)' }}>
+                      style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.28)', color: 'rgb(52,211,153)' }}>
                       <DollarSign size={12} /> Cash Out
                     </Link>
                   </div>

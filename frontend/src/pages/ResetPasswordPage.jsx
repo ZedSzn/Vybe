@@ -128,8 +128,8 @@ export default function ResetPasswordPage() {
             </>
           ) : (
             <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-5">
-                <CheckCircle size={30} className="text-green-400" />
+              <div className="w-16 h-16 rounded-full bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center mx-auto mb-5">
+                <CheckCircle size={30} className="text-cyan-400" />
               </div>
               <h1 className="text-2xl font-black text-white mb-3">Password Reset!</h1>
               <p className="text-vybe-muted text-sm mb-6">

@@ -48,8 +48,8 @@ export default function VerifyEmailPage() {
 
         {status === 'success' && (
           <div className="glass-card rounded-2xl p-10">
-            <div className="w-16 h-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle size={32} className="text-green-400" />
+            <div className="w-16 h-16 rounded-full bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle size={32} className="text-cyan-400" />
             </div>
             <h1 className="text-2xl font-black text-white mb-3">Email Verified!</h1>
             <p className="text-vybe-muted text-sm leading-relaxed mb-8">
@@ -110,7 +110,7 @@ function ResendButton() {
   }
 
   if (sent) return (
-    <p className="text-green-400 text-sm flex items-center justify-center gap-2">
+    <p className="text-cyan-400 text-sm flex items-center justify-center gap-2">
       <Mail size={14} /> Verification email sent!
     </p>
   )

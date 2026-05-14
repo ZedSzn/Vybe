@@ -5,9 +5,9 @@ import Footer from '../components/Footer'
 const rules = [
   {
     icon: Heart,
-    color: 'text-green-400',
-    bg: 'bg-green-500/10',
-    border: 'border-green-500/20',
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10',
+    border: 'border-cyan-400/20',
     title: 'Be Respectful',
     body: 'Treat every person you meet on Vybe the way you would want to be treated. Basic human decency is not optional. Rudeness, personal insults, and targeted cruelty will not be tolerated.',
     examples: ['Greet people kindly', 'Disagree without being aggressive', 'Respect when someone ends a chat'],
@@ -87,7 +87,7 @@ export default function GuidelinesPage() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-10">
         {/* Title */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-cyan-400 text-xs font-bold mb-4">
             <ShieldCheck size={12} />
             Community Standards
           </div>

@@ -30,8 +30,8 @@ const GIFTS_LIST = [
 ]
 
 const TX_TYPE_LABELS = {
-  signup:        { label: 'Sign-up bonus',  color: 'text-green-400'  },
-  bonus:         { label: 'Login bonus',    color: 'text-green-400'  },
+  signup:        { label: 'Sign-up bonus',  color: 'text-cyan-400'  },
+  bonus:         { label: 'Login bonus',    color: 'text-cyan-400'  },
   streak:        { label: 'Streak bonus',   color: 'text-orange-400' },
   referral:      { label: 'Referral',       color: 'text-cyan-400'   },
   purchase:      { label: 'Coin purchase',  color: 'text-cyan-400'   },
@@ -39,7 +39,7 @@ const TX_TYPE_LABELS = {
   tip_sent:      { label: 'Tip sent',       color: 'text-red-400'    },
   gift:          { label: 'Gift sent',      color: 'text-red-400'    },
   cashout:       { label: 'Cash out',       color: 'text-cyan-400' },
-  cashout_refund:{ label: 'Cashout refund', color: 'text-green-400'  },
+  cashout_refund:{ label: 'Cashout refund', color: 'text-cyan-400'  },
 }
 
 function TabBtn({ active, onClick, children }) {
@@ -184,7 +184,7 @@ export default function WalletPage() {
 
   const statusBadge = (s) => ({
     pending:  'bg-cyan-500/15 text-cyan-400 border-yellow-500/25',
-    approved: 'bg-green-500/15 text-green-400 border-green-500/25',
+    approved: 'bg-cyan-500/15 text-cyan-400 border-cyan-400/25',
     rejected: 'bg-red-500/15 text-red-400 border-red-500/25',
   }[s] || '')
 
@@ -238,14 +238,14 @@ export default function WalletPage() {
               </div>
 
               {/* Earnings */}
-              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-green-500/25" style={{ background: 'rgba(0,212,255,0.06)' }}>
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-cyan-400/25" style={{ background: 'rgba(0,212,255,0.06)' }}>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.12)' }}>
-                  <DollarSign size={20} className="text-green-400" />
+                  <DollarSign size={20} className="text-cyan-400" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-green-400/80 uppercase tracking-wider mb-0.5">Earnings</p>
-                  <p className="text-2xl font-extrabold text-green-300">{earnings.toLocaleString()}</p>
-                  <p className="text-green-400/50 text-[11px]">≈ £{((earnings / 1000) * 4.20).toFixed(2)} cashable from tips</p>
+                  <p className="text-xs font-bold text-cyan-400/80 uppercase tracking-wider mb-0.5">Earnings</p>
+                  <p className="text-2xl font-extrabold text-cyan-400">{earnings.toLocaleString()}</p>
+                  <p className="text-cyan-400/50 text-[11px]">≈ £{((earnings / 1000) * 4.20).toFixed(2)} cashable from tips</p>
                 </div>
               </div>
             </div>
@@ -256,10 +256,10 @@ export default function WalletPage() {
         <AnimatePresence>
           {successMsg && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="mb-4 px-5 py-3 rounded-xl text-sm text-green-400 border border-green-500/25 flex items-center justify-between"
+              className="mb-4 px-5 py-3 rounded-xl text-sm text-cyan-400 border border-cyan-400/25 flex items-center justify-between"
               style={{ background: 'rgba(0,212,255,0.08)' }}>
               {successMsg}
-              <button onClick={() => setSuccessMsg('')} className="text-green-400/50 hover:text-green-400 ml-4">✕</button>
+              <button onClick={() => setSuccessMsg('')} className="text-cyan-400/50 hover:text-cyan-400 ml-4">✕</button>
             </motion.div>
           )}
           {errorMsg && (
@@ -293,7 +293,7 @@ export default function WalletPage() {
               <div className="grid sm:grid-cols-3 gap-4">
                 {[
                   { Icon: ShoppingCart, color: '#00B8E0', step: '1', title: 'Buy Coins', desc: 'Purchase coins with a simple one-time payment via Stripe.' },
-                  { Icon: Gift,         color: '#7C3AED', step: '2', title: 'Send Gifts', desc: 'Send gifts to people you meet in video chat — instantly.' },
+                  { Icon: Gift,         color: '#00D4FF', step: '2', title: 'Send Gifts', desc: 'Send gifts to people you meet in video chat — instantly.' },
                   { Icon: DollarSign,   color: '#00D4FF', step: '3', title: 'Cash Out',   desc: 'Recipients earn 70% of every gift and can cash out to PayPal.' },
                 ].map(({ Icon, color, step, title, desc }) => (
                   <div key={step} className="flex flex-col items-center text-center p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -330,17 +330,17 @@ export default function WalletPage() {
               <button
                 onClick={() => navigate('/chat')}
                 className="w-full py-3 rounded-xl text-sm font-extrabold text-white flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', boxShadow: '0 0 20px rgba(124,58,237,0.25)' }}
+                style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', boxShadow: '0 0 20px rgba(0,212,255,0.2)' }}
               >
                 Start a Chat <ArrowRight size={15} />
               </button>
             </div>
 
             {/* Earnings info */}
-            <div className="rounded-2xl p-5 border border-green-500/20" style={{ background: 'rgba(0,212,255,0.04)' }}>
+            <div className="rounded-2xl p-5 border border-cyan-400/20" style={{ background: 'rgba(0,212,255,0.04)' }}>
               <div className="flex items-center gap-2 mb-1">
-                <DollarSign size={15} className="text-green-400" />
-                <p className="text-green-300 font-bold text-sm">How Earnings Work</p>
+                <DollarSign size={15} className="text-cyan-400" />
+                <p className="text-cyan-400 font-bold text-sm">How Earnings Work</p>
               </div>
               <p className="text-vybe-muted text-xs leading-relaxed">
                 When someone sends you a gift in chat, 70% goes straight to your Earnings balance. Once you reach 1,000 earnings coins (≈ £4.20), you can request a PayPal payout in the <button className="text-white font-semibold underline" onClick={() => switchTab('cashout')}>Cash Out</button> tab.
@@ -427,14 +427,14 @@ export default function WalletPage() {
             ) : (
               <div className="space-y-1 max-h-[520px] overflow-y-auto pr-1">
                 {history.map((tx, i) => {
-                  const meta = TX_TYPE_LABELS[tx.type] || { label: tx.type || '—', color: tx.amount > 0 ? 'text-green-400' : 'text-red-400' }
+                  const meta = TX_TYPE_LABELS[tx.type] || { label: tx.type || '—', color: tx.amount > 0 ? 'text-cyan-400' : 'text-red-400' }
                   const isEarning = tx.type === 'tip_received' || tx.type === 'cashout' || tx.type === 'cashout_refund'
                   return (
                     <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-white/3 transition-colors">
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="flex-shrink-0">
                           {tx.amount > 0
-                            ? <TrendingUp size={14} className="text-green-400" />
+                            ? <TrendingUp size={14} className="text-cyan-400" />
                             : <TrendingDown size={14} className="text-red-400" />
                           }
                         </span>
@@ -444,10 +444,10 @@ export default function WalletPage() {
                         </div>
                       </div>
                       <div className="flex flex-col items-end ml-3 flex-shrink-0">
-                        <span className={`text-sm font-extrabold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        <span className={`text-sm font-extrabold ${tx.amount > 0 ? 'text-cyan-400' : 'text-red-400'}`}>
                           {tx.amount > 0 ? '+' : ''}{tx.amount}
                         </span>
-                        {isEarning && <span className="text-[10px] text-green-400/60">earnings</span>}
+                        {isEarning && <span className="text-[10px] text-cyan-400/60">earnings</span>}
                         <span className="text-vybe-muted/50 text-[10px]">
                           {new Date(tx.timestamp).toLocaleDateString()}
                         </span>
@@ -464,17 +464,17 @@ export default function WalletPage() {
         {tab === 'cashout' && (
           <div className="grid gap-5">
             {/* Earnings summary */}
-            <div className="px-5 py-4 rounded-2xl border border-green-500/25 flex items-center gap-4" style={{ background: 'rgba(0,212,255,0.06)' }}>
+            <div className="px-5 py-4 rounded-2xl border border-cyan-400/25 flex items-center gap-4" style={{ background: 'rgba(0,212,255,0.06)' }}>
               <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.15)' }}>
-                <DollarSign size={20} className="text-green-400" />
+                <DollarSign size={20} className="text-cyan-400" />
               </div>
               <div className="flex-1">
-                <p className="text-xs font-bold text-green-400/80 uppercase tracking-wider mb-0.5">Your Earnings</p>
-                <p className="text-2xl font-extrabold text-green-300">{earnings.toLocaleString()} coins</p>
-                <p className="text-green-400/50 text-[11px]">≈ £{((earnings / 1000) * 4.20).toFixed(2)} · from tips received in chat</p>
+                <p className="text-xs font-bold text-cyan-400/80 uppercase tracking-wider mb-0.5">Your Earnings</p>
+                <p className="text-2xl font-extrabold text-cyan-400">{earnings.toLocaleString()} coins</p>
+                <p className="text-cyan-400/50 text-[11px]">≈ £{((earnings / 1000) * 4.20).toFixed(2)} · from tips received in chat</p>
               </div>
               {canCashout && (
-                <div className="flex items-center gap-1 text-green-400 text-xs font-bold">
+                <div className="flex items-center gap-1 text-cyan-400 text-xs font-bold">
                   <Check size={13} /> Eligible
                 </div>
               )}
@@ -524,7 +524,7 @@ export default function WalletPage() {
                       className={inputCls}
                     />
                     {cashoutAmount && parseInt(cashoutAmount) >= 1000 && parseInt(cashoutAmount) <= earnings && (
-                      <p className="text-green-400 text-xs mt-1">≈ £{((parseInt(cashoutAmount) / 1000) * 4.20).toFixed(2)} to your PayPal</p>
+                      <p className="text-cyan-400 text-xs mt-1">≈ £{((parseInt(cashoutAmount) / 1000) * 4.20).toFixed(2)} to your PayPal</p>
                     )}
                     {cashoutAmount && parseInt(cashoutAmount) > earnings && (
                       <p className="text-red-400 text-xs mt-1">Exceeds your earnings of {earnings.toLocaleString()} coins</p>
@@ -534,7 +534,7 @@ export default function WalletPage() {
                     onClick={handleCashout}
                     disabled={cashoutLoading || !cashoutAmount || parseInt(cashoutAmount) < 1000 || parseInt(cashoutAmount) > earnings || !paypalEmail}
                     className="w-full py-3 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-50"
-                    style={{ background: 'linear-gradient(135deg,#00D4FF,#16a34a)', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}
+                    style={{ background: 'linear-gradient(135deg,#00D4FF,#00B8E0)', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}
                   >
                     {cashoutLoading ? 'Submitting…' : 'Request Cash Out'}
                   </button>

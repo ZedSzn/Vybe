@@ -24,7 +24,7 @@ function BarBtn({ onClick, children, label, active, red, disabled: dis, title: t
       <div className="w-9 h-9 rounded-xl flex items-center justify-center"
         style={{
           transition: 'background-color 150ms ease, box-shadow 150ms ease',
-          background: red && active ? '#dc2626' : red ? 'rgba(239,68,68,0.15)' : active ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)',
+          background: red && active ? '#dc2626' : red ? 'rgba(239,68,68,0.15)' : active ? 'rgba(0,212,255,0.25)' : 'rgba(255,255,255,0.06)',
         }}>
         {children}
       </div>
@@ -45,8 +45,8 @@ function MobileFloatBtn({ onClick, children, active, red, amber, primary, disabl
   if (red && active)  { bg = 'rgba(220,38,38,0.88)'; border = '1px solid rgba(220,38,38,0.5)'; glow = '0 0 22px rgba(220,38,38,0.55), 0 0 44px rgba(220,38,38,0.18)'; color = '#fff' }
   else if (red)       { bg = 'rgba(239,68,68,0.1)';  border = '1px solid rgba(239,68,68,0.18)'; color = '#f87171' }
   else if (amber)     { bg = 'rgba(0,212,255,0.12)'; border = '1px solid rgba(0,212,255,0.35)'; glow = '0 0 14px rgba(0,212,255,0.18)'; color = '#00B8E0' }
-  else if (primary)   { bg = 'rgba(124,58,237,0.2)';  border = '1px solid rgba(124,58,237,0.32)'; glow = '0 0 16px rgba(124,58,237,0.28)'; color = '#c4b5fd' }
-  else if (active)    { bg = 'rgba(124,58,237,0.18)'; border = '1px solid rgba(124,58,237,0.28)'; color = '#c4b5fd' }
+  else if (primary)   { bg = 'rgba(0,212,255,0.15)';  border = '1px solid rgba(0,212,255,0.32)'; glow = '0 0 16px rgba(0,212,255,0.28)'; color = '#c4b5fd' }
+  else if (active)    { bg = 'rgba(0,212,255,0.15)'; border = '1px solid rgba(0,212,255,0.28)'; color = '#c4b5fd' }
 
   return (
     <motion.button
@@ -822,7 +822,7 @@ export default function ChatPage() {
           <button
             onClick={handleUnbanPurchase}
             disabled={unbanLoading}
-            className="w-full max-w-xs py-3.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-black text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+            className="w-full max-w-xs py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-500 text-white font-black text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mb-3"
           >
             {unbanLoading ? (
               <><Loader2 size={15} className="animate-spin" /> Processing…</>
@@ -948,13 +948,13 @@ export default function ChatPage() {
                 </div>
                 {/* Coin balance breakdown */}
                 <div className="flex gap-2 mb-4">
-                  <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
+                  <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(0,184,224,0.08)', border: '1px solid rgba(0,212,255,0.15)' }}>
                     <p className="text-cyan-300 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {coins.toLocaleString()}</p>
                     <p className="text-white/40 text-[10px] mt-0.5">Spendable</p>
                   </div>
                   {cashableCoins > 0 && (
                     <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)' }}>
-                      <p className="text-green-400 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {cashableCoins.toLocaleString()}</p>
+                      <p className="text-cyan-400 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {cashableCoins.toLocaleString()}</p>
                       <p className="text-white/40 text-[10px] mt-0.5">Earned (cashable)</p>
                     </div>
                   )}
@@ -1039,7 +1039,7 @@ export default function ChatPage() {
                 </AnimatePresence>
                 {onlineCount > 0 && (
                   <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#888899' }}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse flex-shrink-0" />
                     {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
                   </p>
                 )}
@@ -1114,7 +1114,7 @@ export default function ChatPage() {
                       {partnerUsername[0].toUpperCase()}
                     </div>
                   ) : (
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 online-pulse" />
                   )}
                   <div className="flex items-center gap-1.5">
                     <span className="text-white font-bold text-[12px]">{partnerUsername ? partnerUsername : 'Stranger'}</span>
@@ -1264,8 +1264,8 @@ export default function ChatPage() {
                   y: duoPipY,
                   top: 0,
                   left: 0,
-                  boxShadow: '0 0 22px rgba(124,58,237,0.38), 0 8px 32px rgba(0,0,0,0.65)',
-                  border: '1.5px solid rgba(124,58,237,0.5)',
+                  boxShadow: '0 0 22px rgba(0,212,255,0.38), 0 8px 32px rgba(0,0,0,0.65)',
+                  border: '1.5px solid rgba(0,212,255,0.4)',
                   touchAction: 'none',
                   cursor: 'grab',
                 }}
@@ -1277,7 +1277,7 @@ export default function ChatPage() {
                 />
                 {/* DUO label */}
                 <div className="absolute top-1.5 left-1.5 pointer-events-none">
-                  <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(124,58,237,0.75)', backdropFilter: 'blur(8px)' }}>
+                  <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,212,255,0.75)', backdropFilter: 'blur(8px)' }}>
                     <span className="text-white font-black text-[7px] tracking-wider">DUO</span>
                   </div>
                 </div>
@@ -1302,7 +1302,7 @@ export default function ChatPage() {
                 className="absolute z-[6] left-1/2 -translate-x-1/2 pointer-events-none"
                 style={{ top: 'max(14px, env(safe-area-inset-top, 0px) + 12px)' }}
               >
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(124,58,237,0.22)', backdropFilter: 'blur(16px)', border: '1px solid rgba(124,58,237,0.38)', boxShadow: '0 0 16px rgba(124,58,237,0.2)' }}>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,212,255,0.22)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.38)', boxShadow: '0 0 16px rgba(0,212,255,0.15)' }}>
                   <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#a78bfa' }} />
                   <span className="text-[10px] font-black tracking-widest text-white/90">DUO MODE</span>
                 </div>
@@ -1382,7 +1382,7 @@ export default function ChatPage() {
               ) : (
                 <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)' }}>
-                  <span className="text-green-400 text-xs font-bold">✓</span>
+                  <span className="text-cyan-400 text-xs font-bold">✓</span>
                 </div>
               )}
             </motion.div>
@@ -1409,7 +1409,7 @@ export default function ChatPage() {
                       </AnimatePresence>
                       {onlineCount > 0 && (
                         <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#888899' }}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse flex-shrink-0" />
                           {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
                         </p>
                       )}
@@ -1453,7 +1453,7 @@ export default function ChatPage() {
                             {partnerUsername[0].toUpperCase()}
                           </div>
                         ) : (
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 online-pulse" />
                         )}
                         <div className="flex items-center gap-1.5">
                           <span className="text-white font-bold text-[13px]">
@@ -1700,8 +1700,8 @@ export default function ChatPage() {
                     </span>
                   </BarBtn>
                   {reportSent ? (
-                    <div className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl text-green-400">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-green-500/15"><span className="text-sm">✓</span></div>
+                    <div className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl text-cyan-400">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-cyan-500/15"><span className="text-sm">✓</span></div>
                       <span className="text-[9px] font-medium">Reported</span>
                     </div>
                   ) : (

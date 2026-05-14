@@ -61,7 +61,7 @@ export default function EarnPage() {
     <div className="min-h-screen font-space" style={{ background: '#0a0a0f' }}>
       {/* Ambient */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
-        <div className="absolute" style={{ top: '-5%', left: '15%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(124,58,237,0.08) 0%, transparent 65%)' }} />
+        <div className="absolute" style={{ top: '-5%', left: '15%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 65%)' }} />
         <div className="absolute" style={{ bottom: '10%', right: '-5%', width: '500px', height: '500px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.06) 0%, transparent 65%)' }} />
       </div>
 
@@ -87,7 +87,7 @@ export default function EarnPage() {
         >
           <div
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest mb-6"
-            style={{ background: 'rgba(124,58,237,0.2)', color: 'rgba(167,139,250,0.9)', border: '1px solid rgba(124,58,237,0.3)' }}
+            style={{ background: 'rgba(0,212,255,0.15)', color: 'rgba(0,184,224,0.9)', border: '1px solid rgba(0,212,255,0.22)' }}
           >
             <Zap size={11} /> Earn on Vybe
           </div>
@@ -119,7 +119,7 @@ export default function EarnPage() {
               >
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(124,58,237,0.25)' }}
+                  style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.2)' }}
                 >
                   {step.icon}
                 </div>
@@ -152,7 +152,7 @@ export default function EarnPage() {
                   <g.Icon size={20} style={{ color: g.color }} />
                 </div>
                 <span className="text-white text-xs font-bold">{g.name}</span>
-                <span className="text-[10px] font-semibold" style={{ color: 'rgba(167,139,250,0.8)' }}>{g.label}</span>
+                <span className="text-[10px] font-semibold" style={{ color: 'rgba(0,184,224,0.8)' }}>{g.label}</span>
               </div>
             ))}
           </div>
@@ -164,7 +164,7 @@ export default function EarnPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.24 }}
           className="rounded-2xl p-6 mb-12 text-center"
-          style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(0,212,255,0.14) 100%)', border: '1px solid rgba(124,58,237,0.25)' }}
+          style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.15) 0%, rgba(0,212,255,0.14) 100%)', border: '1px solid rgba(0,212,255,0.2)' }}
         >
           <Star size={24} className="text-vybe-purple-light mx-auto mb-3" />
           <p className="text-white font-black text-lg mb-1">1,000 coins ≈ £4.20</p>

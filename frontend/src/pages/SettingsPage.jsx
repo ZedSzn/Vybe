@@ -179,7 +179,7 @@ function CoinsTab() {
                   <p className="text-white text-xs font-semibold">{t.reason}</p>
                   <p className="text-vybe-muted text-[10px]">{new Date(t.timestamp).toLocaleDateString()}</p>
                 </div>
-                <span className={`text-sm font-black flex items-center gap-1 ${t.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <span className={`text-sm font-black flex items-center gap-1 ${t.amount > 0 ? 'text-cyan-400' : 'text-red-400'}`}>
                   {t.amount > 0 ? '+' : ''}{t.amount}<VybeCoin size={12}/>
                 </span>
               </div>
@@ -240,7 +240,7 @@ function BlocksTab() {
           className="py-8 flex flex-col items-center text-center"
         >
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
-            style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(0,212,255,0.12)' }}>
+            style={{ background: 'rgba(0,212,255,0.07)', border: '1px solid rgba(0,212,255,0.12)' }}>
             <UserX size={24} className="text-vybe-purple-light opacity-50" />
           </div>
           <p className="text-white/60 text-sm font-semibold mb-0.5">No blocked users</p>
@@ -254,7 +254,7 @@ function BlocksTab() {
                 {u.avatar ? (
                   <img src={u.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-vybe-purple to-blue-900 flex items-center justify-center text-white text-sm font-black">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-vybe-purple to-cyan-400 flex items-center justify-center text-white text-sm font-black">
                     {u.username?.[0]?.toUpperCase()}
                   </div>
                 )}
@@ -337,7 +337,7 @@ function ReferralTab() {
             {info?.referralLink}
           </div>
           <button onClick={copy} className="px-3 py-2 rounded-xl bg-vybe-purple/20 border border-vybe-purple/30 text-vybe-purple hover:bg-vybe-purple/30 transition-colors text-sm">
-            {copied ? <Check size={14} className="text-green-400" /> : 'Copy'}
+            {copied ? <Check size={14} className="text-cyan-400" /> : 'Copy'}
           </button>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -371,7 +371,7 @@ function ReferralTab() {
                 <span className={`text-sm font-black w-5 ${i === 0 ? 'text-cyan-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-cyan-600' : 'text-vybe-muted'}`}>
                   {i + 1}
                 </span>
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-vybe-purple to-blue-900 flex items-center justify-center text-white text-xs font-black flex-shrink-0">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-vybe-purple to-cyan-400 flex items-center justify-center text-white text-xs font-black flex-shrink-0">
                   {l.username?.[0]?.toUpperCase()}
                 </div>
                 <span className="text-white text-sm font-semibold flex-1 truncate">{l.username}</span>
@@ -411,15 +411,15 @@ function EmailVerificationSection({ user }) {
 
   if (user?.emailVerified) {
     return (
-      <div className="glass-card rounded-2xl p-4 border border-green-500/25 bg-green-500/5 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
-          <ShieldCheck size={18} className="text-green-400" />
+      <div className="glass-card rounded-2xl p-4 border border-cyan-400/25 bg-cyan-500/5 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full bg-cyan-500/15 flex items-center justify-center flex-shrink-0">
+          <ShieldCheck size={18} className="text-cyan-400" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-white text-sm font-bold">Email verified</p>
           <p className="text-vybe-muted text-xs truncate">{user?.email}</p>
         </div>
-        <span className="text-green-400 text-xs font-bold bg-green-500/10 border border-green-500/25 px-2 py-1 rounded-lg flex-shrink-0">✓ Verified</span>
+        <span className="text-cyan-400 text-xs font-bold bg-cyan-500/10 border border-cyan-400/25 px-2 py-1 rounded-lg flex-shrink-0">✓ Verified</span>
       </div>
     )
   }
@@ -440,7 +440,7 @@ function EmailVerificationSection({ user }) {
       </div>
 
       {sent ? (
-        <div className="flex items-center gap-2 text-green-400 text-sm py-1">
+        <div className="flex items-center gap-2 text-cyan-400 text-sm py-1">
           <Check size={15} /> Verification email sent — check your inbox!
         </div>
       ) : (
@@ -502,7 +502,7 @@ function AccountTab({ logout, navigate }) {
         <h3 className="text-sm font-black text-white mb-1 flex items-center gap-2"><Download size={14} /> Download My Data</h3>
         <p className="text-vybe-muted text-xs mb-4">Get a copy of all your data sent to {user?.email}. This complies with GDPR Article 20.</p>
         {dlMsg ? (
-          <p className="text-green-400 text-sm flex items-center gap-2"><Check size={14} /> {dlMsg}</p>
+          <p className="text-cyan-400 text-sm flex items-center gap-2"><Check size={14} /> {dlMsg}</p>
         ) : (
           <button onClick={downloadData} disabled={downloading}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-vybe-border text-vybe-muted hover:text-white hover:border-vybe-purple/40 text-sm transition-all disabled:opacity-50">

@@ -25,7 +25,7 @@ const VARIANTS = {
   },
   glow: {
     background: '#111120',
-    border: '1px solid rgba(124,58,237,0.25)',
+    border: '1px solid rgba(0,212,255,0.2)',
     boxShadow: '0 4px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,212,255,0.1)',
   },
 }
