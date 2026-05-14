@@ -160,14 +160,14 @@ export default function GuidelinesPage() {
         </div>
 
         {/* Report CTA */}
-        <div className="bg-vybe-purple/10 border border-vybe-purple/20 rounded-2xl p-6 mb-8">
+        <div className="bg-vybe-blue/10 border border-vybe-blue/20 rounded-2xl p-6 mb-8">
           <h2 className="text-lg font-black text-white mb-2">See something? Report it.</h2>
           <p className="text-vybe-muted text-[13px] leading-relaxed mb-4">
             Every video chat session includes a Report button. Use it if you see any violation of these guidelines. Reports are reviewed by our moderation team and you will never be identified as the reporter.
           </p>
           <div className="flex flex-wrap gap-2 text-[12px]">
             {['Nudity', 'Harassment', 'Underage User', 'Spam', 'Hate Speech'].map((tag) => (
-              <span key={tag} className="px-3 py-1 rounded-full bg-vybe-purple/15 border border-vybe-purple/25 text-vybe-purple font-semibold">
+              <span key={tag} className="px-3 py-1 rounded-full bg-vybe-blue/15 border border-vybe-blue/25 text-vybe-blue font-semibold">
                 {tag}
               </span>
             ))}
@@ -179,7 +179,7 @@ export default function GuidelinesPage() {
           <h2 className="text-lg font-black text-white mb-2">Contact &amp; Support</h2>
           <p className="text-vybe-muted text-[13px] leading-relaxed">
             For ban appeals, questions, or safety concerns, reach us at{' '}
-            <a href="mailto:support@vybelivechat.com" className="text-vybe-purple-light hover:underline">
+            <a href="mailto:support@vybelivechat.com" className="text-vybe-blue-light hover:underline">
               support@vybelivechat.com
             </a>
             . We aim to respond within 24 hours.

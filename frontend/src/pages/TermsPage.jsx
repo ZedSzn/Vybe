@@ -5,7 +5,7 @@ import Footer from '../components/Footer'
 const Section = ({ title, children }) => (
   <section className="mb-8">
     <h2 className="text-lg font-black text-white mb-3 flex items-center gap-2">
-      <span className="w-1 h-5 bg-vybe-purple rounded-full inline-block" />
+      <span className="w-1 h-5 bg-vybe-blue rounded-full inline-block" />
       {title}
     </h2>
     <div className="text-vybe-muted text-[14px] leading-relaxed space-y-2 pl-3">{children}</div>
@@ -32,7 +32,7 @@ export default function TermsPage() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-10">
         {/* Title block */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-vybe-purple/10 border border-vybe-purple/20 text-vybe-purple text-xs font-bold mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-vybe-blue/10 border border-vybe-blue/20 text-vybe-blue text-xs font-bold mb-4">
             <Shield size={12} />
             Legal Document
           </div>
@@ -111,7 +111,7 @@ export default function TermsPage() {
           </Section>
 
           <Section title="Contact">
-            <p>If you have questions about these Terms of Service, please contact us at <span className="text-vybe-purple-light">support@vybelivechat.com</span>.</p>
+            <p>If you have questions about these Terms of Service, please contact us at <span className="text-vybe-blue-light">support@vybelivechat.com</span>.</p>
           </Section>
 
         </div>

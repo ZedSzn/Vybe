@@ -5,7 +5,7 @@ import Footer from '../components/Footer'
 const Section = ({ title, children }) => (
   <section className="mb-8">
     <h2 className="text-lg font-black text-white mb-3 flex items-center gap-2">
-      <span className="w-1 h-5 bg-vybe-purple rounded-full inline-block" />
+      <span className="w-1 h-5 bg-vybe-blue rounded-full inline-block" />
       {title}
     </h2>
     <div className="text-vybe-muted text-[14px] leading-relaxed space-y-2 pl-3">{children}</div>
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-10">
         {/* Title block */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-vybe-purple/10 border border-vybe-purple/20 text-vybe-purple text-xs font-bold mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-vybe-blue/10 border border-vybe-blue/20 text-vybe-blue text-xs font-bold mb-4">
             <Lock size={12} />
             Legal Document
           </div>
@@ -95,7 +95,7 @@ export default function PrivacyPage() {
           <Section title="Third-Party Services">
             <p>Vybe uses the following third-party services that may process your data:</p>
             <ul className="list-disc pl-5 space-y-1.5 mt-2">
-              <li><span className="text-white font-semibold">Stripe</span> — payment processing for subscriptions and unban purchases. Stripe is PCI DSS compliant. See <span className="text-vybe-purple-light">stripe.com/privacy</span> for their privacy policy.</li>
+              <li><span className="text-white font-semibold">Stripe</span> — payment processing for subscriptions and unban purchases. Stripe is PCI DSS compliant. See <span className="text-vybe-blue-light">stripe.com/privacy</span> for their privacy policy.</li>
               <li><span className="text-white font-semibold">MongoDB Atlas</span> — cloud database hosting for user accounts, reports, and transaction records. Data is stored with encryption at rest.</li>
               <li><span className="text-white font-semibold">WebRTC / STUN servers</span> — peer-to-peer video connections use public STUN servers (Google, Twilio) to establish connections. These servers see IP addresses but not video content.</li>
             </ul>
@@ -120,12 +120,12 @@ export default function PrivacyPage() {
               <li><span className="text-white font-semibold">Right to portability</span> — request your data in a structured, machine-readable format</li>
               <li><span className="text-white font-semibold">Right to object</span> — object to processing of your personal data in certain circumstances</li>
             </ul>
-            <p>To exercise any of these rights, contact us at <span className="text-vybe-purple-light">support@vybelivechat.com</span>.</p>
+            <p>To exercise any of these rights, contact us at <span className="text-vybe-blue-light">support@vybelivechat.com</span>.</p>
           </Section>
 
           <Section title="Children's Privacy">
             <p className="text-red-400 font-semibold">Vybe is strictly for users aged 18 and over. We do not knowingly collect personal data from anyone under 18.</p>
-            <p>If we become aware that a user under 18 has provided personal information, we will immediately delete that account and all associated data. If you believe a minor has registered on our platform, please report it to <span className="text-vybe-purple-light">support@vybelivechat.com</span>.</p>
+            <p>If we become aware that a user under 18 has provided personal information, we will immediately delete that account and all associated data. If you believe a minor has registered on our platform, please report it to <span className="text-vybe-blue-light">support@vybelivechat.com</span>.</p>
           </Section>
 
           <Section title="Data Security">
@@ -146,7 +146,7 @@ export default function PrivacyPage() {
           <Section title="Contact Us">
             <p>
               For privacy-related questions, data requests, or concerns, please contact us at{' '}
-              <span className="text-vybe-purple-light">support@vybelivechat.com</span>.
+              <span className="text-vybe-blue-light">support@vybelivechat.com</span>.
             </p>
           </Section>
 
