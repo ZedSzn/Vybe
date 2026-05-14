@@ -1211,32 +1211,6 @@ export default function MainPage() {
 
         </div>{/* end 2-column */}
 
-        {/* ── Feature row ── */}
-        <div className="relative z-10 grid grid-cols-4 px-[5%] py-3.5 flex-shrink-0"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-          {[
-            { icon: Lock,   title: 'Private & Safe',     text: 'Your privacy comes first',       color: '#7c3aed' },
-            { icon: Video,  title: 'Instant Match',      text: 'Get matched in seconds',          color: '#a855f7' },
-            { icon: Globe,  title: 'Global Community',   text: 'Meet people from 180+ countries', color: '#3b82f6' },
-            { icon: Shield, title: 'Secure & Moderated', text: '24/7 protection for your safety', color: '#10b981' },
-          ].map(({ icon: Icon, title, text, color }, i) => (
-            <div key={title} className={`flex items-center gap-3 px-5 py-1 ${i > 0 ? 'border-l' : ''}`}
-              style={i > 0 ? { borderColor: 'rgba(255,255,255,0.04)' } : {}}>
-              <div className="w-8 h-8 rounded-[10px] flex items-center justify-center flex-shrink-0"
-                style={{
-                  background: `${color}10`,
-                  border: `1px solid ${color}1e`,
-                  boxShadow: `0 0 14px ${color}0d`,
-                }}>
-                <Icon size={15} style={{ color: `${color}cc` }} />
-              </div>
-              <div>
-                <p className="font-semibold text-[12px] leading-tight mb-0.5" style={{ color: 'rgba(255,255,255,0.85)' }}>{title}</p>
-                <p className="text-[10.5px] leading-tight" style={{ color: 'rgba(135,135,165,0.42)' }}>{text}</p>
-              </div>
-            </div>
-          ))}
-        </div>
 
       </section>
 
