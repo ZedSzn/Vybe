@@ -970,7 +970,6 @@ export default function MainPage() {
           <motion.div
             className="flex rounded-2xl overflow-hidden"
             style={{
-              height: 'clamp(380px, 34vw, 500px)',
               border: '1px solid rgba(124,58,237,0.22)',
               boxShadow: '0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(124,58,237,0.06) inset',
             }}
@@ -979,7 +978,7 @@ export default function MainPage() {
             transition={{ delay: 0.1, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
             {/* Camera — left portion, flex-1 */}
-            <div className="relative flex-1 overflow-hidden" style={{ background: 'radial-gradient(ellipse at 40% 35%, rgba(124,58,237,0.18) 0%, rgba(8,8,18,1) 65%)' }}>
+            <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '4/3', background: 'radial-gradient(ellipse at 40% 35%, rgba(124,58,237,0.18) 0%, rgba(8,8,18,1) 65%)' }}>
               <video
                 ref={videoRefDesktop}
                 autoPlay
