@@ -1035,16 +1035,6 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* ── No webcam banner ─────────────────────────────────────── */}
-        {!hasCamera && !noCamDismissed && (
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2rem)] max-w-sm">
-            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl" style={{ background: 'rgba(10,10,22,0.92)', border: '1px solid rgba(0,212,255,0.25)', borderLeft: '3px solid #00D4FF', backdropFilter: 'blur(16px)', boxShadow: '0 0 20px rgba(0,0,0,0.5), 0 0 30px rgba(0,212,255,0.08)' }}>
-              <span className="text-xl flex-shrink-0 mt-0.5">📷</span>
-              <div className="flex-1"><p className="text-white font-bold text-[13px]">No webcam detected</p><p className="text-white/50 text-[11px] mt-0.5">Adding a webcam gives you a <span className="text-cyan-400 font-semibold">much better chance</span> of matching.</p></div>
-              <button onClick={() => setNoCamDismissed(true)} className="text-white/30 hover:text-white/60 text-base leading-none">✕</button>
-            </div>
-          </div>
-        )}
 
 
         {/* ── MOBILE: Fullscreen immersive camera ── */}
