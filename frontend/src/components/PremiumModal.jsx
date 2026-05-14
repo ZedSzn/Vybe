@@ -14,7 +14,7 @@ const PLANS = [
     features: [
       'Gender filter (Male or Female)',
     ],
-    extras: ['Country filter', 'Priority matching', 'VIP badge'],
+    extras: ['Country filter', 'VIP badge'],
   },
   {
     id: 'vip',
@@ -27,7 +27,6 @@ const PLANS = [
     features: [
       'Gender filter (Male or Female)',
       'Country filter',
-      'Priority matching',
       'VIP badge on profile',
     ],
     extras: [],

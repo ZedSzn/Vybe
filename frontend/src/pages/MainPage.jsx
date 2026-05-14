@@ -69,11 +69,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Is Vybe free to use?',
-    a: 'Yes — Vybe is free with full access to core random video chat. Upgrading to Basic or VIP unlocks advanced filters like gender and country matching, priority queues, and exclusive features.',
+    a: 'Yes — Vybe is free with full access to core random video chat. Upgrading to Basic or VIP unlocks advanced filters like gender and country matching, and exclusive features.',
   },
   {
     q: 'What is Vybe Membership?',
-    a: 'Membership comes in two tiers. Basic (£6.99/mo) unlocks gender filtering so you choose who you match with. VIP (£12.99/mo) adds country filtering, priority matching, and early access to new features.',
+    a: 'Membership comes in two tiers. Basic (£6.99/mo) unlocks gender filtering so you choose who you match with. VIP (£12.99/mo) adds country filtering and a VIP badge on your profile.',
   },
   {
     q: 'How do I report someone?',
