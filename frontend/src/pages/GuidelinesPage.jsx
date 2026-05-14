@@ -14,18 +14,18 @@ const rules = [
   },
   {
     icon: Eye,
-    color: 'text-red-400',
-    bg: 'bg-red-500/10',
-    border: 'border-red-500/20',
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10',
+    border: 'border-cyan-400/20',
     title: 'No Nudity or Sexual Content',
     body: 'Vybe is a social platform, not an adult platform. Nudity, sexual acts, and sexually explicit behaviour on camera or in chat are strictly prohibited and will result in an immediate permanent ban.',
     examples: ['Keep clothes on at all times', 'No sexual gestures or language', 'No solicitation of explicit content'],
   },
   {
     icon: UserX,
-    color: 'text-orange-400',
-    bg: 'bg-orange-500/10',
-    border: 'border-orange-500/20',
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10',
+    border: 'border-cyan-400/20',
     title: 'No Minors — 18+ Only',
     body: 'Vybe is exclusively for adults aged 18 and over. If you are under 18, you must not use this platform. If you encounter anyone who appears to be a minor, report them immediately using the Report button.',
     examples: ['You must be 18+ to use Vybe', 'Report anyone who appears underage', 'Do not share content with anyone who may be a minor'],
@@ -34,7 +34,7 @@ const rules = [
     icon: AlertTriangle,
     color: 'text-cyan-400',
     bg: 'bg-cyan-500/10',
-    border: 'border-yellow-500/20',
+    border: 'border-cyan-400/20',
     title: 'No Harassment',
     body: 'Harassment of any kind is prohibited. This includes following users across sessions, sending threatening or demeaning messages, and deliberately targeting individuals.',
     examples: ['No threats or intimidation', 'No persistent unwanted contact', 'No doxxing or sharing of personal information'],
@@ -140,21 +140,21 @@ export default function GuidelinesPage() {
               title="Warning / Temporary Suspension"
               desc="Minor violations may result in a warning or 24–72 hour suspension."
               color="text-cyan-400"
-              border="border-yellow-500/20"
+              border="border-cyan-400/20"
             />
             <ConsequenceCard
               level="Repeat Violations"
               title="Extended Ban"
               desc="Repeated violations result in longer bans up to 30 days."
-              color="text-orange-400"
-              border="border-orange-500/20"
+              color="text-cyan-400"
+              border="border-cyan-400/20"
             />
             <ConsequenceCard
               level="Severe Violation"
               title="Permanent Ban"
               desc="Nudity, CSAM, hate speech, and severe harassment result in a permanent, irrevocable ban."
-              color="text-red-400"
-              border="border-red-500/20"
+              color="text-cyan-400"
+              border="border-cyan-400/20"
             />
           </div>
         </div>

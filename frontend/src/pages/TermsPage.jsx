@@ -50,7 +50,7 @@ export default function TermsPage() {
           </Section>
 
           <Section title="Age Requirement — 18+ Only">
-            <p className="text-red-400 font-semibold">You must be at least 18 years of age to use Vybe. This is a strict requirement with zero exceptions.</p>
+            <p className="text-cyan-400 font-semibold">You must be at least 18 years of age to use Vybe. This is a strict requirement with zero exceptions.</p>
             <p>By using this platform, you represent and warrant that you are 18 years of age or older. If we discover that a user is under 18, we will immediately terminate their account and report the matter to appropriate authorities where required by law.</p>
             <p>Parents and guardians are responsible for monitoring their children's online activity. Vybe is not intended for, nor marketed to, anyone under the age of 18.</p>
           </Section>
