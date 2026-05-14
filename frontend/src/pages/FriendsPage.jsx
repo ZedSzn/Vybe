@@ -206,7 +206,7 @@ export default function FriendsPage() {
   return (
     <div className="min-h-screen font-space" style={{ background: '#07090f' }}>
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-        <div style={{ position: 'absolute', top: '-5%', left: '20%', width: '500px', height: '500px', background: 'radial-gradient(ellipse at 50% 50%, rgba(27,98,245,0.06) 0%, transparent 65%)' }} />
+        <div style={{ position: 'absolute', top: '-5%', left: '20%', width: '500px', height: '500px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.06) 0%, transparent 65%)' }} />
         <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '400px', height: '400px', background: 'radial-gradient(ellipse at 50% 50%, rgba(168,85,247,0.04) 0%, transparent 65%)' }} />
       </div>
 
@@ -216,7 +216,7 @@ export default function FriendsPage() {
         {toast && (
           <motion.div
             className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-white text-sm font-semibold"
-            style={{ background: '#0d1428', border: '1px solid rgba(27,98,245,0.4)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
+            style={{ background: '#0d1428', border: '1px solid rgba(0,212,255,0.4)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
             initial={{ opacity: 0, y: -16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -16, scale: 0.96 }}
@@ -234,15 +234,15 @@ export default function FriendsPage() {
             whileTap={{ scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 500, damping: 28 }}
             className="inline-flex items-center gap-2 text-sm transition-colors"
-            style={{ color: '#6b7280' }}
+            style={{ color: '#888899' }}
           >
             <ArrowLeft size={15} />
           </motion.button>
           <div>
             <h1 className="text-3xl font-black text-white tracking-tight">Friends</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>
+            <p className="text-sm mt-0.5" style={{ color: '#888899' }}>
               {friends.length} friend{friends.length !== 1 ? 's' : ''}
-              {totalUnread > 0 && <span className="ml-2 text-blue-400 font-semibold">{totalUnread} unread</span>}
+              {totalUnread > 0 && <span className="ml-2 text-cyan-400 font-semibold">{totalUnread} unread</span>}
             </p>
           </div>
         </div>
@@ -269,7 +269,7 @@ export default function FriendsPage() {
                   className="flex-1 relative flex items-center justify-center gap-1.5 py-3 text-[11px] font-extrabold uppercase tracking-wide transition-colors"
                   style={{
                     color: tab === t.id ? '#fff' : '#4b5563',
-                    borderBottom: tab === t.id ? '2px solid #1B62F5' : '2px solid transparent',
+                    borderBottom: tab === t.id ? '2px solid #00D4FF' : '2px solid transparent',
                   }}
                 >
                   {t.icon}
@@ -309,14 +309,14 @@ export default function FriendsPage() {
                   >
                     <EmptyStateIllustration variant="friends" size={88} />
                     <p className="text-sm font-bold text-white mt-3 mb-1">No friends yet</p>
-                    <p className="text-xs mb-4" style={{ color: '#6b7280' }}>Meet people in video chat and add them</p>
+                    <p className="text-xs mb-4" style={{ color: '#888899' }}>Meet people in video chat and add them</p>
                     <motion.button
                       onClick={() => setTab('add')}
                       whileHover={{ scale: 1.04 }}
                       whileTap={{ scale: 0.96 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 22 }}
                       className="text-xs font-bold px-4 py-2 rounded-xl transition-colors"
-                      style={{ background: 'rgba(27,98,245,0.15)', color: '#4b88f7', border: '1px solid rgba(27,98,245,0.25)' }}
+                      style={{ background: 'rgba(0,212,255,0.15)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.25)' }}
                     >
                       Find friends
                     </motion.button>
@@ -336,7 +336,7 @@ export default function FriendsPage() {
                           className="w-full flex items-center gap-3 px-4 py-3 text-left border-b"
                           style={{
                             borderColor: 'rgba(255,255,255,0.04)',
-                            background: isSelected ? 'rgba(27,98,245,0.1)' : 'transparent',
+                            background: isSelected ? 'rgba(0,212,255,0.1)' : 'transparent',
                           }}
                         >
                           <Avatar name={f.friend.username} size={9} online={f.isOnline} />
@@ -378,7 +378,7 @@ export default function FriendsPage() {
                   >
                     <EmptyStateIllustration variant="requests" size={88} />
                     <p className="text-sm font-bold text-white mt-3 mb-1">No pending requests</p>
-                    <p className="text-xs" style={{ color: '#6b7280' }}>Friend requests will appear here</p>
+                    <p className="text-xs" style={{ color: '#888899' }}>Friend requests will appear here</p>
                   </motion.div>
                 ) : (
                   <div>
@@ -391,7 +391,7 @@ export default function FriendsPage() {
                         <Avatar name={r.requester.username} size={9} />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-white truncate">{r.requester.username}</p>
-                          <p className="text-[11px]" style={{ color: '#6b7280' }}>wants to be friends</p>
+                          <p className="text-[11px]" style={{ color: '#888899' }}>wants to be friends</p>
                         </div>
                         <div className="flex gap-1.5 flex-shrink-0">
                           <motion.button
@@ -427,7 +427,7 @@ export default function FriendsPage() {
               {tab === 'add' && (
                 <div className="p-4">
                   <div className="relative mb-4">
-                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#6b7280' }} />
+                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#888899' }} />
                     <input
                       type="text"
                       value={searchQ}
@@ -464,9 +464,9 @@ export default function FriendsPage() {
                             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                             className="text-xs font-bold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60 flex-shrink-0"
                             style={{
-                              background: u.isFriend || u.requestSent ? 'rgba(255,255,255,0.05)' : 'rgba(27,98,245,0.15)',
-                              color: u.isFriend || u.requestSent ? '#6b7280' : '#4b88f7',
-                              border: '1px solid rgba(27,98,245,0.2)',
+                              background: u.isFriend || u.requestSent ? 'rgba(255,255,255,0.05)' : 'rgba(0,212,255,0.15)',
+                              color: u.isFriend || u.requestSent ? '#6b7280' : '#00B8E0',
+                              border: '1px solid rgba(0,212,255,0.2)',
                             }}
                           >
                             {u.isFriend ? 'Friends' : u.requestSent ? 'Sent ✓' : 'Add'}
@@ -475,9 +475,9 @@ export default function FriendsPage() {
                       ))}
                     </div>
                   ) : searchQ && !searching ? (
-                    <div className="text-center text-sm py-6" style={{ color: '#6b7280' }}>No users found</div>
+                    <div className="text-center text-sm py-6" style={{ color: '#888899' }}>No users found</div>
                   ) : (
-                    <p className="text-center text-xs py-6 leading-relaxed" style={{ color: '#6b7280' }}>
+                    <p className="text-center text-xs py-6 leading-relaxed" style={{ color: '#888899' }}>
                       Search for someone's username to send them a friend request
                     </p>
                   )}
@@ -514,7 +514,7 @@ export default function FriendsPage() {
                     whileTap={{ scale: 0.93 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
-                    style={{ color: '#6b7280', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    style={{ color: '#888899', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
                     Unfriend
                   </motion.button>
@@ -539,7 +539,7 @@ export default function FriendsPage() {
                     >
                       <EmptyStateIllustration variant="messages" size={88} />
                       <p className="text-sm font-bold text-white mt-2 mb-1">Say hello!</p>
-                      <p className="text-xs" style={{ color: '#6b7280' }}>Start the conversation with {selectedFriend.friend.username}</p>
+                      <p className="text-xs" style={{ color: '#888899' }}>Start the conversation with {selectedFriend.friend.username}</p>
                     </motion.div>
                   ) : (
                     messages.map((msg, i) => (
@@ -553,7 +553,7 @@ export default function FriendsPage() {
                         <div
                           className="max-w-xs px-4 py-2.5 text-sm text-white"
                           style={{
-                            background: msg.fromMe ? 'linear-gradient(135deg, #1B62F5, #4B88F7)' : 'rgba(255,255,255,0.07)',
+                            background: msg.fromMe ? 'linear-gradient(135deg, #00D4FF, #00B8E0)' : 'rgba(255,255,255,0.07)',
                             borderRadius: msg.fromMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                           }}
                         >
@@ -612,7 +612,7 @@ export default function FriendsPage() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       className="w-11 h-11 rounded-xl flex items-center justify-center transition-all disabled:opacity-40"
-                      style={{ background: 'linear-gradient(135deg, #1B62F5, #4B88F7)', boxShadow: '0 0 18px rgba(27,98,245,0.35)' }}
+                      style={{ background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', boxShadow: '0 0 18px rgba(0,212,255,0.35)' }}
                     >
                       <Send size={16} className="text-white" />
                     </motion.button>
@@ -630,12 +630,12 @@ export default function FriendsPage() {
                   animate={{ y: [0, -5, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                   className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
-                  style={{ background: 'rgba(27,98,245,0.1)', border: '1px solid rgba(27,98,245,0.2)' }}
+                  style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)' }}
                 >
-                  <MessageCircle size={28} style={{ color: '#4b88f7' }} />
+                  <MessageCircle size={28} style={{ color: '#00B8E0' }} />
                 </motion.div>
                 <p className="text-base font-black text-white mb-2">Your messages</p>
-                <p className="text-sm leading-relaxed" style={{ color: '#6b7280' }}>
+                <p className="text-sm leading-relaxed" style={{ color: '#888899' }}>
                   Select a friend from the list to start chatting.<br />Messages are private between friends only.
                 </p>
               </motion.div>

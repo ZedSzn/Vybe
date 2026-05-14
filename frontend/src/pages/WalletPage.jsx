@@ -22,7 +22,7 @@ const PACKAGES = [
 ]
 
 const GIFTS_LIST = [
-  { id: 'like',    name: 'Like',    Icon: ThumbsUp, cost: 10,  color: '#60a5fa' },
+  { id: 'like',    name: 'Like',    Icon: ThumbsUp, cost: 10,  color: '#00B8E0' },
   { id: 'heart',   name: 'Heart',   Icon: Heart,    cost: 25,  color: '#f43f5e' },
   { id: 'fire',    name: 'Fire',    Icon: Flame,    cost: 50,  color: '#f97316' },
   { id: 'diamond', name: 'Diamond', Icon: Gem,      cost: 150, color: '#06b6d4' },
@@ -33,8 +33,8 @@ const TX_TYPE_LABELS = {
   signup:        { label: 'Sign-up bonus',  color: 'text-green-400'  },
   bonus:         { label: 'Login bonus',    color: 'text-green-400'  },
   streak:        { label: 'Streak bonus',   color: 'text-orange-400' },
-  referral:      { label: 'Referral',       color: 'text-blue-400'   },
-  purchase:      { label: 'Coin purchase',  color: 'text-blue-400'   },
+  referral:      { label: 'Referral',       color: 'text-cyan-400'   },
+  purchase:      { label: 'Coin purchase',  color: 'text-cyan-400'   },
   tip_received:  { label: 'Tip received',   color: 'text-yellow-400' },
   tip_sent:      { label: 'Tip sent',       color: 'text-red-400'    },
   gift:          { label: 'Gift sent',      color: 'text-red-400'    },
@@ -190,7 +190,7 @@ export default function WalletPage() {
 
   const cardCls   = 'rounded-2xl p-5 border border-vybe-border'
   const cardStyle = { background: 'linear-gradient(160deg, #0d0d1c 0%, #09091a 100%)' }
-  const inputCls  = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-colors'
+  const inputCls  = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/30 transition-colors'
 
   const canCashout = earnings >= 1000
 
@@ -203,7 +203,7 @@ export default function WalletPage() {
             style={{ background: 'rgba(7,9,15,0.92)', backdropFilter: 'blur(16px)' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           >
-            <Loader2 size={40} className="animate-spin" style={{ color: '#4b88f7' }} />
+            <Loader2 size={40} className="animate-spin" style={{ color: '#00B8E0' }} />
             <p className="text-white font-bold text-base">Opening secure checkout…</p>
             <p className="text-white/40 text-sm">You'll be redirected to Stripe</p>
           </motion.div>
@@ -226,20 +226,20 @@ export default function WalletPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Coins */}
-              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-blue-500/25" style={{ background: 'rgba(27,98,245,0.07)' }}>
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(27,98,245,0.15)' }}>
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-cyan-400/25" style={{ background: 'rgba(0,212,255,0.07)' }}>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.15)' }}>
                   <VybeCoin size={22} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-blue-400/80 uppercase tracking-wider mb-0.5">Coins</p>
+                  <p className="text-xs font-bold text-cyan-400/80 uppercase tracking-wider mb-0.5">Coins</p>
                   <p className="text-2xl font-extrabold text-white">{coins.toLocaleString()}</p>
-                  <p className="text-blue-400/50 text-[11px]">use to send gifts in chat</p>
+                  <p className="text-cyan-400/50 text-[11px]">use to send gifts in chat</p>
                 </div>
               </div>
 
               {/* Earnings */}
-              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-green-500/25" style={{ background: 'rgba(34,197,94,0.06)' }}>
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34,197,94,0.12)' }}>
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-green-500/25" style={{ background: 'rgba(0,212,255,0.06)' }}>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.12)' }}>
                   <DollarSign size={20} className="text-green-400" />
                 </div>
                 <div>
@@ -257,7 +257,7 @@ export default function WalletPage() {
           {successMsg && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="mb-4 px-5 py-3 rounded-xl text-sm text-green-400 border border-green-500/25 flex items-center justify-between"
-              style={{ background: 'rgba(34,197,94,0.08)' }}>
+              style={{ background: 'rgba(0,212,255,0.08)' }}>
               {successMsg}
               <button onClick={() => setSuccessMsg('')} className="text-green-400/50 hover:text-green-400 ml-4">✕</button>
             </motion.div>
@@ -292,9 +292,9 @@ export default function WalletPage() {
               <h2 className="text-white font-bold text-base mb-5">How Gifting Works</h2>
               <div className="grid sm:grid-cols-3 gap-4">
                 {[
-                  { Icon: ShoppingCart, color: '#4b88f7', step: '1', title: 'Buy Coins', desc: 'Purchase coins with a simple one-time payment via Stripe.' },
+                  { Icon: ShoppingCart, color: '#00B8E0', step: '1', title: 'Buy Coins', desc: 'Purchase coins with a simple one-time payment via Stripe.' },
                   { Icon: Gift,         color: '#a855f7', step: '2', title: 'Send Gifts', desc: 'Send gifts to people you meet in video chat — instantly.' },
-                  { Icon: DollarSign,   color: '#22c55e', step: '3', title: 'Cash Out',   desc: 'Recipients earn 70% of every gift and can cash out to PayPal.' },
+                  { Icon: DollarSign,   color: '#00D4FF', step: '3', title: 'Cash Out',   desc: 'Recipients earn 70% of every gift and can cash out to PayPal.' },
                 ].map(({ Icon, color, step, title, desc }) => (
                   <div key={step} className="flex flex-col items-center text-center p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 relative" style={{ background: `${color}18`, border: `1px solid ${color}30` }}>
@@ -330,14 +330,14 @@ export default function WalletPage() {
               <button
                 onClick={() => navigate('/chat')}
                 className="w-full py-3 rounded-xl text-sm font-extrabold text-white flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#1b62f5)', boxShadow: '0 0 20px rgba(124,58,237,0.25)' }}
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#00D4FF)', boxShadow: '0 0 20px rgba(124,58,237,0.25)' }}
               >
                 Start a Chat <ArrowRight size={15} />
               </button>
             </div>
 
             {/* Earnings info */}
-            <div className="rounded-2xl p-5 border border-green-500/20" style={{ background: 'rgba(34,197,94,0.04)' }}>
+            <div className="rounded-2xl p-5 border border-green-500/20" style={{ background: 'rgba(0,212,255,0.04)' }}>
               <div className="flex items-center gap-2 mb-1">
                 <DollarSign size={15} className="text-green-400" />
                 <p className="text-green-300 font-bold text-sm">How Earnings Work</p>
@@ -378,8 +378,8 @@ export default function WalletPage() {
                       disabled={buyLoading === pkg.id}
                       className="px-4 py-2 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-60"
                       style={{
-                        background: pkg.popular ? 'linear-gradient(135deg,#a855f7,#7c3aed)' : 'linear-gradient(135deg,#1b62f5,#4b88f7)',
-                        boxShadow: pkg.popular ? '0 0 16px rgba(168,85,247,0.4)' : '0 0 16px rgba(27,98,245,0.4)',
+                        background: pkg.popular ? 'linear-gradient(135deg,#a855f7,#7c3aed)' : 'linear-gradient(135deg,#00D4FF,#00B8E0)',
+                        boxShadow: pkg.popular ? '0 0 16px rgba(168,85,247,0.4)' : '0 0 16px rgba(0,212,255,0.4)',
                       }}
                     >
                       {buyLoading === pkg.id ? <Loader2 size={13} className="animate-spin inline" /> : `£${pkg.amountGbp.toFixed(2)}`}
@@ -464,8 +464,8 @@ export default function WalletPage() {
         {tab === 'cashout' && (
           <div className="grid gap-5">
             {/* Earnings summary */}
-            <div className="px-5 py-4 rounded-2xl border border-green-500/25 flex items-center gap-4" style={{ background: 'rgba(34,197,94,0.06)' }}>
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34,197,94,0.15)' }}>
+            <div className="px-5 py-4 rounded-2xl border border-green-500/25 flex items-center gap-4" style={{ background: 'rgba(0,212,255,0.06)' }}>
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.15)' }}>
                 <DollarSign size={20} className="text-green-400" />
               </div>
               <div className="flex-1">
@@ -500,7 +500,7 @@ export default function WalletPage() {
                     onClick={handleSavePaypal}
                     disabled={paypalSaving || !paypalEmail}
                     className="px-4 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-50 transition-all"
-                    style={{ background: 'rgba(27,98,245,0.2)', border: '1px solid rgba(27,98,245,0.3)' }}
+                    style={{ background: 'rgba(0,212,255,0.2)', border: '1px solid rgba(0,212,255,0.3)' }}
                   >
                     {paypalSaving ? '…' : 'Save'}
                   </button>
@@ -534,7 +534,7 @@ export default function WalletPage() {
                     onClick={handleCashout}
                     disabled={cashoutLoading || !cashoutAmount || parseInt(cashoutAmount) < 1000 || parseInt(cashoutAmount) > earnings || !paypalEmail}
                     className="w-full py-3 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-50"
-                    style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)', boxShadow: '0 0 20px rgba(34,197,94,0.3)' }}
+                    style={{ background: 'linear-gradient(135deg,#00D4FF,#16a34a)', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}
                   >
                     {cashoutLoading ? 'Submitting…' : 'Request Cash Out'}
                   </button>

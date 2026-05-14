@@ -28,8 +28,8 @@ const PACKAGES = [
     price:   '£5.99',
     label:   'Popular',
     icon:    '⚡',
-    color:   '#1B62F5',
-    glow:    'rgba(27,98,245,0.3)',
+    color:   '#00D4FF',
+    glow:    'rgba(0,212,255,0.3)',
     popular: false,
     desc:    'Most popular — great for tipping',
   },
@@ -61,8 +61,8 @@ const PACKAGES = [
     price:   '£49.99',
     label:   'Ultimate',
     icon:    '🚀',
-    color:   '#22c55e',
-    glow:    'rgba(34,197,94,0.3)',
+    color:   '#00D4FF',
+    glow:    'rgba(0,212,255,0.3)',
     popular: false,
     desc:    'Maximum coins — best rate available',
   },
@@ -123,7 +123,7 @@ export default function CoinsPage() {
             style={{ background: 'rgba(7,9,15,0.92)', backdropFilter: 'blur(16px)' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           >
-            <Loader2 size={40} className="animate-spin" style={{ color: '#4b88f7' }} />
+            <Loader2 size={40} className="animate-spin" style={{ color: '#00B8E0' }} />
             <p className="text-white font-bold text-base">Opening secure checkout…</p>
             <p className="text-white/40 text-sm">You'll be redirected to Stripe</p>
           </motion.div>
@@ -131,7 +131,7 @@ export default function CoinsPage() {
       </AnimatePresence>
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-        <div style={{ position: 'absolute', top: '-5%', left: '20%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(27,98,245,0.07) 0%, transparent 65%)' }} />
+        <div style={{ position: 'absolute', top: '-5%', left: '20%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 65%)' }} />
         <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '400px', height: '400px', background: 'radial-gradient(ellipse at 50% 50%, rgba(168,85,247,0.05) 0%, transparent 65%)' }} />
       </div>
 
@@ -149,24 +149,24 @@ export default function CoinsPage() {
           <button
             onClick={() => navigate('/wallet')}
             className="inline-flex items-center gap-2 text-sm mb-6 transition-colors"
-            style={{ color: '#6b7280' }}
+            style={{ color: '#888899' }}
           >
             <ArrowLeft size={15} />
             Back to Wallet
           </button>
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-              style={{ background: 'rgba(27,98,245,0.12)', border: '1px solid rgba(27,98,245,0.25)' }}>
+              style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)' }}>
               ⚡
             </div>
             <h1 className="text-4xl font-black text-white tracking-tight">Buy Coins</h1>
           </div>
-          <p style={{ color: '#6b7280' }} className="text-base max-w-md mx-auto">
+          <p style={{ color: '#888899' }} className="text-base max-w-md mx-auto">
             Use coins to tip great chatters, collect badges, replay matches, and more.
           </p>
           {user && (
             <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full text-sm font-semibold"
-              style={{ background: 'rgba(27,98,245,0.1)', border: '1px solid rgba(27,98,245,0.2)', color: '#4B88F7' }}>
+              style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)', color: '#00B8E0' }}>
               ⚡ Your balance: <span className="text-white font-black">{(user.coins || 0).toLocaleString()} coins</span>
             </div>
           )}
@@ -209,11 +209,11 @@ export default function CoinsPage() {
 
               <p className="text-xs font-extrabold uppercase tracking-widest mb-1" style={{ color: pkg.color }}>{pkg.label}</p>
               <p className="text-3xl font-black text-white mb-1">{pkg.coins.toLocaleString()} coins</p>
-              <p className="text-xs mb-5 flex-1" style={{ color: '#9ca3af' }}>{pkg.desc}</p>
+              <p className="text-xs mb-5 flex-1" style={{ color: '#888899' }}>{pkg.desc}</p>
 
               <div className="flex items-center justify-between mb-4">
                 <span className="text-2xl font-black text-white">{pkg.price}</span>
-                <span className="text-xs" style={{ color: '#6b7280' }}>one-time</span>
+                <span className="text-xs" style={{ color: '#888899' }}>one-time</span>
               </div>
 
               <motion.button
@@ -238,7 +238,7 @@ export default function CoinsPage() {
         </div>
 
         {/* Security note */}
-        <div className="flex items-center justify-center gap-3 mb-16 text-sm" style={{ color: '#6b7280' }}>
+        <div className="flex items-center justify-center gap-3 mb-16 text-sm" style={{ color: '#888899' }}>
           <Shield size={15} />
           <span>Secure payment via Stripe · No card details stored · Instant delivery</span>
         </div>
@@ -262,7 +262,7 @@ export default function CoinsPage() {
                     <span className="text-lg">{icon}</span>
                     <div>
                       <p className="text-sm font-semibold text-white">{label}</p>
-                      <p className="text-xs" style={{ color: '#6b7280' }}>{note}</p>
+                      <p className="text-xs" style={{ color: '#888899' }}>{note}</p>
                     </div>
                   </div>
                   <span className="text-sm font-black" style={{ color: '#4ade80' }}>{amount}</span>
@@ -291,7 +291,7 @@ export default function CoinsPage() {
                     }
                     <div>
                       <p className="text-sm font-semibold text-white">{label}</p>
-                      <p className="text-xs" style={{ color: '#6b7280' }}>{desc}</p>
+                      <p className="text-xs" style={{ color: '#888899' }}>{desc}</p>
                     </div>
                   </div>
                   <span className="text-sm font-black flex items-center gap-1" style={{ color: '#f59e0b' }}><VybeCoin size={14} /> {cost}</span>

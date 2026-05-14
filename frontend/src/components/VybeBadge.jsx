@@ -272,7 +272,7 @@ export function BadgeCrown({ size = 64 }) {
       <circle cx="32" cy="14" r="5" stroke="rgba(254,202,202,0.85)" strokeWidth="1.2"/>
       <ellipse cx="30" cy="12.2" rx="1.8" ry="1.1" fill="rgba(255,255,255,0.65)"/>
       {/* GEM — Left: sapphire */}
-      <circle cx="15" cy="24" r="4" fill="#3b82f6"/>
+      <circle cx="15" cy="24" r="4" fill="#00D4FF"/>
       <circle cx="15" cy="24" r="4" stroke="rgba(191,219,254,0.85)" strokeWidth="1"/>
       <ellipse cx="13.5" cy="22.5" rx="1.4" ry="0.9" fill="rgba(255,255,255,0.55)"/>
       {/* GEM — Right: emerald */}

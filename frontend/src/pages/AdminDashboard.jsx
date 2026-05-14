@@ -111,7 +111,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
                   <h3 className="font-black text-white">{user.username}</h3>
                   {profile.isOnline && <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />}
                   {user.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>}
-                  {user.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">MEMBER</span>}
+                  {user.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-400 font-bold">MEMBER</span>}
                   {user.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 font-bold">VIP</span>}
                 </div>
                 <p className="text-vybe-muted text-xs mt-0.5">{user.email}</p>
@@ -168,7 +168,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
               <h4 className="text-sm font-black text-white">Free Membership</h4>
               <div className="flex items-center gap-1.5">
                 {user.isVip     && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 border border-yellow-500/25 font-bold">VIP Active</span>}
-                {user.isPremium && !user.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25 font-bold">Basic Active</span>}
+                {user.isPremium && !user.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-400 border border-cyan-400/25 font-bold">Basic Active</span>}
                 {!user.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-vybe-card2 text-vybe-muted font-bold">None</span>}
               </div>
             </div>
@@ -177,7 +177,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
                 onClick={() => handleMembership('basic')}
                 disabled={membershipLoad || (user.isPremium && !user.isVip)}
                 className="py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
-                style={{ background: 'rgba(27,98,245,0.15)', border: '1px solid rgba(27,98,245,0.3)', color: '#60a5fa' }}
+                style={{ background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.3)', color: '#00B8E0' }}
               >
                 {membershipLoad ? '…' : 'Basic'}
               </button>
@@ -405,7 +405,7 @@ export default function AdminDashboard() {
                           <div className="flex flex-wrap gap-1">
                             {u.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>}
                             {!u.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 font-bold">ACTIVE</span>}
-                            {u.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-bold">MEMBER</span>}
+                            {u.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-400 font-bold">MEMBER</span>}
                             {u.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 font-bold">VIP</span>}
                           </div>
                         </td>
@@ -674,7 +674,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard label="Unban Revenue"   value={`$${(data.unbanRevenue || 0).toFixed(2)}`}  color="text-emerald-400"  bg="bg-emerald-500/10"  border="border-emerald-500/20" icon={DollarSign} />
           <StatCard label="Unban Sales"     value={data.unbanCount || 0}    color="text-emerald-300"  bg="bg-emerald-500/10"  border="border-emerald-500/20" icon={TrendingUp} />
-          <StatCard label="Subscription Rev" value={`$${(data.subscriptionRevenue || 0).toFixed(2)}`} color="text-blue-400" bg="bg-blue-500/10" border="border-blue-500/20" icon={DollarSign} />
+          <StatCard label="Subscription Rev" value={`$${(data.subscriptionRevenue || 0).toFixed(2)}`} color="text-cyan-400" bg="bg-cyan-400/10" border="border-cyan-400/20" icon={DollarSign} />
           <StatCard label="Total Revenue"   value={`$${((data.unbanRevenue || 0) + (data.subscriptionRevenue || 0)).toFixed(2)}`} color="text-vybe-purple" bg="bg-vybe-purple/10" border="border-vybe-purple/20" icon={TrendingUp} />
         </div>
 
@@ -875,7 +875,7 @@ export default function AdminDashboard() {
 
     const ACTION_COLORS = {
       ban: 'text-red-400', unban: 'text-green-400', warn: 'text-yellow-400',
-      delete: 'text-red-500', broadcast: 'text-vybe-purple', 'change-admin-password': 'text-blue-400',
+      delete: 'text-red-500', broadcast: 'text-vybe-purple', 'change-admin-password': 'text-cyan-400',
       'update-settings': 'text-gray-400', 'remove-friendship': 'text-orange-400',
     }
 
@@ -1002,7 +1002,7 @@ export default function AdminDashboard() {
                       <span className="text-vybe-muted">Value: <span className="text-emerald-400 font-semibold">£{r.gbpAmount?.toFixed(2)}</span></span>
                       <span className="text-vybe-muted">PayPal: <span className="text-white">{r.paypalEmail}</span></span>
                       <span className="text-vybe-muted">Cashable bal: <span className="text-yellow-400 font-semibold">{(r.userId?.cashableCoins ?? '?').toLocaleString()}</span></span>
-                      <span className="text-vybe-muted">Spend bal: <span className="text-blue-400 font-semibold">{(r.userId?.coins ?? '?').toLocaleString()}</span></span>
+                      <span className="text-vybe-muted">Spend bal: <span className="text-cyan-400 font-semibold">{(r.userId?.coins ?? '?').toLocaleString()}</span></span>
                       <span className="text-vybe-muted">Tips total: <span className="text-white">{(r.userId?.tipsEarned ?? '?').toLocaleString()}</span></span>
                     </div>
                     <p className="text-vybe-muted text-[11px]">{new Date(r.createdAt).toLocaleString()}</p>
@@ -1173,7 +1173,7 @@ export default function AdminDashboard() {
             <div className="space-y-6">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 <StatCard label="Total Users"    value={stats.totalUsers}     color="text-green-400"    bg="bg-green-500/10"    border="border-green-500/20"   icon={Users} />
-                <StatCard label="Online Now"     value={stats.online}         color="text-blue-400"     bg="bg-blue-500/10"     border="border-blue-500/20"    icon={Wifi} />
+                <StatCard label="Online Now"     value={stats.online}         color="text-cyan-400"     bg="bg-cyan-400/10"     border="border-cyan-400/20"    icon={Wifi} />
                 <StatCard label="Banned Users"   value={stats.bannedUsers}    color="text-red-400"      bg="bg-red-500/10"      border="border-red-500/20"     icon={UserX} />
                 <StatCard label="Friendships"    value={stats.totalFriendships} color="text-pink-400"   bg="bg-pink-500/10"     border="border-pink-500/20"    icon={Heart} />
                 <StatCard label="Total Reports"  value={stats.totalReports}   color="text-vybe-purple"  bg="bg-vybe-purple/10"  border="border-vybe-purple/20" icon={Flag} />

@@ -52,7 +52,7 @@ export default function ContactModal({ isOpen, onClose }) {
     }
   }
 
-  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-all resize-none'
+  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/30 transition-all resize-none'
 
   return (
     <AnimatePresence>
@@ -104,18 +104,18 @@ export default function ContactModal({ isOpen, onClose }) {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }}>
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)' }}>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                      <path d="M20 6L9 17l-5-5" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M20 6L9 17l-5-5" stroke="#00D4FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
                   <p className="text-white font-semibold text-base">Message sent!</p>
                   <p className="text-white/50 text-sm">We'll get back to you at <span className="text-white/70">{email}</span></p>
-                  <p className="text-white/30 text-xs mt-1">Or email us directly: <span className="text-blue-400">support@vybelivechat.com</span></p>
+                  <p className="text-white/30 text-xs mt-1">Or email us directly: <span className="text-cyan-400">support@vybelivechat.com</span></p>
                   <button
                     onClick={handleClose}
                     className="mt-4 px-6 py-2 rounded-xl text-sm font-semibold text-white transition-all"
-                    style={{ background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.3)' }}
+                    style={{ background: 'rgba(0,212,255,0.18)', border: '1px solid rgba(0,212,255,0.3)' }}
                   >
                     Done
                   </button>
@@ -171,7 +171,7 @@ export default function ContactModal({ isOpen, onClose }) {
                       type="submit"
                       disabled={status === 'sending'}
                       className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-60"
-                      style={{ background: 'linear-gradient(135deg, #1b62f5 0%, #4b88f7 100%)', boxShadow: status === 'sending' ? 'none' : '0 0 24px rgba(27,98,245,0.45)' }}
+                      style={{ background: 'linear-gradient(135deg, #00D4FF 0%, #7C3AED 100%)', boxShadow: status === 'sending' ? 'none' : '0 0 24px rgba(0,212,255,0.45)' }}
                     >
                       {status === 'sending' ? 'Sending…' : 'Send Message'}
                     </button>
@@ -179,7 +179,7 @@ export default function ContactModal({ isOpen, onClose }) {
                       Or email us at{' '}
                       <a
                         href="mailto:support@vybelivechat.com"
-                        className="text-blue-400/70 hover:text-blue-400 transition-colors"
+                        className="text-cyan-400/70 hover:text-cyan-400 transition-colors"
                       >
                         support@vybelivechat.com
                       </a>

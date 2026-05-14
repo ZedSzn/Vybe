@@ -18,8 +18,8 @@ const PLANS = [
     name:  'Basic',
     price: '£6.99',
     per:   'per month',
-    color: '#1B62F5',
-    glow:  'rgba(27,98,245,0.3)',
+    color: '#00D4FF',
+    glow:  'rgba(0,212,255,0.3)',
     BadgeIcon: Zap,
     features: [
       { label: 'Gender filter (Male or Female)', included: true  },
@@ -186,7 +186,7 @@ export default function SubscriptionPage() {
             style={{ background: 'rgba(7,9,15,0.92)', backdropFilter: 'blur(16px)' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           >
-            <Loader2 size={40} className="animate-spin" style={{ color: '#4b88f7' }} />
+            <Loader2 size={40} className="animate-spin" style={{ color: '#00B8E0' }} />
             <p className="text-white font-bold text-base">
               {actionLoad === 'portal' ? 'Opening billing portal…' : 'Opening secure checkout…'}
             </p>
@@ -197,7 +197,7 @@ export default function SubscriptionPage() {
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '-5%', right: '15%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(245,158,11,0.06) 0%, transparent 65%)' }} />
-        <div style={{ position: 'absolute', bottom: '10%', left: '10%', width: '400px', height: '400px', background: 'radial-gradient(ellipse at 50% 50%, rgba(27,98,245,0.06) 0%, transparent 65%)' }} />
+        <div style={{ position: 'absolute', bottom: '10%', left: '10%', width: '400px', height: '400px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.06) 0%, transparent 65%)' }} />
       </div>
 
       <Navbar />
@@ -207,7 +207,7 @@ export default function SubscriptionPage() {
         {toast && (
           <motion.div
             className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl text-white text-sm font-semibold shadow-float"
-            style={{ background: '#0d1428', border: '1px solid rgba(27,98,245,0.4)' }}
+            style={{ background: '#0d1428', border: '1px solid rgba(0,212,255,0.4)' }}
             initial={{ opacity: 0, y: -16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0,   scale: 1 }}
             exit={{   opacity: 0, y: -16, scale: 0.96 }}
@@ -231,7 +231,7 @@ export default function SubscriptionPage() {
           <button
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-2 text-sm mb-6 transition-colors"
-            style={{ color: '#6b7280' }}
+            style={{ color: '#888899' }}
           >
             <ArrowLeft size={15} />
             Back
@@ -239,7 +239,7 @@ export default function SubscriptionPage() {
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
             {isActive ? 'Manage Membership' : 'Upgrade to Membership'}
           </h1>
-          <p style={{ color: '#6b7280' }} className="text-base max-w-md mx-auto">
+          <p style={{ color: '#888899' }} className="text-base max-w-md mx-auto">
             {isActive
               ? 'You\'re on a membership plan. Manage your billing below.'
               : 'Unlock gender and country filters.'}
@@ -273,10 +273,10 @@ export default function SubscriptionPage() {
                 style={{
                   background: isPastDue
                     ? 'rgba(239,68,68,0.07)'
-                    : isCancelling ? 'rgba(245,158,11,0.07)' : 'rgba(27,98,245,0.07)',
+                    : isCancelling ? 'rgba(245,158,11,0.07)' : 'rgba(0,212,255,0.07)',
                   border: isPastDue
                     ? '1px solid rgba(239,68,68,0.2)'
-                    : isCancelling ? '1px solid rgba(245,158,11,0.2)' : '1px solid rgba(27,98,245,0.2)',
+                    : isCancelling ? '1px solid rgba(245,158,11,0.2)' : '1px solid rgba(0,212,255,0.2)',
                 }}
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -285,7 +285,7 @@ export default function SubscriptionPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      {sub.plan === 'vip' ? <Crown size={18} className="text-yellow-400" /> : <Zap size={18} style={{ color: '#1B62F5' }} />}
+                      {sub.plan === 'vip' ? <Crown size={18} className="text-yellow-400" /> : <Zap size={18} style={{ color: '#00D4FF' }} />}
                       <span className="text-lg font-black text-white">
                         {sub.plan === 'vip' ? 'VIP' : 'Basic'} Plan
                       </span>
@@ -308,7 +308,7 @@ export default function SubscriptionPage() {
                       </p>
                     )}
                     {isActive && !isCancelling && periodEnd && (
-                      <p className="text-sm" style={{ color: '#6b7280' }}>
+                      <p className="text-sm" style={{ color: '#888899' }}>
                         <Calendar size={13} className="inline mr-1.5" />
                         Next billing date: <span className="text-white font-semibold">{periodEnd}</span>
                       </p>
@@ -332,7 +332,7 @@ export default function SubscriptionPage() {
                         onClick={handleResume}
                         disabled={actionLoad === 'resume'}
                         className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-60"
-                        style={{ background: 'rgba(27,98,245,0.8)', border: '1px solid rgba(27,98,245,0.5)' }}
+                        style={{ background: 'rgba(0,212,255,0.8)', border: '1px solid rgba(0,212,255,0.5)' }}
                       >
                         {actionLoad === 'resume' ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle size={13} />}
                         Resume Subscription
@@ -343,7 +343,7 @@ export default function SubscriptionPage() {
                           onClick={handlePortal}
                           disabled={actionLoad === 'portal'}
                           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
-                          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#9ca3af' }}
+                          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#888899' }}
                         >
                           {actionLoad === 'portal' ? <Loader2 size={13} className="animate-spin" /> : <CreditCard size={13} />}
                           Billing Portal
@@ -410,7 +410,7 @@ export default function SubscriptionPage() {
                         <h3 className="text-xl font-black text-white">{plan.name}</h3>
                         <div className="flex items-baseline gap-1">
                           <span className="text-2xl font-black" style={{ color: plan.color }}>{plan.price}</span>
-                          <span className="text-xs" style={{ color: '#6b7280' }}>{plan.per}</span>
+                          <span className="text-xs" style={{ color: '#888899' }}>{plan.per}</span>
                         </div>
                       </div>
                     </div>
@@ -421,7 +421,7 @@ export default function SubscriptionPage() {
                         <li key={label} className="flex items-center gap-2.5 text-sm">
                           {included
                             ? <Check size={15} className="flex-shrink-0" style={{ color: plan.color }} />
-                            : <X     size={15} className="flex-shrink-0 opacity-30" style={{ color: '#6b7280' }} />}
+                            : <X     size={15} className="flex-shrink-0 opacity-30" style={{ color: '#888899' }} />}
                           <span style={{ color: included ? '#e5e7eb' : '#6b7280' }}>{label}</span>
                         </li>
                       ))}
@@ -455,7 +455,7 @@ export default function SubscriptionPage() {
                         style={{
                           background: plan.popular
                             ? `linear-gradient(135deg, ${plan.color}, #fbbf24)`
-                            : `linear-gradient(135deg, #1B62F5, #4B88F7)`,
+                            : `linear-gradient(135deg, #00D4FF, #00B8E0)`,
                           boxShadow: `0 0 24px ${plan.glow}`,
                         }}
                       >
@@ -470,7 +470,7 @@ export default function SubscriptionPage() {
 
             {/* Free plan note */}
             {!isActive && (
-              <div className="text-center text-sm mb-10" style={{ color: '#6b7280' }}>
+              <div className="text-center text-sm mb-10" style={{ color: '#888899' }}>
                 Free for everyone: unlimited chats, friend requests, coins &amp; gifts — no credit card required.
               </div>
             )}
@@ -486,7 +486,7 @@ export default function SubscriptionPage() {
               transition={{ duration: 0.45 }}
             >
               <div className="grid grid-cols-4 text-xs font-extrabold uppercase tracking-widest px-5 py-3"
-                style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#6b7280' }}>
+                style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#888899' }}>
                 <div className="col-span-2">Feature</div>
                 <div className="text-center">Basic</div>
                 <div className="text-center">VIP</div>
@@ -502,7 +502,7 @@ export default function SubscriptionPage() {
                   <div className="col-span-2 text-gray-300">{label}</div>
                   <div className="flex justify-center">
                     {basic
-                      ? <Check size={15} style={{ color: '#1B62F5' }} />
+                      ? <Check size={15} style={{ color: '#00D4FF' }} />
                       : <X     size={13} style={{ color: '#374151' }} />}
                   </div>
                   <div className="flex justify-center">
@@ -517,7 +517,7 @@ export default function SubscriptionPage() {
             </div>
 
             {/* Security */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-8 text-sm text-center" style={{ color: '#6b7280' }}>
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-8 text-sm text-center" style={{ color: '#888899' }}>
               <Shield size={14} className="flex-shrink-0" />
               <span>Secure billing via Stripe · Cancel anytime · No hidden fees</span>
             </div>

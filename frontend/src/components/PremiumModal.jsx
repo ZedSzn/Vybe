@@ -8,8 +8,8 @@ const PLANS = [
     name: 'Basic',
     price: '£6.99',
     icon: Zap,
-    color: '#1B62F5',
-    glow: 'rgba(27,98,245,0.3)',
+    color: '#00D4FF',
+    glow: 'rgba(0,212,255,0.3)',
     badge: null,
     features: [
       'Gender filter (Male or Female)',
@@ -64,17 +64,17 @@ export default function PremiumModal({ isOpen, onClose }) {
             >
               <div className="rounded-2xl overflow-hidden" style={{ background: '#0d1020', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 80px rgba(0,0,0,0.6)' }}>
                 {/* Header */}
-                <div className="relative p-6 text-center border-b" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'linear-gradient(135deg, rgba(27,98,245,0.12) 0%, transparent 60%)' }}>
+                <div className="relative p-6 text-center border-b" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'linear-gradient(135deg, rgba(0,212,255,0.12) 0%, transparent 60%)' }}>
                   <button
                     onClick={onClose}
                     className="absolute right-4 top-4 w-8 h-8 flex items-center justify-center rounded-lg transition-all"
-                    style={{ color: '#6b7280', background: 'rgba(255,255,255,0.04)' }}
+                    style={{ color: '#888899', background: 'rgba(255,255,255,0.04)' }}
                   >
                     <X size={16} />
                   </button>
                   <div className="text-4xl mb-2">🚀</div>
                   <h2 className="text-2xl font-black text-white mb-1">Upgrade your Vybe</h2>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>
+                  <p className="text-sm" style={{ color: '#888899' }}>
                     Unlock membership filters and meet exactly who you want.
                   </p>
                 </div>
@@ -111,7 +111,7 @@ export default function PremiumModal({ isOpen, onClose }) {
 
                         <div className="mb-4">
                           <span className="text-3xl font-black text-white">{plan.price}</span>
-                          <span className="text-xs ml-1" style={{ color: '#6b7280' }}>/mo</span>
+                          <span className="text-xs ml-1" style={{ color: '#888899' }}>/mo</span>
                         </div>
 
                         <ul className="space-y-2 mb-5 flex-1">
@@ -135,7 +135,7 @@ export default function PremiumModal({ isOpen, onClose }) {
                           style={{
                             background: plan.badge
                               ? `linear-gradient(135deg, ${plan.color}, #fbbf24)`
-                              : `linear-gradient(135deg, #1B62F5, #4B88F7)`,
+                              : `linear-gradient(135deg, #00D4FF, #00B8E0)`,
                             boxShadow: `0 0 20px ${plan.glow}`,
                           }}
                         >

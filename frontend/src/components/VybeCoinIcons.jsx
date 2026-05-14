@@ -31,15 +31,15 @@ export function CoinBalance({ size = 18 }) {
 export function CoinSpend({ size = 18 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={coinStyle}>
-      <circle cx="8" cy="8" r="7.5" fill="#1e3a8a" />
-      <circle cx="8" cy="8" r="6.8" fill="#2563eb" />
-      <circle cx="8" cy="8" r="5.8" fill="#3b82f6" />
-      <circle cx="8" cy="8" r="5"   fill="#60a5fa" opacity="0.4" />
+      <circle cx="8" cy="8" r="7.5" fill="#004466" />
+      <circle cx="8" cy="8" r="6.8" fill="#00D4FF" />
+      <circle cx="8" cy="8" r="5.8" fill="#00D4FF" />
+      <circle cx="8" cy="8" r="5"   fill="#00B8E0" opacity="0.4" />
       <ellipse cx="6.4" cy="5.6" rx="1.9" ry="1.3" fill="#dbeafe" opacity="0.55" />
       {/* Lightning bolt — spend/action */}
       <path
         d="M9.1 3.8 L6.2 8.6 H8.4 L6.9 12.2 L10.6 7.0 H8.3 L9.5 3.8 Z"
-        fill="#1e3a8a"
+        fill="#004466"
       />
     </svg>
   )
@@ -69,7 +69,7 @@ export function CoinEarn({ size = 18 }) {
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={coinStyle}>
       <circle cx="8" cy="8" r="7.5" fill="#14532d" />
       <circle cx="8" cy="8" r="6.8" fill="#16a34a" />
-      <circle cx="8" cy="8" r="5.8" fill="#22c55e" />
+      <circle cx="8" cy="8" r="5.8" fill="#00D4FF" />
       <circle cx="8" cy="8" r="5"   fill="#4ade80" opacity="0.4" />
       <ellipse cx="6.4" cy="5.6" rx="1.9" ry="1.3" fill="#dcfce7" opacity="0.55" />
       {/* Upward arrow — incoming/earning */}

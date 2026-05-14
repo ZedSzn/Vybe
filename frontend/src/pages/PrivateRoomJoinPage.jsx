@@ -83,7 +83,7 @@ export default function PrivateRoomJoinPage() {
               </div>
 
               <div className="flex items-center gap-3 p-4 rounded-xl mb-6"
-                style={{ background: 'rgba(27,98,245,0.08)', border: '1px solid rgba(27,98,245,0.18)' }}>
+                style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.18)' }}>
                 <div className="w-9 h-9 rounded-xl bg-vybe-purple/20 flex items-center justify-center flex-shrink-0">
                   <Video size={16} className="text-vybe-purple-light" />
                 </div>

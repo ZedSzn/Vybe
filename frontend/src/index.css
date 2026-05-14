@@ -12,8 +12,8 @@
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  background-color: #07070e;
-  color: #eeeef5;
+  background-color: #0a0a0f;
+  color: #ffffff;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -50,9 +50,9 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #07070e; }
-::-webkit-scrollbar-thumb { background: #1B62F5; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #4B88F7; }
+::-webkit-scrollbar-track { background: #0a0a0f; }
+::-webkit-scrollbar-thumb { background: #00D4FF; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #00B8E0; }
 
 /* Video mirroring */
 video { transform: scaleX(-1); }
@@ -60,15 +60,15 @@ video.no-mirror { transform: none; }
 
 /* Glass morphism card */
 .glass-card {
-  background: rgba(8, 8, 18, 0.94);
+  background: rgba(13, 13, 24, 0.94);
   backdrop-filter: blur(32px) saturate(1.6);
   -webkit-backdrop-filter: blur(32px) saturate(1.6);
   border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-/* Brand gradient text */
+/* Brand gradient text — cyan to purple */
 .text-purple-gradient {
-  background: linear-gradient(135deg, #2572ff 0%, #70a8ff 100%);
+  background: linear-gradient(135deg, #00D4FF 0%, #7C3AED 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -99,15 +99,15 @@ video.no-mirror { transform: none; }
 /* Animated ambient background */
 .animated-bg {
   background:
-    radial-gradient(ellipse 80% 55% at 8% 62%, rgba(27, 98, 245, 0.11) 0%, transparent 62%),
-    radial-gradient(ellipse 55% 40% at 88% 14%, rgba(75, 136, 247, 0.07) 0%, transparent 55%),
-    radial-gradient(ellipse 45% 55% at 50% 105%, rgba(27, 98, 245, 0.06) 0%, transparent 55%),
-    #07070e;
+    radial-gradient(ellipse 80% 55% at 8% 62%, rgba(0, 212, 255, 0.07) 0%, transparent 62%),
+    radial-gradient(ellipse 55% 40% at 88% 14%, rgba(0, 184, 224, 0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 55% at 50% 105%, rgba(0, 212, 255, 0.04) 0%, transparent 55%),
+    #0a0a0f;
 }
 
-/* Brand CTA button — spring physics, strong glow */
+/* Brand CTA button — cyan with spring physics */
 .btn-purple {
-  background: linear-gradient(140deg, #2065f5 0%, #1454e0 55%, #0f44cc 100%);
+  background: linear-gradient(135deg, #00B8E0 0%, #00D4FF 55%, #33DDFF 100%);
   transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease;
   position: relative;
   overflow: hidden;
@@ -116,22 +116,22 @@ video.no-mirror { transform: none; }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(140deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 55%);
+  background: linear-gradient(140deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 55%);
   opacity: 0;
   transition: opacity 0.22s ease;
 }
 .btn-purple:hover::after { opacity: 1; }
 .btn-purple:hover {
   box-shadow:
-    0 0 0 1px rgba(75, 136, 247, 0.55),
-    0 0 28px rgba(27, 98, 245, 0.65),
-    0 0 70px rgba(27, 98, 245, 0.24),
-    0 8px 28px rgba(14, 68, 204, 0.45);
+    0 0 0 1px rgba(0, 212, 255, 0.55),
+    0 0 28px rgba(0, 212, 255, 0.5),
+    0 0 70px rgba(0, 212, 255, 0.2),
+    0 8px 28px rgba(0, 153, 187, 0.4);
   transform: translateY(-2px);
 }
 .btn-purple:active {
   transform: translateY(0) scale(0.97);
-  box-shadow: 0 0 18px rgba(27, 98, 245, 0.4);
+  box-shadow: 0 0 18px rgba(0, 212, 255, 0.35);
   transition: transform 0.07s ease, box-shadow 0.1s ease;
 }
 
@@ -141,7 +141,7 @@ video.no-mirror { transform: none; }
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #1B62F5;
+  background: #00D4FF;
   margin: 0 3px;
   animation: loading-dot 1.4s infinite ease-in-out;
 }
@@ -182,8 +182,8 @@ video.no-mirror { transform: none; }
   animation: cta-glow 2.8s ease-in-out infinite alternate;
 }
 @keyframes cta-glow {
-  from { box-shadow: 0 0 20px rgba(27, 98, 245, 0.38), 0 0 45px rgba(27, 98, 245, 0.14); }
-  to   { box-shadow: 0 0 38px rgba(27, 98, 245, 0.68), 0 0 80px rgba(27, 98, 245, 0.26); }
+  from { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 45px rgba(0, 212, 255, 0.1); }
+  to   { box-shadow: 0 0 38px rgba(0, 212, 255, 0.55), 0 0 80px rgba(0, 212, 255, 0.2); }
 }
 
 /* Animated ambient blobs */
@@ -201,7 +201,7 @@ video.no-mirror { transform: none; }
   70%     { transform: translate(3%,-3%) scale(0.97); }
 }
 
-/* Map connection line flow — drives stroke-dashoffset via CSS when needed */
+/* Map connection line flow */
 @keyframes line-flow {
   from { stroke-dashoffset: 12; }
   to   { stroke-dashoffset: 0; }
@@ -225,17 +225,16 @@ video.no-mirror { transform: none; }
 }
 .map-pin-float { animation: pin-float 3s ease-in-out infinite; }
 
-/* Input focus */
+/* Input focus — cyan glow */
 input:focus, textarea:focus { outline: none; }
 
-/* Animated focus ring on text inputs */
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="number"]:focus,
 textarea:focus {
-  border-color: rgba(124, 58, 237, 0.55) !important;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12), 0 0 12px rgba(124, 58, 237, 0.08);
+  border-color: rgba(0, 212, 255, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12), 0 0 12px rgba(0, 212, 255, 0.08);
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -287,7 +286,7 @@ textarea:focus {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
-/* Nav link hover underline slide-in */
+/* Nav link hover underline slide-in — cyan */
 .nav-link-underline {
   position: relative;
 }
@@ -299,20 +298,14 @@ textarea:focus {
   width: 0;
   height: 2px;
   border-radius: 99px;
-  background: linear-gradient(90deg, #3b82f6, #a855f7);
+  background: linear-gradient(90deg, #00D4FF, #7C3AED);
   transform: translateX(-50%);
   transition: width 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .nav-link-underline:hover::after { width: 65%; }
 .nav-link-underline.active::after { width: 70%; }
 
-/* ── GPU ACCELERATION ──────────────────────────────────────────────────────────
-   Promote animated elements to their own compositing layer so the browser can
-   run them on the GPU without triggering layout or paint.
-   Rule: only apply will-change to elements that actually animate.       */
-
-/* Framer Motion automatically applies will-change during animation.
-   These classes handle CSS-animation cases: */
+/* ── GPU ACCELERATION ──────────────────────────────────────────────────────────*/
 .animate-breath,
 .animate-glow,
 .online-pulse,
@@ -322,23 +315,18 @@ textarea:focus {
   will-change: transform, opacity;
 }
 
-/* Prevent forced GPU layers on static content */
 .glass-card {
   will-change: auto;
 }
 
-/* ── PERFORMANCE: No transition-all ───────────────────────────────────────────
-   transition-all recalculates every CSS property on each frame.
-   Replace with specific targeted transitions:               */
+/* ── PERFORMANCE: No transition-all ─────────────────────────────────────────── */
 .vybe-transition {
   transition: color 180ms ease, background-color 180ms ease,
               border-color 180ms ease, opacity 180ms ease,
               box-shadow 200ms ease;
 }
 
-/* ── CONTENT CONTAINER (ultrawide safe) ───────────────────────────────────────
-   Prevents content from stretching across 2K/4K monitors.
-   Wrap page content in .vybe-container for proper containment.        */
+/* ── CONTENT CONTAINER (ultrawide safe) ───────────────────────────────────────*/
 .vybe-container {
   width: 100%;
   max-width: 1280px;
@@ -357,7 +345,6 @@ textarea:focus {
   padding-right: clamp(16px, 4vw, 48px);
 }
 
-/* Chat page gets slightly wider max-width — videos benefit from space */
 .vybe-container-chat {
   width: 100%;
   max-width: 1600px;
@@ -365,21 +352,18 @@ textarea:focus {
   margin-right: auto;
 }
 
-/* ── CREATOR / CAMERA-FRIENDLY CONTRAST ───────────────────────────────────────
-   Elements that appear on-camera need crisp, well-contrasted borders
-   and text — slightly boosted opacity vs standard UI text.             */
+/* ── CREATOR / CAMERA-FRIENDLY CONTRAST ──────────────────────────────────────*/
 .creator-crisp {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Crisp card borders for screenshots/streams */
 .glass-card,
 .vybe-card-crisp {
   border: 1px solid rgba(255,255,255,0.09);
 }
 
-/* ── MATCH FOUND FLASH ─────────────────────────────────────────────────────── */
+/* ── MATCH FOUND FLASH ───────────────────────────────────────────────────────*/
 @keyframes match-found-ring {
   0%   { transform: scale(0.85); opacity: 0; }
   40%  { transform: scale(1.08); opacity: 1; }
@@ -398,22 +382,21 @@ textarea:focus {
   animation: match-found-fade 1.2s ease forwards;
 }
 
-/* ── RESPONSIVE VIDEO LAYOUT ──────────────────────────────────────────────── */
-/* Ensure video panels don't grow unbounded on ultrawide */
+/* ── RESPONSIVE VIDEO LAYOUT ─────────────────────────────────────────────────*/
 @media (min-width: 1600px) {
   .video-panel-cap {
     max-height: min(85vh, 900px);
   }
 }
 
-/* ── MODAL BACKDROP ───────────────────────────────────────────────────────── */
+/* ── MODAL BACKDROP ──────────────────────────────────────────────────────────*/
 .vybe-backdrop {
   background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(8px) saturate(1.2);
   -webkit-backdrop-filter: blur(8px) saturate(1.2);
 }
 
-/* ── SKIP/MATCH TRANSITION ────────────────────────────────────────────────── */
+/* ── SKIP/MATCH TRANSITION ───────────────────────────────────────────────────*/
 @keyframes skip-out {
   0%   { opacity: 1;   transform: translateX(0) scale(1); }
   100% { opacity: 0;   transform: translateX(-18px) scale(0.97); }
@@ -425,7 +408,7 @@ textarea:focus {
 .animate-skip-out { animation: skip-out 0.22s ease forwards; }
 .animate-skip-in  { animation: skip-in  0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 
-/* ── MEMBERSHIP CARD SHINE ────────────────────────────────────────────────── */
+/* ── MEMBERSHIP CARD SHINE ───────────────────────────────────────────────────*/
 @keyframes card-shine {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
@@ -440,8 +423,7 @@ textarea:focus {
   animation: card-shine 3.5s ease-in-out infinite;
 }
 
-/* ── SMOOTH FONT WEIGHT TRANSITIONS ──────────────────────────────────────── */
-/* Prevents font-weight layout shift in tab buttons */
+/* ── SMOOTH FONT WEIGHT TRANSITIONS ──────────────────────────────────────────*/
 .tab-btn::before {
   content: attr(data-label);
   font-weight: 800;

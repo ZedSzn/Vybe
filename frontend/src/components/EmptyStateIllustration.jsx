@@ -59,9 +59,9 @@ function FriendsIllustration() {
       </g>
       {/* Person 2 (right) */}
       <g style={{ animation: 'es-float 3.2s ease-in-out 0.8s infinite', transformOrigin: '78px 60px' }}>
-        <circle cx="78" cy="46" r="9" fill="rgba(27,98,245,0.25)" stroke="rgba(96,165,250,0.7)" strokeWidth="1.5" />
+        <circle cx="78" cy="46" r="9" fill="rgba(0,212,255,0.25)" stroke="rgba(0,184,224,0.7)" strokeWidth="1.5" />
         <path d="M62 74 C62 64 70 60 78 60 C86 60 94 64 94 74"
-          fill="rgba(27,98,245,0.18)" stroke="rgba(96,165,250,0.65)" strokeWidth="1.5" strokeLinecap="round" />
+          fill="rgba(0,212,255,0.18)" stroke="rgba(0,184,224,0.65)" strokeWidth="1.5" strokeLinecap="round" />
       </g>
       {/* + in the middle */}
       <g style={{ animation: 'es-pulse 2s ease-in-out infinite' }}>
@@ -107,12 +107,12 @@ function MessagesIllustration() {
       {/* Main bubble */}
       <g style={{ animation: 'es-float 3s ease-in-out infinite', transformOrigin: '60px 58px' }}>
         <rect x="30" y="36" width="52" height="36" rx="10"
-          fill="rgba(27,98,245,0.18)" stroke="rgba(96,165,250,0.65)" strokeWidth="1.5" />
-        <path d="M44 72 L38 82 L52 72" fill="rgba(27,98,245,0.18)" stroke="rgba(96,165,250,0.65)" strokeWidth="1.5" strokeLinejoin="round" />
+          fill="rgba(0,212,255,0.18)" stroke="rgba(0,184,224,0.65)" strokeWidth="1.5" />
+        <path d="M44 72 L38 82 L52 72" fill="rgba(0,212,255,0.18)" stroke="rgba(0,184,224,0.65)" strokeWidth="1.5" strokeLinejoin="round" />
         {/* Dots inside bubble */}
-        <circle cx="48" cy="54" r="3" fill="rgba(96,165,250,0.6)" />
-        <circle cx="60" cy="54" r="3" fill="rgba(96,165,250,0.6)" style={{ animation: 'es-pulse 1.2s ease-in-out 0.2s infinite' }} />
-        <circle cx="72" cy="54" r="3" fill="rgba(96,165,250,0.6)" style={{ animation: 'es-pulse 1.2s ease-in-out 0.4s infinite' }} />
+        <circle cx="48" cy="54" r="3" fill="rgba(0,184,224,0.6)" />
+        <circle cx="60" cy="54" r="3" fill="rgba(0,184,224,0.6)" style={{ animation: 'es-pulse 1.2s ease-in-out 0.2s infinite' }} />
+        <circle cx="72" cy="54" r="3" fill="rgba(0,184,224,0.6)" style={{ animation: 'es-pulse 1.2s ease-in-out 0.4s infinite' }} />
       </g>
     </svg>
   )

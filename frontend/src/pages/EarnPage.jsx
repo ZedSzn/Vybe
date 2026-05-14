@@ -28,7 +28,7 @@ const HOW_IT_WORKS = [
 ]
 
 const GIFT_TYPES = [
-  { Icon: ThumbsUp, name: 'Like',    coins: 10,  label: '10 coins',  color: '#60a5fa' },
+  { Icon: ThumbsUp, name: 'Like',    coins: 10,  label: '10 coins',  color: '#00B8E0' },
   { Icon: Heart,    name: 'Heart',   coins: 25,  label: '25 coins',  color: '#f43f5e' },
   { Icon: Flame,    name: 'Fire',    coins: 50,  label: '50 coins',  color: '#f97316' },
   { Icon: Gem,      name: 'Diamond', coins: 150, label: '150 coins', color: '#06b6d4' },
@@ -62,7 +62,7 @@ export default function EarnPage() {
       {/* Ambient */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
         <div className="absolute" style={{ top: '-5%', left: '15%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(124,58,237,0.08) 0%, transparent 65%)' }} />
-        <div className="absolute" style={{ bottom: '10%', right: '-5%', width: '500px', height: '500px', background: 'radial-gradient(ellipse at 50% 50%, rgba(37,99,235,0.06) 0%, transparent 65%)' }} />
+        <div className="absolute" style={{ bottom: '10%', right: '-5%', width: '500px', height: '500px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.06) 0%, transparent 65%)' }} />
       </div>
 
       <Navbar />
@@ -93,7 +93,7 @@ export default function EarnPage() {
           </div>
           <h1 className="text-4xl font-black text-white mb-4 leading-tight">
             Get paid to<br />
-            <span style={{ background: 'linear-gradient(90deg, #a78bfa, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <span style={{ background: 'linear-gradient(90deg, #a78bfa, #00B8E0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               live chat
             </span>
           </h1>
@@ -164,7 +164,7 @@ export default function EarnPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.24 }}
           className="rounded-2xl p-6 mb-12 text-center"
-          style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(37,99,235,0.14) 100%)', border: '1px solid rgba(124,58,237,0.25)' }}
+          style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(0,212,255,0.14) 100%)', border: '1px solid rgba(124,58,237,0.25)' }}
         >
           <Star size={24} className="text-vybe-purple-light mx-auto mb-3" />
           <p className="text-white font-black text-lg mb-1">1,000 coins ≈ £4.20</p>

@@ -9,22 +9,22 @@ export default {
       // ── Color Palette ─────────────────────────────────────────────────────
       colors: {
         // Backgrounds — layered surface system
-        'vybe-bg':    '#07070e',
-        'vybe-bg2':   '#0a0a16',
-        'vybe-card':  '#0d0d1b',
-        'vybe-card2': '#101020',
-        'vybe-card3': '#131325',
+        'vybe-bg':    '#0a0a0f',
+        'vybe-bg2':   '#0d0d18',
+        'vybe-card':  '#111120',
+        'vybe-card2': '#131328',
+        'vybe-card3': '#16162e',
 
         // Borders
-        'vybe-border':    '#181828',
-        'vybe-border2':   '#1e1e35',
+        'vybe-border':    '#1e1e2e',
+        'vybe-border2':   '#252538',
         'vybe-border-hi': 'rgba(255,255,255,0.10)',
 
-        // Brand blue (primary CTA)
-        'vybe-blue':        '#1B62F5',
-        'vybe-blue-light':  '#4B88F7',
-        'vybe-blue-dark':   '#0f44cc',
-        'vybe-blue-faint':  'rgba(27,98,245,0.12)',
+        // Brand cyan (primary CTA)
+        'vybe-blue':        '#00D4FF',
+        'vybe-blue-light':  '#00B8E0',
+        'vybe-blue-dark':   '#0099BB',
+        'vybe-blue-faint':  'rgba(0,212,255,0.12)',
 
         // Brand purple (accent)
         'vybe-purple':       '#7c3aed',
@@ -33,14 +33,14 @@ export default {
         'vybe-purple-faint': 'rgba(124,58,237,0.12)',
 
         // Text
-        'vybe-text':    '#eeeef5',
-        'vybe-muted':   '#55606e',
-        'vybe-subtle':  '#252535',
+        'vybe-text':    '#FFFFFF',
+        'vybe-muted':   '#888899',
+        'vybe-subtle':  '#1e1e2e',
 
         // Semantic
-        'vybe-success': '#10b981',
-        'vybe-danger':  '#ef4444',
-        'vybe-warn':    '#f59e0b',
+        'vybe-success': '#00FF87',
+        'vybe-danger':  '#FF4444',
+        'vybe-warn':    '#FFB800',
       },
 
       // ── Spacing Scale (4px base) ───────────────────────────────────────────
@@ -85,18 +85,18 @@ export default {
       // ── Shadows / Elevation ────────────────────────────────────────────────
       boxShadow: {
         // Glow system — brand blue
-        'glow-sm':  '0 0 18px rgba(27,98,245,0.28)',
-        'glow-md':  '0 0 36px rgba(27,98,245,0.38)',
-        'glow-lg':  '0 0 72px rgba(27,98,245,0.46)',
-        'glow-xl':  '0 0 120px rgba(27,98,245,0.52)',
+        'glow-sm':  '0 0 18px rgba(0,212,255,0.28)',
+        'glow-md':  '0 0 36px rgba(0,212,255,0.38)',
+        'glow-lg':  '0 0 72px rgba(0,212,255,0.46)',
+        'glow-xl':  '0 0 120px rgba(0,212,255,0.52)',
         // Glow system — purple
         'glow-purple-sm': '0 0 18px rgba(124,58,237,0.28)',
         'glow-purple-md': '0 0 36px rgba(124,58,237,0.38)',
         'glow-purple-lg': '0 0 72px rgba(124,58,237,0.46)',
         // Legacy aliases
-        'purple':    '0 0 40px rgba(27, 98, 245, 0.36)',
-        'purple-sm': '0 0 22px rgba(27, 98, 245, 0.26)',
-        'purple-lg': '0 0 72px rgba(27, 98, 245, 0.46)',
+        'purple':    '0 0 40px rgba(0,212,255,0.36)',
+        'purple-sm': '0 0 22px rgba(0,212,255,0.26)',
+        'purple-lg': '0 0 72px rgba(0,212,255,0.46)',
         // Elevation system
         'lift-1':  '0 2px 12px rgba(0,0,0,0.4)',
         'lift-2':  '0 4px 24px rgba(0,0,0,0.5)',
@@ -137,9 +137,9 @@ export default {
       },
       keyframes: {
         'pulse-ring': {
-          '0%':   { boxShadow: '0 0 0 0 rgba(27, 98, 245, 0.6)' },
-          '70%':  { boxShadow: '0 0 0 22px rgba(27, 98, 245, 0)' },
-          '100%': { boxShadow: '0 0 0 0 rgba(27, 98, 245, 0)' },
+          '0%':   { boxShadow: '0 0 0 0 rgba(0, 212, 255, 0.5)' },
+          '70%':  { boxShadow: '0 0 0 22px rgba(0, 212, 255, 0)' },
+          '100%': { boxShadow: '0 0 0 0 rgba(0, 212, 255, 0)' },
         },
         'slide-up': {
           from: { transform: 'translateY(16px)', opacity: '0' },

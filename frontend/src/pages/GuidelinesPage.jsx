@@ -50,9 +50,9 @@ const rules = [
   },
   {
     icon: ShieldCheck,
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/20',
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-400/10',
+    border: 'border-cyan-400/20',
     title: 'No Spam or Bots',
     body: 'Automated accounts, bots, and commercial spam are not permitted. Do not use Vybe to promote products, services, or external platforms without permission.',
     examples: ['No automated scripted conversations', 'No advertising or solicitation', 'No fake profiles or impersonation'],

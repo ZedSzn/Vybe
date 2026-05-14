@@ -894,18 +894,18 @@ export default function ChatPage() {
                 <div
                   className="animate-match-fade w-20 h-20 rounded-full flex items-center justify-center"
                   style={{
-                    background: 'radial-gradient(circle, rgba(27,98,245,0.35) 0%, transparent 70%)',
-                    border: '2px solid rgba(75,136,247,0.55)',
-                    boxShadow: '0 0 40px rgba(27,98,245,0.55), 0 0 80px rgba(27,98,245,0.25)',
+                    background: 'radial-gradient(circle, rgba(0,212,255,0.35) 0%, transparent 70%)',
+                    border: '2px solid rgba(0,184,224,0.55)',
+                    boxShadow: '0 0 40px rgba(0,212,255,0.55), 0 0 80px rgba(0,212,255,0.25)',
                   }}
                 >
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00B8E0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </div>
                 <div className="animate-match-fade text-center">
                   <p className="text-white font-black text-lg tracking-tight leading-none">Match Found!</p>
-                  <p className="text-blue-400/70 text-xs font-medium mt-1">Connecting you now…</p>
+                  <p className="text-cyan-400/70 text-xs font-medium mt-1">Connecting you now…</p>
                 </div>
               </div>
             </motion.div>
@@ -915,10 +915,10 @@ export default function ChatPage() {
         {/* Email verification */}
         {user && !user.emailVerified && status === 'matched' && (
           <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm pointer-events-none">
-            <div className="bg-blue-500/15 border border-blue-500/30 rounded-2xl px-4 py-3 flex items-center gap-3 backdrop-blur-sm pointer-events-auto">
+            <div className="bg-cyan-400/15 border border-cyan-400/30 rounded-2xl px-4 py-3 flex items-center gap-3 backdrop-blur-sm pointer-events-auto">
               <span className="text-sm">📧</span>
               <p className="text-blue-300 text-xs flex-1">Verify your email to unlock all features</p>
-              <Link to="/settings?tab=account" className="text-blue-400 text-xs font-bold hover:underline flex-shrink-0">→ Settings</Link>
+              <Link to="/settings?tab=account" className="text-cyan-400 text-xs font-bold hover:underline flex-shrink-0">→ Settings</Link>
             </div>
           </div>
         )}
@@ -928,7 +928,7 @@ export default function ChatPage() {
           {tipFeedback && (
             <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
               className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-semibold backdrop-blur-sm whitespace-nowrap"
-              style={{ background: tipFeedback.type === 'success' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${tipFeedback.type === 'success' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`, color: tipFeedback.type === 'success' ? '#4ade80' : '#f87171' }}>
+              style={{ background: tipFeedback.type === 'success' ? 'rgba(0,212,255,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${tipFeedback.type === 'success' ? 'rgba(0,212,255,0.3)' : 'rgba(239,68,68,0.3)'}`, color: tipFeedback.type === 'success' ? '#4ade80' : '#f87171' }}>
               {tipFeedback.msg}
             </motion.div>
           )}
@@ -953,7 +953,7 @@ export default function ChatPage() {
                     <p className="text-white/40 text-[10px] mt-0.5">Spendable</p>
                   </div>
                   {cashableCoins > 0 && (
-                    <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                    <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)' }}>
                       <p className="text-green-400 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {cashableCoins.toLocaleString()}</p>
                       <p className="text-white/40 text-[10px] mt-0.5">Earned (cashable)</p>
                     </div>
@@ -963,15 +963,15 @@ export default function ChatPage() {
                   const canAfford = v <= coins
                   return (
                     <button key={v} onClick={() => canAfford && setTipAmount(String(v))} disabled={!canAfford}
-                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${tipAmount===String(v)?'bg-blue-600 text-white':canAfford?'bg-white/8 text-white/60 hover:bg-white/12':'bg-white/4 text-white/25 cursor-not-allowed'}`}>
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${tipAmount===String(v)?'bg-cyan-500 text-white':canAfford?'bg-white/8 text-white/60 hover:bg-white/12':'bg-white/4 text-white/25 cursor-not-allowed'}`}>
                       {v}
                     </button>
                   )
                 })}</div>
-                <div className="flex gap-2 mb-3"><input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" max={coins} className="flex-1 bg-white/6 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500/60 transition-colors" /></div>
+                <div className="flex gap-2 mb-3"><input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" max={coins} className="flex-1 bg-white/6 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-cyan-400/60 transition-colors" /></div>
                 {tipAmount && parseInt(tipAmount) >= 10 && parseInt(tipAmount) <= coins && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
                 {tipAmount && parseInt(tipAmount) > coins && <p className="text-red-400 text-xs mb-3 text-center">You only have {coins} spendable coins</p>}
-                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins} className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 20px rgba(27,98,245,0.4)' }}>{tipLoading?'Sending…':`Send ${tipAmount||0} coins`}</button>
+                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins} className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#00D4FF,#00B8E0)', boxShadow: '0 0 20px rgba(0,212,255,0.4)' }}>{tipLoading?'Sending…':`Send ${tipAmount||0} coins`}</button>
               </motion.div>
             </motion.div>
           )}
@@ -1013,7 +1013,7 @@ export default function ChatPage() {
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2rem)] max-w-sm">
             <div className="flex items-start gap-3 px-4 py-3 rounded-2xl" style={{ background: 'rgba(10,10,22,0.92)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }}>
               <span className="text-xl flex-shrink-0 mt-0.5">📷</span>
-              <div className="flex-1"><p className="text-white font-bold text-[13px]">No webcam detected</p><p className="text-white/50 text-[11px] mt-0.5">Adding a webcam gives you a <span className="text-blue-400 font-semibold">much better chance</span> of matching.</p></div>
+              <div className="flex-1"><p className="text-white font-bold text-[13px]">No webcam detected</p><p className="text-white/50 text-[11px] mt-0.5">Adding a webcam gives you a <span className="text-cyan-400 font-semibold">much better chance</span> of matching.</p></div>
               <button onClick={() => setNoCamDismissed(true)} className="text-white/30 hover:text-white/60 text-base leading-none">✕</button>
             </div>
           </div>
@@ -1028,7 +1028,7 @@ export default function ChatPage() {
             <div className="absolute inset-0 bg-[#080812] flex flex-col items-center justify-center gap-5 px-6">
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="absolute rounded-full animate-pulse" style={{ width: 340, height: 340, background: 'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)' }} />
-                <div className="absolute rounded-full animate-pulse" style={{ width: 220, height: 220, background: 'radial-gradient(circle, rgba(27,98,245,0.11) 0%, transparent 65%)', animationDelay: '0.5s' }} />
+                <div className="absolute rounded-full animate-pulse" style={{ width: 220, height: 220, background: 'radial-gradient(circle, rgba(0,212,255,0.11) 0%, transparent 65%)', animationDelay: '0.5s' }} />
               </div>
               <VybeGlobe size={200} />
               <div className="text-center relative z-10">
@@ -1038,7 +1038,7 @@ export default function ChatPage() {
                   </motion.p>
                 </AnimatePresence>
                 {onlineCount > 0 && (
-                  <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#6b7280' }}>
+                  <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#888899' }}>
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
                     {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
                   </p>
@@ -1110,7 +1110,7 @@ export default function ChatPage() {
                   {partnerAvatar ? (
                     <img src={partnerAvatar} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
                   ) : partnerUsername ? (
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ background: 'linear-gradient(135deg, #7c3aed, #1b62f5)' }}>
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ background: 'linear-gradient(135deg, #7c3aed, #00D4FF)' }}>
                       {partnerUsername[0].toUpperCase()}
                     </div>
                   ) : (
@@ -1118,17 +1118,17 @@ export default function ChatPage() {
                   )}
                   <div className="flex items-center gap-1.5">
                     <span className="text-white font-bold text-[12px]">{partnerUsername ? partnerUsername : 'Stranger'}</span>
-                    {partnerEmailVerified && <ShieldCheck size={10} style={{ color: '#60a5fa', flexShrink: 0 }} />}
+                    {partnerEmailVerified && <ShieldCheck size={10} style={{ color: '#00B8E0', flexShrink: 0 }} />}
                     {partnerIsVip && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}><Crown size={7} /> VIP</span>}
-                    {!partnerIsVip && partnerIsPremium && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(27,98,245,0.2)', color: '#60a5fa', border: '1px solid rgba(27,98,245,0.35)' }}><Zap size={7} /> Member</span>}
+                    {!partnerIsVip && partnerIsPremium && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(0,212,255,0.2)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}><Zap size={7} /> Member</span>}
                   </div>
                   {user && partnerUid && !friendReqSent && (
-                    <button onClick={handleAddFriend} disabled={friendReqLoad} className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95" style={{ background: 'rgba(27,98,245,0.25)', border: '1px solid rgba(27,98,245,0.4)', color: '#60a5fa', flexShrink: 0 }}>
+                    <button onClick={handleAddFriend} disabled={friendReqLoad} className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95" style={{ background: 'rgba(0,212,255,0.25)', border: '1px solid rgba(0,212,255,0.4)', color: '#00B8E0', flexShrink: 0 }}>
                       {friendReqLoad ? <Loader2 size={9} className="animate-spin" /> : <UserPlus size={9} />}
                     </button>
                   )}
                   {user && partnerUid && friendReqSent && (
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ade80', flexShrink: 0 }}>
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(0,212,255,0.2)', border: '1px solid rgba(0,212,255,0.35)', color: '#4ade80', flexShrink: 0 }}>
                       <UserPlus size={9} />
                     </span>
                   )}
@@ -1381,7 +1381,7 @@ export default function ChatPage() {
                 </MobileFloatBtn>
               ) : (
                 <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.22)' }}>
+                  style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)' }}>
                   <span className="text-green-400 text-xs font-bold">✓</span>
                 </div>
               )}
@@ -1408,7 +1408,7 @@ export default function ChatPage() {
                         </motion.p>
                       </AnimatePresence>
                       {onlineCount > 0 && (
-                        <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#6b7280' }}>
+                        <p className="text-xs flex items-center justify-center gap-1.5" style={{ color: '#888899' }}>
                           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
                           {onlineCount} {onlineCount === 1 ? 'person' : 'people'} online
                         </p>
@@ -1449,7 +1449,7 @@ export default function ChatPage() {
                           <img src={partnerAvatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
                         ) : partnerUsername ? (
                           <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
-                            style={{ background: 'linear-gradient(135deg, #7c3aed, #1b62f5)' }}>
+                            style={{ background: 'linear-gradient(135deg, #7c3aed, #00D4FF)' }}>
                             {partnerUsername[0].toUpperCase()}
                           </div>
                         ) : (
@@ -1460,7 +1460,7 @@ export default function ChatPage() {
                             {partnerUsername ? partnerUsername : 'Stranger'}
                           </span>
                           {partnerEmailVerified && (
-                            <ShieldCheck size={11} style={{ color: '#60a5fa', flexShrink: 0 }} title="Verified" />
+                            <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />
                           )}
                           {partnerIsVip && (
                             <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}>
@@ -1468,7 +1468,7 @@ export default function ChatPage() {
                             </span>
                           )}
                           {!partnerIsVip && partnerIsPremium && (
-                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(27,98,245,0.2)', color: '#60a5fa', border: '1px solid rgba(27,98,245,0.35)' }}>
+                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.2)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}>
                               <Zap size={8} /> Member
                             </span>
                           )}
@@ -1479,13 +1479,13 @@ export default function ChatPage() {
                             disabled={friendReqLoad}
                             title="Add friend"
                             className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95"
-                            style={{ background: 'rgba(27,98,245,0.25)', border: '1px solid rgba(27,98,245,0.4)', color: '#60a5fa', flexShrink: 0 }}
+                            style={{ background: 'rgba(0,212,255,0.25)', border: '1px solid rgba(0,212,255,0.4)', color: '#00B8E0', flexShrink: 0 }}
                           >
                             {friendReqLoad ? <Loader2 size={9} className="animate-spin" /> : <UserPlus size={9} />}
                           </button>
                         )}
                         {user && partnerUid && friendReqSent && (
-                          <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ade80', flexShrink: 0 }}>
+                          <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(0,212,255,0.2)', border: '1px solid rgba(0,212,255,0.35)', color: '#4ade80', flexShrink: 0 }}>
                             <UserPlus size={9} />
                           </span>
                         )}
@@ -1573,14 +1573,14 @@ export default function ChatPage() {
                       <img src={user.avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
                     ) : user?.username ? (
                       <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
-                        style={{ background: 'linear-gradient(135deg, #1b62f5, #7c3aed)' }}>
+                        style={{ background: 'linear-gradient(135deg, #00D4FF, #7c3aed)' }}>
                         {user.username[0].toUpperCase()}
                       </div>
                     ) : null}
                     <div className="flex items-center gap-1.5">
                       <span className="text-white font-bold text-[13px]">{user ? user.username : 'You'}</span>
                       {user?.emailVerified && (
-                        <ShieldCheck size={11} style={{ color: '#60a5fa', flexShrink: 0 }} title="Verified" />
+                        <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />
                       )}
                       {user?.isVip && (
                         <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}>
@@ -1588,7 +1588,7 @@ export default function ChatPage() {
                         </span>
                       )}
                       {!user?.isVip && user?.isPremium && (
-                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(27,98,245,0.2)', color: '#60a5fa', border: '1px solid rgba(27,98,245,0.35)' }}>
+                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.2)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}>
                           <Zap size={8} /> Member
                         </span>
                       )}

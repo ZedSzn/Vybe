@@ -150,7 +150,7 @@ export default function VybeGlobe({ size = 200 }) {
         height: size * 0.86,
         top: '50%', left: '50%',
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, rgba(27,98,245,0.10) 45%, transparent 72%)',
+        background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, rgba(0,212,255,0.10) 45%, transparent 72%)',
         animation: `${id}_atmo 5s ease-in-out infinite`,
         pointerEvents: 'none',
       }} />
@@ -167,7 +167,7 @@ export default function VybeGlobe({ size = 200 }) {
           transparent 52%,
           rgba(124,58,237,0.05) 68%,
           rgba(99,102,241,0.18) 82%,
-          rgba(27,98,245,0.08) 92%,
+          rgba(0,212,255,0.08) 92%,
           transparent 100%)`,
         animation: `${id}_sweep 4.5s linear infinite`,
         pointerEvents: 'none',
@@ -192,7 +192,7 @@ export default function VybeGlobe({ size = 200 }) {
         height: r2 * 2,
         top: '50%', left: '50%',
         borderRadius: '50%',
-        border: '1px dashed rgba(27,98,245,0.28)',
+        border: '1px dashed rgba(0,212,255,0.28)',
         animation: `${id}_ccw 18s linear infinite`,
         pointerEvents: 'none',
       }} />
@@ -215,8 +215,8 @@ export default function VybeGlobe({ size = 200 }) {
         width: 4, height: 4,
         top: '50%', left: '50%',
         borderRadius: '50%',
-        background: '#60a5fa',
-        boxShadow: '0 0 7px 2px rgba(27,98,245,0.9)',
+        background: '#00B8E0',
+        boxShadow: '0 0 7px 2px rgba(0,212,255,0.9)',
         animation: `${id}_d2 18s linear infinite`,
         pointerEvents: 'none',
       }} />
@@ -227,7 +227,7 @@ export default function VybeGlobe({ size = 200 }) {
         width: 3, height: 3,
         top: '50%', left: '50%',
         borderRadius: '50%',
-        background: '#818cf8',
+        background: '#7C3AED',
         boxShadow: '0 0 5px 1px rgba(99,102,241,0.8)',
         animation: `${id}_d3 18s linear infinite`,
         pointerEvents: 'none',
@@ -245,7 +245,7 @@ export default function VybeGlobe({ size = 200 }) {
         boxShadow: `
           0 0 ${Math.round(g * 0.22)}px rgba(124,58,237,0.55),
           0 0 ${Math.round(g * 0.50)}px rgba(99,102,241,0.18),
-          0 0 ${Math.round(g * 0.90)}px rgba(27,98,245,0.09),
+          0 0 ${Math.round(g * 0.90)}px rgba(0,212,255,0.09),
           inset 0 0 ${Math.round(g * 0.12)}px rgba(0,0,0,0.9)
         `,
       }}>
@@ -308,7 +308,7 @@ export default function VybeGlobe({ size = 200 }) {
         <div style={{
           position: 'absolute', inset: 0,
           borderRadius: '50%',
-          background: 'radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(99,102,241,0.10) 74%, rgba(27,98,245,0.22) 88%, rgba(99,102,241,0.10) 100%)',
+          background: 'radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(99,102,241,0.10) 74%, rgba(0,212,255,0.22) 88%, rgba(99,102,241,0.10) 100%)',
           pointerEvents: 'none',
         }} />
 
@@ -324,7 +324,7 @@ export default function VybeGlobe({ size = 200 }) {
         <div style={{
           position: 'absolute', inset: 0,
           borderRadius: '50%',
-          background: 'radial-gradient(circle at 72% 78%, rgba(27,98,245,0.14) 0%, transparent 42%)',
+          background: 'radial-gradient(circle at 72% 78%, rgba(0,212,255,0.14) 0%, transparent 42%)',
           pointerEvents: 'none',
         }} />
       </div>

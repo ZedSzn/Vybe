@@ -77,7 +77,7 @@ function MaintenancePage({ message }) {
           </svg>
         </div>
         <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 900, margin: '0 0 12px' }}>Down for maintenance</h1>
-        <p style={{ color: '#6b7280', fontSize: 14, lineHeight: 1.6, margin: '0 0 32px' }}>
+        <p style={{ color: '#888899', fontSize: 14, lineHeight: 1.6, margin: '0 0 32px' }}>
           {message || "We're making Vybe better. Check back shortly."}
         </p>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.25)' }}>
@@ -213,7 +213,7 @@ function AppRoutes() {
 
       {/* Static announcement banner (from saved settings) */}
       {showStaticBanner && (
-        <div className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-between gap-3 px-4 py-2.5 text-sm font-semibold" style={{ background: 'linear-gradient(90deg,rgba(124,58,237,0.92),rgba(27,98,245,0.92))', backdropFilter: 'blur(8px)' }}>
+        <div className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-between gap-3 px-4 py-2.5 text-sm font-semibold" style={{ background: 'linear-gradient(90deg,rgba(124,58,237,0.92),rgba(0,212,255,0.92))', backdropFilter: 'blur(8px)' }}>
           <span className="text-white/90 text-center flex-1 text-xs">{announcement}</span>
           <button onClick={() => setAnnouncDismissed(true)} className="text-white/50 hover:text-white transition-colors flex-shrink-0">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>

@@ -107,7 +107,7 @@ export default function Navbar({ onPremiumClick }) {
 
   const notifIcon = (type) => {
     const map = { friend_request: <UserPlus size={13} />, coin_reward: <Medal size={13} />, streak: <Flame size={13} />, warning: <AlertTriangle size={13} />, system: <Megaphone size={13} /> }
-    return <span className="text-blue-400-light">{map[type] || <Bell size={13} />}</span>
+    return <span className="text-cyan-400-light">{map[type] || <Bell size={13} />}</span>
   }
   const tier = user?.isVip
     ? <span className="flex items-center gap-1"><Crown size={11} /> VIP</span>
@@ -136,9 +136,9 @@ export default function Navbar({ onPremiumClick }) {
     <nav
       className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-4 sm:px-6 font-space"
       style={{
-        background: '#050816',
+        background: '#0a0a0f',
         backdropFilter: 'blur(20px) saturate(1.6)',
-        borderBottom: '1px solid rgba(80,140,255,0.07)',
+        borderBottom: '1px solid rgba(0,212,255,0.07)',
       }}
     >
       {/* Logo */}
@@ -147,7 +147,7 @@ export default function Navbar({ onPremiumClick }) {
           <span
             className="text-[32px] font-extrabold tracking-[0.08em]"
             style={{
-              background: 'linear-gradient(135deg, #60a5fa 0%, #818cf8 100%)',
+              background: 'linear-gradient(135deg, #00B8E0 0%, #7C3AED 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -196,7 +196,7 @@ export default function Navbar({ onPremiumClick }) {
               <Link
                 to="/wallet?tab=buy"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold text-white transition-all"
-                style={{ background: 'linear-gradient(135deg,#2F6BFF,#4D8DFF)', boxShadow: '0 0 14px rgba(27,98,245,0.35)' }}
+                style={{ background: 'linear-gradient(135deg,#00D4FF,#00B8E0)', boxShadow: '0 0 14px rgba(0,212,255,0.35)' }}
               >
                 {t('buy_coins')}
               </Link>
@@ -227,7 +227,7 @@ export default function Navbar({ onPremiumClick }) {
             <Link
               to="/wallet?tab=buy"
               className="flex sm:hidden items-center px-2.5 py-1 rounded-lg text-[11px] font-extrabold text-white"
-              style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)', boxShadow: '0 0 14px rgba(27,98,245,0.35)' }}
+              style={{ background: 'linear-gradient(135deg,#00D4FF,#00B8E0)', boxShadow: '0 0 14px rgba(0,212,255,0.35)' }}
             >
               Buy Coins
             </Link>
@@ -250,7 +250,7 @@ export default function Navbar({ onPremiumClick }) {
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
                       transition={{ type: 'spring', stiffness: 600, damping: 20 }}
-                      className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-blue-500 rounded-full text-[9px] flex items-center justify-center font-black text-white px-0.5"
+                      className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-cyan-400 rounded-full text-[9px] flex items-center justify-center font-black text-white px-0.5"
                     >
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
@@ -266,13 +266,13 @@ export default function Navbar({ onPremiumClick }) {
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
                     transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
                     className="absolute right-0 top-full mt-2 w-80 rounded-2xl overflow-hidden shadow-card z-50"
-                    style={{ background: '#101020', border: '1px solid rgba(255,255,255,0.08)' }}
+                    style={{ background: '#111120', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
                       <h3 className="text-sm font-black text-white">Notifications</h3>
                       <div className="flex items-center gap-3">
                         {unreadCount > 0 && (
-                          <button onClick={handleMarkAllRead} className="text-[10px] text-blue-400-light hover:underline font-semibold">
+                          <button onClick={handleMarkAllRead} className="text-[10px] text-cyan-400-light hover:underline font-semibold">
                             Mark all read
                           </button>
                         )}
@@ -296,14 +296,14 @@ export default function Navbar({ onPremiumClick }) {
                         </motion.div>
                       ) : notifications.map((n) => (
                         <div key={n._id} onClick={() => !n.read && handleMarkOne(n._id)}
-                          className={`flex items-start gap-3 px-4 py-3 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/3 transition-colors ${!n.read ? 'bg-blue-500/5' : ''}`}>
+                          className={`flex items-start gap-3 px-4 py-3 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/3 transition-colors ${!n.read ? 'bg-cyan-400/5' : ''}`}>
                           <span className="text-base flex-shrink-0 mt-0.5">{notifIcon(n.type)}</span>
                           <div className="flex-1 min-w-0">
                             <p className="text-white text-xs font-bold">{n.title}</p>
                             <p className="text-gray-600 text-[11px] leading-relaxed mt-0.5 line-clamp-2">{n.message}</p>
                             <p className="text-gray-700 text-[10px] mt-1">{new Date(n.createdAt).toLocaleDateString()}</p>
                           </div>
-                          {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0 mt-1.5" />}
+                          {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 flex-shrink-0 mt-1.5" />}
                         </div>
                       ))}
                     </div>
@@ -322,9 +322,9 @@ export default function Navbar({ onPremiumClick }) {
                 className="flex items-center gap-1.5"
               >
                 {user?.avatar ? (
-                  <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover border border-blue-500/40" />
+                  <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover border border-cyan-400/40" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-900 flex items-center justify-center text-white text-sm font-black border border-blue-500/40">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-900 flex items-center justify-center text-white text-sm font-black border border-cyan-400/40">
                     {user?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
                 )}
@@ -339,7 +339,7 @@ export default function Navbar({ onPremiumClick }) {
                   exit={{ opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.1 } }}
                   transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute right-0 top-full mt-2 w-52 rounded-2xl overflow-hidden shadow-card z-50"
-                  style={{ background: '#101020', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  style={{ background: '#111120', border: '1px solid rgba(255,255,255,0.08)' }}>
                   {/* Profile header */}
                   <motion.div
                     initial={{ opacity: 0, y: -4 }}
@@ -351,7 +351,7 @@ export default function Navbar({ onPremiumClick }) {
                       {user?.avatar ? (
                         <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-900 flex items-center justify-center text-white text-sm font-black">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-900 flex items-center justify-center text-white text-sm font-black">
                           {user?.username?.[0]?.toUpperCase()}
                         </div>
                       )}
@@ -374,7 +374,7 @@ export default function Navbar({ onPremiumClick }) {
                   {[
                     { to: `/profile/${user?.id || user?._id}`, icon: <User size={13} />, label: t('profile'), extra: null },
                     { to: '/friends', icon: <Users size={13} />, label: 'Friends', extra: pendingRequests > 0 ? (
-                      <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-blue-600 text-[9px] font-black flex items-center justify-center text-white">
+                      <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-cyan-500 text-[9px] font-black flex items-center justify-center text-white">
                         {pendingRequests > 9 ? '9+' : pendingRequests}
                       </span>
                     ) : null },
@@ -398,7 +398,7 @@ export default function Navbar({ onPremiumClick }) {
                   <div className="lg:hidden border-t border-white/5 px-4 py-2 flex gap-2">
                     <Link to="/wallet?tab=buy" onClick={() => setShowUserMenu(false)}
                       className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-extrabold text-white"
-                      style={{ background: 'linear-gradient(135deg,#1b62f5,#4b88f7)' }}>
+                      style={{ background: 'linear-gradient(135deg,#00D4FF,#00B8E0)' }}>
                       {t('buy_coins')}
                     </Link>
                     <Link to="/wallet?tab=cashout" onClick={() => setShowUserMenu(false)}
@@ -444,7 +444,7 @@ export default function Navbar({ onPremiumClick }) {
             </Link>
             <Link to="/auth?tab=signup"
               className="px-4 py-1.5 rounded-lg text-white text-sm font-black transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg,#2F6BFF,#4D8DFF)', boxShadow: '0 0 16px rgba(47,107,255,0.3)' }}>
+              style={{ background: 'linear-gradient(135deg,#00D4FF,#00B8E0)', boxShadow: '0 0 16px rgba(0,212,255,0.3)' }}>
               {t('signup')}
             </Link>
           </>

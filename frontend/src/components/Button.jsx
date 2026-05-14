@@ -6,9 +6,9 @@ const VARIANTS = {
     base: 'text-white font-extrabold',
     style: {
       background: 'linear-gradient(140deg, #2065f5 0%, #1454e0 55%, #0f44cc 100%)',
-      boxShadow: '0 0 0 1px rgba(75,136,247,0.2), 0 0 24px rgba(27,98,245,0.35)',
+      boxShadow: '0 0 0 1px rgba(0,184,224,0.2), 0 0 24px rgba(0,212,255,0.35)',
     },
-    hover: { boxShadow: '0 0 0 1px rgba(75,136,247,0.55), 0 0 36px rgba(27,98,245,0.6), 0 8px 28px rgba(14,68,204,0.4)' },
+    hover: { boxShadow: '0 0 0 1px rgba(0,184,224,0.55), 0 0 36px rgba(0,212,255,0.6), 0 8px 28px rgba(14,68,204,0.4)' },
   },
   purple: {
     base: 'text-white font-extrabold',

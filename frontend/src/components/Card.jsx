@@ -10,12 +10,12 @@ const VARIANTS = {
     boxShadow: '0 4px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
   solid: {
-    background: '#0d0d1b',
-    border: '1px solid #181828',
+    background: '#111120',
+    border: '1px solid #1e1e2e',
     boxShadow: '0 4px 24px rgba(0,0,0,0.45)',
   },
   elevated: {
-    background: '#101020',
+    background: '#111120',
     border: '1px solid rgba(255,255,255,0.08)',
     boxShadow: '0 8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)',
   },
@@ -24,7 +24,7 @@ const VARIANTS = {
     border: '1px solid rgba(255,255,255,0.06)',
   },
   glow: {
-    background: '#0d0d1b',
+    background: '#111120',
     border: '1px solid rgba(124,58,237,0.25)',
     boxShadow: '0 4px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.12)',
   },
