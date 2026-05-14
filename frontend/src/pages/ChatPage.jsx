@@ -62,6 +62,28 @@ function MobileFloatBtn({ onClick, children, active, red, amber, primary, disabl
   )
 }
 
+function GlassBtn({ onClick, children, active, red, disabled: dis, title: t }) {
+  return (
+    <motion.button
+      onClick={onClick}
+      disabled={dis}
+      title={t}
+      whileHover={!dis ? { scale: 1.08 } : {}}
+      whileTap={!dis ? { scale: 0.9 } : {}}
+      className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-30"
+      style={{
+        background: red && active ? 'rgba(220,38,38,0.85)' : red ? 'rgba(239,68,68,0.1)' : active ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.08)',
+        border: red && active ? '1px solid rgba(220,38,38,0.5)' : red ? '1px solid rgba(239,68,68,0.2)' : active ? '1px solid rgba(0,212,255,0.4)' : '1px solid rgba(255,255,255,0.15)',
+        color: red && active ? '#fff' : red ? '#f87171' : active ? '#00D4FF' : 'rgba(255,255,255,0.75)',
+        boxShadow: active && !red ? '0 0 14px rgba(0,212,255,0.25)' : 'none',
+        transition: 'background 140ms ease, border-color 140ms ease, box-shadow 140ms ease',
+      }}
+    >
+      {children}
+    </motion.button>
+  )
+}
+
 function AnimatedDots() {
   return (
     <span className="inline-flex items-end gap-[3px] ml-1 mb-[1px]">
@@ -1042,23 +1064,23 @@ export default function ChatPage() {
 
           {/* Fullscreen background: stranger video OR searching state */}
           {status === 'searching' ? (
-            <div className="absolute inset-0 bg-[#060d14] flex flex-col items-center justify-center gap-5 px-6">
-              <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 45%, rgba(0,212,255,0.07) 0%, transparent 65%)' }} />
-              {/* Globe with glow rings */}
-              <div className="relative flex items-center justify-center">
-                <motion.div className="absolute rounded-full" style={{ width: 280, height: 280, border: '1px solid rgba(0,212,255,0.3)', boxShadow: '0 0 50px rgba(0,212,255,0.15)' }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
-                <motion.div className="absolute rounded-full" style={{ width: 245, height: 245, border: '1px solid rgba(0,212,255,0.15)' }} animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
-                <VybeGlobe size={200} />
+            <div className="absolute inset-0 bg-[#060d14] flex flex-col items-center justify-center px-6" style={{ gap: 28 }}>
+              <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 42%, rgba(0,212,255,0.08) 0%, transparent 62%)' }} />
+              {/* Globe — fixed container so rings stay within bounds */}
+              <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 240, height: 240 }}>
+                <motion.div className="absolute rounded-full" style={{ width: 232, height: 232, border: '1.5px solid rgba(0,212,255,0.4)', boxShadow: '0 0 40px rgba(0,212,255,0.2)' }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
+                <motion.div className="absolute rounded-full" style={{ width: 210, height: 210, border: '1px solid rgba(0,212,255,0.18)' }} animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
+                <VybeGlobe size={180} />
               </div>
-              <div className="text-center relative z-10">
+              <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 8 }}>
                 <AnimatePresence mode="wait">
-                  <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-white font-bold text-lg mb-1" style={{ letterSpacing: '-0.01em' }}>
+                  <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="font-bold text-lg" style={{ color: '#00D4FF', letterSpacing: '-0.01em' }}>
                     {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
                     <AnimatedDots />
                   </motion.p>
                 </AnimatePresence>
                 {onlineCount > 0 && (
-                  <p className="text-sm flex items-center justify-center gap-1.5 mb-2.5" style={{ color: '#00D4FF' }}>
+                  <p className="text-sm flex items-center justify-center gap-1.5" style={{ color: '#00D4FF' }}>
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" />
                     {onlineCount.toLocaleString()} {onlineCount === 1 ? 'person' : 'people'} online now
                   </p>
@@ -1424,25 +1446,25 @@ export default function ChatPage() {
               {/* Stranger video */}
               <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] min-h-0 min-w-0" style={{ border: '1px solid rgba(0,212,255,0.18)', transition: 'box-shadow 0.5s ease', boxShadow: status === 'matched' ? '0 0 30px rgba(0,212,255,0.12), inset 0 0 30px rgba(0,212,255,0.04)' : '0 0 20px rgba(0,212,255,0.06)' }}>
                 {status === 'searching' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-5 px-4 relative overflow-hidden">
-                    <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 45%, rgba(0,212,255,0.06) 0%, transparent 65%)' }} />
-                    {/* Globe with glow rings */}
-                    <div className="relative flex items-center justify-center">
-                      <motion.div className="absolute rounded-full" style={{ width: 310, height: 310, border: '1px solid rgba(0,212,255,0.3)', boxShadow: '0 0 60px rgba(0,212,255,0.18)' }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
-                      <motion.div className="absolute rounded-full" style={{ width: 270, height: 270, border: '1px solid rgba(0,212,255,0.15)' }} animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
-                      <VybeGlobe size={230} />
+                  <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 28 }}>
+                    <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 42%, rgba(0,212,255,0.08) 0%, transparent 62%)' }} />
+                    {/* Globe — fixed-size container so rings don't overflow into text */}
+                    <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 280, height: 280 }}>
+                      <motion.div className="absolute rounded-full" style={{ width: 272, height: 272, border: '1.5px solid rgba(0,212,255,0.4)', boxShadow: '0 0 50px rgba(0,212,255,0.22), 0 0 90px rgba(0,212,255,0.08)' }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
+                      <motion.div className="absolute rounded-full" style={{ width: 248, height: 248, border: '1px solid rgba(0,212,255,0.2)' }} animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
+                      <VybeGlobe size={210} />
                     </div>
-                    <div className="text-center relative z-10">
+                    <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 8 }}>
                       <AnimatePresence mode="wait">
                         <motion.div key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }}>
-                          <p className="text-white font-bold text-xl mb-2" style={{ letterSpacing: '-0.01em' }}>
+                          <p className="font-bold text-xl" style={{ color: '#00D4FF', letterSpacing: '-0.01em' }}>
                             {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
                             <AnimatedDots />
                           </p>
                         </motion.div>
                       </AnimatePresence>
                       {onlineCount > 0 && (
-                        <p className="text-sm flex items-center justify-center gap-1.5 mb-3" style={{ color: '#00D4FF' }}>
+                        <p className="text-sm flex items-center justify-center gap-1.5" style={{ color: '#00D4FF' }}>
                           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" />
                           {onlineCount.toLocaleString()} {onlineCount === 1 ? 'person' : 'people'} online now
                         </p>
@@ -1601,11 +1623,11 @@ export default function ChatPage() {
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a14] gap-2">
-                    <div className="w-14 h-14 rounded-full bg-white/8 border border-white/10 flex items-center justify-center">
-                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#060d14] gap-3">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.25)' }}>
+                      <VideoOff size={24} style={{ color: 'rgba(0,212,255,0.5)' }} />
                     </div>
-                    <p className="text-white/25 text-[10px] font-semibold tracking-wider uppercase">No Camera</p>
+                    <p className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: 'rgba(0,212,255,0.4)' }}>No Camera</p>
                   </div>
                 )}
                 {videoOff && hasCamera && (
@@ -1650,112 +1672,97 @@ export default function ChatPage() {
                   </div>
                 ))}
 
-<div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
+                {/* YOUR PREVIEW label */}
+                <div className="absolute bottom-3 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
+                  <div className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF', backdropFilter: 'blur(8px)' }}>
+                    YOUR PREVIEW
+                  </div>
+                </div>
+                <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
               </div>
 
             </div>
 
-            {/* ── Desktop bottom control bar ── */}
-            <div className="flex-shrink-0 px-4 sm:px-6 py-3 relative z-40" style={{ background: 'rgba(8,8,18,0.98)', borderTop: '1px solid rgba(0,212,255,0.12)', boxShadow: '0 -8px 40px rgba(0,0,0,0.5)' }}>
-              <div className="flex items-center justify-between max-w-5xl mx-auto">
+            {/* ── Desktop bottom control bar — floating glass pill ── */}
+            <div className="flex-shrink-0 relative z-40 flex items-center justify-center flex-wrap gap-2" style={{ background: 'rgba(6,6,14,0.98)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 14, paddingBottom: 22, paddingLeft: 16, paddingRight: 16 }}>
+              {/* Main glass pill */}
+              <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24 }}>
 
-                {/* Left: secondary controls */}
-                <div className="flex items-center gap-1">
-                  <BarBtn onClick={toggleMute} label={isMuted ? 'Unmute' : 'Mute'} red={isMuted} active={isMuted}>
-                    {isMuted ? <MicOff size={17} /> : <Mic size={17} />}
-                  </BarBtn>
-                  {hasCamera ? (
-                    <BarBtn onClick={toggleVideo} label={videoOff ? 'Camera On' : 'Camera'} red={videoOff} active={videoOff}>
-                      {videoOff ? <VideoOff size={17} /> : <Video size={17} />}
-                    </BarBtn>
-                  ) : null}
-                  {hasCamera && !videoOff && (
-                    <BarBtn onClick={flipCamera} label="Flip">
-                      <Camera size={17} />
-                    </BarBtn>
-                  )}
-                  <button
-                    onClick={() => setStrangerHidden(h => !h)}
-                    className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl select-none"
-                    style={{ color: strangerHidden ? '#00B8E0' : 'rgba(255,255,255,0.55)', transition: 'color 150ms ease' }}
-                    title={strangerHidden ? 'Reveal camera (exit safe mode)' : 'Safe Mode — hide stranger\'s camera'}
-                  >
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                      style={{
-                        background:  strangerHidden ? 'rgba(0,212,255,0.18)' : 'rgba(255,255,255,0.06)',
-                        border:      strangerHidden ? '1px solid rgba(0,212,255,0.4)' : '1px solid transparent',
-                        boxShadow:   strangerHidden ? '0 0 14px rgba(0,212,255,0.25)' : 'none',
-                        transition:  'background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease',
-                      }}>
-                      <Shield size={17} />
-                    </div>
-                    <span className="text-[9px] font-medium tracking-wide whitespace-nowrap">
-                      {strangerHidden ? 'Reveal' : 'Safe'}
-                    </span>
-                  </button>
-                  {user && status === 'matched' && (
-                    <>
-                      <div className="w-px h-6 bg-white/10 mx-1" />
-                      <BarBtn onClick={() => setShowTip(true)} label="Tip">
-                        <VybeCoin size={17} />
-                      </BarBtn>
-                    </>
-                  )}
-                  {user && partnerUid && status === 'matched' && (
-                    <>
-                      <BarBtn onClick={handleAddFriend} disabled={friendReqLoad || friendReqSent} label={friendReqSent ? 'Requested' : 'Add Friend'} active={friendReqSent}>
-                        {friendReqSent ? <span className="text-sm">✓</span> : <UserPlus size={17} />}
-                      </BarBtn>
-                      <BarBtn onClick={handleBlock} disabled={blockLoading} label="Block" red>
+                {/* Mic */}
+                <GlassBtn onClick={toggleMute} red={isMuted} active={isMuted} title={isMuted ? 'Unmute' : 'Mute'}>
+                  {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+                </GlassBtn>
+
+                {/* Camera */}
+                {hasCamera && (
+                  <GlassBtn onClick={toggleVideo} red={videoOff} active={videoOff} title={videoOff ? 'Camera On' : 'Camera Off'}>
+                    {videoOff ? <VideoOff size={18} /> : <Video size={18} />}
+                  </GlassBtn>
+                )}
+
+                {/* Safe mode */}
+                <GlassBtn onClick={() => setStrangerHidden(h => !h)} active={strangerHidden} title={strangerHidden ? 'Reveal camera' : 'Safe Mode'}>
+                  <Shield size={18} />
+                </GlassBtn>
+
+                <div className="w-px h-7 mx-0.5 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
+
+                {/* SKIP — prominent cyan pill */}
+                {status === 'matched' && (
+                  <motion.button onClick={handleSkip} whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm flex-shrink-0"
+                    style={{ background: 'rgba(0,212,255,0.18)', border: '1px solid rgba(0,212,255,0.45)', color: '#00D4FF', boxShadow: '0 0 18px rgba(0,212,255,0.22)', transition: 'box-shadow 150ms ease' }}>
+                    <SkipForward size={16} /> Next
+                  </motion.button>
+                )}
+
+                {/* End / Leave — red pill */}
+                <motion.button onClick={handleEnd} whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm text-white flex-shrink-0"
+                  style={{ background: status === 'matched' ? 'rgba(220,38,38,0.85)' : 'rgba(220,38,38,0.18)', border: '1px solid rgba(220,38,38,0.45)', boxShadow: status === 'matched' ? '0 0 20px rgba(220,38,38,0.4)' : 'none', transition: 'all 150ms ease' }}>
+                  <PhoneOff size={16} /> {status === 'matched' ? 'End' : 'Leave'}
+                </motion.button>
+
+                <div className="w-px h-7 mx-0.5 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
+
+                {/* Chat */}
+                <GlassBtn onClick={toggleChat} active={showChat} title="Chat">
+                  <span className="relative">
+                    <MessageSquare size={18} />
+                    {unread > 0 && !showChat && <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-red-500 rounded-full text-[7px] font-black flex items-center justify-center">{unread > 9 ? '9+' : unread}</span>}
+                  </span>
+                </GlassBtn>
+
+                {/* Report */}
+                {reportSent ? (
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)' }}>
+                    <span className="text-cyan-400 text-xs font-bold">✓</span>
+                  </div>
+                ) : (
+                  <GlassBtn onClick={() => status === 'matched' && setShowReport(true)} disabled={status !== 'matched'} red title="Report">
+                    <Flag size={18} />
+                  </GlassBtn>
+                )}
+
+                {/* Tip + Friend + Block when matched */}
+                {user && status === 'matched' && (
+                  <>
+                    <div className="w-px h-7 mx-0.5 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                    <GlassBtn onClick={() => setShowTip(true)} title="Send Tip">
+                      <VybeCoin size={17} />
+                    </GlassBtn>
+                    {partnerUid && (
+                      <GlassBtn onClick={handleAddFriend} disabled={friendReqLoad || friendReqSent} active={friendReqSent} title={friendReqSent ? 'Request sent' : 'Add Friend'}>
+                        {friendReqSent ? <span className="text-xs font-bold">✓</span> : <UserPlus size={17} />}
+                      </GlassBtn>
+                    )}
+                    {partnerUid && (
+                      <GlassBtn onClick={handleBlock} disabled={blockLoading} red title="Block">
                         <UserX size={17} />
-                      </BarBtn>
-                    </>
-                  )}
-                </div>
-
-                {/* Center: primary actions */}
-                <div className="flex items-center gap-3">
-                  {status === 'matched' ? (
-                    <>
-                      <motion.button onClick={handleSkip} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm text-white/80"
-                        style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', transition: 'background 150ms ease' }}>
-                        <SkipForward size={16} /> Next
-                      </motion.button>
-                      <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-full text-white font-bold text-sm"
-                        style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 0 24px rgba(220,38,38,0.4), 0 4px 12px rgba(0,0,0,0.4)' }}>
-                        <PhoneOff size={16} /> End Chat
-                      </motion.button>
-                    </>
-                  ) : (
-                    <motion.button onClick={handleEnd} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                      className="flex items-center gap-2 px-8 py-2.5 rounded-full font-bold text-sm"
-                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
-                      <PhoneOff size={16} /> Cancel &amp; Leave
-                    </motion.button>
-                  )}
-                </div>
-
-                {/* Right: chat + report */}
-                <div className="flex items-center gap-1">
-                  <BarBtn onClick={toggleChat} label="Chat" active={showChat}>
-                    <span className="relative">
-                      <MessageSquare size={17} />
-                      {unread > 0 && !showChat && <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full text-[8px] font-black flex items-center justify-center">{unread > 9 ? '9+' : unread}</span>}
-                    </span>
-                  </BarBtn>
-                  {reportSent ? (
-                    <div className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl text-cyan-400">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-cyan-500/15"><span className="text-sm">✓</span></div>
-                      <span className="text-[9px] font-medium">Reported</span>
-                    </div>
-                  ) : (
-                    <BarBtn onClick={() => status === 'matched' && setShowReport(true)} label="Report" red disabled={status !== 'matched'}>
-                      <Flag size={17} />
-                    </BarBtn>
-                  )}
-                </div>
+                      </GlassBtn>
+                    )}
+                  </>
+                )}
 
               </div>
             </div>
