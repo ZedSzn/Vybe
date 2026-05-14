@@ -136,10 +136,8 @@ export default function Navbar({ onPremiumClick }) {
     <nav
       className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-4 sm:px-6 font-space"
       style={{
-        background: 'rgba(8, 8, 22, 0.97)',
-        backdropFilter: 'blur(36px) saturate(1.8)',
-        borderBottom: '1px solid rgba(255,255,255,0.12)',
-        boxShadow: '0 1px 32px rgba(0,0,0,0.6)',
+        background: '#0a0a0f',
+        backdropFilter: 'none',
       }}
     >
       {/* Logo */}
