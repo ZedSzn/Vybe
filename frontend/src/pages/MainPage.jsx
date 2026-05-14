@@ -963,23 +963,23 @@ export default function MainPage() {
               <div className="flex items-stretch">
 
                 {/* Gender */}
-                <div className="flex flex-col gap-1.5 px-3.5 py-3 flex-shrink-0">
+                <div className="flex flex-col gap-2 px-4 py-3.5 flex-shrink-0">
                   <span className="text-[8.5px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(96,165,250,0.4)' }}>Gender</span>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1.5">
                     {[['Both','both'],['Male','male'],['Female','female']].map(([label, val]) => (
                       <motion.button key={val}
                         onClick={() => handleGender(val)}
-                        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                        className="px-2.5 py-1 rounded-[7px] text-[11px] font-medium transition-all"
+                        whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.94 }}
+                        className="px-3.5 py-1.5 rounded-[9px] text-[12px] font-medium transition-all"
                         style={filterGender === val ? {
-                          background: 'rgba(37,99,235,0.3)',
-                          border: '1px solid rgba(59,130,246,0.5)',
+                          background: 'rgba(37,99,235,0.28)',
+                          border: '1px solid rgba(59,130,246,0.48)',
                           color: '#93c5fd',
-                          boxShadow: '0 0 10px rgba(37,99,235,0.2)',
+                          boxShadow: '0 0 12px rgba(37,99,235,0.2), inset 0 1px 0 rgba(255,255,255,0.08)',
                         } : {
                           background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.07)',
-                          color: 'rgba(148,163,184,0.45)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: 'rgba(148,163,184,0.5)',
                         }}>
                         {label}
                       </motion.button>
@@ -990,23 +990,23 @@ export default function MainPage() {
                 <div style={{ width: '1px', alignSelf: 'stretch', margin: '10px 0', background: 'rgba(37,99,235,0.15)', flexShrink: 0 }} />
 
                 {/* Mode */}
-                <div className="flex flex-col gap-1.5 px-3.5 py-3 flex-shrink-0">
+                <div className="flex flex-col gap-2 px-4 py-3.5 flex-shrink-0">
                   <span className="text-[8.5px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(96,165,250,0.4)' }}>Mode</span>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1.5">
                     {[['Solo','solo'],['Duo','squad'],['Private','private']].map(([label, val]) => (
                       <motion.button key={val}
                         onClick={() => setMode(val)}
-                        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                        className="px-2.5 py-1 rounded-[7px] text-[11px] font-medium transition-all"
+                        whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.94 }}
+                        className="px-3.5 py-1.5 rounded-[9px] text-[12px] font-medium transition-all"
                         style={mode === val ? {
-                          background: 'rgba(37,99,235,0.3)',
-                          border: '1px solid rgba(59,130,246,0.5)',
+                          background: 'rgba(37,99,235,0.28)',
+                          border: '1px solid rgba(59,130,246,0.48)',
                           color: '#93c5fd',
-                          boxShadow: '0 0 10px rgba(37,99,235,0.2)',
+                          boxShadow: '0 0 12px rgba(37,99,235,0.2), inset 0 1px 0 rgba(255,255,255,0.08)',
                         } : {
                           background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.07)',
-                          color: 'rgba(148,163,184,0.45)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: 'rgba(148,163,184,0.5)',
                         }}>
                         {label}
                       </motion.button>
@@ -1065,7 +1065,8 @@ export default function MainPage() {
                       <>
                         {squadError && <p className="text-red-400 text-[9px] text-center">{squadError}</p>}
                         <button onClick={createSquad} disabled={squadLoading || !isConnected}
-                          className="w-full py-2 rounded-lg btn-purple text-white font-bold text-[10px] flex items-center justify-center gap-1 disabled:opacity-60">
+                          className="w-full py-2 rounded-lg text-white font-bold text-[10px] flex items-center justify-center gap-1 disabled:opacity-60"
+                          style={{ background: 'linear-gradient(140deg, #1e3a8a 0%, #2563eb 60%, #0891b2 100%)' }}>
                           {squadLoading ? <><Loader2 size={9} className="animate-spin" /> Creating…</> : <><UserPlus size={9} /> Create Duo Room</>}
                         </button>
                       </>
@@ -1074,7 +1075,7 @@ export default function MainPage() {
                         <div className="flex gap-1.5">
                           {squad.members.map((m) => (
                             <div key={m.socketId} className="flex-1 flex flex-col items-center gap-0.5 p-1.5 rounded-lg relative group" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                              <div className="w-6 h-6 rounded-full bg-purple-900/40 flex items-center justify-center text-purple-300 font-black text-[8px]">{m.username?.[0]?.toUpperCase() || '?'}</div>
+                              <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-[8px]" style={{ background: 'rgba(37,99,235,0.3)', color: '#93c5fd' }}>{m.username?.[0]?.toUpperCase() || '?'}</div>
                               <span className="text-[7.5px] text-white font-semibold truncate w-full text-center">{m.username || 'User'}</span>
                               {m.socketId === squad.leaderId && <Crown size={6} className="text-yellow-400" />}
                               {squad.leaderId === socket?.id && m.socketId !== socket?.id && (
@@ -1118,7 +1119,8 @@ export default function MainPage() {
                       <>
                         {privateError && <p className="text-red-400 text-[9px] text-center">{privateError}</p>}
                         <button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
-                          className="w-full py-2 rounded-lg btn-purple text-white font-bold text-[10px] flex items-center justify-center gap-1 disabled:opacity-60">
+                          className="w-full py-2 rounded-lg text-white font-bold text-[10px] flex items-center justify-center gap-1 disabled:opacity-60"
+                          style={{ background: 'linear-gradient(140deg, #1e3a8a 0%, #2563eb 60%, #0891b2 100%)' }}>
                           {privateLoading ? <><Loader2 size={9} className="animate-spin" /> Creating…</> : <><Lock size={9} /> Create Private Room</>}
                         </button>
                       </>
@@ -1159,37 +1161,64 @@ export default function MainPage() {
                 className={`w-full h-full object-cover absolute inset-0 ${cameraOn && !cameraErr ? 'block' : 'hidden'}`}
                 style={{ objectPosition: 'center top' }} />
 
-              {/* Idle / error state */}
+              {/* Idle / error state — cinematic ambient */}
               {(!cameraOn || cameraErr) && (
-                <div className="absolute inset-0 flex items-center justify-center"
-                  style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(37,99,235,0.14) 0%, rgba(7,11,18,0.96) 52%, #070b12 100%)' }}>
-                  {/* Soft blue ambient glow */}
-                  <div className="absolute pointer-events-none rounded-full"
-                    style={{ width: 200, height: 200, background: 'radial-gradient(ellipse, rgba(37,99,235,0.07) 0%, transparent 70%)', filter: 'blur(28px)' }} />
-                  <div className="relative z-10 flex flex-col items-center text-center px-12">
-                    <div className="relative w-[60px] h-[60px] rounded-2xl flex items-center justify-center mb-4"
-                      style={{
-                        background: 'rgba(37,99,235,0.1)',
-                        border: '1px solid rgba(37,99,235,0.22)',
-                        boxShadow: '0 0 20px rgba(37,99,235,0.1)',
-                      }}>
-                      <span className="absolute inset-x-0 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(96,165,250,0.3), transparent)' }} />
-                      {cameraErr ? <VideoOff size={24} style={{ color: 'rgba(148,163,184,0.7)' }} /> : <Camera size={24} style={{ color: 'rgba(96,165,250,0.7)' }} />}
+                <div className="absolute inset-0">
+                  {/* Blurred ambient background — someone is live feel */}
+                  <img
+                    src="https://i.pravatar.cc/600?img=47"
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ filter: 'blur(36px) saturate(1.3)', transform: 'scale(1.1)', opacity: 0.22 }}
+                  />
+                  {/* Deep dark base */}
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(7,11,18,0.7) 0%, rgba(7,11,18,0.86) 100%)' }} />
+                  {/* Blue cinematic glow */}
+                  <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 48% 32%, rgba(37,99,235,0.24) 0%, rgba(14,165,233,0.07) 45%, transparent 68%)' }} />
+                  <div className="absolute" style={{ bottom: '18%', left: '50%', transform: 'translateX(-50%)', width: 260, height: 100, background: 'radial-gradient(ellipse, rgba(37,99,235,0.14) 0%, transparent 70%)', filter: 'blur(36px)' }} />
+
+                  {/* Live indicator — top right */}
+                  {!cameraErr && (
+                    <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full z-20"
+                      style={{ background: 'rgba(7,11,18,0.75)', border: '1px solid rgba(37,99,235,0.25)', backdropFilter: 'blur(16px)' }}>
+                      <motion.span className="w-1.5 h-1.5 rounded-full bg-emerald-400"
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }} />
+                      <span className="text-[9px] font-black tracking-[0.18em] uppercase" style={{ color: '#7dd3fc' }}>Live</span>
                     </div>
-                    <p className="font-semibold text-[13px] mb-1.5 tracking-[-0.01em]" style={{ color: 'rgba(255,255,255,0.8)' }}>{cameraErr ? 'Camera Blocked' : 'Your preview'}</p>
-                    <p className="text-[11px] mb-5 leading-relaxed" style={{ color: 'rgba(148,163,184,0.35)', maxWidth: '175px' }}>
-                      {cameraErr ? (cameraErrMsg || 'Allow camera access in browser settings.') : 'Only visible to you — ready when you are'}
+                  )}
+
+                  {/* Center content */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                    {/* Blurred avatar silhouette */}
+                    <div className="relative mb-5">
+                      <div className="w-[68px] h-[68px] rounded-full overflow-hidden"
+                        style={{ boxShadow: '0 0 0 2px rgba(37,99,235,0.3), 0 0 36px rgba(37,99,235,0.22)' }}>
+                        <img src="https://i.pravatar.cc/128?img=47" alt="" className="w-full h-full object-cover"
+                          style={{ filter: 'blur(5px) brightness(0.55)' }} />
+                      </div>
+                      <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.28) 0%, transparent 70%)' }} />
+                    </div>
+
+                    <p className="font-semibold text-[13.5px] mb-1.5 tracking-[-0.01em]"
+                      style={{ color: 'rgba(255,255,255,0.82)', textShadow: '0 0 24px rgba(37,99,235,0.5)' }}>
+                      {cameraErr ? 'Camera access needed' : 'Enable your camera'}
                     </p>
+                    <p className="text-[11px] mb-5 leading-relaxed text-center"
+                      style={{ color: 'rgba(148,163,184,0.42)', maxWidth: '170px' }}>
+                      {cameraErr ? (cameraErrMsg || 'Allow camera in browser settings') : 'Only you can see your preview'}
+                    </p>
+
                     <motion.button onClick={enableCamera}
-                      whileHover={{ scale: 1.04, boxShadow: '0 0 18px rgba(37,99,235,0.22)' }}
+                      whileHover={{ scale: 1.04, boxShadow: '0 0 24px rgba(37,99,235,0.3)' }}
                       whileTap={{ scale: 0.96 }}
-                      className="flex items-center gap-2 px-6 py-2 rounded-[10px] text-[12.5px] font-medium"
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-[10px] text-[12.5px] font-semibold"
                       style={{
-                        background: 'rgba(37,99,235,0.1)',
-                        border: '1px solid rgba(37,99,235,0.25)',
-                        backdropFilter: 'blur(16px)',
+                        background: 'rgba(37,99,235,0.14)',
+                        border: '1px solid rgba(37,99,235,0.32)',
+                        backdropFilter: 'blur(20px)',
                         color: '#93c5fd',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
                       }}>
                       {cameraErr ? <VideoOff size={13} /> : <Camera size={13} />}
                       {cameraErr ? 'Try Again' : 'Enable Camera'}
@@ -1232,19 +1261,19 @@ export default function MainPage() {
           viewport={{ once: true }}
           transition={{ duration: 0.55 }}
         >
-          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#a78bfa' }}>Simple by design</p>
+          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#60a5fa' }}>Simple by design</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             Up and chatting in{' '}
-            <span style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 55%, #38bdf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               30 seconds
             </span>
           </h2>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {[
-            { num: '01', title: 'Open Your Camera', desc: 'Allow camera access when prompted. Takes two seconds. You can also start without a camera if you prefer.', icon: Camera, color: '#7c3aed' },
-            { num: '02', title: 'Set Your Preferences', desc: 'Choose who to match with — anyone, a specific gender, or people from your country. Free and paid options available.', icon: Globe, color: '#a855f7' },
-            { num: '03', title: 'Meet Someone Now', desc: "You're matched in under 2 seconds. Don't vibe with who you got? Hit Skip and find someone new instantly.", icon: Video, color: '#ec4899' },
+            { num: '01', title: 'Open Your Camera', desc: 'Allow camera access when prompted. Takes two seconds. You can also start without a camera if you prefer.', icon: Camera, color: '#2563eb' },
+            { num: '02', title: 'Set Your Preferences', desc: 'Choose who to match with — anyone, a specific gender, or people from your country. Free and paid options available.', icon: Globe, color: '#0ea5e9' },
+            { num: '03', title: 'Meet Someone Now', desc: "You're matched in under 2 seconds. Don't vibe with who you got? Hit Skip and find someone new instantly.", icon: Video, color: '#38bdf8' },
           ].map(({ num, title, desc, icon: Icon, color }, i) => (
             <motion.div
               key={num}
@@ -1273,7 +1302,7 @@ export default function MainPage() {
 
       {/* ══════════════ MEMBERSHIP VALUE ══════════════ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
-        <div className="rounded-3xl overflow-hidden p-8 lg:p-12" style={{ background: 'linear-gradient(160deg, rgba(124,58,237,0.08) 0%, rgba(10,10,20,0) 100%)', border: '1px solid rgba(124,58,237,0.15)' }}>
+        <div className="rounded-3xl overflow-hidden p-8 lg:p-12" style={{ background: 'linear-gradient(160deg, rgba(37,99,235,0.08) 0%, rgba(10,10,20,0) 100%)', border: '1px solid rgba(37,99,235,0.15)' }}>
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -1281,20 +1310,23 @@ export default function MainPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
             >
-              <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#a78bfa' }}>Membership</p>
+              <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#60a5fa' }}>Membership</p>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                 Match smarter with{' '}
-                <span style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
+                <span style={{ background: 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
               </h2>
               <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
                 Free gets you started. Membership gets you exactly who you want to meet — filter by gender, country, and more.
               </p>
               <motion.button
                 onClick={() => navigate('/subscription')}
-                whileHover={{ scale: 1.03 }}
+                whileHover={{ scale: 1.03, boxShadow: '0 0 28px rgba(37,99,235,0.38)' }}
                 whileTap={{ scale: 0.97 }}
-                className="btn-purple px-6 py-3 rounded-xl text-white font-bold text-sm"
-                style={{ boxShadow: '0 0 20px rgba(124,58,237,0.28)' }}
+                className="px-6 py-3 rounded-xl text-white font-bold text-sm"
+                style={{
+                  background: 'linear-gradient(140deg, #1e3a8a 0%, #2563eb 55%, #0891b2 100%)',
+                  boxShadow: '0 0 20px rgba(37,99,235,0.28), 0 4px 16px rgba(0,0,0,0.3)',
+                }}
               >
                 View Membership Plans
               </motion.button>
@@ -1334,7 +1366,7 @@ export default function MainPage() {
 
       {/* ══════════════ CREATOR MONETIZATION ══════════════ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
-        <div className="rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(124,58,237,0.06) 100%)', border: '1px solid rgba(245,158,11,0.14)' }}>
+        <div className="rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(37,99,235,0.06) 100%)', border: '1px solid rgba(245,158,11,0.14)' }}>
           <div className="p-8 lg:p-12">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <motion.div
@@ -1349,7 +1381,7 @@ export default function MainPage() {
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                   Go live. Get paid.{' '}
-                  <span style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
+                  <span style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
                 </h2>
                 <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
                   Turn your conversations into income. Viewers send gifts, you earn real money — no middlemen taking the bulk of your earnings.
@@ -1373,9 +1405,9 @@ export default function MainPage() {
               >
                 {[
                   { label: '70%', sub: 'Creator cut', color: '#f59e0b' },
-                  { label: 'Live', sub: 'Real-time gifts', color: '#a855f7' },
+                  { label: 'Live', sub: 'Real-time gifts', color: '#60a5fa' },
                   { label: '150+', sub: 'Countries', color: '#10b981' },
-                  { label: 'Free', sub: 'To start', color: '#3b82f6' },
+                  { label: 'Free', sub: 'To start', color: '#38bdf8' },
                 ].map(({ label, sub, color }) => (
                   <div key={label} className="p-4 rounded-2xl text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                     <p className="text-2xl font-black mb-1" style={{ color }}>{label}</p>
@@ -1405,10 +1437,10 @@ export default function MainPage() {
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: Shield, title: '100% Anonymous', desc: 'No account needed. No data stored. Your sessions vanish the moment you leave.', color: '#7c3aed' },
+            { icon: Shield, title: '100% Anonymous', desc: 'No account needed. No data stored. Your sessions vanish the moment you leave.', color: '#2563eb' },
             { icon: Globe, title: 'Human Moderation', desc: 'Our moderation team reviews every report. Violations are acted on, not ignored.', color: '#3b82f6' },
             { icon: Video, title: 'One-Tap Report', desc: 'Tap the flag icon during any chat to report instantly and anonymously.', color: '#10b981' },
-            { icon: Lock, title: 'Instant Bans', desc: 'Verified rule-breakers are suspended immediately — no second chances for serious violations.', color: '#ec4899' },
+            { icon: Lock, title: 'Instant Bans', desc: 'Verified rule-breakers are suspended immediately — no second chances for serious violations.', color: '#0ea5e9' },
           ].map(({ icon: Icon, title, desc, color }, i) => (
             <motion.div
               key={title}
