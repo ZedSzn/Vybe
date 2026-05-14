@@ -815,7 +815,7 @@ export default function ChatPage() {
         )}
         <p className="text-vybe-muted text-xs max-w-sm mb-6">
           Questions? Contact us at{' '}
-          <span className="text-vybe-purple-light">support@vybelivechat.com</span>
+          <span className="text-vybe-blue-light">support@vybelivechat.com</span>
         </p>
 
         {!isPermanent && user && (
