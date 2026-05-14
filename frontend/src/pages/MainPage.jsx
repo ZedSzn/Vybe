@@ -29,33 +29,33 @@ import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
 
 const COUNTRIES = [
-  'ðŸ‡¦ðŸ‡« Afghanistan', 'ðŸ‡¦ðŸ‡± Albania', 'ðŸ‡©ðŸ‡¿ Algeria', 'ðŸ‡¦ðŸ‡´ Angola', 'ðŸ‡¦ðŸ‡· Argentina',
-  'ðŸ‡¦ðŸ‡² Armenia', 'ðŸ‡¦ðŸ‡º Australia', 'ðŸ‡¦ðŸ‡¹ Austria', 'ðŸ‡¦ðŸ‡¿ Azerbaijan', 'ðŸ‡§ðŸ‡­ Bahrain',
-  'ðŸ‡§ðŸ‡© Bangladesh', 'ðŸ‡§ðŸ‡ª Belgium', 'ðŸ‡§ðŸ‡´ Bolivia', 'ðŸ‡§ðŸ‡¦ Bosnia & Herzegovina',
-  'ðŸ‡§ðŸ‡· Brazil', 'ðŸ‡§ðŸ‡¬ Bulgaria', 'ðŸ‡°ðŸ‡­ Cambodia', 'ðŸ‡¨ðŸ‡² Cameroon', 'ðŸ‡¨ðŸ‡¦ Canada',
-  'ðŸ‡¨ðŸ‡± Chile', 'ðŸ‡¨ðŸ‡³ China', 'ðŸ‡¨ðŸ‡´ Colombia', 'ðŸ‡¨ðŸ‡¬ Congo', 'ðŸ‡¨ðŸ‡· Costa Rica',
-  'ðŸ‡­ðŸ‡· Croatia', 'ðŸ‡¨ðŸ‡º Cuba', 'ðŸ‡¨ðŸ‡¿ Czech Republic', 'ðŸ‡©ðŸ‡° Denmark', 'ðŸ‡©ðŸ‡´ Dominican Republic',
-  'ðŸ‡ªðŸ‡¨ Ecuador', 'ðŸ‡ªðŸ‡¬ Egypt', 'ðŸ‡¸ðŸ‡» El Salvador', 'ðŸ‡ªðŸ‡¹ Ethiopia', 'ðŸ‡«ðŸ‡® Finland',
-  'ðŸ‡«ðŸ‡· France', 'ðŸ‡¬ðŸ‡ª Georgia', 'ðŸ‡©ðŸ‡ª Germany', 'ðŸ‡¬ðŸ‡­ Ghana', 'ðŸ‡¬ðŸ‡· Greece',
-  'ðŸ‡¬ðŸ‡¹ Guatemala', 'ðŸ‡¬ðŸ‡³ Guinea', 'ðŸ‡­ðŸ‡¹ Haiti', 'ðŸ‡­ðŸ‡³ Honduras', 'ðŸ‡­ðŸ‡° Hong Kong',
-  'ðŸ‡­ðŸ‡º Hungary', 'ðŸ‡®ðŸ‡¸ Iceland', 'ðŸ‡®ðŸ‡³ India', 'ðŸ‡®ðŸ‡© Indonesia', 'ðŸ‡®ðŸ‡· Iran',
-  'ðŸ‡®ðŸ‡¶ Iraq', 'ðŸ‡®ðŸ‡ª Ireland', 'ðŸ‡®ðŸ‡± Israel', 'ðŸ‡®ðŸ‡¹ Italy', 'ðŸ‡¯ðŸ‡² Jamaica',
-  'ðŸ‡¯ðŸ‡µ Japan', 'ðŸ‡¯ðŸ‡´ Jordan', 'ðŸ‡°ðŸ‡¿ Kazakhstan', 'ðŸ‡°ðŸ‡ª Kenya', 'ðŸ‡°ðŸ‡¼ Kuwait',
-  'ðŸ‡°ðŸ‡¬ Kyrgyzstan', 'ðŸ‡±ðŸ‡¦ Laos', 'ðŸ‡±ðŸ‡§ Lebanon', 'ðŸ‡±ðŸ‡¾ Libya', 'ðŸ‡±ðŸ‡¹ Lithuania',
-  'ðŸ‡²ðŸ‡¾ Malaysia', 'ðŸ‡²ðŸ‡± Mali', 'ðŸ‡²ðŸ‡½ Mexico', 'ðŸ‡²ðŸ‡© Moldova', 'ðŸ‡²ðŸ‡³ Mongolia',
-  'ðŸ‡²ðŸ‡¦ Morocco', 'ðŸ‡²ðŸ‡¿ Mozambique', 'ðŸ‡²ðŸ‡² Myanmar', 'ðŸ‡³ðŸ‡µ Nepal', 'ðŸ‡³ðŸ‡± Netherlands',
-  'ðŸ‡³ðŸ‡¿ New Zealand', 'ðŸ‡³ðŸ‡¬ Nigeria', 'ðŸ‡²ðŸ‡° North Macedonia', 'ðŸ‡³ðŸ‡´ Norway',
-  'ðŸ‡´ðŸ‡² Oman', 'ðŸ‡µðŸ‡° Pakistan', 'ðŸ‡µðŸ‡¦ Panama', 'ðŸ‡µðŸ‡¬ Papua New Guinea', 'ðŸ‡µðŸ‡¾ Paraguay',
-  'ðŸ‡µðŸ‡ª Peru', 'ðŸ‡µðŸ‡­ Philippines', 'ðŸ‡µðŸ‡± Poland', 'ðŸ‡µðŸ‡¹ Portugal', 'ðŸ‡µðŸ‡· Puerto Rico',
-  'ðŸ‡¶ðŸ‡¦ Qatar', 'ðŸ‡·ðŸ‡´ Romania', 'ðŸ‡·ðŸ‡º Russia', 'ðŸ‡·ðŸ‡¼ Rwanda', 'ðŸ‡¸ðŸ‡¦ Saudi Arabia',
-  'ðŸ‡¸ðŸ‡³ Senegal', 'ðŸ‡·ðŸ‡¸ Serbia', 'ðŸ‡¸ðŸ‡± Sierra Leone', 'ðŸ‡¸ðŸ‡¬ Singapore', 'ðŸ‡¸ðŸ‡° Slovakia',
-  'ðŸ‡¸ðŸ‡´ Somalia', 'ðŸ‡¿ðŸ‡¦ South Africa', 'ðŸ‡°ðŸ‡· South Korea', 'ðŸ‡¸ðŸ‡¸ South Sudan',
-  'ðŸ‡ªðŸ‡¸ Spain', 'ðŸ‡±ðŸ‡° Sri Lanka', 'ðŸ‡¸ðŸ‡© Sudan', 'ðŸ‡¸ðŸ‡ª Sweden', 'ðŸ‡¨ðŸ‡­ Switzerland',
-  'ðŸ‡¸ðŸ‡¾ Syria', 'ðŸ‡¹ðŸ‡¼ Taiwan', 'ðŸ‡¹ðŸ‡¯ Tajikistan', 'ðŸ‡¹ðŸ‡¿ Tanzania', 'ðŸ‡¹ðŸ‡­ Thailand',
-  'ðŸ‡¹ðŸ‡³ Tunisia', 'ðŸ‡¹ðŸ‡· Turkey', 'ðŸ‡¹ðŸ‡² Turkmenistan', 'ðŸ‡ºðŸ‡¬ Uganda', 'ðŸ‡ºðŸ‡¦ Ukraine',
-  'ðŸ‡¦ðŸ‡ª United Arab Emirates', 'ðŸ‡¬ðŸ‡§ United Kingdom', 'ðŸ‡ºðŸ‡¸ United States',
-  'ðŸ‡ºðŸ‡¾ Uruguay', 'ðŸ‡ºðŸ‡¿ Uzbekistan', 'ðŸ‡»ðŸ‡ª Venezuela', 'ðŸ‡»ðŸ‡³ Vietnam',
-  'ðŸ‡¾ðŸ‡ª Yemen', 'ðŸ‡¿ðŸ‡² Zambia', 'ðŸ‡¿ðŸ‡¼ Zimbabwe',
+  'Afghanistan', 'Albania', 'Algeria', 'Angola', 'Argentina',
+  'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahrain',
+  'Bangladesh', 'Belgium', 'Bolivia', 'Bosnia & Herzegovina',
+  'Brazil', 'Bulgaria', 'Cambodia', 'Cameroon', 'Canada',
+  'Chile', 'China', 'Colombia', 'Congo', 'Costa Rica',
+  'Croatia', 'Cuba', 'Czech Republic', 'Denmark', 'Dominican Republic',
+  'Ecuador', 'Egypt', 'El Salvador', 'Ethiopia', 'Finland',
+  'France', 'Georgia', 'Germany', 'Ghana', 'Greece',
+  'Guatemala', 'Guinea', 'Haiti', 'Honduras', 'Hong Kong',
+  'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran',
+  'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica',
+  'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kuwait',
+  'Kyrgyzstan', 'Laos', 'Lebanon', 'Libya', 'Lithuania',
+  'Malaysia', 'Mali', 'Mexico', 'Moldova', 'Mongolia',
+  'Morocco', 'Mozambique', 'Myanmar', 'Nepal', 'Netherlands',
+  'New Zealand', 'Nigeria', 'North Macedonia', 'Norway',
+  'Oman', 'Pakistan', 'Panama', 'Papua New Guinea', 'Paraguay',
+  'Peru', 'Philippines', 'Poland', 'Portugal', 'Puerto Rico',
+  'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saudi Arabia',
+  'Senegal', 'Serbia', 'Sierra Leone', 'Singapore', 'Slovakia',
+  'Somalia', 'South Africa', 'South Korea', 'South Sudan',
+  'Spain', 'Sri Lanka', 'Sudan', 'Sweden', 'Switzerland',
+  'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand',
+  'Tunisia', 'Turkey', 'Turkmenistan', 'Uganda', 'Ukraine',
+  'United Arab Emirates', 'United Kingdom', 'United States',
+  'Uruguay', 'Uzbekistan', 'Venezuela', 'Vietnam',
+  'Yemen', 'Zambia', 'Zimbabwe',
 ]
 
 const FAQ_ITEMS = [
@@ -103,12 +103,12 @@ function fmtTime(seconds) {
 const AVATARS = [11, 26, 44, 7, 65, 15, 37]
 
 const GRID_USERS = [
-  { name: 'Grace',   age: 30, flag: 'ðŸ‡ºðŸ‡¸', photo: 'https://randomuser.me/api/portraits/women/33.jpg' },
-  { name: 'Sofia',   age: 28, flag: 'ðŸ‡§ðŸ‡·', photo: 'https://randomuser.me/api/portraits/women/44.jpg' },
-  { name: 'Olivia',  age: 23, flag: 'ðŸ‡¦ðŸ‡º', photo: 'https://randomuser.me/api/portraits/women/55.jpg' },
-  { name: 'Emma',    age: 25, flag: 'ðŸ‡¬ðŸ‡§', photo: 'https://randomuser.me/api/portraits/women/22.jpg' },
-  { name: 'Mia',     age: 27, flag: 'ðŸ‡©ðŸ‡ª', photo: 'https://randomuser.me/api/portraits/women/11.jpg' },
-  { name: 'Luna',    age: 24, flag: 'ðŸ‡«ðŸ‡·', photo: 'https://randomuser.me/api/portraits/women/66.jpg' },
+  { name: 'Grace',   age: 30, flag: 'US', photo: 'https://randomuser.me/api/portraits/women/33.jpg' },
+  { name: 'Sofia',   age: 28, flag: 'BR', photo: 'https://randomuser.me/api/portraits/women/44.jpg' },
+  { name: 'Olivia',  age: 23, flag: 'AU', photo: 'https://randomuser.me/api/portraits/women/55.jpg' },
+  { name: 'Emma',    age: 25, flag: 'GB', photo: 'https://randomuser.me/api/portraits/women/22.jpg' },
+  { name: 'Mia',     age: 27, flag: 'DE', photo: 'https://randomuser.me/api/portraits/women/11.jpg' },
+  { name: 'Luna',    age: 24, flag: 'FR', photo: 'https://randomuser.me/api/portraits/women/66.jpg' },
 ]
 
 
@@ -180,7 +180,7 @@ export default function MainPage() {
   useEffect(() => {
     if (showCountryDrop && countryBtnRef.current) {
       const r = countryBtnRef.current.getBoundingClientRect()
-      setCountryDropPos({ top: r.bottom + window.scrollY + 4, left: r.left + window.scrollX, width: r.width })
+      setCountryDropPos({ bottom: window.innerHeight - r.top + 8, left: Math.max(8, r.left), width: Math.max(r.width, 260) })
     }
   }, [showCountryDrop])
 
@@ -421,11 +421,11 @@ export default function MainPage() {
       {/* ══════════════ EARN BANNER — slim ══════════════ */}
       <div
         className="relative z-10 w-full flex flex-wrap items-center justify-center gap-2 px-4 py-2 text-[12px]"
-        style={{ background: 'rgba(124,58,237,0.07)', borderBottom: '1px solid rgba(124,58,237,0.1)', marginTop: '64px' }}
+        style={{ background: 'rgba(37,99,235,0.06)', borderBottom: '1px solid rgba(59,130,246,0.12)', marginTop: '64px' }}
       >
-        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase" style={{ background: 'rgba(124,58,237,0.3)', color: '#a78bfa' }}>New</span>
+        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase" style={{ background: 'rgba(37,99,235,0.25)', color: '#93c5fd' }}>New</span>
         <span className="flex items-center gap-1.5" style={{ color: 'rgba(200,200,220,0.72)' }}>
-          <DollarSign size={11} style={{ color: 'rgba(167,139,250,0.85)' }} />
+          <DollarSign size={11} style={{ color: 'rgba(96,165,250,0.85)' }} />
           <span className="text-white/75 font-medium">Get paid to live chat.</span>
           <span className="hidden sm:inline text-white/40">Earn real money from viewer gifts.</span>
         </span>
@@ -444,17 +444,17 @@ export default function MainPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
-            style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.2)' }}
+            style={{ background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
-            <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#a78bfa' }}>Live · Random · Real</span>
+            <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#93c5fd' }}>Live · Random · Real</span>
           </motion.div>
         </div>
 
         {/* Camera preview — dominant, full-width */}
         <motion.div
           className="relative rounded-2xl overflow-hidden w-full"
-          style={{ aspectRatio: '4/3', background: '#080812', border: '1px solid rgba(124,58,237,0.22)', boxShadow: '0 0 0 1px rgba(124,58,237,0.08) inset, 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(124,58,237,0.1)' }}
+          style={{ aspectRatio: '4/3', background: '#080812', border: '1px solid rgba(59,130,246,0.2)', boxShadow: '0 0 0 1px rgba(59,130,246,0.06) inset, 0 20px 60px rgba(0,0,0,0.6), 0 0 32px rgba(37,99,235,0.08)' }}
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -462,7 +462,7 @@ export default function MainPage() {
           <video ref={videoRef} autoPlay muted playsInline className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
           {!cameraOn || cameraErr ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
-              style={{ background: 'radial-gradient(ellipse at 40% 35%, rgba(124,58,237,0.18) 0%, rgba(8,8,18,1) 65%)' }}>
+              style={{ background: 'radial-gradient(ellipse at 40% 35%, rgba(37,99,235,0.18) 0%, rgba(8,12,20,1) 65%)' }}>
               {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && (
                 <div className="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-semibold"
                   style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
@@ -471,11 +471,11 @@ export default function MainPage() {
               )}
               <motion.div animate={{ opacity: [0.25, 0.5, 0.25], scale: [1, 1.1, 1] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute w-32 h-32 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%)', top: '16%' }} />
+                style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%)', top: '16%' }} />
               {!permissionAsked || cameraErr ? (
                 <div className="relative z-10 flex flex-col items-center w-full">
-                  <div className="flex items-center justify-center mb-3 rounded-2xl" style={{ width: 48, height: 48, background: cameraErr ? 'rgba(220,38,38,0.12)' : 'rgba(124,58,237,0.15)', border: `1.5px solid ${cameraErr ? 'rgba(220,38,38,0.28)' : 'rgba(124,58,237,0.35)'}` }}>
-                    {cameraErr ? <VideoOff size={20} style={{ color: '#f87171' }} /> : <Camera size={20} style={{ color: 'rgba(167,139,250,0.85)' }} />}
+                  <div className="flex items-center justify-center mb-3 rounded-2xl" style={{ width: 48, height: 48, background: cameraErr ? 'rgba(220,38,38,0.12)' : 'rgba(37,99,235,0.15)', border: `1.5px solid ${cameraErr ? 'rgba(220,38,38,0.28)' : 'rgba(37,99,235,0.35)'}` }}>
+                    {cameraErr ? <VideoOff size={20} style={{ color: '#f87171' }} /> : <Camera size={20} style={{ color: 'rgba(96,165,250,0.85)' }} />}
                   </div>
                   {cameraErr ? (
                     <>
@@ -494,7 +494,7 @@ export default function MainPage() {
                         return (
                           <div className="w-full mb-3 px-1">
                             {steps.map((s, i) => (
-                              <p key={i} className="text-[10px] text-center leading-relaxed" style={{ color: 'rgba(167,139,250,0.6)' }}>› {s}</p>
+                              <p key={i} className="text-[10px] text-center leading-relaxed" style={{ color: 'rgba(96,165,250,0.6)' }}>› {s}</p>
                             ))}
                           </div>
                         )
@@ -507,13 +507,13 @@ export default function MainPage() {
                     </>
                   )}
                   <motion.button onClick={enableCamera} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                    className="btn-purple w-full py-2.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2">
+                    className="w-full py-2.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2" style={{ background: "linear-gradient(140deg, #1e3a8a 0%, #2563eb 55%, #0891b2 100%)" }}>
                     <Video size={14} />{cameraErr ? 'Try Again' : 'Allow Camera'}
                   </motion.button>
                 </div>
               ) : (
                 <div className="relative z-10 flex flex-col items-center gap-3">
-                  <Loader2 size={28} className="animate-spin" style={{ color: 'rgba(167,139,250,0.7)' }} />
+                  <Loader2 size={28} className="animate-spin" style={{ color: 'rgba(96,165,250,0.7)' }} />
                   <p className="text-[12px]" style={{ color: 'rgba(160,160,180,0.6)' }}>Waiting for permission…</p>
                 </div>
               )}
@@ -544,7 +544,7 @@ export default function MainPage() {
         >
           <h1 className="font-extrabold leading-[1.1] tracking-[-0.03em] text-white mb-2" style={{ fontSize: 'clamp(1.7rem, 7vw, 2.3rem)' }}>
             Meet real people.{' '}
-            <span style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(125deg, #60a5fa 0%, #0ea5e9 65%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               Instantly.
             </span>
           </h1>
@@ -574,8 +574,8 @@ export default function MainPage() {
           onClick={startVybing}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
-          className="btn-purple animate-glow w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-white font-extrabold"
-          style={{ fontSize: '16px' }}
+          className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-white font-extrabold"
+          style={{ fontSize: '16px', background: 'linear-gradient(140deg, #1e3a8a 0%, #2563eb 55%, #0891b2 100%)', boxShadow: '0 0 20px rgba(37,99,235,0.28), 0 4px 20px rgba(0,0,0,0.4)' }}
         >
           <Video size={19} strokeWidth={2.5} />
           Start Chatting Now
@@ -585,23 +585,23 @@ export default function MainPage() {
           onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
           whileTap={{ scale: 0.97 }}
           className="w-full flex items-center justify-center gap-1.5 py-3 rounded-2xl text-sm font-semibold"
-          style={{ color: 'rgba(167,139,250,0.75)', background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.16)' }}
+          style={{ color: 'rgba(148,163,184,0.65)', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
         >
           See How It Works â†“
         </motion.button>
 
         {/* â”€â”€ Match Settings â”€â”€ */}
-        <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(14,10,28,0.85)', backdropFilter: 'blur(20px) saturate(1.4)', border: '1px solid rgba(124,58,237,0.22)', boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.06) inset, 0 0 40px rgba(124,58,237,0.06)' }}>
+        <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(13,13,24,0.92)', backdropFilter: 'blur(20px) saturate(1.4)', border: '1px solid rgba(30,30,46,0.8)', boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.05) inset' }}>
 
           {/* Mode */}
           <div>
             <p className="text-[10px] font-black tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(160,160,180,0.45)' }}>MODE</p>
             <div className="flex gap-1.5 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
-              {[{ id: 'solo', label: 'ðŸ‘¤ Solo' }, { id: 'squad', label: 'ðŸ‘¥ Duo' }, { id: 'private', label: 'ðŸ”’ Private' }].map(({ id, label }) => (
+              {[{ id: 'solo', label: 'Solo' }, { id: 'squad', label: 'Duo' }, { id: 'private', label: 'Private' }].map(({ id, label }) => (
                 <motion.button key={id} onClick={() => setMode(id)} whileTap={{ scale: 0.93 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   className="flex-1 py-2 text-xs font-bold transition-colors"
                   style={mode === id
-                    ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', borderRadius: '10px' }
+                    ? { background: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', color: 'white', borderRadius: '10px' }
                     : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}>
                   {label}
                 </motion.button>
@@ -616,11 +616,11 @@ export default function MainPage() {
               <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(59,130,246,0.12)', color: 'rgba(147,197,253,0.85)' }}>Basic</span>
             </div>
             <div className="flex gap-1.5">
-              {[{ id: 'both', label: 'Anyone', free: true }, { id: 'male', label: 'â™‚ Male', free: false }, { id: 'female', label: 'â™€ Female', free: false }].map(({ id, label, free }) => (
+              {[{ id: 'both', label: 'Anyone', free: true }, { id: 'male', label: 'Male', free: false }, { id: 'female', label: 'Female', free: false }].map(({ id, label, free }) => (
                 <motion.button key={id} onClick={() => handleGender(id)} whileTap={{ scale: 0.92 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   className="flex-1 py-2 text-xs font-bold relative"
                   style={filterGender === id
-                    ? { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', borderRadius: '10px' }
+                    ? { background: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', color: 'white', borderRadius: '10px' }
                     : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}>
                   {label}
                   {!free && <Lock size={8} className="absolute top-1 right-1" style={{ opacity: 0.3 }} />}
@@ -671,7 +671,7 @@ export default function MainPage() {
                       <p className="text-vybe-muted text-[11px] text-center mb-2.5">Invite a friend to chat as a duo</p>
                       {squadError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{squadError}</p>}
                       <button onClick={createSquad} disabled={squadLoading || !isConnected}
-                        className="w-full py-2.5 rounded-xl btn-purple text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed">
+                        className="w-full py-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed" style={{ background: "linear-gradient(140deg, #1e3a8a 0%, #2563eb 60%, #0891b2 100%)" }}>
                         {squadLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><UserPlus size={11} /> Create Duo Room</>}
                       </button>
                       {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
@@ -681,7 +681,7 @@ export default function MainPage() {
                       <div className="flex gap-2">
                         {squad.members.map((m) => (
                           <div key={m.socketId} className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border relative group" style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.08)' }}>
-                            <div className="w-8 h-8 rounded-full bg-vybe-purple/20 flex items-center justify-center text-vybe-purple-light font-black text-xs">{m.username?.[0]?.toUpperCase() || '?'}</div>
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs" style={{ background: "rgba(37,99,235,0.2)", color: "#93c5fd" }}>{m.username?.[0]?.toUpperCase() || '?'}</div>
                             <span className="text-[9px] text-white font-semibold truncate w-full text-center" style={{ maxWidth: '52px' }}>{m.username || 'User'}</span>
                             {m.socketId === squad.leaderId && <Crown size={8} className="text-yellow-400" />}
                             {squad.leaderId === socket?.id && m.socketId !== socket?.id && (
@@ -743,7 +743,7 @@ export default function MainPage() {
                       <p className="text-vybe-muted text-[11px] text-center mb-2.5">Create a private room and share the link with one friend</p>
                       {privateError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{privateError}</p>}
                       <button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
-                        className="w-full py-2.5 rounded-xl btn-purple text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60">
+                        className="w-full py-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60" style={{ background: "linear-gradient(140deg, #1e3a8a 0%, #2563eb 60%, #0891b2 100%)" }}>
                         {privateLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><Lock size={11} /> Create Private Room</>}
                       </button>
                       {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
@@ -786,7 +786,7 @@ export default function MainPage() {
               transition={{ duration: 0.15 }}
               style={{
                 position: 'fixed',
-                top: countryDropPos.top,
+                bottom: countryDropPos.bottom,
                 left: countryDropPos.left,
                 width: countryDropPos.width,
                 zIndex: 9999,
@@ -813,7 +813,7 @@ export default function MainPage() {
                     onClick={() => { setFilterCountry(''); setShowCountryDrop(false); setCountrySearch('') }}
                     className="w-full text-left text-xs"
                     style={{ padding: '8px 12px', color: 'rgba(160,160,180,0.6)', background: 'transparent', border: 'none', cursor: 'pointer' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.15)'; e.currentTarget.style.color = 'white' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(37,99,235,0.15)'; e.currentTarget.style.color = 'white' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(160,160,180,0.6)' }}
                   >
                     ðŸŒ Any country
@@ -825,7 +825,7 @@ export default function MainPage() {
                     onClick={() => { setFilterCountry(c); setShowCountryDrop(false); setCountrySearch('') }}
                     className="w-full text-left text-xs"
                     style={{ padding: '8px 12px', color: 'rgba(200,200,220,0.75)', background: 'transparent', border: 'none', cursor: 'pointer' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.15)'; e.currentTarget.style.color = 'white' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(37,99,235,0.15)'; e.currentTarget.style.color = 'white' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(200,200,220,0.75)' }}
                   >
                     {c}
@@ -1029,7 +1029,7 @@ export default function MainPage() {
                       ? <Globe size={11} style={{ color: 'rgba(96,165,250,0.6)' }} />
                       : <Lock size={11} style={{ color: 'rgba(96,165,250,0.4)' }} />}
                     <span className="text-[12px] font-medium truncate" style={{ color: filterCountry ? 'rgba(255,255,255,0.8)' : 'rgba(148,163,184,0.45)' }}>
-                      {filterCountry ? filterCountry.split(' ').slice(1).join(' ') : 'Any country'}
+                      {filterCountry || 'Any country'}
                     </span>
                     <ChevronDown size={10} style={{ color: 'rgba(148,163,184,0.3)', flexShrink: 0, transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                   </div>
