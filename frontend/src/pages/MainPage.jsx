@@ -917,11 +917,11 @@ export default function MainPage() {
           {/* ────────── LEFT: Controls ────────── */}
           <div
             className="flex flex-col justify-center"
-            style={{ width: '46%', flexShrink: 0, padding: '0 44px 0 56px' }}>
+            style={{ width: '48%', flexShrink: 0, padding: '0 52px 0 72px' }}>
 
             {/* Live badge */}
             <motion.div
-              className="inline-flex items-center gap-2.5 mb-5"
+              className="inline-flex items-center gap-2.5 mb-8"
               style={{ width: 'fit-content', padding: '7px 16px', borderRadius: 999, background: 'rgba(47,107,255,0.08)', border: '1px solid rgba(80,140,255,0.2)' }}>
               <motion.span
                 className="w-1.5 h-1.5 rounded-full flex-shrink-0"
@@ -934,7 +934,7 @@ export default function MainPage() {
             </motion.div>
 
             {/* Headline */}
-            <h1 style={{ fontSize: 'clamp(36px,3.2vw,54px)', lineHeight: 1.02, fontWeight: 900, letterSpacing: '-0.035em', marginBottom: 12 }}>
+            <h1 style={{ fontSize: 'clamp(38px,3.4vw,58px)', lineHeight: 1.04, fontWeight: 900, letterSpacing: '-0.035em', marginBottom: 22 }}>
               <span style={{ color: '#ffffff', display: 'block' }}>Meet someone real.</span>
               <span style={{ display: 'block', background: 'linear-gradient(120deg,#2F6BFF 0%,#60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Share authentic vibes.
@@ -942,12 +942,12 @@ export default function MainPage() {
             </h1>
 
             {/* Subtitle */}
-            <p style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,0.32)', maxWidth: 320, marginBottom: 20 }}>
+            <p style={{ fontSize: 15, lineHeight: 1.7, color: 'rgba(255,255,255,0.36)', maxWidth: 380, marginBottom: 32 }}>
               Random video chat with real people from around the world. Instantly.
             </p>
 
             {/* Social proof */}
-            <div className="flex items-center gap-3" style={{ marginBottom: 20 }}>
+            <div className="flex items-center gap-3" style={{ marginBottom: 32 }}>
               <div className="flex items-center">
                 {AVATARS.map((n, i) => (
                   <img key={n} src={"https://i.pravatar.cc/48?img=" + n} alt=""
@@ -966,7 +966,7 @@ export default function MainPage() {
             </div>
 
             {/* CTA buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
 
               {/* Primary */}
               <motion.button
@@ -974,9 +974,9 @@ export default function MainPage() {
                 whileHover={{ scale: 1.012 }}
                 whileTap={{ scale: 0.985 }}
                 style={{
-                  width: '100%', height: 52, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  width: '100%', height: 56, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                   background: 'linear-gradient(135deg, #2056e8 0%, #2F6BFF 50%, #4D8DFF 100%)',
-                  boxShadow: '0 4px 24px rgba(47,107,255,0.35), 0 1px 0 rgba(255,255,255,0.12) inset',
+                  boxShadow: '0 4px 28px rgba(47,107,255,0.38), 0 1px 0 rgba(255,255,255,0.12) inset',
                   border: 'none', color: 'white', fontSize: 15, fontWeight: 800, letterSpacing: '-0.01em', cursor: 'pointer',
                 }}>
                 <Video size={17} />
@@ -993,7 +993,7 @@ export default function MainPage() {
                 whileHover={{ scale: 1.012, borderColor: 'rgba(80,140,255,0.28)' }}
                 whileTap={{ scale: 0.985 }}
                 style={{
-                  width: '100%', height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  width: '100%', height: 50, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                   background: 'rgba(10,18,40,0.55)', backdropFilter: 'blur(16px)',
                   border: '1px solid rgba(80,140,255,0.18)',
                   color: 'rgba(255,255,255,0.55)', fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em', cursor: 'pointer',
@@ -1095,7 +1095,7 @@ export default function MainPage() {
 
 
           {/* ────────── RIGHT: Camera panel ────────── */}
-          <div className="flex-1 flex items-center" style={{ padding: '28px 52px 28px 20px', background: '#050816' }}>
+          <div className="flex-1 flex items-center" style={{ padding: '32px 44px 32px 16px', background: '#050816' }}>
           <div className="relative overflow-hidden" style={{
             width: '100%', height: '100%', borderRadius: 28,
             background: '#080e1c',
