@@ -10,8 +10,8 @@ import {
 
 const FEATURE_CARDS = [
   { key: 'instant', title: 'Instant Match',    desc: 'Connect with someone new in under 2 seconds.',     color: 'rgba(27,98,245',  hex: '#1b62f5' },
-  { key: 'global',  title: 'Global',           desc: 'Meet people from 150+ countries worldwide.',       color: 'rgba(16,185,129', hex: '#10b981' },
-  { key: 'safe',    title: 'Safe & Moderated', desc: 'Human moderation with instant ban enforcement.',   color: 'rgba(245,158,11', hex: '#f59e0b' },
+  { key: 'global',  title: 'Global',           desc: 'Meet people from 150+ countries worldwide.',       color: 'rgba(59,130,246', hex: '#3B82F6' },
+  { key: 'safe',    title: 'Safe & Moderated', desc: 'Human moderation with instant ban enforcement.',   color: 'rgba(59,130,246', hex: '#60A5FA' },
 ]
 
 function FeatureIcon({ k, hex }) {
@@ -515,7 +515,7 @@ export default function MainPage() {
                     </>
                   )}
                   <motion.button onClick={enableCamera} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                    className="w-full py-2.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2" style={{ background: "linear-gradient(140deg, #1e3a8a 0%, #2563eb 55%, #0891b2 100%)" }}>
+                    className="w-full py-2.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2" style={{ background: "linear-gradient(140deg, #1e3a8a 0%, #3B82F6 55%, #60A5FA 100%)" }}>
                     <Video size={14} />{cameraErr ? 'Try Again' : 'Allow Camera'}
                   </motion.button>
                 </div>
@@ -552,11 +552,11 @@ export default function MainPage() {
         >
           <h1 className="font-extrabold leading-[1.1] tracking-[-0.03em] text-white mb-2" style={{ fontSize: 'clamp(1.7rem, 7vw, 2.3rem)' }}>
             Meet real people.{' '}
-            <span style={{ background: 'linear-gradient(125deg, #60a5fa 0%, #0ea5e9 65%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(125deg, #3B82F6 0%, #60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               Instantly.
             </span>
           </h1>
-          <p className="text-sm leading-relaxed" style={{ color: '#6b7280' }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(148,163,184,0.7)' }}>
             Live video chat with strangers worldwide — free, anonymous, no sign-up.
           </p>
         </motion.div>
@@ -663,7 +663,7 @@ export default function MainPage() {
           <AnimatePresence initial={false}>
             {mode === 'squad' && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
-                <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="rounded-xl p-3" style={{ background: 'rgba(6,11,20,0.7)', border: '1px solid rgba(59,130,246,0.1)' }}>
                   <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
                       <p className="text-[10px] font-bold text-vybe-muted uppercase tracking-widest">My Duo</p>
@@ -679,7 +679,7 @@ export default function MainPage() {
                       <p className="text-vybe-muted text-[11px] text-center mb-2.5">Invite a friend to chat as a duo</p>
                       {squadError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{squadError}</p>}
                       <button onClick={createSquad} disabled={squadLoading || !isConnected}
-                        className="w-full py-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed" style={{ background: "linear-gradient(140deg, #1e3a8a 0%, #2563eb 60%, #0891b2 100%)" }}>
+                        className="w-full py-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed" style={{ background: "linear-gradient(140deg, #1e3a8a 0%, #3B82F6 60%, #60A5FA 100%)" }}>
                         {squadLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><UserPlus size={11} /> Create Duo Room</>}
                       </button>
                       {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
@@ -741,7 +741,7 @@ export default function MainPage() {
           <AnimatePresence initial={false}>
             {mode === 'private' && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
-                <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="rounded-xl p-3" style={{ background: 'rgba(6,11,20,0.7)', border: '1px solid rgba(59,130,246,0.1)' }}>
                   <div className="flex items-center justify-between mb-2.5">
                     <p className="text-[10px] font-bold text-vybe-muted uppercase tracking-widest">Private Room</p>
                     {privateCode && <button onClick={() => { setPrivateCode(''); setPrivateError('') }} className="w-4 h-4 flex items-center justify-center rounded text-vybe-muted hover:text-white"><XIcon size={10} /></button>}
@@ -751,7 +751,7 @@ export default function MainPage() {
                       <p className="text-vybe-muted text-[11px] text-center mb-2.5">Create a private room and share the link with one friend</p>
                       {privateError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{privateError}</p>}
                       <button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
-                        className="w-full py-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60" style={{ background: "linear-gradient(140deg, #1e3a8a 0%, #2563eb 60%, #0891b2 100%)" }}>
+                        className="w-full py-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60" style={{ background: "linear-gradient(140deg, #1e3a8a 0%, #3B82F6 60%, #60A5FA 100%)" }}>
                         {privateLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><Lock size={11} /> Create Private Room</>}
                       </button>
                       {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
@@ -936,7 +936,7 @@ export default function MainPage() {
             {/* Headline */}
             <h1 style={{ fontSize: 'clamp(36px,3.2vw,54px)', lineHeight: 1.02, fontWeight: 900, letterSpacing: '-0.035em', marginBottom: 12 }}>
               <span style={{ color: '#ffffff', display: 'block' }}>Meet someone real.</span>
-              <span style={{ display: 'block', background: 'linear-gradient(120deg,#2F6BFF 0%,#7AACFF 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ display: 'block', background: 'linear-gradient(120deg,#2F6BFF 0%,#60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Share authentic vibes.
               </span>
             </h1>
@@ -1199,19 +1199,19 @@ export default function MainPage() {
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {[
-            { num: '01', title: 'Open Your Camera', desc: 'Allow camera access when prompted. Takes two seconds. You can also start without a camera if you prefer.', icon: Camera, color: '#2563eb' },
-            { num: '02', title: 'Set Your Preferences', desc: 'Choose who to match with — anyone, a specific gender, or people from your country. Free and paid options available.', icon: Globe, color: '#0ea5e9' },
-            { num: '03', title: 'Meet Someone Now', desc: "You're matched in under 2 seconds. Don't vibe with who you got? Hit Skip and find someone new instantly.", icon: Video, color: '#38bdf8' },
+            { num: '01', title: 'Open Your Camera', desc: 'Allow camera access when prompted. Takes two seconds. You can also start without a camera if you prefer.', icon: Camera, color: '#3B82F6' },
+            { num: '02', title: 'Set Your Preferences', desc: 'Choose who to match with — anyone, a specific gender, or people from your country. Free and paid options available.', icon: Globe, color: '#60A5FA' },
+            { num: '03', title: 'Meet Someone Now', desc: "You're matched in under 2 seconds. Don't vibe with who you got? Hit Skip and find someone new instantly.", icon: Video, color: '#93C5FD' },
           ].map(({ num, title, desc, icon: Icon, color }, i) => (
             <motion.div
               key={num}
               className="flex flex-col items-center text-center gap-4 p-6 rounded-2xl"
-              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ background: 'rgba(6,11,20,0.6)', border: '1px solid rgba(59,130,246,0.1)' }}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
-              whileHover={{ y: -4, borderColor: `${color}40`, boxShadow: `0 12px 32px ${color}18` }}
+              whileHover={{ y: -4, borderColor: 'rgba(59,130,246,0.28)', boxShadow: '0 12px 40px rgba(59,130,246,0.1)' }}
             >
               <div className="relative">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
@@ -1221,7 +1221,7 @@ export default function MainPage() {
               </div>
               <div>
                 <p className="text-white font-bold text-base mb-2">{title}</p>
-                <p className="text-sm leading-relaxed" style={{ color: '#6b7280' }}>{desc}</p>
+                <p className="text-sm leading-relaxed" style={{ color: 'rgba(148,163,184,0.7)' }}>{desc}</p>
               </div>
             </motion.div>
           ))}
@@ -1243,7 +1243,7 @@ export default function MainPage() {
                 Match smarter with{' '}
                 <span style={{ background: 'linear-gradient(120deg, #3B82F6 0%, #60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
               </h2>
-              <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
+              <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(148,163,184,0.7)' }}>
                 Free gets you started. Membership gets you exactly who you want to meet — filter by gender, country, and more.
               </p>
               <motion.button
@@ -1252,7 +1252,7 @@ export default function MainPage() {
                 whileTap={{ scale: 0.97 }}
                 className="px-6 py-3 rounded-xl text-white font-bold text-sm"
                 style={{
-                  background: 'linear-gradient(140deg, #1e3a8a 0%, #2563eb 55%, #0891b2 100%)',
+                  background: 'linear-gradient(140deg, #1e3a8a 0%, #3B82F6 55%, #60A5FA 100%)',
                   boxShadow: '0 0 20px rgba(37,99,235,0.28), 0 4px 16px rgba(0,0,0,0.3)',
                 }}
               >
@@ -1304,14 +1304,14 @@ export default function MainPage() {
                 transition={{ duration: 0.55 }}
               >
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.22)' }}>
-                  <DollarSign size={12} style={{ color: '#f59e0b' }} />
-                  <span className="text-[11px] font-black tracking-[0.1em] uppercase" style={{ color: '#f59e0b' }}>For Creators</span>
+                  <DollarSign size={12} style={{ color: '#60A5FA' }} />
+                  <span className="text-[11px] font-black tracking-[0.1em] uppercase" style={{ color: '#60A5FA' }}>For Creators</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                   Go live. Get paid.{' '}
                   <span style={{ background: 'linear-gradient(120deg, #3B82F6 0%, #60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
                 </h2>
-                <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
+                <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(148,163,184,0.7)' }}>
                   Turn your conversations into income. Viewers send gifts, you earn real money — no middlemen taking the bulk of your earnings.
                 </p>
                 <motion.button
@@ -1332,12 +1332,12 @@ export default function MainPage() {
                 transition={{ delay: 0.1, duration: 0.55 }}
               >
                 {[
-                  { label: '70%', sub: 'Creator cut', color: '#f59e0b' },
+                  { label: '70%', sub: 'Creator cut', color: '#60A5FA' },
                   { label: 'Live', sub: 'Real-time gifts', color: '#60A5FA' },
-                  { label: '150+', sub: 'Countries', color: '#10b981' },
-                  { label: 'Free', sub: 'To start', color: '#38bdf8' },
+                  { label: '150+', sub: 'Countries', color: '#3B82F6' },
+                  { label: 'Free', sub: 'To start', color: '#93C5FD' },
                 ].map(({ label, sub, color }) => (
-                  <div key={label} className="p-4 rounded-2xl text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div key={label} className="p-4 rounded-2xl text-center" style={{ background: 'rgba(6,11,20,0.7)', border: '1px solid rgba(59,130,246,0.1)' }}>
                     <p className="text-2xl font-black mb-1" style={{ color }}>{label}</p>
                     <p className="text-[11px]" style={{ color: 'rgba(148,163,184,0.5)' }}>{sub}</p>
                   </div>
@@ -1365,20 +1365,20 @@ export default function MainPage() {
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: Shield, title: '100% Anonymous', desc: 'No account needed. No data stored. Your sessions vanish the moment you leave.', color: '#2563eb' },
+            { icon: Shield, title: '100% Anonymous', desc: 'No account needed. No data stored. Your sessions vanish the moment you leave.', color: '#3B82F6' },
             { icon: Globe, title: 'Human Moderation', desc: 'Our moderation team reviews every report. Violations are acted on, not ignored.', color: '#3b82f6' },
-            { icon: Video, title: 'One-Tap Report', desc: 'Tap the flag icon during any chat to report instantly and anonymously.', color: '#10b981' },
-            { icon: Lock, title: 'Instant Bans', desc: 'Verified rule-breakers are suspended immediately — no second chances for serious violations.', color: '#0ea5e9' },
+            { icon: Video, title: 'One-Tap Report', desc: 'Tap the flag icon during any chat to report instantly and anonymously.', color: '#3B82F6' },
+            { icon: Lock, title: 'Instant Bans', desc: 'Verified rule-breakers are suspended immediately — no second chances for serious violations.', color: '#60A5FA' },
           ].map(({ icon: Icon, title, desc, color }, i) => (
             <motion.div
               key={title}
               className="p-5 rounded-2xl flex flex-col gap-3"
-              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}
+              style={{ background: 'rgba(6,11,20,0.6)', border: '1px solid rgba(59,130,246,0.1)' }}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.07, duration: 0.45 }}
-              whileHover={{ y: -3, borderColor: `${color}40`, boxShadow: `0 8px 28px ${color}18` }}
+              whileHover={{ y: -3, borderColor: 'rgba(59,130,246,0.28)', boxShadow: '0 8px 28px rgba(59,130,246,0.1)' }}
             >
               <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.18)' }}>
                 <Icon size={18} style={{ color }} />
@@ -1401,7 +1401,7 @@ export default function MainPage() {
           transition={{ duration: 0.55 }}
         >
           <div className="text-center mb-10">
-            <p className="text-[11px] font-black tracking-[0.2em] text-vybe-purple-light uppercase mb-3">
+            <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#60A5FA' }}>
               Got questions?
             </p>
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
