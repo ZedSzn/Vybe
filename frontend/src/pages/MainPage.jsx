@@ -61,7 +61,7 @@ const COUNTRIES = [
 const FAQ_ITEMS = [
   {
     q: 'What is Vybe?',
-    a: "Vybe is a premium random video chat platform that instantly connects you with real people from around the world. It's designed to help you meet new people, make friends, and have genuine face-to-face conversations â€” no bots, no nonsense.",
+    a: "Vybe is a premium random video chat platform that instantly connects you with real people from around the world. It's designed to help you meet new people, make friends, and have genuine face-to-face conversations — no bots, no nonsense.",
   },
   {
     q: 'How does Vybe work?',
@@ -69,15 +69,15 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Is Vybe free to use?',
-    a: 'Yes â€” Vybe is free with full access to core random video chat. Upgrading to Basic or VIP unlocks advanced filters like gender and country matching, priority queues, and exclusive features.',
+    a: 'Yes — Vybe is free with full access to core random video chat. Upgrading to Basic or VIP unlocks advanced filters like gender and country matching, priority queues, and exclusive features.',
   },
   {
     q: 'What is Vybe Membership?',
-    a: 'Membership comes in two tiers. Basic (Â£6.99/mo) unlocks gender filtering so you choose who you match with. VIP (Â£12.99/mo) adds country filtering, priority matching, and early access to new features.',
+    a: 'Membership comes in two tiers. Basic (£6.99/mo) unlocks gender filtering so you choose who you match with. VIP (£12.99/mo) adds country filtering, priority matching, and early access to new features.',
   },
   {
     q: 'How do I report someone?',
-    a: 'During any chat, tap the Flag icon in the top-right corner. Select a reason â€” nudity, harassment, underage, or other â€” and submit. All reports are anonymous and reviewed by our moderation team within 24 hours.',
+    a: 'During any chat, tap the Flag icon in the top-right corner. Select a reason — nudity, harassment, underage, or other — and submit. All reports are anonymous and reviewed by our moderation team within 24 hours.',
   },
   {
     q: 'Is Vybe safe?',
@@ -85,7 +85,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Can I use Vybe on my phone?',
-    a: "Absolutely. Vybe is fully optimized for mobile browsers on iOS and Android. No app download needed â€” just visit Vybe in your browser and you're ready to go.",
+    a: "Absolutely. Vybe is fully optimized for mobile browsers on iOS and Android. No app download needed — just visit Vybe in your browser and you're ready to go.",
   },
   {
     q: 'What countries is Vybe available in?',
@@ -223,7 +223,7 @@ export default function MainPage() {
       setCameraErr(true)
       const name = err?.name || ''
       if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-        setCameraErrMsg('Permission denied â€” allow camera in your browser settings.')
+        setCameraErrMsg('Permission denied — allow camera in your browser settings.')
       } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
         setCameraErrMsg('No camera found on this device.')
       } else if (name === 'NotReadableError' || name === 'TrackStartError') {
@@ -237,7 +237,7 @@ export default function MainPage() {
   }
 
   useEffect(() => {
-    // Mobile browsers require a user gesture to access the camera â€” skip auto-attempt
+    // Mobile browsers require a user gesture to access the camera — skip auto-attempt
     const isMobile = navigator.maxTouchPoints > 0
     if (isMobile) return
 
@@ -328,12 +328,12 @@ export default function MainPage() {
   }, [socket, navigate])
 
   const createSquad = () => {
-    if (!socket || !isConnected) { setSquadError('Not connected. Please waitâ€¦'); return }
+    if (!socket || !isConnected) { setSquadError('Not connected. Please wait…'); return }
     setSquadLoading(true); setSquadError('')
     socket.emit('create-squad', { username: user?.username || 'Guest' })
     const timeout = setTimeout(() => {
       setSquadLoading((still) => {
-        if (still) setSquadError('Connection issue â€” please restart the Vybe server.')
+        if (still) setSquadError('Connection issue — please restart the Vybe server.')
         return false
       })
     }, 8000)
@@ -353,7 +353,7 @@ export default function MainPage() {
   }
 
   const createPrivateRoom = () => {
-    if (!socket || !isConnected) { setPrivateError('Not connected. Please waitâ€¦'); return }
+    if (!socket || !isConnected) { setPrivateError('Not connected. Please wait…'); return }
     setPrivateLoading(true); setPrivateError('')
     socket.emit('create-private-room')
   }
@@ -384,7 +384,7 @@ export default function MainPage() {
   const startVybing = () => {
     if (mode === 'squad') {
       if (!squad) { setSquadError('Create a duo room first.'); return }
-      if (squad.members.length < 2) { setSquadError('Waiting for your friend to joinâ€¦'); return }
+      if (squad.members.length < 2) { setSquadError('Waiting for your friend to join…'); return }
       socket.emit('squad-start-match', { squadId: squad.squadId })
       return
     }
@@ -418,7 +418,7 @@ export default function MainPage() {
 
       <Navbar onPremiumClick={() => setShowPremium(true)} />
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• EARN BANNER â€” slim â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ══════════════ EARN BANNER — slim ══════════════ */}
       <div
         className="relative z-10 w-full flex flex-wrap items-center justify-center gap-2 px-4 py-2 text-[12px]"
         style={{ background: 'rgba(124,58,237,0.07)', borderBottom: '1px solid rgba(124,58,237,0.1)', marginTop: '64px' }}
@@ -434,7 +434,7 @@ export default function MainPage() {
         </button>
       </div>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• MOBILE LAYOUT â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ══════════════ MOBILE LAYOUT ══════════════ */}
       <div className="lg:hidden relative z-10 px-4 pt-4 pb-12 flex flex-col gap-5">
 
         {/* Live pill */}
@@ -447,11 +447,11 @@ export default function MainPage() {
             style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.2)' }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
-            <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#a78bfa' }}>Live Â· Random Â· Real</span>
+            <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#a78bfa' }}>Live · Random · Real</span>
           </motion.div>
         </div>
 
-        {/* Camera preview â€” dominant, full-width */}
+        {/* Camera preview — dominant, full-width */}
         <motion.div
           className="relative rounded-2xl overflow-hidden w-full"
           style={{ aspectRatio: '4/3', background: '#080812', border: '1px solid rgba(124,58,237,0.22)', boxShadow: '0 0 0 1px rgba(124,58,237,0.08) inset, 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(124,58,237,0.1)' }}
@@ -494,7 +494,7 @@ export default function MainPage() {
                         return (
                           <div className="w-full mb-3 px-1">
                             {steps.map((s, i) => (
-                              <p key={i} className="text-[10px] text-center leading-relaxed" style={{ color: 'rgba(167,139,250,0.6)' }}>â€º {s}</p>
+                              <p key={i} className="text-[10px] text-center leading-relaxed" style={{ color: 'rgba(167,139,250,0.6)' }}>› {s}</p>
                             ))}
                           </div>
                         )
@@ -514,14 +514,14 @@ export default function MainPage() {
               ) : (
                 <div className="relative z-10 flex flex-col items-center gap-3">
                   <Loader2 size={28} className="animate-spin" style={{ color: 'rgba(167,139,250,0.7)' }} />
-                  <p className="text-[12px]" style={{ color: 'rgba(160,160,180,0.6)' }}>Waiting for permissionâ€¦</p>
+                  <p className="text-[12px]" style={{ color: 'rgba(160,160,180,0.6)' }}>Waiting for permission…</p>
                 </div>
               )}
             </div>
           ) : null}
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.45) 100%)' }} />
           <div className="absolute bottom-0 left-0 right-0 h-14 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }} />
-          <p className="absolute bottom-2.5 left-0 right-0 text-center text-[10px] pointer-events-none" style={{ color: 'rgba(255,255,255,0.25)' }}>Your preview Â· only you can see this</p>
+          <p className="absolute bottom-2.5 left-0 right-0 text-center text-[10px] pointer-events-none" style={{ color: 'rgba(255,255,255,0.25)' }}>Your preview · only you can see this</p>
           {cameraOn && (
             <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 online-pulse" />
@@ -535,7 +535,7 @@ export default function MainPage() {
           )}
         </motion.div>
 
-        {/* Headline â€” compact, centered */}
+        {/* Headline — compact, centered */}
         <motion.div
           className="text-center"
           initial={{ opacity: 0, y: 10 }}
@@ -549,7 +549,7 @@ export default function MainPage() {
             </span>
           </h1>
           <p className="text-sm leading-relaxed" style={{ color: '#6b7280' }}>
-            Live video chat with strangers worldwide â€” free, anonymous, no sign-up.
+            Live video chat with strangers worldwide — free, anonymous, no sign-up.
           </p>
         </motion.div>
 
@@ -569,7 +569,7 @@ export default function MainPage() {
           </div>
         </div>
 
-        {/* Start Chatting Now â€” dominant CTA */}
+        {/* Start Chatting Now — dominant CTA */}
         <motion.button
           onClick={startVybing}
           whileHover={{ scale: 1.02 }}
@@ -629,7 +629,7 @@ export default function MainPage() {
             </div>
           </div>
 
-          {/* Country â€” always visible */}
+          {/* Country — always visible */}
           <div>
             <div className="flex items-center gap-2 mb-2">
               <p className="text-[10px] font-black tracking-[0.18em] uppercase" style={{ color: 'rgba(160,160,180,0.45)' }}>COUNTRY</p>
@@ -672,9 +672,9 @@ export default function MainPage() {
                       {squadError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{squadError}</p>}
                       <button onClick={createSquad} disabled={squadLoading || !isConnected}
                         className="w-full py-2.5 rounded-xl btn-purple text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed">
-                        {squadLoading ? <><Loader2 size={11} className="animate-spin" /> Creatingâ€¦</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connectingâ€¦</> : <><UserPlus size={11} /> Create Duo Room</>}
+                        {squadLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><UserPlus size={11} /> Create Duo Room</>}
                       </button>
-                      {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please waitâ€¦</p>}
+                      {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
                     </div>
                   ) : (
                     <div className="space-y-2.5">
@@ -692,7 +692,7 @@ export default function MainPage() {
                         {squad.members.length < 2 && (
                           <div className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border border-dashed" style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)' }}>
                             <div className="w-8 h-8 rounded-full border-2 border-dashed border-vybe-border flex items-center justify-center"><UserPlus size={11} className="text-vybe-muted" /></div>
-                            <span className="text-[9px] text-vybe-muted">Waitingâ€¦</span>
+                            <span className="text-[9px] text-vybe-muted">Waiting…</span>
                           </div>
                         )}
                       </div>
@@ -744,15 +744,15 @@ export default function MainPage() {
                       {privateError && <p className="text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-1.5 mb-2 text-center">{privateError}</p>}
                       <button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
                         className="w-full py-2.5 rounded-xl btn-purple text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60">
-                        {privateLoading ? <><Loader2 size={11} className="animate-spin" /> Creatingâ€¦</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connectingâ€¦</> : <><Lock size={11} /> Create Private Room</>}
+                        {privateLoading ? <><Loader2 size={11} className="animate-spin" /> Creating…</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting…</> : <><Lock size={11} /> Create Private Room</>}
                       </button>
-                      {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please waitâ€¦</p>}
+                      {!isConnected && <p className="text-[10px] text-center mt-1" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait…</p>}
                     </div>
                   ) : (
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-2 p-2 rounded-xl" style={{ background: 'rgba(27,98,245,0.08)', border: '1px solid rgba(27,98,245,0.18)' }}>
                         <Lock size={11} className="text-blue-400 flex-shrink-0" />
-                        <p className="text-[11px] text-blue-300 flex-1">Room ready â€” share the link below</p>
+                        <p className="text-[11px] text-blue-300 flex-1">Room ready — share the link below</p>
                       </div>
                       <div className="flex gap-1.5">
                         <div className="flex-1 px-2 py-1.5 rounded-lg text-[9px] text-vybe-muted font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>{privateInviteUrl}</div>
@@ -802,7 +802,7 @@ export default function MainPage() {
                   autoFocus
                   value={countrySearch}
                   onChange={e => setCountrySearch(e.target.value)}
-                  placeholder="Search countryâ€¦"
+                  placeholder="Search country…"
                   style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: 'none', outline: 'none', color: 'white', fontSize: '12px', padding: '10px 12px', borderRadius: 8 }}
                   className="placeholder-[rgba(120,120,140,0.5)]"
                 />
@@ -837,7 +837,7 @@ export default function MainPage() {
           document.body
         )}
 
-        {/* Start Without Camera â€” ghost secondary */}
+        {/* Start Without Camera — ghost secondary */}
         <motion.button
           onClick={() => {
             streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -853,7 +853,7 @@ export default function MainPage() {
           Start Without Camera
         </motion.button>
 
-        <p className="text-center text-[11px]" style={{ color: 'rgba(75,85,99,0.4)' }}>Free forever Â· No sign-up required</p>
+        <p className="text-center text-[11px]" style={{ color: 'rgba(75,85,99,0.4)' }}>Free forever · No sign-up required</p>
       </div>
 
 
@@ -1214,7 +1214,7 @@ export default function MainPage() {
 
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• HOW IT WORKS â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ══════════════ HOW IT WORKS ══════════════ */}
       <section id="how-it-works" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-16 lg:py-24">
         <motion.div
           className="text-center mb-12"
@@ -1234,7 +1234,7 @@ export default function MainPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {[
             { num: '01', title: 'Open Your Camera', desc: 'Allow camera access when prompted. Takes two seconds. You can also start without a camera if you prefer.', icon: Camera, color: '#7c3aed' },
-            { num: '02', title: 'Set Your Preferences', desc: 'Choose who to match with â€” anyone, a specific gender, or people from your country. Free and paid options available.', icon: Globe, color: '#a855f7' },
+            { num: '02', title: 'Set Your Preferences', desc: 'Choose who to match with — anyone, a specific gender, or people from your country. Free and paid options available.', icon: Globe, color: '#a855f7' },
             { num: '03', title: 'Meet Someone Now', desc: "You're matched in under 2 seconds. Don't vibe with who you got? Hit Skip and find someone new instantly.", icon: Video, color: '#ec4899' },
           ].map(({ num, title, desc, icon: Icon, color }, i) => (
             <motion.div
@@ -1262,7 +1262,7 @@ export default function MainPage() {
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• MEMBERSHIP VALUE â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ══════════════ MEMBERSHIP VALUE ══════════════ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
         <div className="rounded-3xl overflow-hidden p-8 lg:p-12" style={{ background: 'linear-gradient(160deg, rgba(124,58,237,0.08) 0%, rgba(10,10,20,0) 100%)', border: '1px solid rgba(124,58,237,0.15)' }}>
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
@@ -1278,7 +1278,7 @@ export default function MainPage() {
                 <span style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
               </h2>
               <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
-                Free gets you started. Membership gets you exactly who you want to meet â€” filter by gender, country, and more.
+                Free gets you started. Membership gets you exactly who you want to meet — filter by gender, country, and more.
               </p>
               <motion.button
                 onClick={() => navigate('/subscription')}
@@ -1298,8 +1298,8 @@ export default function MainPage() {
               transition={{ duration: 0.55 }}
             >
               {[
-                { tier: 'Basic', price: 'Â£6.99/mo', features: ['Filter by gender', 'Basic badge on profile'], borderColor: 'rgba(59,130,246,0.25)', bg: 'rgba(59,130,246,0.08)', labelColor: '#3b82f6', checkColor: '#3b82f6' },
-                { tier: 'VIP', price: 'Â£12.99/mo', features: ['Filter by gender', 'Filter by country', 'VIP badge on profile'], borderColor: 'rgba(245,158,11,0.25)', bg: 'rgba(245,158,11,0.07)', labelColor: '#f59e0b', checkColor: '#f59e0b' },
+                { tier: 'Basic', price: '£6.99/mo', features: ['Filter by gender', 'Basic badge on profile'], borderColor: 'rgba(59,130,246,0.25)', bg: 'rgba(59,130,246,0.08)', labelColor: '#3b82f6', checkColor: '#3b82f6' },
+                { tier: 'VIP', price: '£12.99/mo', features: ['Filter by gender', 'Filter by country', 'VIP badge on profile'], borderColor: 'rgba(245,158,11,0.25)', bg: 'rgba(245,158,11,0.07)', labelColor: '#f59e0b', checkColor: '#f59e0b' },
               ].map(({ tier, price, features, borderColor, bg, labelColor, checkColor }) => (
                 <div key={tier} className="p-4 rounded-2xl" style={{ background: bg, border: `1px solid ${borderColor}` }}>
                   <div className="flex items-center justify-between mb-3">
@@ -1323,7 +1323,7 @@ export default function MainPage() {
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• CREATOR MONETIZATION â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ══════════════ CREATOR MONETIZATION ══════════════ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
         <div className="rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(124,58,237,0.06) 100%)', border: '1px solid rgba(245,158,11,0.14)' }}>
           <div className="p-8 lg:p-12">
@@ -1343,7 +1343,7 @@ export default function MainPage() {
                   <span style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
                 </h2>
                 <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
-                  Turn your conversations into income. Viewers send gifts, you earn real money â€” no middlemen taking the bulk of your earnings.
+                  Turn your conversations into income. Viewers send gifts, you earn real money — no middlemen taking the bulk of your earnings.
                 </p>
                 <motion.button
                   onClick={() => navigate('/earn')}
@@ -1379,7 +1379,7 @@ export default function MainPage() {
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• TRUST & SAFETY â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ══════════════ TRUST & SAFETY ══════════════ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-24">
         <motion.div
           className="text-center mb-10"
@@ -1399,7 +1399,7 @@ export default function MainPage() {
             { icon: Shield, title: '100% Anonymous', desc: 'No account needed. No data stored. Your sessions vanish the moment you leave.', color: '#7c3aed' },
             { icon: Globe, title: 'Human Moderation', desc: 'Our moderation team reviews every report. Violations are acted on, not ignored.', color: '#3b82f6' },
             { icon: Video, title: 'One-Tap Report', desc: 'Tap the flag icon during any chat to report instantly and anonymously.', color: '#10b981' },
-            { icon: Lock, title: 'Instant Bans', desc: 'Verified rule-breakers are suspended immediately â€” no second chances for serious violations.', color: '#ec4899' },
+            { icon: Lock, title: 'Instant Bans', desc: 'Verified rule-breakers are suspended immediately — no second chances for serious violations.', color: '#ec4899' },
           ].map(({ icon: Icon, title, desc, color }, i) => (
             <motion.div
               key={title}
@@ -1423,7 +1423,7 @@ export default function MainPage() {
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• FAQ SECTION â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ══════════════ FAQ SECTION ══════════════ */}
       <section id="faq" className="relative z-10 max-w-3xl mx-auto w-full px-4 pb-24 pt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
