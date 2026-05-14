@@ -32,8 +32,8 @@ const rules = [
   },
   {
     icon: AlertTriangle,
-    color: 'text-yellow-400',
-    bg: 'bg-yellow-500/10',
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10',
     border: 'border-yellow-500/20',
     title: 'No Harassment',
     body: 'Harassment of any kind is prohibited. This includes following users across sessions, sending threatening or demeaning messages, and deliberately targeting individuals.',
@@ -41,9 +41,9 @@ const rules = [
   },
   {
     icon: Ban,
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/20',
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10',
+    border: 'border-cyan-400/20',
     title: 'No Hate Speech or Discrimination',
     body: 'Content that dehumanises people based on race, ethnicity, nationality, religion, gender, sexual orientation, disability, or any other protected characteristic is not allowed.',
     examples: ['No racial slurs or epithets', 'No calls to violence against any group', 'No symbols or imagery associated with hate groups'],
@@ -139,7 +139,7 @@ export default function GuidelinesPage() {
               level="First Violation"
               title="Warning / Temporary Suspension"
               desc="Minor violations may result in a warning or 24–72 hour suspension."
-              color="text-yellow-400"
+              color="text-cyan-400"
               border="border-yellow-500/20"
             />
             <ConsequenceCard

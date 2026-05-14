@@ -50,8 +50,8 @@ const PACKAGES = [
     price:   '£24.99',
     label:   'Mega',
     icon:    '👑',
-    color:   '#f59e0b',
-    glow:    'rgba(245,158,11,0.3)',
+    color:   '#00D4FF',
+    glow:    'rgba(0,212,255,0.25)',
     popular: false,
     desc:    'For power users who love tipping',
   },
@@ -294,7 +294,7 @@ export default function CoinsPage() {
                       <p className="text-xs" style={{ color: '#888899' }}>{desc}</p>
                     </div>
                   </div>
-                  <span className="text-sm font-black flex items-center gap-1" style={{ color: '#f59e0b' }}><VybeCoin size={14} /> {cost}</span>
+                  <span className="text-sm font-black flex items-center gap-1" style={{ color: '#00D4FF' }}><VybeCoin size={14} /> {cost}</span>
                 </div>
               ))}
             </div>

@@ -13,7 +13,7 @@ const VARIANTS = {
   purple: {
     base: 'text-white font-extrabold',
     style: {
-      background: 'linear-gradient(140deg, #7c3aed 0%, #6d28d9 55%, #5b21b6 100%)',
+      background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 55%, #33DDFF 100%)',
       boxShadow: '0 0 0 1px rgba(167,139,250,0.2), 0 0 24px rgba(124,58,237,0.35)',
     },
     hover: { boxShadow: '0 0 0 1px rgba(167,139,250,0.45), 0 0 36px rgba(124,58,237,0.55)' },

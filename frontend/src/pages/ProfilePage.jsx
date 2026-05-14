@@ -21,17 +21,17 @@ const BANNER_PRESETS = [
   { id: 'sunset',   name: 'Sunset',   style: 'linear-gradient(135deg, rgba(234,88,12,0.5) 0%, rgba(236,72,153,0.35) 50%, rgba(124,58,237,0.4) 100%)' },
   { id: 'ocean',    name: 'Ocean',    style: 'linear-gradient(135deg, rgba(6,182,212,0.5) 0%, rgba(0,212,255,0.4) 50%, rgba(0,68,102,0.5) 100%)' },
   { id: 'forest',   name: 'Forest',   style: 'linear-gradient(135deg, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.35) 50%, rgba(6,95,70,0.5) 100%)' },
-  { id: 'ember',    name: 'Ember',    style: 'linear-gradient(135deg, rgba(239,68,68,0.5) 0%, rgba(245,158,11,0.4) 50%, rgba(234,88,12,0.4) 100%)' },
+  { id: 'ember',    name: 'Ember',    style: 'linear-gradient(135deg, rgba(239,68,68,0.5) 0%, rgba(0,212,255,0.3) 50%, rgba(234,88,12,0.4) 100%)' },
   { id: 'aurora',   name: 'Aurora',   style: 'linear-gradient(135deg, rgba(99,102,241,0.5) 0%, rgba(167,139,250,0.4) 40%, rgba(236,72,153,0.35) 100%)' },
   { id: 'midnight', name: 'Midnight', style: 'linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.8) 50%, rgba(17,24,39,0.9) 100%)' },
   { id: 'rose',     name: 'Rose',     style: 'linear-gradient(135deg, rgba(244,63,94,0.45) 0%, rgba(251,113,133,0.3) 50%, rgba(190,18,60,0.4) 100%)' },
 ]
 
 const ACCENT_COLORS = [
-  { hex: '#7c3aed', name: 'Purple' },
+  { hex: '#00D4FF', name: 'Purple' },
   { hex: '#00D4FF', name: 'Blue'   },
   { hex: '#ec4899', name: 'Pink'   },
-  { hex: '#f59e0b', name: 'Gold'   },
+  { hex: '#00D4FF', name: 'Gold'   },
   { hex: '#10b981', name: 'Green'  },
   { hex: '#06b6d4', name: 'Cyan'   },
 ]
@@ -54,7 +54,7 @@ const RARITY_STYLE = {
   uncommon:  { label: 'Uncommon',  color: '#4ade80', bg: 'rgba(74,222,128,0.1)',   border: 'rgba(74,222,128,0.25)'   },
   rare:      { label: 'Rare',      color: '#00B8E0', bg: 'rgba(0,184,224,0.1)',   border: 'rgba(0,184,224,0.25)'   },
   epic:      { label: 'Epic',      color: '#c084fc', bg: 'rgba(192,132,252,0.1)',  border: 'rgba(192,132,252,0.25)'  },
-  legendary: { label: 'Legendary', color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.35)'   },
+  legendary: { label: 'Legendary', color: '#00B8E0', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.35)'   },
 }
 
 const BADGE_ICONS = {
@@ -336,10 +336,10 @@ export default function ProfilePage() {
             {/* Badges */}
             <div className="flex flex-wrap gap-2 mb-2">
               {profile.isPremium && !profile.isVip && <Badge icon={Zap}   label="Basic" color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
-              {profile.isVip     && <Badge icon={Crown} label="VIP"   color="border-yellow-500/30 text-yellow-400 bg-yellow-500/10" />}
+              {profile.isVip     && <Badge icon={Crown} label="VIP"   color="border-yellow-500/30 text-cyan-400 bg-cyan-500/10" />}
               {profile.emailVerified && <Badge icon={Shield}     label="Verified"                        color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
               {(profile.loginStreak ?? 0) >= 7  && <Badge icon={Flame}   label={`${profile.loginStreak}d Streak`} color="border-orange-500/30 text-orange-400 bg-orange-500/10" />}
-              {(profile.longestStreak ?? 0) >= 30 && <Badge icon={Trophy} label="Veteran"               color="border-yellow-500/30 text-yellow-300 bg-yellow-500/10" />}
+              {(profile.longestStreak ?? 0) >= 30 && <Badge icon={Trophy} label="Veteran"               color="border-yellow-500/30 text-cyan-300 bg-cyan-500/10" />}
               {(profile.totalChats ?? 0) >= 100  && <Badge icon={MessageCircle} label="Chatter"         color="border-green-500/30 text-green-400 bg-green-500/10" />}
             </div>
 

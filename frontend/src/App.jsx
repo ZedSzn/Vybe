@@ -45,7 +45,7 @@ function PageLoader() {
       <div className="flex flex-col items-center gap-4">
         <div
           className="w-12 h-12 rounded-2xl flex items-center justify-center"
-          style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)' }}
+          style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(124,58,237,0.3)' }}
         >
           <svg
             width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -69,7 +69,7 @@ function MaintenancePage({ message }) {
       <div style={{ textAlign: 'center', maxWidth: 400 }}>
         <div style={{
           width: 72, height: 72, borderRadius: 20, margin: '0 auto 24px',
-          background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)',
+          background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(124,58,237,0.3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(167,139,250,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -80,7 +80,7 @@ function MaintenancePage({ message }) {
         <p style={{ color: '#888899', fontSize: 14, lineHeight: 1.6, margin: '0 0 32px' }}>
           {message || "We're making Vybe better. Check back shortly."}
         </p>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.25)' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(124,58,237,0.25)' }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#a78bfa', display: 'inline-block', animation: 'pulse 2s infinite' }} />
           <span style={{ color: 'rgba(167,139,250,0.8)', fontSize: 13, fontWeight: 600 }}>Back soon</span>
         </div>

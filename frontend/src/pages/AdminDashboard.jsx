@@ -112,7 +112,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
                   {profile.isOnline && <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />}
                   {user.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>}
                   {user.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-400 font-bold">MEMBER</span>}
-                  {user.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 font-bold">VIP</span>}
+                  {user.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 font-bold">VIP</span>}
                 </div>
                 <p className="text-vybe-muted text-xs mt-0.5">{user.email}</p>
               </div>
@@ -167,7 +167,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-black text-white">Free Membership</h4>
               <div className="flex items-center gap-1.5">
-                {user.isVip     && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 border border-yellow-500/25 font-bold">VIP Active</span>}
+                {user.isVip     && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 border border-yellow-500/25 font-bold">VIP Active</span>}
                 {user.isPremium && !user.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-400 border border-cyan-400/25 font-bold">Basic Active</span>}
                 {!user.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-vybe-card2 text-vybe-muted font-bold">None</span>}
               </div>
@@ -185,7 +185,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
                 onClick={() => handleMembership('vip')}
                 disabled={membershipLoad || user.isVip}
                 className="py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
-                style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24' }}
+                style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', color: '#00B8E0' }}
               >
                 {membershipLoad ? '…' : 'VIP'}
               </button>
@@ -211,7 +211,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
                 <Ban size={14} /> Ban
               </button>
             )}
-            <button onClick={() => setWarnModal(true)} className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-yellow-500/15 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/25 text-sm font-bold transition-all">
+            <button onClick={() => setWarnModal(true)} className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-cyan-500/15 border border-yellow-500/30 text-cyan-400 hover:bg-cyan-500/25 text-sm font-bold transition-all">
               <MessageSquare size={14} /> Warn
             </button>
             <button onClick={() => { if (confirm(`Delete ${user.username}? This cannot be undone.`)) onDelete(user._id) }} className="col-span-2 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-900/20 border border-red-800/30 text-red-500 hover:bg-red-900/40 text-sm font-bold transition-all">
@@ -262,7 +262,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
               <textarea value={warnMsg} onChange={(e) => setWarnMsg(e.target.value)} placeholder="Warning message…" rows={3} className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none resize-none mb-4" />
               <div className="flex gap-2">
                 <button onClick={() => setWarnModal(false)} className="flex-1 py-2.5 rounded-xl border border-vybe-border text-vybe-muted text-sm">Cancel</button>
-                <button onClick={() => { if (warnMsg) { onWarn(user._id, warnMsg); setWarnModal(false) } }} className="flex-1 py-2.5 rounded-xl bg-yellow-600 hover:bg-yellow-500 text-white text-sm font-bold">Send Warning</button>
+                <button onClick={() => { if (warnMsg) { onWarn(user._id, warnMsg); setWarnModal(false) } }} className="flex-1 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold">Send Warning</button>
               </div>
             </div>
           </div>
@@ -406,7 +406,7 @@ export default function AdminDashboard() {
                             {u.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>}
                             {!u.isBanned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 font-bold">ACTIVE</span>}
                             {u.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-400 font-bold">MEMBER</span>}
-                            {u.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 font-bold">VIP</span>}
+                            {u.isVip && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 font-bold">VIP</span>}
                           </div>
                         </td>
                         <td className="px-4 py-3.5 text-vybe-muted text-sm">{u.violationCount || 0}</td>
@@ -789,7 +789,7 @@ export default function AdminDashboard() {
           </div>
           {settings.maintenanceMode && (
             <div className="px-3 py-2.5 rounded-lg mb-3 space-y-1" style={{ background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.2)' }}>
-              <p className="text-xs font-black" style={{ color: '#fbbf24' }}>⚠ Maintenance is LIVE</p>
+              <p className="text-xs font-black" style={{ color: '#00B8E0' }}>⚠ Maintenance is LIVE</p>
               <p className="text-xs" style={{ color: 'rgba(234,179,8,0.7)' }}>Regular users see the maintenance page right now. You bypass it because you're logged into the admin panel — test in an incognito window to verify.</p>
             </div>
           )}
@@ -874,7 +874,7 @@ export default function AdminDashboard() {
     useEffect(() => { fetchLogs() }, []) // eslint-disable-line
 
     const ACTION_COLORS = {
-      ban: 'text-red-400', unban: 'text-green-400', warn: 'text-yellow-400',
+      ban: 'text-red-400', unban: 'text-green-400', warn: 'text-cyan-400',
       delete: 'text-red-500', broadcast: 'text-vybe-purple', 'change-admin-password': 'text-cyan-400',
       'update-settings': 'text-gray-400', 'remove-friendship': 'text-orange-400',
     }
@@ -1001,7 +1001,7 @@ export default function AdminDashboard() {
                       <span className="text-vybe-muted">Request: <span className="text-white font-semibold">{r.coinsAmount?.toLocaleString()} coins</span></span>
                       <span className="text-vybe-muted">Value: <span className="text-emerald-400 font-semibold">£{r.gbpAmount?.toFixed(2)}</span></span>
                       <span className="text-vybe-muted">PayPal: <span className="text-white">{r.paypalEmail}</span></span>
-                      <span className="text-vybe-muted">Cashable bal: <span className="text-yellow-400 font-semibold">{(r.userId?.cashableCoins ?? '?').toLocaleString()}</span></span>
+                      <span className="text-vybe-muted">Cashable bal: <span className="text-cyan-400 font-semibold">{(r.userId?.cashableCoins ?? '?').toLocaleString()}</span></span>
                       <span className="text-vybe-muted">Spend bal: <span className="text-cyan-400 font-semibold">{(r.userId?.coins ?? '?').toLocaleString()}</span></span>
                       <span className="text-vybe-muted">Tips total: <span className="text-white">{(r.userId?.tipsEarned ?? '?').toLocaleString()}</span></span>
                     </div>
@@ -1010,7 +1010,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex flex-col gap-2 flex-shrink-0">
                     <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border capitalize text-center ${
-                      r.status === 'pending' ? 'bg-yellow-500/15 text-yellow-400 border-yellow-500/25' :
+                      r.status === 'pending' ? 'bg-cyan-500/15 text-cyan-400 border-yellow-500/25' :
                       r.status === 'approved' ? 'bg-green-500/15 text-green-400 border-green-500/25' :
                       'bg-red-500/15 text-red-400 border-red-500/25'
                     }`}>{r.status}</span>
@@ -1046,9 +1046,9 @@ export default function AdminDashboard() {
                   <p className="text-vybe-muted text-[11px]">GBP value</p>
                   <p className="text-emerald-400 font-black">£{selectedReq.gbpAmount?.toFixed(2)}</p>
                 </div>
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl px-3 py-2">
-                  <p className="text-yellow-400/70 text-[11px]">Earn balance now</p>
-                  <p className="text-yellow-300 font-black">{(reviewData?.cashableCoins ?? selectedReq.userId?.cashableCoins ?? '…').toLocaleString()}</p>
+                <div className="bg-cyan-500/10 border border-yellow-500/20 rounded-xl px-3 py-2">
+                  <p className="text-cyan-400/70 text-[11px]">Earn balance now</p>
+                  <p className="text-cyan-300 font-black">{(reviewData?.cashableCoins ?? selectedReq.userId?.cashableCoins ?? '…').toLocaleString()}</p>
                 </div>
                 <div className="bg-vybe-card rounded-xl px-3 py-2">
                   <p className="text-vybe-muted text-[11px]">Total tips (history)</p>
@@ -1065,7 +1065,7 @@ export default function AdminDashboard() {
                     {reviewData.history.map((h, i) => (
                       <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-vybe-card text-xs">
                         <span className="text-white/70 truncate">{h.reason}</span>
-                        <span className="text-yellow-400 font-bold ml-2 flex-shrink-0">+{h.amount}</span>
+                        <span className="text-cyan-400 font-bold ml-2 flex-shrink-0">+{h.amount}</span>
                         <span className="text-vybe-muted ml-2 flex-shrink-0">{new Date(h.timestamp).toLocaleDateString()}</span>
                       </div>
                     ))}
@@ -1177,7 +1177,7 @@ export default function AdminDashboard() {
                 <StatCard label="Banned Users"   value={stats.bannedUsers}    color="text-red-400"      bg="bg-red-500/10"      border="border-red-500/20"     icon={UserX} />
                 <StatCard label="Friendships"    value={stats.totalFriendships} color="text-pink-400"   bg="bg-pink-500/10"     border="border-pink-500/20"    icon={Heart} />
                 <StatCard label="Total Reports"  value={stats.totalReports}   color="text-vybe-purple"  bg="bg-vybe-purple/10"  border="border-vybe-purple/20" icon={Flag} />
-                <StatCard label="Pending Reports" value={stats.pendingReports} color="text-yellow-400"  bg="bg-yellow-500/10"   border="border-yellow-500/20"  icon={AlertTriangle} />
+                <StatCard label="Pending Reports" value={stats.pendingReports} color="text-cyan-400"  bg="bg-cyan-500/10"   border="border-yellow-500/20"  icon={AlertTriangle} />
                 <StatCard label="Unban Revenue"  value={`$${(stats.unbanRevenue || 0).toFixed(2)}`} color="text-emerald-400" bg="bg-emerald-500/10" border="border-emerald-500/20" icon={DollarSign} />
                 <StatCard label="Unban Sales"    value={stats.unbanCount}     color="text-emerald-300"  bg="bg-emerald-500/10"  border="border-emerald-500/20" icon={TrendingUp} />
               </div>

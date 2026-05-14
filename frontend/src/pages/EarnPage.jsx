@@ -32,7 +32,7 @@ const GIFT_TYPES = [
   { Icon: Heart,    name: 'Heart',   coins: 25,  label: '25 coins',  color: '#f43f5e' },
   { Icon: Flame,    name: 'Fire',    coins: 50,  label: '50 coins',  color: '#f97316' },
   { Icon: Gem,      name: 'Diamond', coins: 150, label: '150 coins', color: '#06b6d4' },
-  { Icon: Crown,    name: 'Crown',   coins: 300, label: '300 coins', color: '#fbbf24' },
+  { Icon: Crown,    name: 'Crown',   coins: 300, label: '300 coins', color: '#00B8E0' },
 ]
 
 const FAQS = [
@@ -119,7 +119,7 @@ export default function EarnPage() {
               >
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.25)' }}
+                  style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(124,58,237,0.25)' }}
                 >
                   {step.icon}
                 </div>

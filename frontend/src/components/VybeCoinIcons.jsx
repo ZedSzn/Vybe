@@ -50,7 +50,7 @@ export function CoinReward({ size = 18 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={coinStyle}>
       <circle cx="8" cy="8" r="7.5" fill="#4c1d95" />
-      <circle cx="8" cy="8" r="6.8" fill="#7c3aed" />
+      <circle cx="8" cy="8" r="6.8" fill="#00D4FF" />
       <circle cx="8" cy="8" r="5.8" fill="#8b5cf6" />
       <circle cx="8" cy="8" r="5"   fill="#a78bfa" opacity="0.4" />
       <ellipse cx="6.4" cy="5.6" rx="1.9" ry="1.3" fill="#ede9fe" opacity="0.55" />

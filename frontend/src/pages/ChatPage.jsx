@@ -44,7 +44,7 @@ function MobileFloatBtn({ onClick, children, active, red, amber, primary, disabl
 
   if (red && active)  { bg = 'rgba(220,38,38,0.88)'; border = '1px solid rgba(220,38,38,0.5)'; glow = '0 0 22px rgba(220,38,38,0.55), 0 0 44px rgba(220,38,38,0.18)'; color = '#fff' }
   else if (red)       { bg = 'rgba(239,68,68,0.1)';  border = '1px solid rgba(239,68,68,0.18)'; color = '#f87171' }
-  else if (amber)     { bg = 'rgba(245,158,11,0.16)'; border = '1px solid rgba(245,158,11,0.38)'; glow = '0 0 14px rgba(245,158,11,0.22)'; color = '#fbbf24' }
+  else if (amber)     { bg = 'rgba(0,212,255,0.12)'; border = '1px solid rgba(0,212,255,0.35)'; glow = '0 0 14px rgba(0,212,255,0.18)'; color = '#00B8E0' }
   else if (primary)   { bg = 'rgba(124,58,237,0.2)';  border = '1px solid rgba(124,58,237,0.32)'; glow = '0 0 16px rgba(124,58,237,0.28)'; color = '#c4b5fd' }
   else if (active)    { bg = 'rgba(124,58,237,0.18)'; border = '1px solid rgba(124,58,237,0.28)'; color = '#c4b5fd' }
 
@@ -811,7 +811,7 @@ export default function ChatPage() {
         </h1>
         <p className="text-vybe-muted text-sm max-w-sm leading-relaxed mb-2">{banReason}</p>
         {timeLeft && !isPermanent && (
-          <p className="text-yellow-400 text-sm font-bold mb-2">Time remaining: {timeLeft}</p>
+          <p className="text-cyan-400 text-sm font-bold mb-2">Time remaining: {timeLeft}</p>
         )}
         <p className="text-vybe-muted text-xs max-w-sm mb-6">
           Questions? Contact us at{' '}
@@ -871,9 +871,9 @@ export default function ChatPage() {
           {adminWarning && (
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-sm w-full px-4">
-              <div className="bg-yellow-500/15 border border-yellow-500/40 rounded-2xl px-5 py-4 flex items-start gap-3 backdrop-blur-sm">
-                <Shield size={16} className="text-yellow-400 mt-0.5 flex-shrink-0" />
-                <div><p className="text-yellow-300 text-xs font-black uppercase tracking-wider mb-1">Admin Warning</p><p className="text-white text-sm">{adminWarning}</p></div>
+              <div className="bg-cyan-500/15 border border-yellow-500/40 rounded-2xl px-5 py-4 flex items-start gap-3 backdrop-blur-sm">
+                <Shield size={16} className="text-cyan-400 mt-0.5 flex-shrink-0" />
+                <div><p className="text-cyan-300 text-xs font-black uppercase tracking-wider mb-1">Admin Warning</p><p className="text-white text-sm">{adminWarning}</p></div>
                 <button onClick={() => setAdminWarning('')} className="text-white/40 hover:text-white ml-auto"><X size={14} /></button>
               </div>
             </motion.div>
@@ -917,7 +917,7 @@ export default function ChatPage() {
           <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm pointer-events-none">
             <div className="bg-cyan-400/15 border border-cyan-400/30 rounded-2xl px-4 py-3 flex items-center gap-3 backdrop-blur-sm pointer-events-auto">
               <span className="text-sm">📧</span>
-              <p className="text-blue-300 text-xs flex-1">Verify your email to unlock all features</p>
+              <p className="text-cyan-400 text-xs flex-1">Verify your email to unlock all features</p>
               <Link to="/settings?tab=account" className="text-cyan-400 text-xs font-bold hover:underline flex-shrink-0">→ Settings</Link>
             </div>
           </div>
@@ -949,7 +949,7 @@ export default function ChatPage() {
                 {/* Coin balance breakdown */}
                 <div className="flex gap-2 mb-4">
                   <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
-                    <p className="text-yellow-300 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {coins.toLocaleString()}</p>
+                    <p className="text-cyan-300 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {coins.toLocaleString()}</p>
                     <p className="text-white/40 text-[10px] mt-0.5">Spendable</p>
                   </div>
                   {cashableCoins > 0 && (
@@ -1027,7 +1027,7 @@ export default function ChatPage() {
           {status === 'searching' ? (
             <div className="absolute inset-0 bg-[#080812] flex flex-col items-center justify-center gap-5 px-6">
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="absolute rounded-full animate-pulse" style={{ width: 340, height: 340, background: 'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)' }} />
+                <div className="absolute rounded-full animate-pulse" style={{ width: 340, height: 340, background: 'radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%)' }} />
                 <div className="absolute rounded-full animate-pulse" style={{ width: 220, height: 220, background: 'radial-gradient(circle, rgba(0,212,255,0.11) 0%, transparent 65%)', animationDelay: '0.5s' }} />
               </div>
               <VybeGlobe size={200} />
@@ -1079,16 +1079,16 @@ export default function ChatPage() {
                 className="absolute inset-0 z-[5] flex flex-col items-center justify-center gap-2.5"
                 style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}>
                 <div className="relative flex items-center justify-center">
-                  <div className="absolute w-14 h-14 rounded-full" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%)' }} />
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.12)', border: '1.5px solid rgba(245,158,11,0.35)', boxShadow: '0 0 16px rgba(245,158,11,0.2)' }}>
-                    <Shield size={18} style={{ color: '#fbbf24' }} />
+                  <div className="absolute w-14 h-14 rounded-full" style={{ background: 'radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 70%)' }} />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.35)', boxShadow: '0 0 16px rgba(0,212,255,0.15)' }}>
+                    <Shield size={18} style={{ color: '#00B8E0' }} />
                   </div>
                 </div>
                 <div className="text-center">
                   <p className="text-white font-black text-xs tracking-wide mb-0.5">Safe Mode Active</p>
                   <p className="text-white/35 text-[10px]">Stranger's camera is hidden</p>
                 </div>
-                <button onClick={() => setStrangerHidden(false)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold active:scale-95 mt-1" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)', color: '#fbbf24' }}>
+                <button onClick={() => setStrangerHidden(false)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold active:scale-95 mt-1" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.35)', color: '#00B8E0' }}>
                   <Video size={11} /> Reveal Camera
                 </button>
               </motion.div>
@@ -1110,7 +1110,7 @@ export default function ChatPage() {
                   {partnerAvatar ? (
                     <img src={partnerAvatar} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
                   ) : partnerUsername ? (
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ background: 'linear-gradient(135deg, #7c3aed, #00D4FF)' }}>
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
                       {partnerUsername[0].toUpperCase()}
                     </div>
                   ) : (
@@ -1119,7 +1119,7 @@ export default function ChatPage() {
                   <div className="flex items-center gap-1.5">
                     <span className="text-white font-bold text-[12px]">{partnerUsername ? partnerUsername : 'Stranger'}</span>
                     {partnerEmailVerified && <ShieldCheck size={10} style={{ color: '#00B8E0', flexShrink: 0 }} />}
-                    {partnerIsVip && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}><Crown size={7} /> VIP</span>}
+                    {partnerIsVip && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}><Crown size={7} /> VIP</span>}
                     {!partnerIsVip && partnerIsPremium && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(0,212,255,0.2)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}><Zap size={7} /> Member</span>}
                   </div>
                   {user && partnerUid && !friendReqSent && (
@@ -1362,7 +1362,7 @@ export default function ChatPage() {
                   <MessageSquare size={16} />
                   {unread > 0 && !showChat && (
                     <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-[7px] font-black flex items-center justify-center"
-                      style={{ background: '#7c3aed', color: '#fff' }}>
+                      style={{ background: '#00D4FF', color: '#fff' }}>
                       {unread > 9 ? '9+' : unread}
                     </span>
                   )}
@@ -1449,7 +1449,7 @@ export default function ChatPage() {
                           <img src={partnerAvatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
                         ) : partnerUsername ? (
                           <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
-                            style={{ background: 'linear-gradient(135deg, #7c3aed, #00D4FF)' }}>
+                            style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
                             {partnerUsername[0].toUpperCase()}
                           </div>
                         ) : (
@@ -1463,7 +1463,7 @@ export default function ChatPage() {
                             <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />
                           )}
                           {partnerIsVip && (
-                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}>
+                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}>
                               <Crown size={8} /> VIP
                             </span>
                           )}
@@ -1496,11 +1496,11 @@ export default function ChatPage() {
                         className="flex items-center justify-center w-7 h-7 rounded-lg"
                         style={{
                           backdropFilter: 'blur(12px)',
-                          background: strangerHidden ? 'rgba(245,158,11,0.22)' : 'rgba(0,0,0,0.55)',
-                          border:     strangerHidden ? '1px solid rgba(245,158,11,0.5)' : '1px solid rgba(255,255,255,0.1)',
+                          background: strangerHidden ? 'rgba(0,212,255,0.18)' : 'rgba(0,0,0,0.55)',
+                          border:     strangerHidden ? '1px solid rgba(0,212,255,0.4)' : '1px solid rgba(255,255,255,0.1)',
                           transition: 'background-color 150ms ease, border-color 150ms ease',
                         }}>
-                        <Shield size={13} style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.6)' }} />
+                        <Shield size={13} style={{ color: strangerHidden ? '#00B8E0' : 'rgba(255,255,255,0.6)' }} />
                       </button>
                     </motion.div>
                   )}
@@ -1528,10 +1528,10 @@ export default function ChatPage() {
                     >
                       <div className="relative flex items-center justify-center">
                         <div className="absolute w-20 h-20 rounded-full"
-                          style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%)' }} />
+                          style={{ background: 'radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 70%)' }} />
                         <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                          style={{ background: 'rgba(245,158,11,0.12)', border: '1.5px solid rgba(245,158,11,0.35)', boxShadow: '0 0 24px rgba(245,158,11,0.2)' }}>
-                          <Shield size={26} style={{ color: '#fbbf24' }} />
+                          style={{ background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.35)', boxShadow: '0 0 24px rgba(0,212,255,0.15)' }}>
+                          <Shield size={26} style={{ color: '#00B8E0' }} />
                         </div>
                       </div>
                       <div className="text-center">
@@ -1541,7 +1541,7 @@ export default function ChatPage() {
                       <button
                         onClick={() => setStrangerHidden(false)}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold active:scale-95"
-                        style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)', color: '#fbbf24' }}
+                        style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.35)', color: '#00B8E0' }}
                       >
                         <Video size={12} /> Reveal Camera
                       </button>
@@ -1573,7 +1573,7 @@ export default function ChatPage() {
                       <img src={user.avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
                     ) : user?.username ? (
                       <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
-                        style={{ background: 'linear-gradient(135deg, #00D4FF, #7c3aed)' }}>
+                        style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
                         {user.username[0].toUpperCase()}
                       </div>
                     ) : null}
@@ -1583,7 +1583,7 @@ export default function ChatPage() {
                         <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />
                       )}
                       {user?.isVip && (
-                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.35)' }}>
+                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}>
                           <Crown size={8} /> VIP
                         </span>
                       )}
@@ -1631,14 +1631,14 @@ export default function ChatPage() {
                   <button
                     onClick={() => setStrangerHidden(h => !h)}
                     className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl select-none"
-                    style={{ color: strangerHidden ? '#fbbf24' : 'rgba(255,255,255,0.55)', transition: 'color 150ms ease' }}
+                    style={{ color: strangerHidden ? '#00B8E0' : 'rgba(255,255,255,0.55)', transition: 'color 150ms ease' }}
                     title={strangerHidden ? 'Reveal camera (exit safe mode)' : 'Safe Mode — hide stranger\'s camera'}
                   >
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center"
                       style={{
-                        background:  strangerHidden ? 'rgba(245,158,11,0.18)' : 'rgba(255,255,255,0.06)',
-                        border:      strangerHidden ? '1px solid rgba(245,158,11,0.45)' : '1px solid transparent',
-                        boxShadow:   strangerHidden ? '0 0 14px rgba(245,158,11,0.3)' : 'none',
+                        background:  strangerHidden ? 'rgba(0,212,255,0.18)' : 'rgba(255,255,255,0.06)',
+                        border:      strangerHidden ? '1px solid rgba(0,212,255,0.4)' : '1px solid transparent',
+                        boxShadow:   strangerHidden ? '0 0 14px rgba(0,212,255,0.25)' : 'none',
                         transition:  'background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease',
                       }}>
                       <Shield size={17} />

@@ -21,7 +21,7 @@ const PLANS = [
     name: 'VIP',
     price: '£12.99',
     icon: Crown,
-    color: '#f59e0b',
+    color: '#00D4FF',
     glow: 'rgba(245,158,11,0.35)',
     badge: 'BEST VALUE',
     features: [

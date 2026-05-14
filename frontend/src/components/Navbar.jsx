@@ -185,10 +185,10 @@ export default function Navbar({ onPremiumClick }) {
             {/* Coin balance — desktop only */}
             <Link
               to="/wallet"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/25 hover:bg-yellow-500/20 transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-yellow-500/25 hover:bg-cyan-500/20 transition-colors"
             >
               <CoinIcon />
-              <span className="text-yellow-300 text-xs font-black">{coins.toLocaleString()}</span>
+              <span className="text-cyan-300 text-xs font-black">{coins.toLocaleString()}</span>
             </Link>
 
             {/* Buy Coins — desktop only */}
@@ -220,7 +220,7 @@ export default function Navbar({ onPremiumClick }) {
               style={{ background: 'rgba(234,179,8,0.12)', border: '1px solid rgba(234,179,8,0.22)' }}
             >
               <CoinIcon />
-              <span className="text-yellow-300 text-[11px] font-black">{coins.toLocaleString()}</span>
+              <span className="text-cyan-300 text-[11px] font-black">{coins.toLocaleString()}</span>
             </Link>
 
             {/* Buy Coins — mobile only */}
@@ -361,12 +361,12 @@ export default function Navbar({ onPremiumClick }) {
                       </div>
                     </div>
                     <Link to="/wallet" onClick={() => setShowUserMenu(false)}
-                      className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 transition-colors">
+                      className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-cyan-500/10 border border-yellow-500/20 hover:bg-cyan-500/20 transition-colors">
                       <div className="flex items-center gap-1.5">
                         <CoinIcon />
-                        <span className="text-yellow-300 text-xs font-black">{coins.toLocaleString()} {t('coins')}</span>
+                        <span className="text-cyan-300 text-xs font-black">{coins.toLocaleString()} {t('coins')}</span>
                       </div>
-                      <span className="text-yellow-400/50 text-[10px] ml-2">Wallet →</span>
+                      <span className="text-cyan-400/50 text-[10px] ml-2">Wallet →</span>
                     </Link>
                   </motion.div>
 

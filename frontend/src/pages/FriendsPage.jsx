@@ -15,7 +15,7 @@ function Avatar({ name, size = 9, online }) {
   return (
     <div className="relative flex-shrink-0">
       <div
-        className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-purple-600 to-blue-900 flex items-center justify-center text-white font-black`}
+        className={`w-${size} h-${size} rounded-full bg-gradient-to-br from-cyan-400 to-blue-900 flex items-center justify-center text-white font-black`}
         style={{ fontSize: size > 8 ? 16 : 13 }}
       >
         {name?.[0]?.toUpperCase() || '?'}
@@ -275,7 +275,7 @@ export default function FriendsPage() {
                   {t.icon}
                   {t.label}
                   {t.badge > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-purple-600 text-[9px] font-black flex items-center justify-center text-white">
+                    <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-cyan-500 text-[9px] font-black flex items-center justify-center text-white">
                       {t.badge > 9 ? '9+' : t.badge}
                     </span>
                   )}
@@ -354,7 +354,7 @@ export default function FriendsPage() {
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0, opacity: 0 }}
                                 transition={{ type: 'spring', stiffness: 600, damping: 20 }}
-                                className="w-5 h-5 rounded-full bg-purple-600 text-[10px] font-black flex items-center justify-center text-white flex-shrink-0"
+                                className="w-5 h-5 rounded-full bg-cyan-500 text-[10px] font-black flex items-center justify-center text-white flex-shrink-0"
                               >
                                 {unread > 9 ? '9+' : unread}
                               </motion.span>

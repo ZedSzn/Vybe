@@ -5,7 +5,7 @@ const BASE_INPUT = `
   w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)]
   rounded-[12px] px-4 py-2.5 text-sm text-white placeholder-[#55606e]
   outline-none transition-[border-color,box-shadow] duration-[180ms]
-  focus:border-[rgba(124,58,237,0.55)] focus:shadow-[0_0_0_3px_rgba(124,58,237,0.12),0_0_12px_rgba(124,58,237,0.08)]
+  focus:border-[rgba(124,58,237,0.55)] focus:shadow-[0_0_0_3px_rgba(0,212,255,0.1),0_0_12px_rgba(124,58,237,0.08)]
 `.replace(/\s+/g, ' ').trim()
 
 const ERROR_INPUT = `

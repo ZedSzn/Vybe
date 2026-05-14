@@ -10,7 +10,7 @@ import {
 const REASON_MAP = {
   nudity:      { label: '🔞 Nudity',      color: 'text-red-400',    bg: 'bg-red-500/15',    border: 'border-red-500/25' },
   harassment:  { label: '😤 Harassment',  color: 'text-orange-400', bg: 'bg-orange-500/15', border: 'border-orange-500/25' },
-  underage:    { label: '👶 Underage',    color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/25' },
+  underage:    { label: '👶 Underage',    color: 'text-cyan-400', bg: 'bg-cyan-500/15', border: 'border-yellow-500/25' },
   spam:        { label: '🤖 Spam',        color: 'text-cyan-400',   bg: 'bg-cyan-400/15',   border: 'border-cyan-400/25' },
   other:       { label: '📋 Other',       color: 'text-gray-400',   bg: 'bg-gray-500/15',   border: 'border-gray-500/25' },
 }
@@ -187,7 +187,7 @@ export default function AdminPage() {
         {stats && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
             <StatCard label="Total Reports"   value={stats.totalReports}   color="text-vybe-purple"  bg="bg-vybe-purple/10"   border="border-vybe-purple/20"  icon={Flag} />
-            <StatCard label="Pending"          value={stats.pendingReports} color="text-yellow-400"   bg="bg-yellow-500/10"   border="border-yellow-500/20"  icon={AlertTriangle} />
+            <StatCard label="Pending"          value={stats.pendingReports} color="text-cyan-400"   bg="bg-cyan-500/10"   border="border-yellow-500/20"  icon={AlertTriangle} />
             <StatCard label="Total Users"      value={stats.totalUsers}     color="text-green-400"    bg="bg-green-500/10"    border="border-green-500/20"   icon={Users} />
             <StatCard label="Banned"           value={stats.bannedUsers}    color="text-red-400"      bg="bg-red-500/10"      border="border-red-500/20"     icon={UserX} />
             <StatCard label="Online Now"       value={stats.online}         color="text-cyan-400"     bg="bg-cyan-400/10"     border="border-cyan-400/20"    icon={TrendingUp} />
@@ -362,7 +362,7 @@ export default function AdminPage() {
                           <td className="px-4 py-3.5">
                             <div className="flex flex-wrap gap-1">
                               {u.isAdmin   && <span className="text-[10px] px-2 py-0.5 rounded-full bg-vybe-purple/20 text-vybe-purple border border-vybe-purple/30 font-black">ADMIN</span>}
-                              {u.isVip     && <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 font-bold">VIP</span>}
+                              {u.isVip     && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 font-bold">VIP</span>}
                               {u.isPremium && <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-400/15 text-cyan-400 font-bold">MEMBER</span>}
                               {u.isBanned  ? (
                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-bold">BANNED</span>

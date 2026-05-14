@@ -26,7 +26,7 @@ const GIFTS_LIST = [
   { id: 'heart',   name: 'Heart',   Icon: Heart,    cost: 25,  color: '#f43f5e' },
   { id: 'fire',    name: 'Fire',    Icon: Flame,    cost: 50,  color: '#f97316' },
   { id: 'diamond', name: 'Diamond', Icon: Gem,      cost: 150, color: '#06b6d4' },
-  { id: 'crown',   name: 'Crown',   Icon: Crown,    cost: 300, color: '#fbbf24' },
+  { id: 'crown',   name: 'Crown',   Icon: Crown,    cost: 300, color: '#00B8E0' },
 ]
 
 const TX_TYPE_LABELS = {
@@ -35,10 +35,10 @@ const TX_TYPE_LABELS = {
   streak:        { label: 'Streak bonus',   color: 'text-orange-400' },
   referral:      { label: 'Referral',       color: 'text-cyan-400'   },
   purchase:      { label: 'Coin purchase',  color: 'text-cyan-400'   },
-  tip_received:  { label: 'Tip received',   color: 'text-yellow-400' },
+  tip_received:  { label: 'Tip received',   color: 'text-cyan-400' },
   tip_sent:      { label: 'Tip sent',       color: 'text-red-400'    },
   gift:          { label: 'Gift sent',      color: 'text-red-400'    },
-  cashout:       { label: 'Cash out',       color: 'text-purple-400' },
+  cashout:       { label: 'Cash out',       color: 'text-cyan-400' },
   cashout_refund:{ label: 'Cashout refund', color: 'text-green-400'  },
 }
 
@@ -183,7 +183,7 @@ export default function WalletPage() {
   }
 
   const statusBadge = (s) => ({
-    pending:  'bg-yellow-500/15 text-yellow-400 border-yellow-500/25',
+    pending:  'bg-cyan-500/15 text-cyan-400 border-yellow-500/25',
     approved: 'bg-green-500/15 text-green-400 border-green-500/25',
     rejected: 'bg-red-500/15 text-red-400 border-red-500/25',
   }[s] || '')
@@ -293,7 +293,7 @@ export default function WalletPage() {
               <div className="grid sm:grid-cols-3 gap-4">
                 {[
                   { Icon: ShoppingCart, color: '#00B8E0', step: '1', title: 'Buy Coins', desc: 'Purchase coins with a simple one-time payment via Stripe.' },
-                  { Icon: Gift,         color: '#a855f7', step: '2', title: 'Send Gifts', desc: 'Send gifts to people you meet in video chat — instantly.' },
+                  { Icon: Gift,         color: '#7C3AED', step: '2', title: 'Send Gifts', desc: 'Send gifts to people you meet in video chat — instantly.' },
                   { Icon: DollarSign,   color: '#00D4FF', step: '3', title: 'Cash Out',   desc: 'Recipients earn 70% of every gift and can cash out to PayPal.' },
                 ].map(({ Icon, color, step, title, desc }) => (
                   <div key={step} className="flex flex-col items-center text-center p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -321,7 +321,7 @@ export default function WalletPage() {
                       <g.Icon size={20} style={{ color: g.color }} />
                     </div>
                     <p className="text-white text-xs font-bold mb-0.5">{g.name}</p>
-                    <span className="flex items-center gap-0.5 text-[10px] font-semibold text-yellow-300">
+                    <span className="flex items-center gap-0.5 text-[10px] font-semibold text-cyan-300">
                       <VybeCoin size={9} />{g.cost}
                     </span>
                   </div>
@@ -330,7 +330,7 @@ export default function WalletPage() {
               <button
                 onClick={() => navigate('/chat')}
                 className="w-full py-3 rounded-xl text-sm font-extrabold text-white flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#00D4FF)', boxShadow: '0 0 20px rgba(124,58,237,0.25)' }}
+                style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', boxShadow: '0 0 20px rgba(124,58,237,0.25)' }}
               >
                 Start a Chat <ArrowRight size={15} />
               </button>
@@ -358,19 +358,19 @@ export default function WalletPage() {
                 <motion.div
                   key={pkg.id}
                   whileHover={{ scale: 1.02 }}
-                  className={`relative rounded-2xl p-5 border cursor-pointer transition-colors ${pkg.popular ? 'border-purple-500/50' : 'border-white/8'}`}
+                  className={`relative rounded-2xl p-5 border cursor-pointer transition-colors ${pkg.popular ? 'border-cyan-400/50' : 'border-white/8'}`}
                   style={{ background: pkg.popular ? 'rgba(168,85,247,0.08)' : 'rgba(255,255,255,0.03)' }}
                   onClick={() => handleBuy(pkg)}
                 >
                   {pkg.popular && (
                     <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-extrabold text-white"
-                      style={{ background: 'linear-gradient(135deg,#a855f7,#7c3aed)' }}>
+                      style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
                       BEST VALUE
                     </span>
                   )}
                   <div className="flex items-center justify-between mb-3">
                     <VybeCoin size={28} />
-                    <span className="text-2xl font-extrabold text-yellow-300">{pkg.label}</span>
+                    <span className="text-2xl font-extrabold text-cyan-300">{pkg.label}</span>
                   </div>
                   <div className="flex items-end justify-between">
                     <span className="text-white/40 text-xs">One-time payment</span>
@@ -378,7 +378,7 @@ export default function WalletPage() {
                       disabled={buyLoading === pkg.id}
                       className="px-4 py-2 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-60"
                       style={{
-                        background: pkg.popular ? 'linear-gradient(135deg,#a855f7,#7c3aed)' : 'linear-gradient(135deg,#00D4FF,#00B8E0)',
+                        background: pkg.popular ? 'linear-gradient(135deg, #00D4FF, #7C3AED)' : 'linear-gradient(135deg,#00D4FF,#00B8E0)',
                         boxShadow: pkg.popular ? '0 0 16px rgba(168,85,247,0.4)' : '0 0 16px rgba(0,212,255,0.4)',
                       }}
                     >

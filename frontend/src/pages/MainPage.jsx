@@ -691,7 +691,7 @@ export default function MainPage() {
                           <div key={m.socketId} className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl border relative group" style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.08)' }}>
                             <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs" style={{ background: "rgba(0,212,255,0.2)", color: "rgba(0,212,255,0.55)" }}>{m.username?.[0]?.toUpperCase() || '?'}</div>
                             <span className="text-[9px] text-white font-semibold truncate w-full text-center" style={{ maxWidth: '52px' }}>{m.username || 'User'}</span>
-                            {m.socketId === squad.leaderId && <Crown size={8} className="text-yellow-400" />}
+                            {m.socketId === squad.leaderId && <Crown size={8} className="text-cyan-400" />}
                             {squad.leaderId === socket?.id && m.socketId !== socket?.id && (
                               <button onClick={() => kickMember(m.socketId)} className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><XIcon size={7} /></button>
                             )}
@@ -760,7 +760,7 @@ export default function MainPage() {
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-2 p-2 rounded-xl" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.18)' }}>
                         <Lock size={11} className="text-cyan-400 flex-shrink-0" />
-                        <p className="text-[11px] text-blue-300 flex-1">Room ready — share the link below</p>
+                        <p className="text-[11px] text-cyan-400 flex-1">Room ready — share the link below</p>
                       </div>
                       <div className="flex gap-1.5">
                         <div className="flex-1 px-2 py-1.5 rounded-lg text-[9px] text-vybe-muted font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>{privateInviteUrl}</div>
@@ -918,7 +918,7 @@ export default function MainPage() {
             }}>NEW</span>
           {/* Message */}
           <span className="text-[13px] font-medium" style={{ color: 'rgba(255,255,255,0.75)', letterSpacing: '-0.01em' }}>
-            Earn coins by chatting — daily rewards, streaks &amp; bonuses now live.
+            Get paid to chat — turn your conversations into real money.
           </span>
           {/* CTA */}
           <button
@@ -929,7 +929,7 @@ export default function MainPage() {
               border: '1px solid rgba(0,212,255,0.25)',
               letterSpacing: '-0.01em',
             }}
-            onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>
+            onClick={() => navigate('/earn')}>
             Learn more <span style={{ fontSize: 13 }}>→</span>
           </button>
         </div>

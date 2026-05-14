@@ -106,7 +106,7 @@ export function BadgeFlame({ size = 64 }) {
         </radialGradient>
         <linearGradient id="bfl_outer" x1="32" y1="5" x2="32" y2="57" gradientUnits="userSpaceOnUse">
           <stop offset="0%"   stopColor="#fef9c3"/>
-          <stop offset="18%"  stopColor="#fbbf24"/>
+          <stop offset="18%"  stopColor="#00B8E0"/>
           <stop offset="45%"  stopColor="#f97316"/>
           <stop offset="70%"  stopColor="#dc2626"/>
           <stop offset="90%"  stopColor="#991b1b"/>
@@ -146,10 +146,10 @@ export function BadgeFlame({ size = 64 }) {
       <path d="M32,25 C32,25 37,30 35,35 C34,39 37,40 35,44 C34,46 33,47.5 32,47.5 C31,47.5 30,46 29,44 C27,40 30,39 29,35 C27,30 32,25 32,25 Z"
         fill="url(#bfl_core)"/>
       {/* Ember particles */}
-      <circle cx="24" cy="9"  r="2.2" fill="#fbbf24" opacity="0.75" filter="url(#bfl_soft)"/>
+      <circle cx="24" cy="9"  r="2.2" fill="#00B8E0" opacity="0.75" filter="url(#bfl_soft)"/>
       <circle cx="41" cy="7"  r="1.6" fill="#fde047" opacity="0.65" filter="url(#bfl_soft)"/>
       <circle cx="19" cy="17" r="1.3" fill="#fb923c" opacity="0.55" filter="url(#bfl_soft)"/>
-      <circle cx="46" cy="19" r="1.1" fill="#fbbf24" opacity="0.45" filter="url(#bfl_soft)"/>
+      <circle cx="46" cy="19" r="1.1" fill="#00B8E0" opacity="0.45" filter="url(#bfl_soft)"/>
       <circle cx="14" cy="28" r="1"   fill="#f97316" opacity="0.4"  filter="url(#bfl_soft)"/>
     </svg>
   )
@@ -167,7 +167,7 @@ export function BadgeOrb({ size = 64 }) {
         <radialGradient id="bor_sphere" cx="33%" cy="28%" r="72%">
           <stop offset="0%"   stopColor="#ede9fe"/>
           <stop offset="25%"  stopColor="#c4b5fd"/>
-          <stop offset="55%"  stopColor="#7c3aed"/>
+          <stop offset="55%"  stopColor="#00D4FF"/>
           <stop offset="85%"  stopColor="#3b0764"/>
           <stop offset="100%" stopColor="#1e0038"/>
         </radialGradient>
@@ -225,7 +225,7 @@ export function BadgeCrown({ size = 64 }) {
         <linearGradient id="bcr_body" x1="32" y1="14" x2="32" y2="50" gradientUnits="userSpaceOnUse">
           <stop offset="0%"   stopColor="#fef9c3"/>
           <stop offset="20%"  stopColor="#fde68a"/>
-          <stop offset="50%"  stopColor="#f59e0b"/>
+          <stop offset="50%"  stopColor="#00D4FF"/>
           <stop offset="78%"  stopColor="#b45309"/>
           <stop offset="100%" stopColor="#78350f"/>
         </linearGradient>

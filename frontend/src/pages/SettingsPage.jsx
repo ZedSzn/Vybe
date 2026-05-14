@@ -151,7 +151,7 @@ function CoinsTab() {
                 <span className="text-base">{icon}</span>
                 <span className="text-white/80 text-sm">{action}</span>
               </div>
-              <span className="text-yellow-300 text-sm font-bold flex items-center gap-1">
+              <span className="text-cyan-300 text-sm font-bold flex items-center gap-1">
                 {suffix.includes('%') ? suffix : <><span>+{c}</span><CoinReward size={12}/>{suffix}</>}
               </span>
             </div>
@@ -240,7 +240,7 @@ function BlocksTab() {
           className="py-8 flex flex-col items-center text-center"
         >
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
-            style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.15)' }}>
+            style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(0,212,255,0.12)' }}>
             <UserX size={24} className="text-vybe-purple-light opacity-50" />
           </div>
           <p className="text-white/60 text-sm font-semibold mb-0.5">No blocked users</p>
@@ -330,7 +330,7 @@ function ReferralTab() {
         <h3 className="text-sm font-black text-white mb-1">Your Referral Link</h3>
         <p className="text-vybe-muted text-xs mb-4">
           You've invited <span className="text-white font-bold">{info?.referralCount || 0}</span> friends
-          and earned <span className="text-yellow-300 font-bold inline-flex items-center gap-1">{(info?.coinsEarned || 0).toLocaleString()} <CoinReward size={12} /></span>.
+          and earned <span className="text-cyan-300 font-bold inline-flex items-center gap-1">{(info?.coinsEarned || 0).toLocaleString()} <CoinReward size={12} /></span>.
         </p>
         <div className="flex gap-2 mb-3">
           <div className="flex-1 px-3 py-2 bg-vybe-bg border border-vybe-border rounded-xl text-vybe-muted text-xs truncate font-mono">
@@ -368,14 +368,14 @@ function ReferralTab() {
           <div className="space-y-2">
             {leaders.slice(0, 10).map((l, i) => (
               <div key={l._id} className="flex items-center gap-3 py-2 border-b border-vybe-border/30 last:border-0">
-                <span className={`text-sm font-black w-5 ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-amber-600' : 'text-vybe-muted'}`}>
+                <span className={`text-sm font-black w-5 ${i === 0 ? 'text-cyan-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-cyan-600' : 'text-vybe-muted'}`}>
                   {i + 1}
                 </span>
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-vybe-purple to-blue-900 flex items-center justify-center text-white text-xs font-black flex-shrink-0">
                   {l.username?.[0]?.toUpperCase()}
                 </div>
                 <span className="text-white text-sm font-semibold flex-1 truncate">{l.username}</span>
-                <span className="text-yellow-300 text-xs font-black">{l.referralCount} invited</span>
+                <span className="text-cyan-300 text-xs font-black">{l.referralCount} invited</span>
               </div>
             ))}
           </div>
@@ -425,10 +425,10 @@ function EmailVerificationSection({ user }) {
   }
 
   return (
-    <div className="glass-card rounded-2xl p-5 border border-amber-500/25 bg-amber-500/5">
+    <div className="glass-card rounded-2xl p-5 border border-amber-500/25 bg-cyan-500/5">
       <div className="flex items-start gap-3 mb-4">
-        <div className="w-9 h-9 rounded-full bg-amber-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Mail size={18} className="text-amber-400" />
+        <div className="w-9 h-9 rounded-full bg-cyan-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Mail size={18} className="text-cyan-400" />
         </div>
         <div>
           <p className="text-white text-sm font-bold">Verify your email</p>
@@ -448,7 +448,7 @@ function EmailVerificationSection({ user }) {
           <button
             onClick={resend}
             disabled={sending}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-sm font-bold transition-all disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500/10 border border-amber-500/30 text-cyan-300 hover:bg-cyan-500/20 text-sm font-bold transition-all disabled:opacity-50"
           >
             {sending ? <><Loader2 size={13} className="animate-spin" /> Sending…</> : <><Mail size={13} /> Send Verification Email</>}
           </button>

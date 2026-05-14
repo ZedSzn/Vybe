@@ -32,8 +32,8 @@ const PLANS = [
     name:  'VIP',
     price: '£12.99',
     per:   'per month',
-    color: '#f59e0b',
-    glow:  'rgba(245,158,11,0.35)',
+    color: '#00D4FF',
+    glow:  'rgba(0,212,255,0.35)',
     BadgeIcon: Crown,
     popular: true,
     features: [
@@ -196,7 +196,7 @@ export default function SubscriptionPage() {
       </AnimatePresence>
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-        <div style={{ position: 'absolute', top: '-5%', right: '15%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(245,158,11,0.06) 0%, transparent 65%)' }} />
+        <div style={{ position: 'absolute', top: '-5%', right: '15%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.06) 0%, transparent 65%)' }} />
         <div style={{ position: 'absolute', bottom: '10%', left: '10%', width: '400px', height: '400px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.06) 0%, transparent 65%)' }} />
       </div>
 
@@ -273,10 +273,10 @@ export default function SubscriptionPage() {
                 style={{
                   background: isPastDue
                     ? 'rgba(239,68,68,0.07)'
-                    : isCancelling ? 'rgba(245,158,11,0.07)' : 'rgba(0,212,255,0.07)',
+                    : isCancelling ? 'rgba(0,212,255,0.07)' : 'rgba(0,212,255,0.07)',
                   border: isPastDue
                     ? '1px solid rgba(239,68,68,0.2)'
-                    : isCancelling ? '1px solid rgba(245,158,11,0.2)' : '1px solid rgba(0,212,255,0.2)',
+                    : isCancelling ? '1px solid rgba(0,212,255,0.15)' : '1px solid rgba(0,212,255,0.2)',
                 }}
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -285,14 +285,14 @@ export default function SubscriptionPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      {sub.plan === 'vip' ? <Crown size={18} className="text-yellow-400" /> : <Zap size={18} style={{ color: '#00D4FF' }} />}
+                      {sub.plan === 'vip' ? <Crown size={18} className="text-cyan-400" /> : <Zap size={18} style={{ color: '#00D4FF' }} />}
                       <span className="text-lg font-black text-white">
                         {sub.plan === 'vip' ? 'VIP' : 'Basic'} Plan
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded-full font-bold"
                         style={{
-                          background: isPastDue ? 'rgba(239,68,68,0.15)' : isCancelling ? 'rgba(245,158,11,0.15)' : 'rgba(74,222,128,0.15)',
-                          color: isPastDue ? '#f87171' : isCancelling ? '#fbbf24' : '#4ade80',
+                          background: isPastDue ? 'rgba(239,68,68,0.15)' : isCancelling ? 'rgba(0,212,255,0.12)' : 'rgba(74,222,128,0.15)',
+                          color: isPastDue ? '#f87171' : isCancelling ? '#00B8E0' : '#4ade80',
                         }}>
                         {isPastDue ? 'Past Due' : isCancelling ? 'Cancelling' : 'Active'}
                       </span>
@@ -303,7 +303,7 @@ export default function SubscriptionPage() {
                       </p>
                     )}
                     {isCancelling && periodEnd && (
-                      <p className="text-sm" style={{ color: '#fbbf24' }}>
+                      <p className="text-sm" style={{ color: '#00B8E0' }}>
                         Access ends on {periodEnd}. Resume anytime before then.
                       </p>
                     )}
@@ -389,7 +389,7 @@ export default function SubscriptionPage() {
                   >
                     {plan.popular && !isCurrent && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-black"
-                        style={{ background: `linear-gradient(135deg, ${plan.color}, #fbbf24)`, color: '#0a0a0f' }}>
+                        style={{ background: `linear-gradient(135deg, ${plan.color}, #00B8E0)`, color: '#0a0a0f' }}>
                         BEST VALUE
                       </div>
                     )}
@@ -454,7 +454,7 @@ export default function SubscriptionPage() {
                         className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-60 flex items-center justify-center gap-2"
                         style={{
                           background: plan.popular
-                            ? `linear-gradient(135deg, ${plan.color}, #fbbf24)`
+                            ? `linear-gradient(135deg, ${plan.color}, #00B8E0)`
                             : `linear-gradient(135deg, #00D4FF, #00B8E0)`,
                           boxShadow: `0 0 24px ${plan.glow}`,
                         }}
@@ -507,7 +507,7 @@ export default function SubscriptionPage() {
                   </div>
                   <div className="flex justify-center">
                     {vip
-                      ? <Check size={15} style={{ color: '#f59e0b' }} />
+                      ? <Check size={15} style={{ color: '#00D4FF' }} />
                       : <X     size={13} style={{ color: '#374151' }} />}
                   </div>
                 </div>

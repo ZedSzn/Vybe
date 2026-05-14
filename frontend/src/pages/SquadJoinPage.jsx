@@ -119,7 +119,7 @@ export default function SquadJoinPage() {
                     {squadInfo.leaderName[0]?.toUpperCase()}
                   </div>
                   <span className="text-[11px] text-white font-medium truncate w-full text-center">{squadInfo.leaderName}</span>
-                  <span className="text-[9px] text-yellow-400 font-black tracking-widest">LEADER</span>
+                  <span className="text-[9px] text-cyan-400 font-black tracking-widest">LEADER</span>
                 </div>
 
                 <div className="flex-1 flex flex-col items-center gap-1.5 p-3 bg-vybe-card2/40 rounded-xl border border-dashed border-vybe-border">
