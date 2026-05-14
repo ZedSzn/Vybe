@@ -19,7 +19,7 @@ function BarBtn({ onClick, children, label, active, red, disabled: dis, title: t
   return (
     <button onClick={onClick} disabled={dis} title={t || label}
       className={`flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl select-none disabled:opacity-40 disabled:cursor-default
-        ${red ? 'text-red-400/80 hover:text-red-300' : active ? 'text-vybe-purple-light' : 'text-white/55 hover:text-white'}`}
+        ${red ? 'text-red-400/80 hover:text-red-300' : active ? 'text-cyan-400' : 'text-white/55 hover:text-white'}`}
       style={{ transition: 'color 150ms ease' }}>
       <div className="w-9 h-9 rounded-xl flex items-center justify-center"
         style={{
@@ -39,14 +39,14 @@ function MobileFloatBtn({ onClick, children, active, red, amber, primary, disabl
   let bg = 'rgba(255,255,255,0.07)'
   let border = '1px solid rgba(255,255,255,0.06)'
   let glow = 'none'
-  let color = active ? '#c4b5fd' : 'rgba(255,255,255,0.72)'
+  let color = active ? '#00D4FF' : 'rgba(255,255,255,0.72)'
   let sz = primary ? 46 : 40
 
   if (red && active)  { bg = 'rgba(220,38,38,0.88)'; border = '1px solid rgba(220,38,38,0.5)'; glow = '0 0 22px rgba(220,38,38,0.55), 0 0 44px rgba(220,38,38,0.18)'; color = '#fff' }
   else if (red)       { bg = 'rgba(239,68,68,0.1)';  border = '1px solid rgba(239,68,68,0.18)'; color = '#f87171' }
   else if (amber)     { bg = 'rgba(0,212,255,0.12)'; border = '1px solid rgba(0,212,255,0.35)'; glow = '0 0 14px rgba(0,212,255,0.18)'; color = '#00B8E0' }
-  else if (primary)   { bg = 'rgba(0,212,255,0.15)';  border = '1px solid rgba(0,212,255,0.32)'; glow = '0 0 16px rgba(0,212,255,0.28)'; color = '#c4b5fd' }
-  else if (active)    { bg = 'rgba(0,212,255,0.15)'; border = '1px solid rgba(0,212,255,0.28)'; color = '#c4b5fd' }
+  else if (primary)   { bg = 'rgba(0,212,255,0.15)';  border = '1px solid rgba(0,212,255,0.32)'; glow = '0 0 16px rgba(0,212,255,0.28)'; color = '#00D4FF' }
+  else if (active)    { bg = 'rgba(0,212,255,0.15)'; border = '1px solid rgba(0,212,255,0.28)'; color = '#00D4FF' }
 
   return (
     <motion.button
@@ -715,7 +715,7 @@ export default function ChatPage() {
     <>
       <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/10 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <MessageSquare size={14} className="text-vybe-purple-light" />
+          <MessageSquare size={14} className="text-cyan-400" />
           <h3 className="font-bold text-white text-sm">Live Chat</h3>
         </div>
         <button
@@ -739,7 +739,7 @@ export default function ChatPage() {
             <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[82%] px-3.5 py-2 rounded-2xl text-[13px] leading-relaxed ${
                 msg.from === 'me'
-                  ? 'bg-vybe-purple text-white rounded-br-sm'
+                  ? 'bg-vybe-blue text-white rounded-br-sm'
                   : 'bg-white/8 text-gray-200 rounded-bl-sm border border-white/10'
               }`}>
                 {msg.text}
@@ -757,12 +757,12 @@ export default function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             placeholder={status === 'matched' ? 'Type a message…' : 'Connecting…'}
             disabled={status !== 'matched'}
-            className="flex-1 px-3.5 py-2.5 bg-white/6 border border-white/10 rounded-xl text-white placeholder-white/30 text-sm focus:border-vybe-purple focus:outline-none transition-colors disabled:opacity-40"
+            className="flex-1 px-3.5 py-2.5 bg-white/6 border border-white/10 rounded-xl text-white placeholder-white/30 text-sm focus:border-vybe-blue focus:outline-none transition-colors disabled:opacity-40"
           />
           <button
             type="submit"
             disabled={!input.trim() || status !== 'matched'}
-            className="w-10 h-10 rounded-xl bg-vybe-purple text-white flex items-center justify-center hover:bg-vybe-purple-light transition-colors disabled:opacity-40 flex-shrink-0"
+            className="w-10 h-10 rounded-xl bg-vybe-blue text-vybe-bg flex items-center justify-center hover:bg-vybe-blue-light transition-colors disabled:opacity-40 flex-shrink-0"
           >
             <Send size={13} />
           </button>
@@ -858,7 +858,7 @@ export default function ChatPage() {
               className="fixed inset-0 z-50 flex items-center justify-center px-6"
               style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}>
               <div className="text-center max-w-xs">
-                <Loader2 size={44} className="text-vybe-purple animate-spin mx-auto mb-5" />
+                <Loader2 size={44} className="text-cyan-400 animate-spin mx-auto mb-5" />
                 <h2 className="text-xl font-black text-white mb-2">{reconnectCount < 3 ? 'Connection lost' : 'Could not reconnect'}</h2>
                 <p className="text-vybe-muted text-sm">{reconnectCount < 3 ? `Reconnecting… (${reconnectCount + 1}/3)` : 'Finding you a new match…'}</p>
               </div>
@@ -983,7 +983,7 @@ export default function ChatPage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 z-20 flex flex-col items-center justify-center"
               style={{ background: '#0a0a0f' }}>
-              <Loader2 size={36} className="text-vybe-purple animate-spin mb-4" />
+              <Loader2 size={36} className="text-cyan-400 animate-spin mb-4" />
               <p className="text-white/60 font-medium text-sm">Starting camera…</p>
             </motion.div>
           )}
@@ -1303,7 +1303,7 @@ export default function ChatPage() {
                 style={{ top: 'max(14px, env(safe-area-inset-top, 0px) + 12px)' }}
               >
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,212,255,0.22)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.38)', boxShadow: '0 0 16px rgba(0,212,255,0.15)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#a78bfa' }} />
+                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#00D4FF' }} />
                   <span className="text-[10px] font-black tracking-widest text-white/90">DUO MODE</span>
                 </div>
               </motion.div>
@@ -1600,7 +1600,7 @@ export default function ChatPage() {
                 {mateSocketIds.map((sid) => (
                   <div key={sid} className="absolute inset-y-0 right-0 w-1/2 border-l border-white/10">
                     <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                    <div className="absolute top-2 left-2 z-10"><span className="text-[9px] font-black tracking-widest text-vybe-purple-light/80 uppercase bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">Duo</span></div>
+                    <div className="absolute top-2 left-2 z-10"><span className="text-[9px] font-black tracking-widest text-cyan-400/80 uppercase bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">Duo</span></div>
                   </div>
                 ))}
 
