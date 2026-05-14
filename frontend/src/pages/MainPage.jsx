@@ -1123,7 +1123,7 @@ export default function MainPage() {
             width: '100%', height: '100%', borderRadius: 28,
             background: '#0d0d18',
             border: '1px solid rgba(0,212,255,0.12)',
-            boxShadow: '0 0 80px rgba(0,212,255,0.07), 0 24px 48px rgba(0,0,0,0.4)',
+            boxShadow: '0 24px 48px rgba(0,0,0,0.4)',
           }}>
 
             {/* Cinematic ambient layers */}
@@ -1162,10 +1162,10 @@ export default function MainPage() {
                   </div>
                 </motion.div>
 
-                <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 8, letterSpacing: '-0.01em' }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 4, letterSpacing: '-0.01em' }}>
                   {cameraErr ? 'Camera access needed' : 'Your video preview'}
                 </p>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', marginBottom: 28, textAlign: 'center', maxWidth: 180, lineHeight: 1.5 }}>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', marginBottom: 24, textAlign: 'center', maxWidth: 200, lineHeight: 1.45 }}>
                   {cameraErr ? (cameraErrMsg || 'Allow camera access in browser settings') : 'Only you can see this preview'}
                 </p>
 
