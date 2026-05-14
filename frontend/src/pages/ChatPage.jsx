@@ -1650,12 +1650,7 @@ export default function ChatPage() {
                   </div>
                 ))}
 
-                <div className="absolute bottom-3 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
-                  <div className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.28)', color: 'rgba(0,212,255,0.75)', backdropFilter: 'blur(8px)' }}>
-                    YOUR PREVIEW
-                  </div>
-                </div>
-                <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
+<div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
               </div>
 
             </div>
