@@ -405,22 +405,8 @@ export default function MainPage() {
     >
       {/* Animated ambient background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
-        <motion.div className="absolute rounded-full"
-          animate={{ scale: [1, 1.18, 1], opacity: [0.12, 0.22, 0.12] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ top: '-10%', left: '5%', width: '800px', height: '800px', background: 'radial-gradient(ellipse at 50% 50%, rgba(124,58,237,0.22) 0%, transparent 65%)' }} />
-        <motion.div className="absolute rounded-full"
-          animate={{ scale: [1, 1.12, 1], opacity: [0.08, 0.16, 0.08] }}
-          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          style={{ top: '20%', right: '-10%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(37,99,235,0.18) 0%, transparent 65%)' }} />
-        <motion.div className="absolute rounded-full"
-          animate={{ scale: [1, 1.1, 1], opacity: [0.07, 0.14, 0.07] }}
-          transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
-          style={{ bottom: '0%', left: '-5%', width: '500px', height: '500px', background: 'radial-gradient(ellipse at 50% 50%, rgba(168,85,247,0.14) 0%, transparent 65%)' }} />
-        <motion.div className="absolute rounded-full"
-          animate={{ scale: [1, 1.08, 1], opacity: [0.05, 0.1, 0.05] }}
-          transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut', delay: 6 }}
-          style={{ top: '50%', left: '40%', width: '400px', height: '400px', background: 'radial-gradient(ellipse at 50% 50%, rgba(236,72,153,0.08) 0%, transparent 65%)' }} />
+        <div className="absolute" style={{ top: '-15%', left: '-5%', width: '600px', height: '600px', background: 'radial-gradient(ellipse, rgba(124,58,237,0.14) 0%, transparent 65%)', borderRadius: '50%' }} />
+        <div className="absolute" style={{ top: '30%', right: '-10%', width: '500px', height: '500px', background: 'radial-gradient(ellipse, rgba(37,99,235,0.1) 0%, transparent 65%)', borderRadius: '50%' }} />
       </div>
 
       <Navbar onPremiumClick={() => setShowPremium(true)} />
@@ -469,7 +455,7 @@ export default function MainPage() {
           <video ref={videoRef} autoPlay muted playsInline className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
           {!cameraOn || cameraErr ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
-              style={{ background: 'radial-gradient(ellipse at 50% 35%, rgba(124,58,237,0.14) 0%, transparent 68%)' }}>
+              style={{ background: 'radial-gradient(ellipse at 40% 35%, rgba(124,58,237,0.18) 0%, rgba(8,8,18,1) 65%)' }}>
               {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && (
                 <div className="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-semibold"
                   style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
@@ -598,7 +584,7 @@ export default function MainPage() {
         </motion.button>
 
         {/* ── Match Settings ── */}
-        <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(10,8,20,0.72)', backdropFilter: 'blur(24px) saturate(1.5)', border: '1px solid rgba(124,58,237,0.2)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.08) inset' }}>
+        <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(14,10,28,0.85)', backdropFilter: 'blur(20px) saturate(1.4)', border: '1px solid rgba(124,58,237,0.22)', boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.06) inset, 0 0 40px rgba(124,58,237,0.06)' }}>
 
           {/* Mode */}
           <div>
@@ -1004,7 +990,7 @@ export default function MainPage() {
             />
 
             {!cameraOn || cameraErr ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6" style={{ background: '#080810' }}>
+              <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6" style={{ background: 'radial-gradient(ellipse at 40% 35%, rgba(124,58,237,0.18) 0%, rgba(8,8,18,1) 65%)' }}>
                 {/* HTTPS warning */}
                 {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && (
                   <div className="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-semibold"
@@ -1013,8 +999,8 @@ export default function MainPage() {
                   </div>
                 )}
 
-                {/* ── Cinematic idle atmosphere ── */}
-                {!cameraErr && (
+                {/* ── Cinematic idle atmosphere — always visible ── */}
+                {(
                   <div className="absolute inset-0 pointer-events-none overflow-hidden">
                     {/* Deep background glow */}
                     <motion.div animate={{ opacity: [0.12, 0.22, 0.12], scale: [1, 1.12, 1] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
@@ -1162,7 +1148,7 @@ export default function MainPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.14, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(10,8,20,0.72)', backdropFilter: 'blur(24px) saturate(1.5)', border: '1px solid rgba(124,58,237,0.2)', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.08) inset' }}>
+            <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(14,10,28,0.85)', backdropFilter: 'blur(20px) saturate(1.4)', border: '1px solid rgba(124,58,237,0.22)', boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.06) inset, 0 0 40px rgba(124,58,237,0.06)' }}>
 
             {/* Mode */}
             <div>
