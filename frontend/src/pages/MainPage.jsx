@@ -997,38 +997,6 @@ export default function MainPage() {
                     </div>
                   )}
 
-                  {/* ── Cinematic idle atmosphere — always visible ── */}
-                  {(
-                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                      {/* Deep background glow */}
-                      <motion.div animate={{ opacity: [0.12, 0.22, 0.12], scale: [1, 1.12, 1] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                        className="absolute rounded-full" style={{ width: '80%', height: '80%', top: '10%', left: '10%', background: 'radial-gradient(ellipse, rgba(124,58,237,0.28) 0%, transparent 65%)' }} />
-                      <motion.div animate={{ opacity: [0.06, 0.12, 0.06], scale: [1, 1.08, 1] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-                        className="absolute rounded-full" style={{ width: '60%', height: '60%', bottom: '5%', right: '5%', background: 'radial-gradient(ellipse, rgba(27,98,245,0.2) 0%, transparent 65%)' }} />
-                      {/* Concentric rings */}
-                      {[0, 1, 2].map((i) => (
-                        <motion.div key={i} className="absolute rounded-full border border-white/[0.04]"
-                          animate={{ scale: [0.7 + i * 0.15, 1.1 + i * 0.15, 0.7 + i * 0.15], opacity: [0.0, 0.18, 0.0] }}
-                          transition={{ duration: 4 + i * 1.5, repeat: Infinity, ease: 'easeInOut', delay: i * 1.2 }}
-                          style={{ width: '55%', height: '55%', top: '22.5%', left: '22.5%' }} />
-                      ))}
-                      {/* Floating silhouette blobs */}
-                      <motion.div animate={{ y: [0, -12, 0], opacity: [0.06, 0.12, 0.06] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-                        className="absolute rounded-full" style={{ width: 72, height: 72, bottom: '28%', left: '15%', background: 'rgba(124,58,237,0.35)', filter: 'blur(28px)' }} />
-                      <motion.div animate={{ y: [0, 10, 0], opacity: [0.04, 0.1, 0.04] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
-                        className="absolute rounded-full" style={{ width: 56, height: 56, bottom: '22%', right: '12%', background: 'rgba(27,98,245,0.3)', filter: 'blur(22px)' }} />
-                      {/* Live activity dots */}
-                      {[{ l: '18%', t: '20%', d: 0 }, { l: '72%', t: '15%', d: 0.8 }, { l: '82%', t: '62%', d: 1.6 }, { l: '12%', t: '68%', d: 2.4 }].map((dot, i) => (
-                        <motion.div key={i} animate={{ opacity: [0, 1, 0], scale: [0.6, 1, 0.6] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: dot.d }}
-                          className="absolute w-1.5 h-1.5 rounded-full" style={{ left: dot.l, top: dot.t, background: 'rgba(167,139,250,0.7)' }} />
-                      ))}
-                      {/* "Someone connecting..." ambient text */}
-                      <motion.div animate={{ opacity: [0, 0.5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                        className="absolute bottom-4 left-0 right-0 text-center text-[9px] tracking-widest uppercase font-semibold" style={{ color: 'rgba(124,58,237,0.6)' }}>
-                        People connecting now
-                      </motion.div>
-                    </div>
-                  )}
 
                   {!permissionAsked || cameraErr ? (
                     /* ── Permission prompt (initial) or retry (error) ── */
