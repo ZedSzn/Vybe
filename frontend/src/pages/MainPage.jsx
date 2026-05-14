@@ -895,19 +895,42 @@ export default function MainPage() {
         className="hidden lg:flex flex-col relative z-10"
         style={{ height: 'calc(100vh - 64px)', marginTop: '64px', background: '#0a0a0f', overflow: 'hidden' }}>
 
-        {/* ── Announcement strip ── */}
-        <div className="flex-shrink-0 flex items-center justify-center gap-3 py-2.5"
-          style={{ borderBottom: '1px solid rgba(0,212,255,0.09)', background: 'rgba(10,10,15,0.6)' }}>
-          <span className="px-2 py-0.5 rounded text-[10px] font-black text-white tracking-widest uppercase"
-            style={{ color: '#00D4FF' }}>NEW</span>
-          <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.38)' }}>
-            Earn coins by chatting, daily rewards &amp; more.
+        {/* ── Announcement banner ── */}
+        <div
+          className="flex-shrink-0 flex items-center justify-center gap-4 relative overflow-hidden"
+          style={{
+            padding: '11px 24px',
+            background: 'linear-gradient(90deg, rgba(0,212,255,0.06) 0%, rgba(0,212,255,0.13) 40%, rgba(124,58,237,0.1) 70%, rgba(0,212,255,0.06) 100%)',
+            borderBottom: '1px solid rgba(0,212,255,0.18)',
+            boxShadow: '0 1px 0 rgba(0,212,255,0.06), inset 0 1px 0 rgba(0,212,255,0.08)',
+          }}>
+          {/* Glow streak */}
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: 'radial-gradient(ellipse 60% 100% at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 70%)',
+          }} />
+          {/* NEW badge */}
+          <span className="flex-shrink-0 px-2.5 py-1 rounded-md text-[10px] font-black tracking-[0.18em] uppercase"
+            style={{
+              background: 'linear-gradient(135deg, #00D4FF, #7C3AED)',
+              color: '#fff',
+              letterSpacing: '0.16em',
+              boxShadow: '0 0 10px rgba(0,212,255,0.4)',
+            }}>NEW</span>
+          {/* Message */}
+          <span className="text-[13px] font-medium" style={{ color: 'rgba(255,255,255,0.75)', letterSpacing: '-0.01em' }}>
+            Earn coins by chatting — daily rewards, streaks &amp; bonuses now live.
           </span>
+          {/* CTA */}
           <button
-            className="text-[13px] font-semibold"
-            style={{ color: '#00B8E0' }}
+            className="flex-shrink-0 flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-lg"
+            style={{
+              color: '#00D4FF',
+              background: 'rgba(0,212,255,0.1)',
+              border: '1px solid rgba(0,212,255,0.25)',
+              letterSpacing: '-0.01em',
+            }}
             onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>
-            Learn more &rarr;
+            Learn more <span style={{ fontSize: 13 }}>→</span>
           </button>
         </div>
 
