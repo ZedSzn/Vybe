@@ -107,7 +107,7 @@ export default function Navbar({ onPremiumClick }) {
 
   const notifIcon = (type) => {
     const map = { friend_request: <UserPlus size={13} />, coin_reward: <Medal size={13} />, streak: <Flame size={13} />, warning: <AlertTriangle size={13} />, system: <Megaphone size={13} /> }
-    return <span className="text-vybe-purple-light">{map[type] || <Bell size={13} />}</span>
+    return <span className="text-blue-400-light">{map[type] || <Bell size={13} />}</span>
   }
   const tier = user?.isVip
     ? <span className="flex items-center gap-1"><Crown size={11} /> VIP</span>
@@ -250,7 +250,7 @@ export default function Navbar({ onPremiumClick }) {
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
                       transition={{ type: 'spring', stiffness: 600, damping: 20 }}
-                      className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-vybe-purple rounded-full text-[9px] flex items-center justify-center font-black text-white px-0.5"
+                      className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-blue-500 rounded-full text-[9px] flex items-center justify-center font-black text-white px-0.5"
                     >
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </motion.span>
@@ -272,7 +272,7 @@ export default function Navbar({ onPremiumClick }) {
                       <h3 className="text-sm font-black text-white">Notifications</h3>
                       <div className="flex items-center gap-3">
                         {unreadCount > 0 && (
-                          <button onClick={handleMarkAllRead} className="text-[10px] text-vybe-purple-light hover:underline font-semibold">
+                          <button onClick={handleMarkAllRead} className="text-[10px] text-blue-400-light hover:underline font-semibold">
                             Mark all read
                           </button>
                         )}
@@ -296,14 +296,14 @@ export default function Navbar({ onPremiumClick }) {
                         </motion.div>
                       ) : notifications.map((n) => (
                         <div key={n._id} onClick={() => !n.read && handleMarkOne(n._id)}
-                          className={`flex items-start gap-3 px-4 py-3 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/3 transition-colors ${!n.read ? 'bg-vybe-purple/5' : ''}`}>
+                          className={`flex items-start gap-3 px-4 py-3 border-b border-white/[0.04] last:border-0 cursor-pointer hover:bg-white/3 transition-colors ${!n.read ? 'bg-blue-500/5' : ''}`}>
                           <span className="text-base flex-shrink-0 mt-0.5">{notifIcon(n.type)}</span>
                           <div className="flex-1 min-w-0">
                             <p className="text-white text-xs font-bold">{n.title}</p>
                             <p className="text-gray-600 text-[11px] leading-relaxed mt-0.5 line-clamp-2">{n.message}</p>
                             <p className="text-gray-700 text-[10px] mt-1">{new Date(n.createdAt).toLocaleDateString()}</p>
                           </div>
-                          {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-vybe-purple flex-shrink-0 mt-1.5" />}
+                          {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0 mt-1.5" />}
                         </div>
                       ))}
                     </div>
@@ -322,9 +322,9 @@ export default function Navbar({ onPremiumClick }) {
                 className="flex items-center gap-1.5"
               >
                 {user?.avatar ? (
-                  <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover border border-vybe-purple/40" />
+                  <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover border border-blue-500/40" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-vybe-purple to-blue-900 flex items-center justify-center text-white text-sm font-black border border-vybe-purple/40">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-900 flex items-center justify-center text-white text-sm font-black border border-blue-500/40">
                     {user?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
                 )}
@@ -351,7 +351,7 @@ export default function Navbar({ onPremiumClick }) {
                       {user?.avatar ? (
                         <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-vybe-purple to-blue-900 flex items-center justify-center text-white text-sm font-black">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-900 flex items-center justify-center text-white text-sm font-black">
                           {user?.username?.[0]?.toUpperCase()}
                         </div>
                       )}
@@ -374,7 +374,7 @@ export default function Navbar({ onPremiumClick }) {
                   {[
                     { to: `/profile/${user?.id || user?._id}`, icon: <User size={13} />, label: t('profile'), extra: null },
                     { to: '/friends', icon: <Users size={13} />, label: 'Friends', extra: pendingRequests > 0 ? (
-                      <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-purple-600 text-[9px] font-black flex items-center justify-center text-white">
+                      <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-blue-600 text-[9px] font-black flex items-center justify-center text-white">
                         {pendingRequests > 9 ? '9+' : pendingRequests}
                       </span>
                     ) : null },

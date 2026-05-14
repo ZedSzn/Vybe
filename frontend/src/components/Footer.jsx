@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-vybe-muted text-[12px] text-center sm:text-left">
             © {new Date().getFullYear()}{' '}
-            <Link to="/" className="text-white font-semibold hover:text-vybe-purple-light transition-colors">
+            <Link to="/" className="text-white font-semibold hover:text-blue-500-light transition-colors">
               Vybe
             </Link>
             . All rights reserved. You must be 18+ to use this platform.

@@ -455,7 +455,7 @@ export default function MainPage() {
             style={{ background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
-            <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#93c5fd' }}>Live · Random · Real</span>
+            <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#60A5FA' }}>Live · Random · Real</span>
           </motion.div>
         </div>
 
@@ -502,7 +502,7 @@ export default function MainPage() {
                         return (
                           <div className="w-full mb-3 px-1">
                             {steps.map((s, i) => (
-                              <p key={i} className="text-[10px] text-center leading-relaxed" style={{ color: 'rgba(96,165,250,0.6)' }}>› {s}</p>
+                              <p key={i} className="text-[10px] text-center leading-relaxed" style={{ color: 'rgba(96,165,250,0.55)' }}>› {s}</p>
                             ))}
                           </div>
                         )
@@ -1189,10 +1189,10 @@ export default function MainPage() {
           viewport={{ once: true }}
           transition={{ duration: 0.55 }}
         >
-          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#7AACFF' }}>Simple by design</p>
+          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#60A5FA' }}>Simple by design</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             Up and chatting in{' '}
-            <span style={{ background: 'linear-gradient(135deg, #2F6BFF 0%, #4D8DFF 55%, #7AACFF 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(120deg, #3B82F6 0%, #60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               30 seconds
             </span>
           </h2>
@@ -1214,10 +1214,10 @@ export default function MainPage() {
               whileHover={{ y: -4, borderColor: `${color}40`, boxShadow: `0 12px 32px ${color}18` }}
             >
               <div className="relative">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: `${color}18`, border: `1px solid ${color}30` }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
                   <Icon size={22} style={{ color }} />
                 </div>
-                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black text-white" style={{ background: color }}>{i + 1}</span>
+                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black text-white" style={{ background: '#3B82F6' }}>{i + 1}</span>
               </div>
               <div>
                 <p className="text-white font-bold text-base mb-2">{title}</p>
@@ -1230,7 +1230,7 @@ export default function MainPage() {
 
       {/* ══════════════ MEMBERSHIP VALUE ══════════════ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
-        <div className="rounded-3xl overflow-hidden p-8 lg:p-12" style={{ background: 'linear-gradient(160deg, rgba(47,107,255,0.07) 0%, rgba(5,8,22,0) 100%)', border: '1px solid rgba(80,140,255,0.14)' }}>
+        <div className="rounded-3xl overflow-hidden p-8 lg:p-12" style={{ background: 'rgba(6,11,20,0.5)', border: '1px solid rgba(59,130,246,0.12)' }}>
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -1238,10 +1238,10 @@ export default function MainPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
             >
-              <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#7AACFF' }}>Membership</p>
+              <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#60A5FA' }}>Membership</p>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                 Match smarter with{' '}
-                <span style={{ background: 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
+                <span style={{ background: 'linear-gradient(120deg, #3B82F6 0%, #60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
               </h2>
               <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
                 Free gets you started. Membership gets you exactly who you want to meet — filter by gender, country, and more.
@@ -1267,8 +1267,8 @@ export default function MainPage() {
               transition={{ duration: 0.55 }}
             >
               {[
-                { tier: 'Basic', price: '£6.99/mo', features: ['Filter by gender', 'Basic badge on profile'], borderColor: 'rgba(59,130,246,0.25)', bg: 'rgba(59,130,246,0.08)', labelColor: '#3b82f6', checkColor: '#3b82f6' },
-                { tier: 'VIP', price: '£12.99/mo', features: ['Filter by gender', 'Filter by country', 'VIP badge on profile'], borderColor: 'rgba(245,158,11,0.25)', bg: 'rgba(245,158,11,0.07)', labelColor: '#f59e0b', checkColor: '#f59e0b' },
+                { tier: 'Basic', price: '£6.99/mo', features: ['Filter by gender', 'Basic badge on profile'], borderColor: 'rgba(59,130,246,0.2)', bg: 'rgba(59,130,246,0.06)', labelColor: '#3B82F6', checkColor: '#3B82F6' },
+                { tier: 'VIP', price: '£12.99/mo', features: ['Filter by gender', 'Filter by country', 'VIP badge on profile'], borderColor: 'rgba(59,130,246,0.3)', bg: 'rgba(59,130,246,0.08)', labelColor: '#60A5FA', checkColor: '#3B82F6' },
               ].map(({ tier, price, features, borderColor, bg, labelColor, checkColor }) => (
                 <div key={tier} className="p-4 rounded-2xl" style={{ background: bg, border: `1px solid ${borderColor}` }}>
                   <div className="flex items-center justify-between mb-3">
@@ -1294,7 +1294,7 @@ export default function MainPage() {
 
       {/* ══════════════ CREATOR MONETIZATION ══════════════ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
-        <div className="rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(37,99,235,0.06) 100%)', border: '1px solid rgba(245,158,11,0.14)' }}>
+        <div className="rounded-3xl overflow-hidden" style={{ background: 'rgba(6,11,20,0.5)', border: '1px solid rgba(59,130,246,0.12)' }}>
           <div className="p-8 lg:p-12">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <motion.div
@@ -1303,13 +1303,13 @@ export default function MainPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.55 }}
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.22)' }}>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.22)' }}>
                   <DollarSign size={12} style={{ color: '#f59e0b' }} />
                   <span className="text-[11px] font-black tracking-[0.1em] uppercase" style={{ color: '#f59e0b' }}>For Creators</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                   Go live. Get paid.{' '}
-                  <span style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
+                  <span style={{ background: 'linear-gradient(120deg, #3B82F6 0%, #60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
                 </h2>
                 <p className="text-sm leading-relaxed mb-6" style={{ color: '#6b7280' }}>
                   Turn your conversations into income. Viewers send gifts, you earn real money — no middlemen taking the bulk of your earnings.
@@ -1319,7 +1319,7 @@ export default function MainPage() {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   className="px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2"
-                  style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b' }}
+                  style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.28)', color: '#60A5FA' }}
                 >
                   <DollarSign size={15} /> Start Earning
                 </motion.button>
@@ -1333,13 +1333,13 @@ export default function MainPage() {
               >
                 {[
                   { label: '70%', sub: 'Creator cut', color: '#f59e0b' },
-                  { label: 'Live', sub: 'Real-time gifts', color: '#7AACFF' },
+                  { label: 'Live', sub: 'Real-time gifts', color: '#60A5FA' },
                   { label: '150+', sub: 'Countries', color: '#10b981' },
                   { label: 'Free', sub: 'To start', color: '#38bdf8' },
                 ].map(({ label, sub, color }) => (
                   <div key={label} className="p-4 rounded-2xl text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                     <p className="text-2xl font-black mb-1" style={{ color }}>{label}</p>
-                    <p className="text-[11px]" style={{ color: 'rgba(156,163,175,0.7)' }}>{sub}</p>
+                    <p className="text-[11px]" style={{ color: 'rgba(148,163,184,0.5)' }}>{sub}</p>
                   </div>
                 ))}
               </motion.div>
@@ -1357,10 +1357,10 @@ export default function MainPage() {
           viewport={{ once: true }}
           transition={{ duration: 0.55 }}
         >
-          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#10b981' }}>Trust & Safety</p>
+          <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#60A5FA' }}>Trust & Safety</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             Safe by{' '}
-            <span style={{ background: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>default</span>
+            <span style={{ background: 'linear-gradient(120deg, #3B82F6 0%, #60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>default</span>
           </h2>
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1380,12 +1380,12 @@ export default function MainPage() {
               transition={{ delay: i * 0.07, duration: 0.45 }}
               whileHover={{ y: -3, borderColor: `${color}40`, boxShadow: `0 8px 28px ${color}18` }}
             >
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${color}18`, border: `1px solid ${color}28` }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.18)' }}>
                 <Icon size={18} style={{ color }} />
               </div>
               <div>
                 <p className="text-white font-bold text-sm mb-1">{title}</p>
-                <p className="text-[12px] leading-relaxed" style={{ color: '#6b7280' }}>{desc}</p>
+                <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(148,163,184,0.7)' }}>{desc}</p>
               </div>
             </motion.div>
           ))}
@@ -1406,7 +1406,7 @@ export default function MainPage() {
             </p>
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
               Frequently Asked{' '}
-              <span className="text-purple-gradient">Questions</span>
+              <span style={{ background: 'linear-gradient(120deg, #3B82F6 0%, #60A5FA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Questions</span>
             </h2>
           </div>
 
@@ -1418,22 +1418,22 @@ export default function MainPage() {
                   key={i}
                   className="rounded-2xl overflow-hidden transition-all duration-200"
                   style={{
-                    background: isOpen ? 'linear-gradient(160deg,#0e0e1d 0%,#0b0b19 100%)' : 'rgba(255,255,255,0.03)',
-                    border: isOpen ? '1px solid rgba(27,98,245,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                    background: isOpen ? 'rgba(6,11,24,0.8)' : 'rgba(6,11,20,0.4)',
+                    border: isOpen ? '1px solid rgba(59,130,246,0.25)' : '1px solid rgba(59,130,246,0.08)',
                   }}
                 >
                   <button
                     onClick={() => setFaqOpen(isOpen ? null : i)}
                     className="w-full flex items-center justify-between px-5 py-4 text-left gap-4"
                   >
-                    <span className={`font-semibold text-sm sm:text-[15px] transition-colors ${isOpen ? 'text-white' : 'text-gray-400'}`}>
+                    <span className="font-semibold text-sm sm:text-[15px] transition-colors" style={{ color: isOpen ? 'white' : 'rgba(186,200,225,0.65)' }}>
                       {item.q}
                     </span>
                     <span
                       className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                        isOpen ? 'bg-vybe-purple/20 text-vybe-purple-light' : 'text-vybe-muted'
+                        isOpen ? '' : ''
                       }`}
-                      style={!isOpen ? { background: 'rgba(255,255,255,0.05)' } : {}}
+                      style={{ background: isOpen ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.04)', color: isOpen ? '#60A5FA' : 'rgba(148,163,184,0.5)' }}
                     >
                       <ChevronDown size={14} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
                     </span>
@@ -1447,7 +1447,7 @@ export default function MainPage() {
                         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="px-5 pb-5 text-vybe-muted text-sm leading-relaxed">{item.a}</p>
+                        <p className="px-5 pb-5 text-sm leading-relaxed" style={{ color: 'rgba(148,163,184,0.65)' }}>{item.a}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
