@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Heart, ShieldCheck, UserX, AlertTriangle, Ban, Eye } from 'lucide-react'
+import { Heart, ShieldCheck, UserX, AlertTriangle, Ban, Eye } from 'lucide-react'
 import Footer from '../components/Footer'
+import Navbar from '../components/Navbar'
 
 const rules = [
   {
@@ -70,21 +71,9 @@ const ConsequenceCard = ({ level, title, desc, color, border }) => (
 export default function GuidelinesPage() {
   return (
     <div className="min-h-screen bg-vybe-bg font-space flex flex-col">
-      {/* Header */}
-      <div className="border-b border-vybe-border bg-vybe-bg2/60">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-vybe-muted hover:text-white transition-colors text-sm font-medium">
-            <ArrowLeft size={15} />
-            Back to Vybe
-          </Link>
-          <div className="text-sm font-black tracking-widest">
-            <span className="text-purple-gradient">VY</span>
-            <span className="text-white">BE</span>
-          </div>
-        </div>
-      </div>
+      <Navbar />
 
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-10">
+      <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-10" style={{ marginTop: '64px' }}>
         {/* Title */}
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-cyan-400 text-xs font-bold mb-4">
