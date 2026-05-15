@@ -14,6 +14,53 @@ import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
 import { playMatchFound, playTipSent, playClick } from '../utils/sounds'
 
+// Stable outside ChatPage — input state lives here so parent re-renders never touch the input
+function FloatingChat({ messages, messagesEndRef, onSend, status }) {
+  const [text, setText] = useState('')
+  const send = () => {
+    if (!text.trim() || status !== 'matched') return
+    onSend(text.trim())
+    setText('')
+  }
+  return (
+    <>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px 4px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
+        {messages.map((msg, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
+            <div style={{
+              padding: '7px 11px', fontSize: 13, lineHeight: 1.45, color: 'white', maxWidth: '75%', wordBreak: 'break-word',
+              ...(msg.from === 'me'
+                ? { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '18px 18px 4px 18px' }
+                : { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px 18px 18px 4px' }
+              ),
+            }}>{msg.text}</div>
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+      <div style={{ flexShrink: 0, padding: '6px 10px 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 6px 5px 14px', gap: 8 }}>
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); send() } }}
+            placeholder="Say something..."
+            disabled={status !== 'matched'}
+            style={{ flex: 1, background: 'transparent', color: 'white', fontSize: 13, border: 'none', outline: 'none', opacity: status !== 'matched' ? 0.4 : 1 }}
+          />
+          <button
+            onClick={send}
+            disabled={!text.trim() || status !== 'matched'}
+            style={{ width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#00D4FF', color: '#000', border: 'none', cursor: 'pointer', flexShrink: 0, opacity: (!text.trim() || status !== 'matched') ? 0.4 : 1 }}
+          >
+            <Send size={12} />
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
+
 // Defined outside ChatPage so the reference is stable across re-renders (no unmount flicker)
 function BarBtn({ onClick, children, label, active, red, disabled: dis, title: t }) {
   return (
@@ -123,7 +170,6 @@ export default function ChatPage() {
   const [banExpiresAt,     setBanExpiresAt]     = useState(null)
   const [unbanLoading,     setUnbanLoading]     = useState(false)
   const [messages,         setMessages]         = useState([])
-  const [input,            setInput]            = useState('')
   const [showChat,         setShowChat]         = useState(false)
   const [isMuted,          setIsMuted]          = useState(false)
   const [videoOff,         setVideoOff]         = useState(false)
@@ -742,11 +788,10 @@ export default function ChatPage() {
     setSkipQueueLoading(false)
   }
 
-  const handleSend = () => {
-    if (!input.trim() || !roomId || status !== 'matched') return
-    setMessages((prev) => [...prev, { text: input.trim(), from: 'me', timestamp: Date.now() }])
-    socketRef.current?.emit('chat-message', { message: input.trim(), room: roomId })
-    setInput('')
+  const handleSend = (text) => {
+    if (!text || !roomId || status !== 'matched') return
+    setMessages((prev) => [...prev, { text, from: 'me', timestamp: Date.now() }])
+    socketRef.current?.emit('chat-message', { message: text, room: roomId })
   }
 
   const toggleMute = () => {
@@ -775,48 +820,6 @@ export default function ChatPage() {
   const opponentSocketIds  = allRemoteEntries.filter((sid) => !squadMates.includes(sid))
   const mateSocketIds      = allRemoteEntries.filter((sid) => squadMates.includes(sid))
   const isDuoMode          = mateSocketIds.length > 0
-
-  // ── Floating glass chat content ──────────────────────────────────────────
-  const ChatContent = () => (
-    <>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px 4px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
-        {messages.map((msg, i) => (
-          <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
-            <div style={{
-              padding: '7px 11px', fontSize: 13, lineHeight: 1.45, color: 'white', maxWidth: '75%', wordBreak: 'break-word',
-              ...(msg.from === 'me'
-                ? { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '18px 18px 4px 18px' }
-                : { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px 18px 18px 4px' }
-              ),
-            }}>
-              {msg.text}
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div style={{ flexShrink: 0, padding: '6px 10px 10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 6px 5px 14px', gap: 8 }}>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend() } }}
-            placeholder="Say something..."
-            disabled={status !== 'matched'}
-            style={{ flex: 1, background: 'transparent', color: 'white', fontSize: 13, border: 'none', outline: 'none', opacity: status !== 'matched' ? 0.4 : 1 }}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || status !== 'matched'}
-            style={{ width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#00D4FF', color: '#000', border: 'none', cursor: 'pointer', flexShrink: 0, opacity: (!input.trim() || status !== 'matched') ? 0.4 : 1 }}
-          >
-            <Send size={12} />
-          </button>
-        </div>
-      </div>
-    </>
-  )
 
   const handleUnbanPurchase = async () => {
     setUnbanLoading(true)
@@ -1704,7 +1707,7 @@ export default function ChatPage() {
                   borderRadius: 20, overflow: 'hidden',
                 }}
               >
-                {ChatContent()}
+                <FloatingChat messages={messages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -1842,7 +1845,7 @@ export default function ChatPage() {
                 zIndex: 40,
               }}
             >
-              {ChatContent()}
+              <FloatingChat messages={messages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} />
             </motion.div>
           )}
         </AnimatePresence>
