@@ -1435,12 +1435,11 @@ export default function ChatPage() {
         {/* ══════════════════════════════════════════════════════════
             DESKTOP LAYOUT
         ══════════════════════════════════════════════════════════ */}
-        <div className="hidden lg:flex" style={{ height: '100dvh', width: '100%' }}>
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex-1 grid grid-cols-2 gap-0 p-0 min-h-0">
+        <div className="hidden lg:flex" style={{ height: '100dvh', width: '100%', background: '#0a0a0f' }}>
+          <div className="flex-1 flex min-h-0" style={{ padding: 8, gap: 8 }}>
 
               {/* Stranger video */}
-              <div className="relative overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ borderRadius: '16px 0 0 16px' }}>
+              <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
                 {status === 'searching' ? (
                   <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 20 }}>
                     {/* Globe — fixed-size container so rings don't overflow into text */}
@@ -1602,7 +1601,7 @@ export default function ChatPage() {
               </div>
 
               {/* Your video — desktop only, uses localVideoDesktopRef */}
-              <div className="relative overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ borderRadius: '0 16px 16px 0' }}>
+              <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
@@ -1653,8 +1652,6 @@ export default function ChatPage() {
                 ))}
 
               </div>
-
-            </div>
 
           </div>
 
