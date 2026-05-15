@@ -1696,23 +1696,22 @@ export default function ChatPage() {
               <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
-                {!hasCamera && (
-                  <div className="absolute inset-0 bg-[#0a0a0f]">
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                      <VideoOff size={48} style={{ color: '#00D4FF' }} />
-                      <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 16px', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
-                        You
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {videoOff && hasCamera && (
-                  <div className="absolute inset-0 bg-black/80">
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                      <VideoOff size={26} className="text-white/30" />
-                      <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 16px', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
-                        You
-                      </div>
+                {!hasCamera && <div className="absolute inset-0 bg-[#0a0a0f]" />}
+                {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+
+                {(!hasCamera || videoOff) && (
+                  <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <VideoOff size={24} style={{ color: '#00D4FF' }} />
+                    <div style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 12px 5px 5px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
+                      ) : (
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 10, flexShrink: 0 }}>
+                          {user?.username ? user.username[0].toUpperCase() : 'Y'}
+                        </div>
+                      )}
+                      <span style={{ color: 'white', fontWeight: 700, fontSize: 13, lineHeight: 1 }}>{user?.username || 'You'}</span>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
                     </div>
                   </div>
                 )}
