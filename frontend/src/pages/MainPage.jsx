@@ -525,6 +525,7 @@ export default function MainPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
+          <div className="cam-bg" />
           <video ref={videoRef} autoPlay muted playsInline className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
           {!cameraOn || cameraErr ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
@@ -1365,49 +1366,43 @@ export default function MainPage() {
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
             <style>{`
-              @keyframes smoothFlow {
-                0%   { background-position: 0% 0%;     opacity: 0.6; }
-                33%  { background-position: 100% 0%;   opacity: 1;   }
-                66%  { background-position: 100% 100%; opacity: 0.7; }
-                100% { background-position: 0% 100%;   opacity: 1;   }
+              .cam-bg { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: 0; pointer-events: none; }
+              .cam-bg::before {
+                content: '';
+                position: absolute;
+                inset: -50%;
+                width: 200%;
+                height: 200%;
+                background: repeating-conic-gradient(
+                  from 0deg at 50% 50%,
+                  rgba(0,212,255,0.03) 0deg,
+                  transparent 1deg,
+                  transparent 30deg,
+                  rgba(0,212,255,0.02) 31deg,
+                  transparent 32deg,
+                  transparent 60deg
+                );
+                animation: rotateSlow 20s linear infinite;
               }
-              @keyframes floatUp1 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.6; } 100% { transform: translateY(-20px) translateX(6px);  opacity: 0; } }
-              @keyframes floatUp2 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.4; } 100% { transform: translateY(-20px) translateX(-8px); opacity: 0; } }
-              @keyframes floatUp3 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.5; } 100% { transform: translateY(-20px) translateX(4px);  opacity: 0; } }
-              @keyframes floatUp4 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.3; } 100% { transform: translateY(-20px) translateX(-5px); opacity: 0; } }
-              @keyframes floatUp5 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.5; } 100% { transform: translateY(-20px) translateX(10px); opacity: 0; } }
-              @keyframes floatUp6 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.4; } 100% { transform: translateY(-20px) translateX(-3px); opacity: 0; } }
+              .cam-bg::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background:
+                  radial-gradient(circle at 30% 40%, rgba(0,212,255,0.06) 0%, transparent 40%),
+                  radial-gradient(circle at 70% 60%, rgba(124,58,237,0.04) 0%, transparent 40%);
+                animation: breathe 6s ease-in-out infinite alternate;
+              }
+              @keyframes rotateSlow {
+                from { transform: rotate(0deg); }
+                to   { transform: rotate(360deg); }
+              }
+              @keyframes breathe {
+                0%   { opacity: 0.4; transform: scale(1);   }
+                100% { opacity: 1;   transform: scale(1.1); }
+              }
             `}</style>
-
-            {/* Gradient mesh */}
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: 'inherit', pointerEvents: 'none', zIndex: 0,
-              background: [
-                'radial-gradient(ellipse at 20% 50%, rgba(0,212,255,0.03) 0%, transparent 50%)',
-                'radial-gradient(ellipse at 80% 20%, rgba(124,58,237,0.03) 0%, transparent 50%)',
-                'radial-gradient(ellipse at 50% 80%, rgba(0,212,255,0.02) 0%, transparent 50%)',
-              ].join(', '),
-              backgroundSize: '200% 200%',
-              animation: 'smoothFlow 12s ease-in-out infinite alternate',
-            }} />
-
-            {/* Floating particles */}
-            {[
-              { left: '18%', bottom: '8%',  size: 2, dur: '9s',  delay: '0s'    },
-              { left: '35%', bottom: '12%', size: 3, dur: '12s', delay: '-3s'   },
-              { left: '55%', bottom: '5%',  size: 2, dur: '10s', delay: '-6s'   },
-              { left: '70%', bottom: '15%', size: 4, dur: '14s', delay: '-1.5s' },
-              { left: '82%', bottom: '9%',  size: 2, dur: '11s', delay: '-5s'   },
-              { left: '28%', bottom: '20%', size: 3, dur: '13s', delay: '-8s'   },
-            ].map((p, i) => (
-              <div key={i} style={{
-                position: 'absolute', left: p.left, bottom: p.bottom,
-                width: p.size, height: p.size, borderRadius: '50%',
-                background: 'rgba(0,212,255,0.15)',
-                pointerEvents: 'none', zIndex: 0,
-                animation: `floatUp${i + 1} ${p.dur} ease-in-out ${p.delay} infinite`,
-              }} />
-            ))}
+            <div className="cam-bg" />
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
