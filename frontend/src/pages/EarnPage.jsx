@@ -1,38 +1,41 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Gift, DollarSign, Zap, Star, Users, TrendingUp, ThumbsUp, Heart, Flame, Gem, Crown } from 'lucide-react'
+import { ArrowLeft, Gift, DollarSign, Zap, Star, Users, TrendingUp } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
 const HOW_IT_WORKS = [
   {
-    icon: <Users size={22} className="text-vybe-purple-light" />,
+    icon: <Users size={22} style={{ color: '#00D4FF' }} />,
     title: 'Start a chat session',
     desc: 'Jump into a video chat like normal. Anyone who joins your session can see you live.',
   },
   {
-    icon: <Gift size={22} className="text-vybe-purple-light" />,
+    icon: <Gift size={22} style={{ color: '#00D4FF' }} />,
     title: 'Viewers send you gifts',
     desc: 'Other users send you virtual gifts — roses, stars, diamonds, and more — each worth real money.',
   },
   {
-    icon: <DollarSign size={22} className="text-vybe-purple-light" />,
+    icon: <DollarSign size={22} style={{ color: '#00D4FF' }} />,
     title: 'Gifts convert to coins',
     desc: 'Every gift lands in your wallet as Vybe Coins. You can cash out once you hit the minimum threshold.',
   },
   {
-    icon: <TrendingUp size={22} className="text-vybe-purple-light" />,
+    icon: <TrendingUp size={22} style={{ color: '#00D4FF' }} />,
     title: 'Grow your earnings',
     desc: 'The more engaging your sessions, the more gifts you receive. Build a following and earn more over time.',
   },
 ]
 
-const GIFT_TYPES = [
-  { Icon: ThumbsUp, name: 'Like',    coins: 10,  label: '10 coins',  color: '#00B8E0' },
-  { Icon: Heart,    name: 'Heart',   coins: 25,  label: '25 coins',  color: '#f43f5e' },
-  { Icon: Flame,    name: 'Fire',    coins: 50,  label: '50 coins',  color: '#f97316' },
-  { Icon: Gem,      name: 'Diamond', coins: 150, label: '150 coins', color: '#06b6d4' },
-  { Icon: Crown,    name: 'Crown',   coins: 300, label: '300 coins', color: '#00B8E0' },
+const COMPARE_ROWS = [
+  { feature: 'Minimum followers to earn', vybe: '0',       twitch: '50',      tiktok: '1,000',   youtube: '1,000'  },
+  { feature: 'Revenue share',             vybe: '70%',     twitch: '50%',     tiktok: '50%',     youtube: '55%'    },
+  { feature: 'Minimum cash out',          vybe: '£5',      twitch: '$100',    tiktok: '$100',    youtube: '$100'   },
+  { feature: 'Time to cash out',          vybe: '3–5 days',twitch: '45 days', tiktok: '30 days', youtube: 'Monthly'},
+  { feature: 'No application needed',     vybe: true,      twitch: false,     tiktok: false,     youtube: false    },
+  { feature: 'Random audience matching',  vybe: true,      twitch: false,     tiktok: false,     youtube: false    },
+  { feature: 'Free to join',             vybe: true,      twitch: true,      tiktok: true,      youtube: true     },
 ]
 
 const FAQS = [
@@ -54,11 +57,195 @@ const FAQS = [
   },
 ]
 
+function BoolCell({ value, isVybe }) {
+  if (value === true) {
+    return (
+      <span style={{ color: isVybe ? '#4ade80' : 'rgba(255,255,255,0.35)', fontWeight: isVybe ? 800 : 600, fontSize: 15 }}>✓</span>
+    )
+  }
+  return <span style={{ color: '#f87171', fontWeight: 600, fontSize: 15 }}>✗</span>
+}
+
+function CompareTable() {
+  const cols = ['Feature', 'Vybe', 'Twitch', 'TikTok Live', 'YouTube Live']
+  const colKeys = ['feature', 'vybe', 'twitch', 'tiktok', 'youtube']
+
+  return (
+    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            {cols.map((col, ci) => (
+              <th key={ci} style={{
+                padding: ci === 0 ? '14px 16px' : '14px 12px',
+                textAlign: ci === 0 ? 'left' : 'center',
+                fontSize: 12, fontWeight: 800, letterSpacing: '0.06em',
+                position: ci === 0 ? 'sticky' : 'static', left: 0, zIndex: ci === 0 ? 2 : 'auto',
+                background: ci === 1 ? '#00D4FF' : ci === 0 ? 'rgba(13,13,24,0.95)' : 'rgba(255,255,255,0.04)',
+                color: ci === 1 ? '#0a0a0f' : 'rgba(255,255,255,0.45)',
+                borderBottom: '1px solid rgba(255,255,255,0.08)',
+              }}>
+                {ci === 1 ? (
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                    {col}
+                    <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.14em', background: '#0a0a0f', color: '#00D4FF', padding: '2px 6px', borderRadius: 4 }}>BEST</span>
+                  </span>
+                ) : col}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {COMPARE_ROWS.map((row, ri) => (
+            <tr key={ri} style={{ borderBottom: ri < COMPARE_ROWS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+              {colKeys.map((key, ci) => {
+                const val = row[key]
+                const isVybe = key === 'vybe'
+                const isFeature = key === 'feature'
+                return (
+                  <td key={ci} style={{
+                    padding: isFeature ? '13px 16px' : '13px 12px',
+                    textAlign: isFeature ? 'left' : 'center',
+                    fontSize: isFeature ? 13 : 13,
+                    fontWeight: isVybe ? 800 : 500,
+                    color: isFeature ? 'rgba(255,255,255,0.55)' : isVybe ? '#ffffff' : 'rgba(255,255,255,0.35)',
+                    background: isVybe ? 'rgba(0,212,255,0.07)' : isFeature ? 'rgba(13,13,24,0.8)' : 'transparent',
+                    position: isFeature ? 'sticky' : 'static', left: 0, zIndex: isFeature ? 1 : 'auto',
+                  }}>
+                    {typeof val === 'boolean'
+                      ? <BoolCell value={val} isVybe={isVybe} />
+                      : isVybe
+                        ? <span style={{ color: '#00D4FF' }}>{val}</span>
+                        : val}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function EarningsCalculator({ onStartEarning }) {
+  const [hours, setHours] = useState(2)
+  const [gifts, setGifts] = useState(5)
+
+  const monthly = hours * gifts * 15 * 0.7 * (4.20 / 1000) * 30
+  const daily = monthly / 30
+
+  const sliderTrack = (val, min, max) => {
+    const pct = ((val - min) / (max - min)) * 100
+    return {
+      appearance: 'none', WebkitAppearance: 'none',
+      width: '100%', height: 6, borderRadius: 99, outline: 'none', cursor: 'pointer',
+      background: `linear-gradient(to right, #00D4FF 0%, #00D4FF ${pct}%, rgba(255,255,255,0.1) ${pct}%, rgba(255,255,255,0.1) 100%)`,
+    }
+  }
+
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 28,
+      boxShadow: '0 0 40px rgba(0,212,255,0.04)',
+    }}>
+      <style>{`
+        input[type=range].calc-slider::-webkit-slider-thumb {
+          -webkit-appearance: none; appearance: none;
+          width: 20px; height: 20px; border-radius: 50%;
+          background: #00D4FF; cursor: pointer;
+          box-shadow: 0 0 0 3px rgba(0,212,255,0.25);
+        }
+        input[type=range].calc-slider::-moz-range-thumb {
+          width: 20px; height: 20px; border-radius: 50%; border: none;
+          background: #00D4FF; cursor: pointer;
+        }
+      `}</style>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {/* Slider 1 */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+            <label style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Hours chatting per day</label>
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#00D4FF', background: 'rgba(0,212,255,0.12)', padding: '2px 10px', borderRadius: 8 }}>{hours}h</span>
+          </div>
+          <input
+            type="range" min={1} max={8} value={hours} onChange={e => setHours(Number(e.target.value))}
+            className="calc-slider" style={sliderTrack(hours, 1, 8)}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
+            <span>1h</span><span>8h</span>
+          </div>
+        </div>
+
+        {/* Slider 2 */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+            <label style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Gifts received per hour</label>
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#00D4FF', background: 'rgba(0,212,255,0.12)', padding: '2px 10px', borderRadius: 8 }}>{gifts}</span>
+          </div>
+          <input
+            type="range" min={1} max={20} value={gifts} onChange={e => setGifts(Number(e.target.value))}
+            className="calc-slider" style={sliderTrack(gifts, 1, 20)}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
+            <span>1</span><span>20</span>
+          </div>
+        </div>
+
+        {/* Result */}
+        <div style={{
+          background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.15)',
+          borderRadius: 14, padding: '20px 24px', textAlign: 'center',
+        }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>
+            Daily: <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>£{daily.toFixed(2)}</span>
+          </p>
+          <motion.p
+            key={monthly.toFixed(2)}
+            initial={{ scale: 0.95, opacity: 0.6 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              fontSize: 38, fontWeight: 900, letterSpacing: '-0.03em',
+              background: 'linear-gradient(120deg, #00D4FF, #00B8E0)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+              textShadow: 'none', filter: 'drop-shadow(0 0 16px rgba(0,212,255,0.4))',
+              margin: '4px 0 2px',
+            }}
+          >
+            £{monthly.toFixed(2)}
+          </motion.p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 0 }}>per month</p>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 10 }}>
+            Based on average gift values. Results may vary.
+          </p>
+        </div>
+
+        <motion.button
+          onClick={onStartEarning}
+          whileHover={{ scale: 1.012 }}
+          whileTap={{ scale: 0.985 }}
+          style={{
+            width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
+            background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
+            boxShadow: '0 4px 24px rgba(0,212,255,0.35)',
+            color: '#0a0a0f', fontWeight: 900, fontSize: 14, cursor: 'pointer',
+          }}
+        >
+          Start Earning This Much
+        </motion.button>
+      </div>
+    </div>
+  )
+}
+
 export default function EarnPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen font-space" style={{ background: '#0a0a0f' }}>
+    <div className="min-h-screen" style={{ background: '#0a0a0f', fontFamily: 'inherit' }}>
       {/* Ambient */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
         <div className="absolute" style={{ top: '-5%', left: '15%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 65%)' }} />
@@ -72,7 +259,9 @@ export default function EarnPage() {
         {/* Back */}
         <button
           onClick={() => navigate('/')}
-          className="inline-flex items-center gap-2 text-vybe-muted hover:text-white transition-colors mb-10 text-sm font-medium"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.35)', fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 40, transition: 'color 0.2s' }}
+          onMouseEnter={e => e.currentTarget.style.color = 'white'}
+          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}
         >
           <ArrowLeft size={15} />
           Back to Vybe
@@ -83,126 +272,97 @@ export default function EarnPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
-          className="text-center mb-14"
+          style={{ textAlign: 'center', marginBottom: 56 }}
         >
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest mb-6"
-            style={{ background: 'rgba(0,212,255,0.15)', color: 'rgba(0,184,224,0.9)', border: '1px solid rgba(0,212,255,0.22)' }}
-          >
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 24, background: 'rgba(0,212,255,0.12)', color: 'rgba(0,212,255,0.9)', border: '1px solid rgba(0,212,255,0.2)' }}>
             <Zap size={11} /> Earn on Vybe
           </div>
-          <h1 className="text-4xl font-black text-white mb-4 leading-tight">
+          <h1 style={{ fontSize: 'clamp(32px,5vw,46px)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 16, letterSpacing: '-0.03em' }}>
             Get paid to<br />
-            <span style={{ background: 'linear-gradient(90deg, #a78bfa, #00B8E0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <span style={{ background: 'linear-gradient(90deg,#00D4FF,#00B8E0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               live chat
             </span>
           </h1>
-          <p className="text-vybe-muted text-base leading-relaxed max-w-md mx-auto">
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, lineHeight: 1.7, maxWidth: 440, margin: '0 auto' }}>
             When you chat on Vybe, viewers can send you gifts — each one converts into real money in your wallet.
           </p>
         </motion.div>
 
         {/* How it works */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.1 }}
-          className="mb-12"
-        >
-          <h2 className="text-white font-black text-xl mb-6">How it works</h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.1 }} style={{ marginBottom: 48 }}>
+          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 20 }}>How it works</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
             {HOW_IT_WORKS.map((step, i) => (
-              <div
-                key={i}
-                className="p-5 rounded-2xl flex gap-4"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.2)' }}
-                >
+              <div key={i} style={{ padding: 20, borderRadius: 16, display: 'flex', gap: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.18)' }}>
                   {step.icon}
                 </div>
                 <div>
-                  <p className="text-white font-bold text-sm mb-1">{step.title}</p>
-                  <p className="text-vybe-muted text-[13px] leading-relaxed">{step.desc}</p>
+                  <p style={{ color: 'white', fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{step.title}</p>
+                  <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 13, lineHeight: 1.6 }}>{step.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </motion.div>
 
-        {/* Gift types */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.18 }}
-          className="mb-12"
+        {/* Coins callout */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.18 }}
+          style={{ borderRadius: 16, padding: 24, marginBottom: 48, textAlign: 'center', background: 'linear-gradient(135deg, rgba(0,212,255,0.12) 0%, rgba(0,184,224,0.1) 100%)', border: '1px solid rgba(0,212,255,0.18)' }}
         >
-          <h2 className="text-white font-black text-xl mb-2">Gifts you can receive</h2>
-          <p className="text-vybe-muted text-sm mb-6">Every gift a viewer sends goes straight to your wallet.</p>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
-            {GIFT_TYPES.map((g) => (
-              <div
-                key={g.name}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
-              >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${g.color}18`, border: `1px solid ${g.color}30` }}>
-                  <g.Icon size={20} style={{ color: g.color }} />
-                </div>
-                <span className="text-white text-xs font-bold">{g.name}</span>
-                <span className="text-[10px] font-semibold" style={{ color: 'rgba(0,184,224,0.8)' }}>{g.label}</span>
-              </div>
-            ))}
+          <Star size={24} style={{ color: '#00D4FF', margin: '0 auto 10px' }} />
+          <p style={{ color: 'white', fontWeight: 900, fontSize: 18, marginBottom: 6 }}>1,000 coins ≈ £4.20</p>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>You keep <span style={{ color: 'white', fontWeight: 700 }}>70%</span> of every gift. No caps. Cash out any time you hit 1,000 coins (≈ £4.20).</p>
+        </motion.div>
+
+        {/* Comparison table */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.24 }} style={{ marginBottom: 48 }}>
+          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 6 }}>Why creators choose Vybe</h2>
+          <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 14, marginBottom: 20 }}>Compare us to the big platforms</p>
+          <div style={{
+            background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden',
+          }}>
+            <CompareTable />
           </div>
         </motion.div>
 
-        {/* Earnings callout */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.24 }}
-          className="rounded-2xl p-6 mb-12 text-center"
-          style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.15) 0%, rgba(0,212,255,0.14) 100%)', border: '1px solid rgba(0,212,255,0.2)' }}
-        >
-          <Star size={24} className="text-vybe-purple-light mx-auto mb-3" />
-          <p className="text-white font-black text-lg mb-1">1,000 coins ≈ £4.20</p>
-          <p className="text-vybe-muted text-sm">You keep <span className="text-white font-bold">70%</span> of every gift. No caps. Cash out any time you hit 1,000 coins (≈ £4.20).</p>
+        {/* Earnings calculator */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.3 }} style={{ marginBottom: 48 }}>
+          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 6 }}>Estimate your earnings</h2>
+          <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 14, marginBottom: 20 }}>See how much you could make on Vybe</p>
+          <EarningsCalculator onStartEarning={() => navigate('/chat')} />
         </motion.div>
 
         {/* FAQ */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.3 }}
-          className="mb-12"
-        >
-          <h2 className="text-white font-black text-xl mb-6">Common questions</h2>
-          <div className="space-y-3">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.36 }} style={{ marginBottom: 48 }}>
+          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 20 }}>Common questions</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {FAQS.map((item, i) => (
-              <div key={i} className="p-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <p className="text-white font-bold text-sm mb-1.5">{item.q}</p>
-                <p className="text-vybe-muted text-[13px] leading-relaxed">{item.a}</p>
+              <div key={i} style={{ padding: 20, borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <p style={{ color: 'white', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>{item.q}</p>
+                <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 13, lineHeight: 1.65 }}>{item.a}</p>
               </div>
             ))}
           </div>
         </motion.div>
 
         {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.36 }}
-          className="text-center"
-        >
-          <p className="text-vybe-muted text-sm mb-4">Ready to start earning?</p>
-          <button
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.42 }} style={{ textAlign: 'center' }}>
+          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 14, marginBottom: 16 }}>Ready to start earning?</p>
+          <motion.button
             onClick={() => navigate('/chat')}
-            className="btn-purple px-8 py-3.5 rounded-xl text-white font-black text-sm"
+            whileHover={{ scale: 1.012 }}
+            whileTap={{ scale: 0.985 }}
+            style={{
+              padding: '14px 36px', borderRadius: 14, border: 'none',
+              background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
+              boxShadow: '0 4px 24px rgba(0,212,255,0.35)',
+              color: '#0a0a0f', fontWeight: 900, fontSize: 14, cursor: 'pointer',
+            }}
           >
-            Start Chatting & Earning
-          </button>
+            Start Chatting &amp; Earning
+          </motion.button>
         </motion.div>
 
       </div>
