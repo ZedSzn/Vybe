@@ -525,7 +525,11 @@ export default function MainPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="cam-bg" />
+          <div className="camera-panel-bg">
+            <div className="smoke-1" />
+            <div className="smoke-2" />
+            <div className="smoke-3" />
+          </div>
           <video ref={videoRef} autoPlay muted playsInline className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
           {!cameraOn || cameraErr ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
@@ -1366,43 +1370,33 @@ export default function MainPage() {
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
             <style>{`
-              .cam-bg { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: 0; pointer-events: none; }
-              .cam-bg::before {
-                content: '';
-                position: absolute;
-                inset: -50%;
-                width: 200%;
-                height: 200%;
-                background: repeating-conic-gradient(
-                  from 0deg at 50% 50%,
-                  rgba(0,212,255,0.03) 0deg,
-                  transparent 1deg,
-                  transparent 30deg,
-                  rgba(0,212,255,0.02) 31deg,
-                  transparent 32deg,
-                  transparent 60deg
-                );
-                animation: rotateSlow 20s linear infinite;
+              .camera-panel-bg { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: 0; pointer-events: none; background: #0a0a0f; }
+              .smoke-1 { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%); animation: smokeFloat1 12s ease-in-out infinite; filter: blur(40px); top: -100px; left: -100px; }
+              .smoke-2 { position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 70%); animation: smokeFloat2 15s ease-in-out infinite; filter: blur(50px); bottom: -100px; right: -100px; }
+              .smoke-3 { position: absolute; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(0,212,255,0.04) 0%, transparent 70%); animation: smokeFloat3 10s ease-in-out infinite; filter: blur(35px); top: 50%; left: 50%; transform: translate(-50%, -50%); }
+              @keyframes smokeFloat1 {
+                0%   { transform: translate(0px, 0px) scale(1);     opacity: 0.6; }
+                33%  { transform: translate(80px, 60px) scale(1.2); opacity: 1;   }
+                66%  { transform: translate(40px, 120px) scale(0.9); opacity: 0.7; }
+                100% { transform: translate(0px, 0px) scale(1);     opacity: 0.6; }
               }
-              .cam-bg::after {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background:
-                  radial-gradient(circle at 30% 40%, rgba(0,212,255,0.06) 0%, transparent 40%),
-                  radial-gradient(circle at 70% 60%, rgba(124,58,237,0.04) 0%, transparent 40%);
-                animation: breathe 6s ease-in-out infinite alternate;
+              @keyframes smokeFloat2 {
+                0%   { transform: translate(0px, 0px) scale(1);       opacity: 0.5; }
+                33%  { transform: translate(-60px, -80px) scale(1.1); opacity: 0.9; }
+                66%  { transform: translate(-30px, -40px) scale(1.3); opacity: 0.6; }
+                100% { transform: translate(0px, 0px) scale(1);       opacity: 0.5; }
               }
-              @keyframes rotateSlow {
-                from { transform: rotate(0deg); }
-                to   { transform: rotate(360deg); }
-              }
-              @keyframes breathe {
-                0%   { opacity: 0.4; transform: scale(1);   }
-                100% { opacity: 1;   transform: scale(1.1); }
+              @keyframes smokeFloat3 {
+                0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.4; }
+                50%  { transform: translate(-50%, -50%) scale(1.4); opacity: 0.8; }
+                100% { transform: translate(-50%, -50%) scale(1);   opacity: 0.4; }
               }
             `}</style>
-            <div className="cam-bg" />
+            <div className="camera-panel-bg">
+              <div className="smoke-1" />
+              <div className="smoke-2" />
+              <div className="smoke-3" />
+            </div>
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
