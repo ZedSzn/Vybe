@@ -1364,6 +1364,18 @@ export default function MainPage() {
             background: '#0a0a0f',
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
+            <style>{`
+              @keyframes patternMove {
+                0% { background-position: 0% 0%; }
+                100% { background-position: 100% 100%; }
+              }
+            `}</style>
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: 'inherit', pointerEvents: 'none', zIndex: 0,
+              backgroundImage: 'repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px)',
+              backgroundSize: '200% 200%',
+              animation: 'patternMove 8s linear infinite',
+            }} />
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
