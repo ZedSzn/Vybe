@@ -1884,47 +1884,47 @@ export default function ChatPage() {
 
               {/* Your video / Duo mode right panels — desktop only */}
               {isDuoMode ? (
-                <div className="relative flex-1 overflow-hidden min-h-0 min-w-0 flex flex-col" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  {/* TOP: Your camera */}
-                  <div className="relative overflow-hidden" style={{ flex: 1, minHeight: 0, borderRadius: '20px 20px 0 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    <video ref={localVideoDesktopRef} autoPlay muted playsInline className="absolute inset-0 w-full h-full object-cover" />
-                    {!hasCamera && <div className="absolute inset-0 bg-[#0a0a0f]" />}
-                    {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                    <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
-                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  {/* TOP: Your camera — absolute top half */}
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '50%', overflow: 'hidden', borderRadius: '20px 20px 0 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <video ref={localVideoDesktopRef} autoPlay muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {!hasCamera && <div style={{ position: 'absolute', inset: 0, background: '#0a0a0f' }} />}
+                    {videoOff && hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)' }} />}
+                    <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
                         {user?.avatar ? (
-                          <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(0,212,255,0.4)' }} />
+                          <img src={user.avatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
                         ) : user?.username ? (
-                          <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                          <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>
                             {user.username[0].toUpperCase()}
                           </div>
                         ) : null}
-                        <span className="text-white font-bold text-[11px] leading-none">{user ? user.username : 'You'}</span>
+                        <span style={{ color: 'white', fontWeight: 700, fontSize: 11, lineHeight: 1 }}>{user ? user.username : 'You'}</span>
                         <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
                       </div>
                     </div>
-                    <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
                   </div>
-                  {/* BOTTOM: Duo partner camera */}
-                  <div className="relative overflow-hidden" style={{ flex: 1, minHeight: 0, borderRadius: '0 0 20px 20px', background: '#0d0d18' }}>
+                  {/* BOTTOM: Duo partner camera — absolute bottom half */}
+                  <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, bottom: 0, overflow: 'hidden', borderRadius: '0 0 20px 20px', background: '#0d0d18' }}>
                     {mateSocketIds[0] ? (
                       <>
-                        <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" />
-                        <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
-                          <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
-                            <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>D</div>
-                            <span className="text-white font-bold text-[11px] leading-none">Duo Partner</span>
+                        <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>D</div>
+                            <span style={{ color: 'white', fontWeight: 700, fontSize: 11, lineHeight: 1 }}>Duo Partner</span>
                             <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
                           </div>
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
                       </>
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.18)' }}>
+                      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.18)' }}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,212,255,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         </div>
-                        <p className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.22)' }}>Duo partner connecting…</p>
+                        <p style={{ fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.22)' }}>Duo partner connecting…</p>
                       </div>
                     )}
                   </div>
