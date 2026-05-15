@@ -178,6 +178,7 @@ export default function SubscriptionPage() {
 
   return (
     <div className="min-h-screen font-space" style={{ background: '#07090f' }}>
+      <style>{`.sub-scroll::-webkit-scrollbar { display: none; }`}</style>
       {/* Stripe redirect overlay */}
       <AnimatePresence>
         {(actionLoad === 'basic' || actionLoad === 'vip' || actionLoad === 'portal') && (
@@ -476,7 +477,7 @@ export default function SubscriptionPage() {
             )}
 
             {/* Feature comparison */}
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto sub-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <motion.div
               className="rounded-2xl overflow-hidden min-w-[380px]"
               style={{ border: '1px solid rgba(255,255,255,0.06)' }}
