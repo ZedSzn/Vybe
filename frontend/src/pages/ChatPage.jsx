@@ -1261,15 +1261,6 @@ export default function ChatPage() {
             {/* Camera controls — only shown when expanded */}
             {selfViewExpanded && (
               <div className="absolute top-1.5 right-1.5 flex gap-1">
-                {hasCamera && !videoOff && (
-                  <button
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={(e) => { e.stopPropagation(); flipCamera() }}
-                    className="w-6 h-6 rounded-full flex items-center justify-center active:scale-90"
-                    style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                    <Camera size={10} className="text-white/70" />
-                  </button>
-                )}
                 {hasCamera && (
                   <button
                     onPointerDown={(e) => e.stopPropagation()}
@@ -1446,10 +1437,10 @@ export default function ChatPage() {
         ══════════════════════════════════════════════════════════ */}
         <div className="hidden lg:flex" style={{ height: '100dvh', width: '100%' }}>
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex-1 grid grid-cols-2 gap-0 p-2 pb-28 min-h-0">
+            <div className="flex-1 grid grid-cols-2 gap-0 p-0 min-h-0">
 
               {/* Stranger video */}
-              <div className="relative rounded-l-2xl overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ borderRight: '1px solid rgba(0,212,255,0.08)' }}>
+              <div className="relative overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ borderRadius: '16px 0 0 16px' }}>
                 {status === 'searching' ? (
                   <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 20 }}>
                     {/* Globe — fixed-size container so rings don't overflow into text */}
@@ -1611,12 +1602,12 @@ export default function ChatPage() {
               </div>
 
               {/* Your video — desktop only, uses localVideoDesktopRef */}
-              <div className="relative rounded-r-2xl overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0">
+              <div className="relative overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ borderRadius: '0 16px 16px 0' }}>
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
                   <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0f]">
-                    <VideoOff size={44} style={{ color: '#00D4FF' }} />
+                    <VideoOff size={48} style={{ color: '#00D4FF' }} />
                   </div>
                 )}
                 {videoOff && hasCamera && (
@@ -1624,7 +1615,7 @@ export default function ChatPage() {
                 )}
 
                 {/* You label */}
-                <div className="absolute top-3 left-3 z-10">
+                <div className="absolute top-3 right-3 z-10">
                   <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
                     {user?.avatar ? (
                       <img src={user.avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
@@ -1680,13 +1671,13 @@ export default function ChatPage() {
         {/* ── Desktop fixed floating control bar ── */}
         <div className="hidden lg:flex fixed z-40 items-center" style={{
           bottom: 28, left: '50%', transform: 'translateX(-50%)',
-          background: 'rgba(12,12,20,0.75)',
-          backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
-          border: '1px solid rgba(255,255,255,0.10)',
+          background: 'rgba(6,6,14,0.92)',
+          backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)',
+          border: '1px solid rgba(255,255,255,0.16)',
           borderRadius: 60,
           padding: '12px 24px',
           gap: 14,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
+          boxShadow: '0 12px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12)',
         }}>
 
           {/* Mic */}
@@ -1711,8 +1702,8 @@ export default function ChatPage() {
             disabled={status !== 'matched'}
             whileHover={status === 'matched' ? { scale: 1.06 } : {}}
             whileTap={status === 'matched' ? { scale: 0.94 } : {}}
-            style={{ padding: '12px 28px', background: '#00D4FF', borderRadius: 50, color: '#000000', fontWeight: 700, fontSize: 15, border: 'none', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, boxShadow: '0 0 24px rgba(0,212,255,0.35)', opacity: status === 'matched' ? 1 : 0.45, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
-            <SkipForward size={16} /> Skip
+            style={{ padding: '12px 28px', background: '#00D4FF', borderRadius: 50, color: '#000000', fontWeight: 700, fontSize: 15, border: 'none', display: 'flex', alignItems: 'center', flexShrink: 0, boxShadow: '0 0 24px rgba(0,212,255,0.35)', opacity: status === 'matched' ? 1 : 0.45, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
+            Skip
           </motion.button>
 
           {/* Chat */}
