@@ -1580,16 +1580,16 @@ export default function ChatPage() {
                       exit={{ opacity: 0, y: -4, scale: 0.97 }}
                       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                       className="absolute flex items-center gap-2" style={{ top: 16, left: 16, zIndex: 10 }}>
-                      <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
+                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
                         {partnerAvatar ? (
-                          <img src={partnerAvatar} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.2)' }} />
+                          <img src={partnerAvatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 28, height: 28, border: '1.5px solid rgba(255,255,255,0.2)' }} />
                         ) : (
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[11px]"
-                            style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                          <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
+                            style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
                             {(partnerUsername || 'S')[0].toUpperCase()}
                           </div>
                         )}
-                        <div className="flex flex-col" style={{ gap: 1 }}>
+                        <div className="flex flex-col" style={{ gap: 2 }}>
                           <div className="flex items-center gap-1.5">
                             <span className="text-white font-bold text-[13px] leading-none">
                               {partnerUsername || 'Stranger'}
@@ -1598,11 +1598,6 @@ export default function ChatPage() {
                             {partnerIsVip && (
                               <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(124,58,237,0.3))', color: '#e0f0ff', border: '1px solid rgba(0,212,255,0.3)' }}>
                                 <Crown size={7} /> VIP
-                              </span>
-                            )}
-                            {!partnerIsVip && partnerIsPremium && (
-                              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}>
-                                <Zap size={7} /> Member
                               </span>
                             )}
                           </div>
@@ -1735,37 +1730,23 @@ export default function ChatPage() {
                   <div className="absolute inset-0 bg-black/80 flex items-center justify-center"><VideoOff size={26} className="text-white/30" /></div>
                 )}
 
-                {/* You label — bottom left */}
-                <div className="absolute bottom-12 left-3 z-10">
-                  <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
+                {/* You label — top left */}
+                <div className="absolute" style={{ top: 16, left: 16, zIndex: 10 }}>
+                  <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
                     {user?.avatar ? (
-                      <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" style={{ border: '1.5px solid rgba(0,212,255,0.4)' }} />
+                      <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 28, height: 28, border: '1.5px solid rgba(0,212,255,0.4)' }} />
                     ) : user?.username ? (
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[11px]"
-                        style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
+                        style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
                         {user.username[0].toUpperCase()}
                       </div>
                     ) : null}
-                    <div className="flex flex-col" style={{ gap: 1 }}>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
-                        {user?.emailVerified && <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />}
-                        {user?.isVip && (
-                          <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: '#fff' }}>
-                            <Crown size={7} /> VIP
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[11px] font-bold leading-none" style={{ color: '#00D4FF' }}>You</span>
+                    <div className="flex flex-col" style={{ gap: 2 }}>
+                      <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
+                      {user?.country && (
+                        <span className="text-[11px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{user.country}</span>
+                      )}
                     </div>
-                    <button
-                      onClick={() => navigate('/profile')}
-                      title="Edit profile"
-                      className="flex items-center justify-center w-6 h-6 rounded-full active:scale-90"
-                      style={{ background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF', flexShrink: 0 }}
-                    >
-                      <Edit2 size={10} />
-                    </button>
                   </div>
                 </div>
 
