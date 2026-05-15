@@ -779,46 +779,28 @@ export default function ChatPage() {
   const mateSocketIds      = allRemoteEntries.filter((sid) => squadMates.includes(sid))
   const isDuoMode          = mateSocketIds.length > 0
 
-  // ── Shared chat content ────────────────────────────────────────────────────
+  // ── Floating glass chat content (no header) ─────────────────────────────
   const ChatContent = () => (
     <>
-      <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/10 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <MessageSquare size={14} className="text-cyan-400" />
-          <h3 className="font-bold text-white text-sm">Live Chat</h3>
-        </div>
-        <button
-          onClick={() => setShowChat(false)}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
-        >
-          <X size={15} />
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
+      <div className="flex-1 overflow-y-auto p-3" style={{ display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
         {messages.length === 0 ? (
-          <div className="text-center py-10">
-            <MessageSquare size={26} className="text-white/20 mx-auto mb-3" />
-            <p className="text-white/40 text-[13px]">
-              {status === 'matched' ? 'Say hello! 👋' : 'Waiting to connect…'}
-            </p>
-          </div>
+          <p className="text-white/30 text-[12px] text-center py-4 mt-auto">
+            {status === 'matched' ? 'Say hello! 👋' : 'Waiting to connect…'}
+          </p>
         ) : (
           messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-              <div className="max-w-[82%] px-3.5 py-2 text-[13px] leading-relaxed text-white"
+              <div className="px-3 py-2 text-[13px] leading-relaxed text-white"
                 style={msg.from === 'me' ? {
                   background: 'rgba(0,212,255,0.15)',
                   border: '1px solid rgba(0,212,255,0.2)',
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
                   borderRadius: '18px 18px 4px 18px',
+                  maxWidth: '85%',
                 } : {
-                  background: 'rgba(255,255,255,0.06)',
+                  background: 'rgba(255,255,255,0.08)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
                   borderRadius: '18px 18px 18px 4px',
+                  maxWidth: '85%',
                 }}>
                 {msg.text}
               </div>
@@ -828,23 +810,22 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="p-3 border-t flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-        <div className="flex gap-2">
+      <form onSubmit={handleSend} className="flex-shrink-0 p-2">
+        <div className="flex items-center" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 8px 6px 16px', gap: 8 }}>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={status === 'matched' ? 'Type a message…' : 'Connecting…'}
+            placeholder="Say something..."
             disabled={status !== 'matched'}
-            className="flex-1 px-4 py-2.5 text-white placeholder-white/30 text-sm focus:outline-none disabled:opacity-40"
-            style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50 }}
+            className="flex-1 bg-transparent text-white placeholder-white/30 text-[13px] focus:outline-none disabled:opacity-40"
           />
           <button
             type="submit"
             disabled={!input.trim() || status !== 'matched'}
-            className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-40 flex-shrink-0"
-            style={{ background: 'rgba(0,212,255,0.85)', color: '#000', boxShadow: '0 0 16px rgba(0,212,255,0.3)' }}
+            className="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-40 flex-shrink-0"
+            style={{ background: 'rgba(0,212,255,0.85)', color: '#000' }}
           >
-            <Send size={13} />
+            <Send size={12} />
           </button>
         </div>
       </form>
@@ -1498,7 +1479,7 @@ export default function ChatPage() {
         {/* ══════════════════════════════════════════════════════════
             DESKTOP LAYOUT
         ══════════════════════════════════════════════════════════ */}
-        <div className="hidden lg:flex" style={{ height: '100dvh', width: '100%', background: '#0a0a0f' }}>
+        <div className="hidden lg:flex" style={{ height: '100dvh', width: '100%', background: '#0a0a0f', position: 'relative' }}>
           <div className="flex-1 flex min-h-0" style={{ padding: 8, gap: 8 }}>
 
               {/* Stranger video */}
@@ -1763,13 +1744,27 @@ export default function ChatPage() {
 
           </div>
 
-          {/* Desktop chat sidebar */}
-          <motion.div className="flex flex-col flex-shrink-0 overflow-hidden"
-            style={{ background: 'rgba(10,10,20,0.6)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', borderLeft: '1px solid rgba(255,255,255,0.08)' }}
-            animate={{ width: showChat ? 320 : 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
-            <div className="w-[320px] h-full flex flex-col">{ChatContent()}</div>
-          </motion.div>
+          {/* Floating glass chat overlay — right panel, no layout shift */}
+          <AnimatePresence>
+            {showChat && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="absolute flex flex-col"
+                style={{
+                  bottom: 100, right: 16, width: 280, maxHeight: '60vh', zIndex: 20,
+                  background: 'rgba(0,0,0,0.25)',
+                  backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 20, overflow: 'hidden',
+                }}
+              >
+                {ChatContent()}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
         </div>
 
@@ -1880,28 +1875,30 @@ export default function ChatPage() {
 
         </div>
 
-        {/* ── Mobile chat drawer — compact bottom sheet ── */}
+        {/* ── Mobile chat floating overlay ── */}
         <AnimatePresence>
           {showChat && (
-            <>
-              {/* Tap-outside to close */}
-              <div className="lg:hidden fixed inset-0 z-[35]" onClick={toggleChat} />
-              <motion.div
-                className="lg:hidden fixed inset-x-0 z-[40] flex flex-col rounded-t-2xl border-t border-white/10"
-                style={{ bottom: 0, height: '33dvh', minHeight: 240, background: 'rgba(10,10,20,0.96)', backdropFilter: 'blur(28px)' }}
-                initial={{ y: '110%' }}
-                animate={{ y: 0 }}
-                exit={{ y: '110%' }}
-                drag="y"
-                dragConstraints={{ top: 0 }}
-                dragElastic={0.15}
-                onDragEnd={(_, info) => { if (info.offset.y > 80) toggleChat() }}
-                transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-              >
-                <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0"><div className="w-8 h-1 rounded-full bg-white/20" /></div>
-                {ChatContent()}
-              </motion.div>
-            </>
+            <motion.div
+              className="lg:hidden fixed z-[35] flex flex-col"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              style={{
+                bottom: 90,
+                left: 16,
+                right: 16,
+                maxHeight: '50vh',
+                background: 'rgba(0,0,0,0.25)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 20,
+                overflow: 'hidden',
+              }}
+            >
+              {ChatContent()}
+            </motion.div>
           )}
         </AnimatePresence>
 
