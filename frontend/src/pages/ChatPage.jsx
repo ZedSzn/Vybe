@@ -1697,18 +1697,22 @@ export default function ChatPage() {
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0f]" style={{ gap: 14 }}>
-                    <VideoOff size={48} style={{ color: '#00D4FF' }} />
-                    <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 16px', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
-                      You
+                  <div className="absolute inset-0 bg-[#0a0a0f]">
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                      <VideoOff size={48} style={{ color: '#00D4FF' }} />
+                      <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 16px', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
+                        You
+                      </div>
                     </div>
                   </div>
                 )}
                 {videoOff && hasCamera && (
-                  <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center" style={{ gap: 14 }}>
-                    <VideoOff size={26} className="text-white/30" />
-                    <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 16px', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
-                      You
+                  <div className="absolute inset-0 bg-black/80">
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                      <VideoOff size={26} className="text-white/30" />
+                      <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 16px', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
+                        You
+                      </div>
                     </div>
                   </div>
                 )}
