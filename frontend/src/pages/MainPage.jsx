@@ -93,6 +93,8 @@ const FAQ_ITEMS = [
   },
 ]
 
+const genCode = () => 'VY-' + Math.random().toString(36).substring(2, 6).toUpperCase()
+
 function fmtTime(seconds) {
   if (seconds == null || seconds < 0) return '0:00'
   const m = Math.floor(seconds / 60)
@@ -168,6 +170,8 @@ export default function MainPage() {
   const [privateCopied,  setPrivateCopied]  = useState(false)
   const [snapCopied,     setSnapCopied]     = useState(false)
   const [snapPrivCopied, setSnapPrivCopied] = useState(false)
+  const [instantDuoCode, setInstantDuoCode] = useState('')
+  const [instantPrivCode, setInstantPrivCode] = useState('')
 
   const countryBtnRef = useRef(null)
   const [countryDropPos, setCountryDropPos] = useState({ top: 0, left: 0, width: 0 })
@@ -331,7 +335,7 @@ export default function MainPage() {
 
   useEffect(() => {
     if (!socket) return
-    const onCreated  = (data) => { setSquad(data); setSquadLoading(false); setSquadError('') }
+    const onCreated  = (data) => { setSquad(data); setSquadLoading(false); setSquadError(''); setInstantDuoCode('') }
     const onUpdated  = (data) => setSquad(data)
     const onJoined   = (data) => { setSquad(data); setSquadError('') }
     const onExpired  = ()     => { setSquad(null); setSquadError('Duo expired. Create a new one.') }
@@ -341,7 +345,7 @@ export default function MainPage() {
       streamRef.current?.getTracks().forEach((t) => t.stop())
       navigate('/chat', { state: { mode: 'squad', squadId, filterGender: null, filterCountry: '' } })
     }
-    const onPrivateCreated = ({ code }) => { setPrivateCode(code); setPrivateLoading(false); setPrivateError('') }
+    const onPrivateCreated = ({ code }) => { setPrivateCode(code); setPrivateLoading(false); setPrivateError(''); setInstantPrivCode('') }
     const onPrivateError   = ({ message }) => { setPrivateLoading(false); setPrivateError(message) }
 
     socket.on('squad-created',       onCreated)
@@ -386,9 +390,11 @@ export default function MainPage() {
   }
 
   const leaveSquad = () => {
-    if (!socket || !squad) return
-    socket.emit('leave-squad', { squadId: squad.squadId })
+    if (squad && socket) socket.emit('leave-squad', { squadId: squad.squadId })
     setSquad(null)
+    setInstantDuoCode('')
+    setSquadLoading(false)
+    setSquadError('')
   }
 
   const createPrivateRoom = () => {
@@ -405,14 +411,33 @@ export default function MainPage() {
     socket.once('private-room-error',   () => clearTimeout(timeout))
   }
 
-  const privateInviteUrl = privateCode ? `${window.location.origin}/private/${privateCode}` : ''
+  const duoDisplayCode = squad?.code || instantDuoCode
+  const privDisplayCode = privateCode || instantPrivCode
+  const inviteUrl = duoDisplayCode ? `${window.location.origin}/duo/${duoDisplayCode}` : ''
+  const privateInviteUrl = privDisplayCode ? `${window.location.origin}/private/${privDisplayCode}` : ''
+  const handleModeClick = (val) => {
+    setMode(val)
+    if (val === 'squad' && !squad && !instantDuoCode) {
+      setInstantDuoCode(genCode())
+      if (socket && isConnected) {
+        setSquadLoading(true); setSquadError('')
+        socket.emit('create-squad', { username: user?.username || 'Guest' })
+      }
+    }
+    if (val === 'private' && !privateCode && !instantPrivCode) {
+      setInstantPrivCode(genCode())
+      if (socket && isConnected) {
+        setPrivateLoading(true); setPrivateError('')
+        socket.emit('create-private-room')
+      }
+    }
+  }
 
   const copyPrivateLink = async () => {
     try { await navigator.clipboard.writeText(privateInviteUrl); setPrivateCopied(true); setTimeout(() => setPrivateCopied(false), 2000) }
     catch {}
   }
 
-  const inviteUrl  = squad ? `${window.location.origin}/duo/${squad.code}` : ''
   const inviteText = `Join my duo on Vybe! ${inviteUrl}`
 
   const copyLink = async () => {
@@ -638,7 +663,7 @@ export default function MainPage() {
             <p className="text-[10px] font-black tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(160,160,180,0.45)' }}>MODE</p>
             <div className="flex gap-1.5 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
               {[{ id: 'solo', label: 'Solo' }, { id: 'squad', label: 'Duo' }, { id: 'private', label: 'Private' }].map(({ id, label }) => (
-                <motion.button key={id} onClick={() => setMode(id)} whileTap={{ scale: 0.93 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                <motion.button key={id} onClick={() => handleModeClick(id)} whileTap={{ scale: 0.93 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   className="flex-1 py-2 text-xs font-bold transition-colors"
                   style={mode === id
                     ? { background: 'linear-gradient(135deg, #0099BB, #00D4FF)', color: 'white', borderRadius: '10px' }
@@ -696,24 +721,10 @@ export default function MainPage() {
             {mode === 'squad' && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
                 <div className="rounded-2xl p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)' }}>
-                  {!squad ? (
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Users size={13} style={{ color: '#00D4FF' }} />
-                        <p className="text-xs font-black text-white">Duo Mode</p>
-                      </div>
-                      <p className="text-vybe-muted text-[11px] mb-3">Invite a friend to chat together as a pair</p>
-                      {squadError && (
-                        <div className="flex items-center justify-between gap-2 text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2 mb-2">
-                          <span>{squadError}</span>
-                          <button onClick={createSquad} className="flex items-center gap-1 text-[10px] font-bold text-red-300 hover:text-white"><RefreshCw size={9} /> Retry</button>
-                        </div>
-                      )}
-                      <button onClick={createSquad} disabled={squadLoading || !isConnected}
-                        className="w-full py-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed" style={{ background: 'linear-gradient(140deg, #004466 0%, #00D4FF 60%, #00B8E0 100%)' }}>
-                        {squadLoading ? <><Loader2 size={11} className="animate-spin" /> Creating...</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting...</> : <><UserPlus size={11} /> Create Duo Room</>}
-                      </button>
-                      {!isConnected && <p className="text-[10px] text-center mt-1.5" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait...</p>}
+                  {!duoDisplayCode ? (
+                    <div className="flex items-center justify-center gap-2 py-3">
+                      <Loader2 size={13} className="animate-spin" style={{ color: '#00D4FF' }} />
+                      <p className="text-[12px]" style={{ color: 'rgba(200,210,255,0.6)' }}>Setting up room<WaitingDots /></p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -729,7 +740,7 @@ export default function MainPage() {
                       </div>
                       <div className="text-center py-1">
                         <p className="text-[9px] font-bold uppercase tracking-[0.25em] mb-1" style={{ color: 'rgba(0,212,255,0.5)' }}>Room Code</p>
-                        <p className="text-2xl font-black tracking-[0.18em]" style={{ color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)' }}>{squad.code}</p>
+                        <p className="text-2xl font-black tracking-[0.18em]" style={{ color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)' }}>{duoDisplayCode}</p>
                       </div>
                       <div className="flex gap-1.5">
                         <div className="flex-1 px-2.5 py-2 rounded-xl text-[9px] font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(200,210,255,0.5)' }}>{inviteUrl}</div>
@@ -743,17 +754,17 @@ export default function MainPage() {
                         </motion.button>
                       </div>
                       <div className="grid grid-cols-4 gap-1.5">
-                        <a href={shareUrls.whatsapp} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.2)' }}>
-                          <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: '#25D366' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                          <span className="text-[7px] font-bold" style={{ color: '#25D366' }}>WhatsApp</span>
+                        <a href={shareUrls.whatsapp} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: '#25D366' }}>
+                          <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: 'white' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                          <span className="text-[7px] font-bold" style={{ color: 'white' }}>WhatsApp</span>
                         </a>
-                        <motion.button onClick={copySnapDuo} whileTap={{ scale: 0.9 }} className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={snapCopied ? { background: 'rgba(255,252,0,0.18)', border: '1px solid rgba(255,252,0,0.4)' } : { background: 'rgba(255,252,0,0.08)', border: '1px solid rgba(255,252,0,0.15)' }}>
-                          <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: '#FFFC00' }}><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.505.07.05.174.12.304.176.214.09.462.129.71.071.217-.052.45-.014.6.111.167.133.21.348.121.533-.088.184-.389.373-.714.526-.063.028-.117.06-.162.09.054.195.146.598.071.88-.043.165-.161.238-.268.214-.083-.018-.135-.04-.17-.06-.03-.02-.052-.04-.054-.042-.035-.018-.072-.04-.113-.058-.116-.052-.284-.088-.464-.018.218.235.377.52.377.873 0 .465-.19.913-.51 1.215-.082.078-.154.141-.213.192-.178.153-.265.228-.265.46 0 .313.169.558.34.754.195.22.413.413.618.582.356.29.685.561.9.862.327.46.459.98.36 1.491-.121.629-.546 1.115-.944 1.427-.328.258-.685.42-1.07.47-.246.034-.411.108-.446.202-.053.148.144.318.309.463.056.05.108.099.15.145.116.126.217.26.334.396.121.14.26.27.4.365.133.091.23.147.288.192.142.108.196.228.196.346 0 .151-.077.289-.223.374-.214.126-.51.205-.868.255-.36.05-.81.08-1.294.08-.485 0-.937-.03-1.298-.08-.36-.05-.655-.13-.87-.255-.145-.085-.222-.223-.222-.374 0-.118.054-.238.196-.346.058-.045.155-.1.288-.192.14-.095.279-.225.4-.365.117-.136.218-.27.334-.396.042-.046.094-.095.15-.145.165-.145.362-.315.309-.463-.035-.094-.2-.168-.447-.202-.384-.05-.74-.212-1.07-.47-.397-.312-.822-.798-.943-1.427-.1-.51.032-1.032.36-1.491.214-.3.543-.572.9-.862.205-.169.422-.362.617-.582.171-.196.34-.44.34-.754 0-.232-.087-.307-.264-.46-.06-.051-.132-.114-.213-.192-.32-.302-.51-.75-.51-1.215 0-.353.159-.638.377-.873-.18-.07-.348-.034-.464.018-.04.018-.078.04-.113.058-.002.002-.023.022-.053.042-.036.02-.088.042-.171.06-.107.024-.225-.05-.268-.214-.075-.282.017-.685.07-.88-.044-.03-.098-.062-.161-.09-.326-.153-.626-.342-.715-.526-.088-.185-.045-.4.122-.533.15-.125.383-.163.6-.111.248.058.496.019.71-.071.13-.056.233-.126.304-.176-.008-.16-.019-.325-.03-.505l-.004-.06c-.104-1.628-.23-3.654.3-4.847C7.858 1.07 11.215.793 12.206.793z"/></svg>
-                          <span className="text-[7px] font-bold" style={{ color: '#FFFC00' }}>{snapCopied ? 'Copied!' : 'Snapchat'}</span>
+                        <motion.button onClick={copySnapDuo} whileTap={{ scale: 0.9 }} className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: '#FFFC00' }}>
+                          <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: '#000000' }}><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.505.07.05.174.12.304.176.214.09.462.129.71.071.217-.052.45-.014.6.111.167.133.21.348.121.533-.088.184-.389.373-.714.526-.063.028-.117.06-.162.09.054.195.146.598.071.88-.043.165-.161.238-.268.214-.083-.018-.135-.04-.17-.06-.03-.02-.052-.04-.054-.042-.035-.018-.072-.04-.113-.058-.116-.052-.284-.088-.464-.018.218.235.377.52.377.873 0 .465-.19.913-.51 1.215-.082.078-.154.141-.213.192-.178.153-.265.228-.265.46 0 .313.169.558.34.754.195.22.413.413.618.582.356.29.685.561.9.862.327.46.459.98.36 1.491-.121.629-.546 1.115-.944 1.427-.328.258-.685.42-1.07.47-.246.034-.411.108-.446.202-.053.148.144.318.309.463.056.05.108.099.15.145.116.126.217.26.334.396.121.14.26.27.4.365.133.091.23.147.288.192.142.108.196.228.196.346 0 .151-.077.289-.223.374-.214.126-.51.205-.868.255-.36.05-.81.08-1.294.08-.485 0-.937-.03-1.298-.08-.36-.05-.655-.13-.87-.255-.145-.085-.222-.223-.222-.374 0-.118.054-.238.196-.346.058-.045.155-.1.288-.192.14-.095.279-.225.4-.365.117-.136.218-.27.334-.396.042-.046.094-.095.15-.145.165-.145.362-.315.309-.463-.035-.094-.2-.168-.447-.202-.384-.05-.74-.212-1.07-.47-.397-.312-.822-.798-.943-1.427-.1-.51.032-1.032.36-1.491.214-.3.543-.572.9-.862.205-.169.422-.362.617-.582.171-.196.34-.44.34-.754 0-.232-.087-.307-.264-.46-.06-.051-.132-.114-.213-.192-.32-.302-.51-.75-.51-1.215 0-.353.159-.638.377-.873-.18-.07-.348-.034-.464.018-.04.018-.078.04-.113.058-.002.002-.023.022-.053.042-.036.02-.088.042-.171.06-.107.024-.225-.05-.268-.214-.075-.282.017-.685.07-.88-.044-.03-.098-.062-.161-.09-.326-.153-.626-.342-.715-.526-.088-.185-.045-.4.122-.533.15-.125.383-.163.6-.111.248.058.496.019.71-.071.13-.056.233-.126.304-.176-.008-.16-.019-.325-.03-.505l-.004-.06c-.104-1.628-.23-3.654.3-4.847C7.858 1.07 11.215.793 12.206.793z"/></svg>
+                          <span className="text-[7px] font-bold" style={{ color: '#000000' }}>{snapCopied ? 'Copied!' : 'Snapchat'}</span>
                         </motion.button>
-                        <a href={shareUrls.twitter} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <a href={shareUrls.twitter} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: '#000000', border: '1px solid rgba(255,255,255,0.12)' }}>
                           <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: 'white' }}><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                          <span className="text-[7px] font-bold" style={{ color: 'rgba(255,255,255,0.6)' }}>Twitter</span>
+                          <span className="text-[7px] font-bold" style={{ color: 'rgba(255,255,255,0.9)' }}>Twitter</span>
                         </a>
                         <motion.button onClick={copyLink} whileTap={{ scale: 0.9 }} className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={copied ? { background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' } : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
                           {copied ? <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: 'none', stroke: '#4ade80', strokeWidth: '2.5' }}><polyline points="20 6 9 17 4 12"/></svg> : <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: 'none', stroke: 'rgba(255,255,255,0.5)', strokeWidth: '2' }}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>}
@@ -761,7 +772,12 @@ export default function MainPage() {
                         </motion.button>
                       </div>
                       <AnimatePresence mode="wait">
-                        {!squadReady ? (
+                        {!squad ? (
+                          <motion.div key="setup" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                            <Loader2 size={11} className="animate-spin flex-shrink-0" style={{ color: '#00D4FF' }} />
+                            <p className="text-[11px]" style={{ color: 'rgba(200,210,255,0.6)' }}>Setting up room<WaitingDots /></p>
+                          </motion.div>
+                        ) : !squadReady ? (
                           <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                             <Loader2 size={11} className="animate-spin flex-shrink-0" style={{ color: '#00D4FF' }} />
                             <p className="text-[11px]" style={{ color: 'rgba(200,210,255,0.6)' }}>Waiting for friend to join<WaitingDots /></p>
@@ -796,24 +812,10 @@ export default function MainPage() {
             {mode === 'private' && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
                 <div className="rounded-2xl p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)' }}>
-                  {!privateCode ? (
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Lock size={13} style={{ color: '#00D4FF' }} />
-                        <p className="text-xs font-black text-white">Private Mode</p>
-                      </div>
-                      <p className="text-vybe-muted text-[11px] mb-3">One-on-one private room, only your invited friend can join</p>
-                      {privateError && (
-                        <div className="flex items-center justify-between gap-2 text-red-400 text-[10px] bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2 mb-2">
-                          <span>{privateError}</span>
-                          <button onClick={createPrivateRoom} className="flex items-center gap-1 text-[10px] font-bold text-red-300 hover:text-white"><RefreshCw size={9} /> Retry</button>
-                        </div>
-                      )}
-                      <button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
-                        className="w-full py-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed" style={{ background: 'linear-gradient(140deg, #004466 0%, #00D4FF 60%, #00B8E0 100%)' }}>
-                        {privateLoading ? <><Loader2 size={11} className="animate-spin" /> Creating...</> : !isConnected ? <><Loader2 size={11} className="animate-spin" /> Connecting...</> : <><Lock size={11} /> Create Private Room</>}
-                      </button>
-                      {!isConnected && <p className="text-[10px] text-center mt-1.5" style={{ color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait...</p>}
+                  {!privDisplayCode ? (
+                    <div className="flex items-center justify-center gap-2 py-3">
+                      <Loader2 size={13} className="animate-spin" style={{ color: '#00D4FF' }} />
+                      <p className="text-[12px]" style={{ color: 'rgba(200,210,255,0.6)' }}>Setting up room<WaitingDots /></p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -822,11 +824,11 @@ export default function MainPage() {
                           <Lock size={12} style={{ color: '#00D4FF' }} />
                           <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>Private Room</p>
                         </div>
-                        <button onClick={() => { setPrivateCode(''); setPrivateError('') }} className="w-5 h-5 flex items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/10 transition-all"><XIcon size={10} /></button>
+                        <button onClick={() => { setPrivateCode(''); setPrivateError(''); setInstantPrivCode('') }} className="w-5 h-5 flex items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/10 transition-all"><XIcon size={10} /></button>
                       </div>
                       <div className="text-center py-1">
                         <p className="text-[9px] font-bold uppercase tracking-[0.25em] mb-1" style={{ color: 'rgba(0,212,255,0.5)' }}>Room Code</p>
-                        <p className="text-2xl font-black tracking-[0.18em]" style={{ color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)' }}>{privateCode}</p>
+                        <p className="text-2xl font-black tracking-[0.18em]" style={{ color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)' }}>{privDisplayCode}</p>
                       </div>
                       <div className="flex gap-1.5">
                         <div className="flex-1 px-2.5 py-2 rounded-xl text-[9px] font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(200,210,255,0.5)' }}>{privateInviteUrl}</div>
@@ -840,17 +842,17 @@ export default function MainPage() {
                         </motion.button>
                       </div>
                       <div className="grid grid-cols-4 gap-1.5">
-                        <a href={`https://wa.me/?text=${encodeURIComponent('Join my private Vybe room! ' + privateInviteUrl)}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.2)' }}>
-                          <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: '#25D366' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                          <span className="text-[7px] font-bold" style={{ color: '#25D366' }}>WhatsApp</span>
+                        <a href={'https://wa.me/?text=' + encodeURIComponent('Join my private Vybe room! ' + privateInviteUrl)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: '#25D366' }}>
+                          <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: 'white' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                          <span className="text-[7px] font-bold" style={{ color: 'white' }}>WhatsApp</span>
                         </a>
-                        <motion.button onClick={copySnapPriv} whileTap={{ scale: 0.9 }} className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={snapPrivCopied ? { background: 'rgba(255,252,0,0.18)', border: '1px solid rgba(255,252,0,0.4)' } : { background: 'rgba(255,252,0,0.08)', border: '1px solid rgba(255,252,0,0.15)' }}>
-                          <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: '#FFFC00' }}><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.505.07.05.174.12.304.176.214.09.462.129.71.071.217-.052.45-.014.6.111.167.133.21.348.121.533-.088.184-.389.373-.714.526-.063.028-.117.06-.162.09.054.195.146.598.071.88-.043.165-.161.238-.268.214-.083-.018-.135-.04-.17-.06-.03-.02-.052-.04-.054-.042-.035-.018-.072-.04-.113-.058-.116-.052-.284-.088-.464-.018.218.235.377.52.377.873 0 .465-.19.913-.51 1.215-.082.078-.154.141-.213.192-.178.153-.265.228-.265.46 0 .313.169.558.34.754.195.22.413.413.618.582.356.29.685.561.9.862.327.46.459.98.36 1.491-.121.629-.546 1.115-.944 1.427-.328.258-.685.42-1.07.47-.246.034-.411.108-.446.202-.053.148.144.318.309.463.056.05.108.099.15.145.116.126.217.26.334.396.121.14.26.27.4.365.133.091.23.147.288.192.142.108.196.228.196.346 0 .151-.077.289-.223.374-.214.126-.51.205-.868.255-.36.05-.81.08-1.294.08-.485 0-.937-.03-1.298-.08-.36-.05-.655-.13-.87-.255-.145-.085-.222-.223-.222-.374 0-.118.054-.238.196-.346.058-.045.155-.1.288-.192.14-.095.279-.225.4-.365.117-.136.218-.27.334-.396.042-.046.094-.095.15-.145.165-.145.362-.315.309-.463-.035-.094-.2-.168-.447-.202-.384-.05-.74-.212-1.07-.47-.397-.312-.822-.798-.943-1.427-.1-.51.032-1.032.36-1.491.214-.3.543-.572.9-.862.205-.169.422-.362.617-.582.171-.196.34-.44.34-.754 0-.232-.087-.307-.264-.46-.06-.051-.132-.114-.213-.192-.32-.302-.51-.75-.51-1.215 0-.353.159-.638.377-.873-.18-.07-.348-.034-.464.018-.04.018-.078.04-.113.058-.002.002-.023.022-.053.042-.036.02-.088.042-.171.06-.107.024-.225-.05-.268-.214-.075-.282.017-.685.07-.88-.044-.03-.098-.062-.161-.09-.326-.153-.626-.342-.715-.526-.088-.185-.045-.4.122-.533.15-.125.383-.163.6-.111.248.058.496.019.71-.071.13-.056.233-.126.304-.176-.008-.16-.019-.325-.03-.505l-.004-.06c-.104-1.628-.23-3.654.3-4.847C7.858 1.07 11.215.793 12.206.793z"/></svg>
-                          <span className="text-[7px] font-bold" style={{ color: '#FFFC00' }}>{snapPrivCopied ? 'Copied!' : 'Snapchat'}</span>
+                        <motion.button onClick={copySnapPriv} whileTap={{ scale: 0.9 }} className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: '#FFFC00' }}>
+                          <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: '#000000' }}><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.505.07.05.174.12.304.176.214.09.462.129.71.071.217-.052.45-.014.6.111.167.133.21.348.121.533-.088.184-.389.373-.714.526-.063.028-.117.06-.162.09.054.195.146.598.071.88-.043.165-.161.238-.268.214-.083-.018-.135-.04-.17-.06-.03-.02-.052-.04-.054-.042-.035-.018-.072-.04-.113-.058-.116-.052-.284-.088-.464-.018.218.235.377.52.377.873 0 .465-.19.913-.51 1.215-.082.078-.154.141-.213.192-.178.153-.265.228-.265.46 0 .313.169.558.34.754.195.22.413.413.618.582.356.29.685.561.9.862.327.46.459.98.36 1.491-.121.629-.546 1.115-.944 1.427-.328.258-.685.42-1.07.47-.246.034-.411.108-.446.202-.053.148.144.318.309.463.056.05.108.099.15.145.116.126.217.26.334.396.121.14.26.27.4.365.133.091.23.147.288.192.142.108.196.228.196.346 0 .151-.077.289-.223.374-.214.126-.51.205-.868.255-.36.05-.81.08-1.294.08-.485 0-.937-.03-1.298-.08-.36-.05-.655-.13-.87-.255-.145-.085-.222-.223-.222-.374 0-.118.054-.238.196-.346.058-.045.155-.1.288-.192.14-.095.279-.225.4-.365.117-.136.218-.27.334-.396.042-.046.094-.095.15-.145.165-.145.362-.315.309-.463-.035-.094-.2-.168-.447-.202-.384-.05-.74-.212-1.07-.47-.397-.312-.822-.798-.943-1.427-.1-.51.032-1.032.36-1.491.214-.3.543-.572.9-.862.205-.169.422-.362.617-.582.171-.196.34-.44.34-.754 0-.232-.087-.307-.264-.46-.06-.051-.132-.114-.213-.192-.32-.302-.51-.75-.51-1.215 0-.353.159-.638.377-.873-.18-.07-.348-.034-.464.018-.04.018-.078.04-.113.058-.002.002-.023.022-.053.042-.036.02-.088.042-.171.06-.107.024-.225-.05-.268-.214-.075-.282.017-.685.07-.88-.044-.03-.098-.062-.161-.09-.326-.153-.626-.342-.715-.526-.088-.185-.045-.4.122-.533.15-.125.383-.163.6-.111.248.058.496.019.71-.071.13-.056.233-.126.304-.176-.008-.16-.019-.325-.03-.505l-.004-.06c-.104-1.628-.23-3.654.3-4.847C7.858 1.07 11.215.793 12.206.793z"/></svg>
+                          <span className="text-[7px] font-bold" style={{ color: '#000000' }}>{snapPrivCopied ? 'Copied!' : 'Snapchat'}</span>
                         </motion.button>
-                        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('Join my private Vybe room!')}&url=${encodeURIComponent(privateInviteUrl)}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <a href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent('Join my private Vybe room!') + '&url=' + encodeURIComponent(privateInviteUrl)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={{ background: '#000000', border: '1px solid rgba(255,255,255,0.12)' }}>
                           <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: 'white' }}><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                          <span className="text-[7px] font-bold" style={{ color: 'rgba(255,255,255,0.6)' }}>Twitter</span>
+                          <span className="text-[7px] font-bold" style={{ color: 'rgba(255,255,255,0.9)' }}>Twitter</span>
                         </a>
                         <motion.button onClick={copyPrivateLink} whileTap={{ scale: 0.9 }} className="flex flex-col items-center gap-0.5 py-2 rounded-xl" style={privateCopied ? { background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' } : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
                           {privateCopied ? <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: 'none', stroke: '#4ade80', strokeWidth: '2.5' }}><polyline points="20 6 9 17 4 12"/></svg> : <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, fill: 'none', stroke: 'rgba(255,255,255,0.5)', strokeWidth: '2' }}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>}
@@ -1176,7 +1178,7 @@ export default function MainPage() {
                   <div style={{ display: 'flex', gap: 4 }}>
                     {[['Solo', 'solo'], ['Duo', 'squad'], ['Private', 'private']].map(([label, val]) => (
                       <motion.button key={val}
-                        onClick={() => setMode(val)}
+                        onClick={() => handleModeClick(val)}
                         whileTap={{ scale: 0.94 }}
                         style={{
                           flex: 1, padding: '6px 0', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none',
@@ -1206,25 +1208,10 @@ export default function MainPage() {
               {mode === 'squad' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} style={{ overflow: 'hidden' }}>
                   <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 16, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {!squad ? (
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                          <Users size={14} style={{ color: '#00D4FF' }} />
-                          <p style={{ fontSize: 13, fontWeight: 800, color: 'white', margin: 0 }}>Duo Mode</p>
-                        </div>
-                        <p style={{ fontSize: 11, color: 'rgba(160,160,180,0.6)', marginBottom: 12 }}>Invite a friend to chat together as a pair</p>
-                        {squadError && (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, color: '#f87171', fontSize: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '8px 12px', marginBottom: 8 }}>
-                            <span>{squadError}</span>
-                            <button onClick={createSquad} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: '#fca5a5', background: 'none', border: 'none', cursor: 'pointer' }}><RefreshCw size={9} /> Retry</button>
-                          </div>
-                        )}
-                        <motion.button onClick={createSquad} disabled={squadLoading || !isConnected}
-                          whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}
-                          style={{ width: '100%', padding: '10px 0', borderRadius: 12, color: 'white', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'linear-gradient(140deg, #004466 0%, #00D4FF 60%, #00B8E0 100%)', border: 'none', cursor: squadLoading || !isConnected ? 'not-allowed' : 'pointer', opacity: squadLoading || !isConnected ? 0.6 : 1 }}>
-                          {squadLoading ? <><Loader2 size={13} className="animate-spin" /> Creating...</> : !isConnected ? <><Loader2 size={13} className="animate-spin" /> Connecting...</> : <><UserPlus size={13} /> Create Duo Room</>}
-                        </motion.button>
-                        {!isConnected && <p style={{ fontSize: 10, textAlign: 'center', marginTop: 6, color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait...</p>}
+                    {!duoDisplayCode ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0' }}>
+                        <Loader2 size={14} className="animate-spin" style={{ color: '#00D4FF' }} />
+                        <p style={{ fontSize: 13, color: 'rgba(200,210,255,0.6)', margin: 0 }}>Setting up room<WaitingDots /></p>
                       </div>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1240,7 +1227,7 @@ export default function MainPage() {
                         </div>
                         <div style={{ textAlign: 'center', padding: '4px 0' }}>
                           <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(0,212,255,0.5)', marginBottom: 4 }}>Room Code</p>
-                          <p style={{ fontSize: 26, fontWeight: 900, letterSpacing: '0.18em', color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)', margin: 0 }}>{squad.code}</p>
+                          <p style={{ fontSize: 26, fontWeight: 900, letterSpacing: '0.18em', color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)', margin: 0 }}>{duoDisplayCode}</p>
                         </div>
                         <div style={{ display: 'flex', gap: 6 }}>
                           <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, fontSize: 10, fontFamily: 'ui-monospace, monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', userSelect: 'all', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(200,210,255,0.5)' }}>{inviteUrl}</div>
@@ -1253,17 +1240,17 @@ export default function MainPage() {
                           </motion.button>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-                          <a href={shareUrls.whatsapp} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.2)' }}>
-                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: '#25D366' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: '#25D366' }}>WhatsApp</span>
+                          <a href={shareUrls.whatsapp} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: '#25D366' }}>
+                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'white' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            <span style={{ fontSize: 8, fontWeight: 700, color: 'white' }}>WhatsApp</span>
                           </a>
-                          <motion.button onClick={copySnapDuo} whileTap={{ scale: 0.9 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, cursor: 'pointer', border: 'none', ...(snapCopied ? { background: 'rgba(255,252,0,0.18)', border: '1px solid rgba(255,252,0,0.4)' } : { background: 'rgba(255,252,0,0.08)', border: '1px solid rgba(255,252,0,0.15)' }) }}>
-                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: '#FFFC00' }}><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.505.07.05.174.12.304.176.214.09.462.129.71.071.217-.052.45-.014.6.111.167.133.21.348.121.533-.088.184-.389.373-.714.526-.063.028-.117.06-.162.09.054.195.146.598.071.88-.043.165-.161.238-.268.214-.083-.018-.135-.04-.17-.06-.03-.02-.052-.04-.054-.042-.035-.018-.072-.04-.113-.058-.116-.052-.284-.088-.464-.018.218.235.377.52.377.873 0 .465-.19.913-.51 1.215-.082.078-.154.141-.213.192-.178.153-.265.228-.265.46 0 .313.169.558.34.754.195.22.413.413.618.582.356.29.685.561.9.862.327.46.459.98.36 1.491-.121.629-.546 1.115-.944 1.427-.328.258-.685.42-1.07.47-.246.034-.411.108-.446.202-.053.148.144.318.309.463.056.05.108.099.15.145.116.126.217.26.334.396.121.14.26.27.4.365.133.091.23.147.288.192.142.108.196.228.196.346 0 .151-.077.289-.223.374-.214.126-.51.205-.868.255-.36.05-.81.08-1.294.08-.485 0-.937-.03-1.298-.08-.36-.05-.655-.13-.87-.255-.145-.085-.222-.223-.222-.374 0-.118.054-.238.196-.346.058-.045.155-.1.288-.192.14-.095.279-.225.4-.365.117-.136.218-.27.334-.396.042-.046.094-.095.15-.145.165-.145.362-.315.309-.463-.035-.094-.2-.168-.447-.202-.384-.05-.74-.212-1.07-.47-.397-.312-.822-.798-.943-1.427-.1-.51.032-1.032.36-1.491.214-.3.543-.572.9-.862.205-.169.422-.362.617-.582.171-.196.34-.44.34-.754 0-.232-.087-.307-.264-.46-.06-.051-.132-.114-.213-.192-.32-.302-.51-.75-.51-1.215 0-.353.159-.638.377-.873-.18-.07-.348-.034-.464.018-.04.018-.078.04-.113.058-.002.002-.023.022-.053.042-.036.02-.088.042-.171.06-.107.024-.225-.05-.268-.214-.075-.282.017-.685.07-.88-.044-.03-.098-.062-.161-.09-.326-.153-.626-.342-.715-.526-.088-.185-.045-.4.122-.533.15-.125.383-.163.6-.111.248.058.496.019.71-.071.13-.056.233-.126.304-.176-.008-.16-.019-.325-.03-.505l-.004-.06c-.104-1.628-.23-3.654.3-4.847C7.858 1.07 11.215.793 12.206.793z"/></svg>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: '#FFFC00' }}>{snapCopied ? 'Copied!' : 'Snapchat'}</span>
+                          <motion.button onClick={copySnapDuo} whileTap={{ scale: 0.9 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, cursor: 'pointer', border: 'none', background: '#FFFC00' }}>
+                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: '#000000' }}><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.505.07.05.174.12.304.176.214.09.462.129.71.071.217-.052.45-.014.6.111.167.133.21.348.121.533-.088.184-.389.373-.714.526-.063.028-.117.06-.162.09.054.195.146.598.071.88-.043.165-.161.238-.268.214-.083-.018-.135-.04-.17-.06-.03-.02-.052-.04-.054-.042-.035-.018-.072-.04-.113-.058-.116-.052-.284-.088-.464-.018.218.235.377.52.377.873 0 .465-.19.913-.51 1.215-.082.078-.154.141-.213.192-.178.153-.265.228-.265.46 0 .313.169.558.34.754.195.22.413.413.618.582.356.29.685.561.9.862.327.46.459.98.36 1.491-.121.629-.546 1.115-.944 1.427-.328.258-.685.42-1.07.47-.246.034-.411.108-.446.202-.053.148.144.318.309.463.056.05.108.099.15.145.116.126.217.26.334.396.121.14.26.27.4.365.133.091.23.147.288.192.142.108.196.228.196.346 0 .151-.077.289-.223.374-.214.126-.51.205-.868.255-.36.05-.81.08-1.294.08-.485 0-.937-.03-1.298-.08-.36-.05-.655-.13-.87-.255-.145-.085-.222-.223-.222-.374 0-.118.054-.238.196-.346.058-.045.155-.1.288-.192.14-.095.279-.225.4-.365.117-.136.218-.27.334-.396.042-.046.094-.095.15-.145.165-.145.362-.315.309-.463-.035-.094-.2-.168-.447-.202-.384-.05-.74-.212-1.07-.47-.397-.312-.822-.798-.943-1.427-.1-.51.032-1.032.36-1.491.214-.3.543-.572.9-.862.205-.169.422-.362.617-.582.171-.196.34-.44.34-.754 0-.232-.087-.307-.264-.46-.06-.051-.132-.114-.213-.192-.32-.302-.51-.75-.51-1.215 0-.353.159-.638.377-.873-.18-.07-.348-.034-.464.018-.04.018-.078.04-.113.058-.002.002-.023.022-.053.042-.036.02-.088.042-.171.06-.107.024-.225-.05-.268-.214-.075-.282.017-.685.07-.88-.044-.03-.098-.062-.161-.09-.326-.153-.626-.342-.715-.526-.088-.185-.045-.4.122-.533.15-.125.383-.163.6-.111.248.058.496.019.71-.071.13-.056.233-.126.304-.176-.008-.16-.019-.325-.03-.505l-.004-.06c-.104-1.628-.23-3.654.3-4.847C7.858 1.07 11.215.793 12.206.793z"/></svg>
+                            <span style={{ fontSize: 8, fontWeight: 700, color: '#000000' }}>{snapCopied ? 'Copied!' : 'Snapchat'}</span>
                           </motion.button>
-                          <a href={shareUrls.twitter} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                          <a href={shareUrls.twitter} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: '#000000', border: '1px solid rgba(255,255,255,0.12)' }}>
                             <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'white' }}><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Twitter</span>
+                            <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>Twitter</span>
                           </a>
                           <motion.button onClick={copyLink} whileTap={{ scale: 0.9 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, cursor: 'pointer', border: 'none', ...(copied ? { background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' } : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }) }}>
                             {copied ? <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'none', stroke: '#4ade80', strokeWidth: '2.5' }}><polyline points="20 6 9 17 4 12"/></svg> : <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'none', stroke: 'rgba(255,255,255,0.5)', strokeWidth: '2' }}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>}
@@ -1271,7 +1258,12 @@ export default function MainPage() {
                           </motion.button>
                         </div>
                         <AnimatePresence mode="wait">
-                          {!squadReady ? (
+                          {!squad ? (
+                            <motion.div key="setup-d" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                              <Loader2 size={12} className="animate-spin" style={{ color: '#00D4FF', flexShrink: 0 }} />
+                              <p style={{ fontSize: 12, color: 'rgba(200,210,255,0.6)', margin: 0 }}>Setting up room<WaitingDots /></p>
+                            </motion.div>
+                          ) : !squadReady ? (
                             <motion.div key="waiting-d" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                               <Loader2 size={12} className="animate-spin" style={{ color: '#00D4FF', flexShrink: 0 }} />
                               <p style={{ fontSize: 12, color: 'rgba(200,210,255,0.6)', margin: 0 }}>Waiting for friend to join<WaitingDots /></p>
@@ -1306,25 +1298,10 @@ export default function MainPage() {
               {mode === 'private' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} style={{ overflow: 'hidden' }}>
                   <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 16, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {!privateCode ? (
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                          <Lock size={14} style={{ color: '#00D4FF' }} />
-                          <p style={{ fontSize: 13, fontWeight: 800, color: 'white', margin: 0 }}>Private Mode</p>
-                        </div>
-                        <p style={{ fontSize: 11, color: 'rgba(160,160,180,0.6)', marginBottom: 12 }}>One-on-one private room, only your invited friend can join</p>
-                        {privateError && (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, color: '#f87171', fontSize: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '8px 12px', marginBottom: 8 }}>
-                            <span>{privateError}</span>
-                            <button onClick={createPrivateRoom} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: '#fca5a5', background: 'none', border: 'none', cursor: 'pointer' }}><RefreshCw size={9} /> Retry</button>
-                          </div>
-                        )}
-                        <motion.button onClick={createPrivateRoom} disabled={privateLoading || !isConnected}
-                          whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}
-                          style={{ width: '100%', padding: '10px 0', borderRadius: 12, color: 'white', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'linear-gradient(140deg, #004466 0%, #00D4FF 60%, #00B8E0 100%)', border: 'none', cursor: privateLoading || !isConnected ? 'not-allowed' : 'pointer', opacity: privateLoading || !isConnected ? 0.6 : 1 }}>
-                          {privateLoading ? <><Loader2 size={13} className="animate-spin" /> Creating...</> : !isConnected ? <><Loader2 size={13} className="animate-spin" /> Connecting...</> : <><Lock size={13} /> Create Private Room</>}
-                        </motion.button>
-                        {!isConnected && <p style={{ fontSize: 10, textAlign: 'center', marginTop: 6, color: 'rgba(107,114,128,0.7)' }}>Waking up server, please wait...</p>}
+                    {!privDisplayCode ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0' }}>
+                        <Loader2 size={14} className="animate-spin" style={{ color: '#00D4FF' }} />
+                        <p style={{ fontSize: 13, color: 'rgba(200,210,255,0.6)', margin: 0 }}>Setting up room<WaitingDots /></p>
                       </div>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1333,11 +1310,11 @@ export default function MainPage() {
                             <Lock size={13} style={{ color: '#00D4FF' }} />
                             <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', margin: 0 }}>Private Room</p>
                           </div>
-                          <button onClick={() => { setPrivateCode(''); setPrivateError('') }} style={{ width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer' }}><XIcon size={11} /></button>
+                          <button onClick={() => { setPrivateCode(''); setPrivateError(''); setInstantPrivCode('') }} style={{ width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer' }}><XIcon size={11} /></button>
                         </div>
                         <div style={{ textAlign: 'center', padding: '4px 0' }}>
                           <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(0,212,255,0.5)', marginBottom: 4 }}>Room Code</p>
-                          <p style={{ fontSize: 26, fontWeight: 900, letterSpacing: '0.18em', color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)', margin: 0 }}>{privateCode}</p>
+                          <p style={{ fontSize: 26, fontWeight: 900, letterSpacing: '0.18em', color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)', margin: 0 }}>{privDisplayCode}</p>
                         </div>
                         <div style={{ display: 'flex', gap: 6 }}>
                           <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, fontSize: 10, fontFamily: 'ui-monospace, monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', userSelect: 'all', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(200,210,255,0.5)' }}>{privateInviteUrl}</div>
@@ -1350,17 +1327,17 @@ export default function MainPage() {
                           </motion.button>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-                          <a href={`https://wa.me/?text=${encodeURIComponent('Join my private Vybe room! ' + privateInviteUrl)}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.2)' }}>
-                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: '#25D366' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: '#25D366' }}>WhatsApp</span>
+                          <a href={'https://wa.me/?text=' + encodeURIComponent('Join my private Vybe room! ' + privateInviteUrl)} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: '#25D366' }}>
+                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'white' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            <span style={{ fontSize: 8, fontWeight: 700, color: 'white' }}>WhatsApp</span>
                           </a>
-                          <motion.button onClick={copySnapPriv} whileTap={{ scale: 0.9 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, cursor: 'pointer', border: 'none', ...(snapPrivCopied ? { background: 'rgba(255,252,0,0.18)', border: '1px solid rgba(255,252,0,0.4)' } : { background: 'rgba(255,252,0,0.08)', border: '1px solid rgba(255,252,0,0.15)' }) }}>
-                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: '#FFFC00' }}><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.505.07.05.174.12.304.176.214.09.462.129.71.071.217-.052.45-.014.6.111.167.133.21.348.121.533-.088.184-.389.373-.714.526-.063.028-.117.06-.162.09.054.195.146.598.071.88-.043.165-.161.238-.268.214-.083-.018-.135-.04-.17-.06-.03-.02-.052-.04-.054-.042-.035-.018-.072-.04-.113-.058-.116-.052-.284-.088-.464-.018.218.235.377.52.377.873 0 .465-.19.913-.51 1.215-.082.078-.154.141-.213.192-.178.153-.265.228-.265.46 0 .313.169.558.34.754.195.22.413.413.618.582.356.29.685.561.9.862.327.46.459.98.36 1.491-.121.629-.546 1.115-.944 1.427-.328.258-.685.42-1.07.47-.246.034-.411.108-.446.202-.053.148.144.318.309.463.056.05.108.099.15.145.116.126.217.26.334.396.121.14.26.27.4.365.133.091.23.147.288.192.142.108.196.228.196.346 0 .151-.077.289-.223.374-.214.126-.51.205-.868.255-.36.05-.81.08-1.294.08-.485 0-.937-.03-1.298-.08-.36-.05-.655-.13-.87-.255-.145-.085-.222-.223-.222-.374 0-.118.054-.238.196-.346.058-.045.155-.1.288-.192.14-.095.279-.225.4-.365.117-.136.218-.27.334-.396.042-.046.094-.095.15-.145.165-.145.362-.315.309-.463-.035-.094-.2-.168-.447-.202-.384-.05-.74-.212-1.07-.47-.397-.312-.822-.798-.943-1.427-.1-.51.032-1.032.36-1.491.214-.3.543-.572.9-.862.205-.169.422-.362.617-.582.171-.196.34-.44.34-.754 0-.232-.087-.307-.264-.46-.06-.051-.132-.114-.213-.192-.32-.302-.51-.75-.51-1.215 0-.353.159-.638.377-.873-.18-.07-.348-.034-.464.018-.04.018-.078.04-.113.058-.002.002-.023.022-.053.042-.036.02-.088.042-.171.06-.107.024-.225-.05-.268-.214-.075-.282.017-.685.07-.88-.044-.03-.098-.062-.161-.09-.326-.153-.626-.342-.715-.526-.088-.185-.045-.4.122-.533.15-.125.383-.163.6-.111.248.058.496.019.71-.071.13-.056.233-.126.304-.176-.008-.16-.019-.325-.03-.505l-.004-.06c-.104-1.628-.23-3.654.3-4.847C7.858 1.07 11.215.793 12.206.793z"/></svg>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: '#FFFC00' }}>{snapPrivCopied ? 'Copied!' : 'Snapchat'}</span>
+                          <motion.button onClick={copySnapPriv} whileTap={{ scale: 0.9 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, cursor: 'pointer', border: 'none', background: '#FFFC00' }}>
+                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: '#000000' }}><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.505.07.05.174.12.304.176.214.09.462.129.71.071.217-.052.45-.014.6.111.167.133.21.348.121.533-.088.184-.389.373-.714.526-.063.028-.117.06-.162.09.054.195.146.598.071.88-.043.165-.161.238-.268.214-.083-.018-.135-.04-.17-.06-.03-.02-.052-.04-.054-.042-.035-.018-.072-.04-.113-.058-.116-.052-.284-.088-.464-.018.218.235.377.52.377.873 0 .465-.19.913-.51 1.215-.082.078-.154.141-.213.192-.178.153-.265.228-.265.46 0 .313.169.558.34.754.195.22.413.413.618.582.356.29.685.561.9.862.327.46.459.98.36 1.491-.121.629-.546 1.115-.944 1.427-.328.258-.685.42-1.07.47-.246.034-.411.108-.446.202-.053.148.144.318.309.463.056.05.108.099.15.145.116.126.217.26.334.396.121.14.26.27.4.365.133.091.23.147.288.192.142.108.196.228.196.346 0 .151-.077.289-.223.374-.214.126-.51.205-.868.255-.36.05-.81.08-1.294.08-.485 0-.937-.03-1.298-.08-.36-.05-.655-.13-.87-.255-.145-.085-.222-.223-.222-.374 0-.118.054-.238.196-.346.058-.045.155-.1.288-.192.14-.095.279-.225.4-.365.117-.136.218-.27.334-.396.042-.046.094-.095.15-.145.165-.145.362-.315.309-.463-.035-.094-.2-.168-.447-.202-.384-.05-.74-.212-1.07-.47-.397-.312-.822-.798-.943-1.427-.1-.51.032-1.032.36-1.491.214-.3.543-.572.9-.862.205-.169.422-.362.617-.582.171-.196.34-.44.34-.754 0-.232-.087-.307-.264-.46-.06-.051-.132-.114-.213-.192-.32-.302-.51-.75-.51-1.215 0-.353.159-.638.377-.873-.18-.07-.348-.034-.464.018-.04.018-.078.04-.113.058-.002.002-.023.022-.053.042-.036.02-.088.042-.171.06-.107.024-.225-.05-.268-.214-.075-.282.017-.685.07-.88-.044-.03-.098-.062-.161-.09-.326-.153-.626-.342-.715-.526-.088-.185-.045-.4.122-.533.15-.125.383-.163.6-.111.248.058.496.019.71-.071.13-.056.233-.126.304-.176-.008-.16-.019-.325-.03-.505l-.004-.06c-.104-1.628-.23-3.654.3-4.847C7.858 1.07 11.215.793 12.206.793z"/></svg>
+                            <span style={{ fontSize: 8, fontWeight: 700, color: '#000000' }}>{snapPrivCopied ? 'Copied!' : 'Snapchat'}</span>
                           </motion.button>
-                          <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('Join my private Vybe room!')}&url=${encodeURIComponent(privateInviteUrl)}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                          <a href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent('Join my private Vybe room!') + '&url=' + encodeURIComponent(privateInviteUrl)} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: '#000000', border: '1px solid rgba(255,255,255,0.12)' }}>
                             <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'white' }}><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Twitter</span>
+                            <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>Twitter</span>
                           </a>
                           <motion.button onClick={copyPrivateLink} whileTap={{ scale: 0.9 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, cursor: 'pointer', border: 'none', ...(privateCopied ? { background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' } : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }) }}>
                             {privateCopied ? <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'none', stroke: '#4ade80', strokeWidth: '2.5' }}><polyline points="20 6 9 17 4 12"/></svg> : <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'none', stroke: 'rgba(255,255,255,0.5)', strokeWidth: '2' }}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>}
