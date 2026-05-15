@@ -529,7 +529,6 @@ export default function MainPage() {
           ) : null}
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.45) 100%)' }} />
           <div className="absolute bottom-0 left-0 right-0 h-14 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }} />
-          <p className="absolute bottom-2.5 left-0 right-0 text-center text-[10px] pointer-events-none" style={{ color: 'rgba(255,255,255,0.25)' }}>Your preview · only you can see this</p>
           {cameraOn && (
             <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 online-pulse" />

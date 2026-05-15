@@ -1617,10 +1617,8 @@ export default function ChatPage() {
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0f] gap-2">
-                    <VideoOff size={40} style={{ color: '#00D4FF' }} />
-                    <p className="text-sm font-semibold" style={{ color: '#444455' }}>No Camera</p>
-                    <p className="text-xs" style={{ color: '#333344' }}>Enable camera for more matches</p>
+                  <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0f]">
+                    <VideoOff size={44} style={{ color: '#00D4FF' }} />
                   </div>
                 )}
                 {videoOff && hasCamera && (
@@ -1688,8 +1686,8 @@ export default function ChatPage() {
           backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
           border: '1px solid rgba(255,255,255,0.10)',
           borderRadius: 60,
-          padding: '10px 20px',
-          gap: 10,
+          padding: '12px 24px',
+          gap: 14,
           boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
         }}>
 
@@ -1715,7 +1713,7 @@ export default function ChatPage() {
             disabled={status !== 'matched'}
             whileHover={status === 'matched' ? { scale: 1.06 } : {}}
             whileTap={status === 'matched' ? { scale: 0.94 } : {}}
-            style={{ padding: '12px 28px', background: '#00D4FF', borderRadius: 50, color: '#000000', fontWeight: 700, fontSize: 15, border: 'none', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, boxShadow: status === 'matched' ? '0 0 24px rgba(0,212,255,0.35)' : 'none', opacity: status === 'matched' ? 1 : 0.38, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
+            style={{ padding: '12px 28px', background: '#00D4FF', borderRadius: 50, color: '#000000', fontWeight: 700, fontSize: 15, border: 'none', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, boxShadow: '0 0 24px rgba(0,212,255,0.35)', opacity: status === 'matched' ? 1 : 0.45, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
             <SkipForward size={16} /> Skip
           </motion.button>
 
