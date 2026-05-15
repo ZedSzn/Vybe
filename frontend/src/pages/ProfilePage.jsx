@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Camera, Edit2, Save, X, ArrowLeft, Copy, Check, Loader2, Shield, Crown, Zap, Flame, Trophy, MessageCircle, Lock, MessageSquare, Twitter, Star, BadgeCheck, Gem, Sparkles, Music2, Globe, Target } from 'lucide-react'
+import { Camera, Edit2, Save, X, ArrowLeft, Copy, Check, Loader2, Shield, Crown, Zap, Flame, Trophy, MessageCircle, Lock, MessageSquare, Twitter, Star, BadgeCheck, Gem, Sparkles, Music2, Globe, Target, UserPlus, Gift, Heart, Share2 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -194,26 +194,17 @@ export default function ProfilePage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen animated-bg font-space">
+    <div className="min-h-screen font-space" style={{ background: '#0a0a0f' }}>
       <Navbar />
-      <div className="pt-24 pb-12 px-4 max-w-2xl mx-auto">
-        <div className="glass-card rounded-3xl overflow-hidden">
-          <Skeleton className="h-32 w-full" rounded="rounded-none" />
-          <div className="px-6 pb-6">
-            <div className="flex items-end gap-4 -mt-10 mb-5">
-              <Skeleton className="w-20 h-20 flex-shrink-0 ring-4 ring-vybe-bg" rounded="rounded-full" />
-              <div className="flex-1 pb-1 space-y-2">
-                <Skeleton className="h-5 w-36" rounded="rounded" />
-                <Skeleton className="h-3.5 w-24" rounded="rounded" />
-              </div>
-            </div>
-            <div className="space-y-3">
-              <Skeleton className="h-4 w-full" rounded="rounded" />
-              <Skeleton className="h-4 w-3/4" rounded="rounded" />
-              <div className="grid grid-cols-3 gap-3 pt-2">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16" rounded="rounded-xl" />)}
-              </div>
-            </div>
+      <div className="max-w-2xl mx-auto pt-20 px-4">
+        <div className="h-48 rounded-2xl animate-pulse mb-0" style={{ background: 'rgba(255,255,255,0.04)' }} />
+        <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, marginTop: -24, padding: 20 }}>
+          <div className="flex gap-4 items-end mb-4" style={{ marginTop: -45 }}>
+            <div className="w-[90px] h-[90px] rounded-full animate-pulse flex-shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }} />
+          </div>
+          <div className="space-y-2">
+            <div className="h-6 w-40 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="h-4 w-24 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
           </div>
         </div>
       </div>
@@ -223,14 +214,18 @@ export default function ProfilePage() {
   if (!profile) return null
 
   const joinDate = profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''
+  const activeImage = editing ? editForm.bannerImage : profile.bannerImage
+  const bannerPreset = BANNER_PRESETS.find(b => b.id === (editing ? editForm.bannerGradient : profile.bannerGradient)) || BANNER_PRESETS[0]
 
   return (
-    <div className="min-h-screen animated-bg font-space">
-      <style>{`@keyframes borderPulse { 0%,100%{ box-shadow:0 0 0 2px #ec4899, 0 0 0 4px #06b6d4, 0 0 20px rgba(0,212,255,0.5) } 50%{ box-shadow:0 0 0 2px #06b6d4, 0 0 0 4px #00B8E0, 0 0 28px rgba(0,212,255,0.9) } }`}</style>
+    <div className="min-h-screen font-space pb-16" style={{ background: '#0a0a0f' }}>
+      <style>{`
+        @keyframes vipGlow {
+          0%,100% { box-shadow: 0 0 0 3px #00D4FF, 0 0 20px rgba(0,212,255,0.65), 0 0 40px rgba(0,212,255,0.25); }
+          50%      { box-shadow: 0 0 0 3px #00D4FF, 0 0 32px rgba(0,212,255,1),    0 0 60px rgba(0,212,255,0.45); }
+        }
+      `}</style>
       <Navbar />
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-vybe-purple/8 rounded-full blur-3xl" />
-      </div>
 
       {saveError && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-semibold text-red-400 border border-red-500/25 backdrop-blur-sm"
@@ -238,231 +233,249 @@ export default function ProfilePage() {
           {saveError}
         </div>
       )}
-      <div className="pt-24 pb-12 px-4 max-w-2xl mx-auto relative z-10">
-        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-vybe-muted hover:text-white transition-colors mb-6 text-sm">
-          <ArrowLeft size={15} /> Back
+
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+      <input ref={bannerFileRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+
+      <div className="max-w-2xl mx-auto pt-20 px-4 relative z-10">
+        {/* Back */}
+        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 mb-4 text-sm transition-colors" style={{ color: 'rgba(255,255,255,0.35)' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}>
+          <ArrowLeft size={14} /> Back
         </button>
 
-        {/* Profile card */}
-        <div className="glass-card rounded-3xl overflow-hidden">
-          {/* Header banner */}
-          {(() => {
-            const activeImage = editing ? editForm.bannerImage : profile.bannerImage
-            const preset = BANNER_PRESETS.find(b => b.id === (editing ? editForm.bannerGradient : profile.bannerGradient)) || BANNER_PRESETS[0]
-            return (
-              <div className="h-32 relative overflow-hidden transition-all duration-500" style={{ background: preset.style }}>
-                {/* Custom banner image */}
-                {activeImage && (
-                  <img src={activeImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        {/* ── Banner ── */}
+        <div className="relative h-48 overflow-hidden rounded-2xl" style={{ background: bannerPreset.style }}>
+          {activeImage && <img src={activeImage} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+          {/* Bottom dark gradient */}
+          <div className="absolute bottom-0 left-0 right-0 h-28 pointer-events-none"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)' }} />
+          {/* Edit banner button */}
+          {isOwn && (
+            <button
+              onClick={() => editing ? bannerFileRef.current?.click() : (setEditing(true), setSaveError(''))}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all"
+              style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}
+              title="Edit banner"
+            >
+              <Edit2 size={13} className="text-white" />
+            </button>
+          )}
+        </div>
+
+        {/* ── Profile Card ── */}
+        <div className="rounded-2xl overflow-hidden" style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', marginTop: -28 }}>
+          <div className="px-5 pb-5">
+
+            {/* Avatar + action buttons */}
+            <div className="flex items-end justify-between" style={{ marginTop: -46, marginBottom: 14 }}>
+              {/* Profile pic */}
+              <div className="relative flex-shrink-0">
+                <div className="w-[90px] h-[90px] rounded-full overflow-hidden flex items-center justify-center flex-shrink-0"
+                  style={{
+                    border: '3px solid #00D4FF',
+                    background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))',
+                    animation: profile.isVip ? 'vipGlow 2s ease-in-out infinite' : undefined,
+                    boxShadow: profile.isVip ? undefined : '0 0 0 3px #00D4FF',
+                  }}>
+                  {profile.avatar
+                    ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" />
+                    : <span className="text-3xl font-black text-white">{profile.username?.[0]?.toUpperCase()}</span>
+                  }
+                </div>
+                {profile.isOnline && (
+                  <span className="absolute bottom-1.5 right-1.5 w-3.5 h-3.5 rounded-full border-2"
+                    style={{ background: '#22c55e', borderColor: '#111118' }} />
                 )}
-                {/* Subtle noise grain overlay for depth */}
-                <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3CfeColorMatrix type=\'saturate\' values=\'0\'/%3E%3C/filter%3E%3Crect width=\'200\' height=\'200\' filter=\'url(%23n)\' opacity=\'0.04\'/%3E%3C/svg%3E")', mixBlendMode: 'overlay' }} />
-                {/* Upload overlay — only when editing */}
                 {isOwn && editing && (
-                  <button
-                    onClick={() => bannerFileRef.current?.click()}
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 transition-opacity opacity-0 hover:opacity-100"
-                    style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
-                  >
-                    <Camera size={20} className="text-white drop-shadow" />
-                    <span className="text-white text-xs font-bold drop-shadow">Change Banner</span>
+                  <button onClick={() => fileRef.current?.click()}
+                    className="absolute inset-0 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}>
+                    <Camera size={20} className="text-white" />
                   </button>
                 )}
               </div>
-            )
-          })()}
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-          <input ref={bannerFileRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
 
-          <div className="px-6 pb-6">
-            {/* Avatar */}
-            <div className="relative -mt-10 mb-4 w-fit">
-              <div
-                className="w-20 h-20 rounded-2xl border-4 overflow-hidden bg-gradient-to-br from-vybe-purple to-cyan-400 flex items-center justify-center"
-                style={{
-                  borderColor: profile.borderColor || (profile.accentColor ? `${profile.accentColor}55` : '#0a0a0f'),
-                  boxShadow: profile.animatedBorder
-                    ? '0 0 0 2px #ec4899, 0 0 0 4px #06b6d4, 0 0 20px rgba(0,212,255,0.5)'
-                    : profile.accentColor
-                      ? `0 0 16px ${profile.accentColor}66`
-                      : profile.borderColor
-                        ? `0 0 12px ${profile.borderColor}88`
-                        : undefined,
-                  animation: profile.animatedBorder ? 'borderPulse 2s ease-in-out infinite' : undefined,
-                }}
-              >
-                {profile.avatar ? (
-                  <img src={profile.avatar} alt="" className="w-full h-full object-cover" />
+              {/* Action buttons */}
+              <div className="flex gap-2 pb-1 flex-wrap justify-end">
+                {isOwn ? (
+                  <>
+                    {!editing ? (
+                      <button onClick={() => { setEditing(true); setSaveError('') }}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white transition-all"
+                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(0,212,255,0.3)', backdropFilter: 'blur(12px)' }}>
+                        <Edit2 size={13} /> Edit Profile
+                      </button>
+                    ) : (
+                      <button onClick={handleSave} disabled={saving}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-60"
+                        style={{ background: '#00D4FF', color: '#000' }}>
+                        {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                        {saving ? 'Saving…' : 'Save'}
+                      </button>
+                    )}
+                    <button onClick={copyReferral}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.65)' }}>
+                      {copied ? <Check size={13} style={{ color: '#00D4FF' }} /> : <Share2 size={13} />}
+                      {copied ? 'Copied!' : 'Share'}
+                    </button>
+                    {editing && (
+                      <button onClick={() => setEditing(false)}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+                        <X size={14} />
+                      </button>
+                    )}
+                  </>
                 ) : (
-                  <span className="text-2xl font-black text-white">{profile.username?.[0]?.toUpperCase()}</span>
+                  <>
+                    <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold"
+                      style={{ background: '#00D4FF', color: '#000' }}>
+                      <UserPlus size={13} /> Add Friend
+                    </button>
+                    <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold"
+                      style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)', color: 'rgba(251,191,36,0.9)' }}>
+                      <Sparkles size={13} /> Gift
+                    </button>
+                  </>
                 )}
               </div>
-              {isOwn && editing && (
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-vybe-purple border-2 border-vybe-bg flex items-center justify-center"
-                >
-                  <Camera size={12} className="text-white" />
-                </button>
-              )}
-              {/* Online indicator */}
-              {profile.isOnline && (
-                <span className="absolute top-1 right-1 w-3 h-3 rounded-full bg-cyan-500 border-2 border-vybe-bg" />
-              )}
             </div>
 
-            {/* Name + badges */}
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-black text-white">{profile.username}</h1>
-                  {profile.emailVerified && <span title="Verified" className="text-cyan-400"><Shield size={16} /></span>}
-                </div>
-                <p className="text-vybe-muted text-sm mt-0.5">
-                  {profile.country && `${countryFlag(profile.country)} ${profile.country} · `}
-                  Joined {joinDate}
+            {/* Username + country + badges */}
+            <div className="mb-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="font-black text-white" style={{ fontSize: 22 }}>{profile.username}</h1>
+                {profile.emailVerified && <BadgeCheck size={18} style={{ color: '#00D4FF' }} title="Verified" />}
+                {profile.isVip && (
+                  <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-black"
+                    style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: '#fff' }}>
+                    <Crown size={8} /> VIP
+                  </span>
+                )}
+                {!profile.isVip && profile.isPremium && (
+                  <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-black"
+                    style={{ background: 'rgba(0,212,255,0.12)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}>
+                    <Zap size={8} /> Member
+                  </span>
+                )}
+              </div>
+              {profile.country && (
+                <p className="text-sm mt-0.5" style={{ color: '#666677' }}>
+                  {countryFlag(profile.country)} {profile.country}
                 </p>
-              </div>
-              {isOwn && !editing && (
-                <button
-                  onClick={() => { setEditing(true); setSaveError('') }}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-vybe-border text-vybe-muted hover:text-white hover:border-vybe-purple/40 text-sm transition-all"
-                >
-                  <Edit2 size={13} /> Edit
-                </button>
+              )}
+              {/* Equipped badges */}
+              {(profile.equippedBadges || []).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {(profile.equippedBadges || []).slice(0, 3).map(badgeId => {
+                    const def = BADGE_DEFS.find(b => b.id === badgeId)
+                    if (!def) return null
+                    const rs = RARITY_STYLE[def.rarity]
+                    return (
+                      <span key={badgeId} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+                        style={{ background: rs.bg, border: `1px solid ${rs.border}`, color: rs.color }}>
+                        {def.icon} {def.name}
+                      </span>
+                    )
+                  })}
+                </div>
               )}
             </div>
 
-            {/* Badges */}
-            <div className="flex flex-wrap gap-2 mb-2">
-              {profile.isPremium && !profile.isVip && <Badge icon={Zap}   label="Basic" color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
-              {profile.isVip     && <Badge icon={Crown} label="VIP"   color="border-yellow-500/30 text-cyan-400 bg-cyan-500/10" />}
-              {profile.emailVerified && <Badge icon={Shield}     label="Verified"                        color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
-              {(profile.loginStreak ?? 0) >= 7  && <Badge icon={Flame}   label={`${profile.loginStreak}d Streak`} color="border-orange-500/30 text-orange-400 bg-orange-500/10" />}
-              {(profile.longestStreak ?? 0) >= 30 && <Badge icon={Trophy} label="Veteran"               color="border-yellow-500/30 text-cyan-300 bg-cyan-500/10" />}
-              {(profile.totalChats ?? 0) >= 100  && <Badge icon={MessageCircle} label="Chatter"         color="border-cyan-400/30 text-cyan-400 bg-cyan-500/10" />}
+            {/* Stats row */}
+            <div className="flex items-stretch rounded-xl overflow-hidden mb-3"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              {[
+                { label: 'Chats',   value: (profile.totalChats   || 0).toLocaleString() },
+                { label: 'Friends', value: (profile.friendCount  || 0).toLocaleString() },
+                { label: 'Earned',  value: (profile.coinsEarned  ?? profile.coins ?? 0).toLocaleString() },
+              ].map(({ label, value }, i) => (
+                <div key={label} className="flex-1 flex" style={{ position: 'relative' }}>
+                  {i > 0 && <div className="absolute left-0 top-3 bottom-3 w-px" style={{ background: 'rgba(255,255,255,0.07)' }} />}
+                  <div className="flex-1 flex flex-col items-center py-3">
+                    <span className="font-black text-white" style={{ fontSize: 20 }}>{value}</span>
+                    <span className="text-[11px] font-medium" style={{ color: '#555566' }}>{label}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-
-            {/* Equipped custom badges */}
-            {(profile.equippedBadges || []).length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                {(profile.equippedBadges || []).map(badgeId => {
-                  const def = BADGE_DEFS.find(b => b.id === badgeId)
-                  if (!def) return null
-                  const rs = RARITY_STYLE[def.rarity]
-                  const BadgeIcon = BADGE_ICONS[def.id]
-                  return (
-                    <span
-                      key={badgeId}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
-                      style={{ background: rs.bg, border: `1px solid ${rs.border}`, color: rs.color }}
-                    >
-                      {BadgeIcon && <BadgeIcon size={11} />}
-                      {def.name}
-                    </span>
-                  )
-                })}
-              </div>
-            )}
 
             {/* Bio */}
-            {!editing && profile.bio && (
-              <p className="text-white/80 text-sm leading-relaxed mb-4 px-1">{profile.bio}</p>
+            {!editing && (
+              <p className="text-sm italic mb-1" style={{ color: profile.bio ? 'rgba(255,255,255,0.5)' : '#333344', lineHeight: 1.6 }}>
+                {profile.bio || (isOwn ? 'Add a bio…' : '')}
+              </p>
             )}
 
-            {/* Edit form */}
+            {/* ── Edit form ── */}
             {editing && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-3 mb-4"
-              >
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 mt-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-1">Bio <span className="normal-case">(max 100 chars)</span></label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#555566' }}>
+                    Bio <span className="normal-case font-normal">(max 100 chars)</span>
+                  </label>
                   <textarea
                     value={editForm.bio}
-                    onChange={(e) => setEditForm((f) => ({ ...f, bio: e.target.value.slice(0, 100) }))}
+                    onChange={(e) => setEditForm(f => ({ ...f, bio: e.target.value.slice(0, 100) }))}
                     rows={2}
                     placeholder="Tell people about yourself…"
-                    className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none resize-none"
+                    className="w-full px-3 py-2.5 rounded-xl text-white text-sm placeholder-white/25 focus:outline-none resize-none"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
                   />
-                  <p className="text-vybe-muted text-[10px] text-right mt-0.5">{editForm.bio.length}/100</p>
+                  <p className="text-[10px] text-right mt-0.5" style={{ color: '#444455' }}>{editForm.bio.length}/100</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-1">Gender</label>
-                    <select
-                      value={editForm.gender}
-                      onChange={(e) => setEditForm((f) => ({ ...f, gender: e.target.value }))}
-                      className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm focus:border-vybe-purple focus:outline-none"
-                    >
+                    <label className="block text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#555566' }}>Gender</label>
+                    <select value={editForm.gender} onChange={(e) => setEditForm(f => ({ ...f, gender: e.target.value }))}
+                      className="w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
                       <option value="male">♂ Male</option>
                       <option value="female">♀ Female</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-1">Country</label>
-                    <input
-                      value={editForm.country}
-                      onChange={(e) => setEditForm((f) => ({ ...f, country: e.target.value }))}
-                      placeholder="e.g. United States"
-                      className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none"
-                    />
+                    <label className="block text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#555566' }}>Country</label>
+                    <input value={editForm.country} onChange={(e) => setEditForm(f => ({ ...f, country: e.target.value }))}
+                      placeholder="e.g. United Kingdom"
+                      className="w-full px-3 py-2.5 rounded-xl text-white text-sm placeholder-white/25 focus:outline-none"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    { key: 'privacyShowBio',     label: 'Show bio publicly' },
-                    { key: 'privacyShowCountry', label: 'Show country publicly' },
-                  ].map(({ key, label }) => (
-                    <label key={key} className="flex items-center gap-2.5 cursor-pointer">
-                      <input type="checkbox" checked={editForm[key]} onChange={(e) => setEditForm((f) => ({ ...f, [key]: e.target.checked }))} className="w-4 h-4 accent-purple-500 rounded" />
-                      <span className="text-sm text-vybe-muted">{label}</span>
-                    </label>
-                  ))}
                 </div>
 
                 {/* Banner presets */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider">Profile Banner</label>
-                    <button
-                      type="button"
-                      onClick={() => bannerFileRef.current?.click()}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold text-vybe-muted hover:text-white border border-vybe-border hover:border-vybe-purple/40 transition-all"
-                    >
-                      <Camera size={10} /> Upload Photo
+                    <label className="block text-[10px] font-bold uppercase tracking-wider" style={{ color: '#555566' }}>Banner</label>
+                    <button type="button" onClick={() => bannerFileRef.current?.click()}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+                      <Camera size={9} /> Upload Photo
                     </button>
                   </div>
                   {editForm.bannerImage && (
-                    <div className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl border border-vybe-border" style={{ background: 'rgba(0,212,255,0.07)' }}>
+                    <div className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(0,212,255,0.07)', border: '1px solid rgba(0,212,255,0.15)' }}>
                       <img src={editForm.bannerImage} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
-                      <span className="text-xs text-white/70 flex-1">Custom photo</span>
-                      <button
-                        type="button"
-                        onClick={() => { setEditForm(f => ({ ...f, bannerImage: '' })); setProfile(p => ({ ...p, bannerImage: '' })) }}
-                        className="text-vybe-muted hover:text-red-400 transition-colors"
-                      >
+                      <span className="text-xs flex-1" style={{ color: 'rgba(255,255,255,0.6)' }}>Custom photo</span>
+                      <button type="button" onClick={() => { setEditForm(f => ({ ...f, bannerImage: '' })); setProfile(p => ({ ...p, bannerImage: '' })) }}
+                        className="transition-colors" style={{ color: '#555566' }}>
                         <X size={12} />
                       </button>
                     </div>
                   )}
                   <div className="grid grid-cols-4 gap-2">
                     {BANNER_PRESETS.map(b => (
-                      <button
-                        key={b.id}
-                        type="button"
+                      <button key={b.id} type="button"
                         onClick={() => setEditForm(f => ({ ...f, bannerGradient: b.id === 'default' ? '' : b.id }))}
                         className="relative h-10 rounded-lg overflow-hidden transition-all"
                         style={{
                           background: b.style,
-                          boxShadow: (editForm.bannerGradient || 'default') === b.id || (!editForm.bannerGradient && b.id === 'default')
-                            ? '0 0 0 2px #a78bfa' : undefined,
-                          opacity: 1,
+                          boxShadow: (!editForm.bannerGradient && b.id === 'default') || editForm.bannerGradient === b.id ? '0 0 0 2px #00D4FF' : undefined,
                         }}
-                        title={b.name}
-                      >
-                        {((editForm.bannerGradient || 'default') === b.id || (!editForm.bannerGradient && b.id === 'default')) && (
+                        title={b.name}>
+                        {((!editForm.bannerGradient && b.id === 'default') || editForm.bannerGradient === b.id) && (
                           <span className="absolute inset-0 flex items-center justify-center">
                             <Check size={12} className="text-white drop-shadow" />
                           </span>
@@ -471,72 +484,45 @@ export default function ProfilePage() {
                     ))}
                   </div>
                 </div>
-
-                {/* Accent color */}
-                <div>
-                  <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-2">Accent Color <span className="normal-case font-normal">(free)</span></label>
-                  <div className="flex gap-2 flex-wrap">
-                    <button
-                      type="button"
-                      onClick={() => setEditForm(f => ({ ...f, accentColor: '' }))}
-                      className="w-7 h-7 rounded-full border-2 transition-all flex items-center justify-center"
-                      style={{ background: '#1a1a2e', borderColor: !editForm.accentColor ? '#a78bfa' : 'rgba(255,255,255,0.15)' }}
-                      title="None"
-                    >
-                      {!editForm.accentColor && <Check size={11} className="text-white/60" />}
-                    </button>
-                    {ACCENT_COLORS.map(c => (
-                      <button
-                        key={c.hex}
-                        type="button"
-                        onClick={() => setEditForm(f => ({ ...f, accentColor: c.hex }))}
-                        className="w-7 h-7 rounded-full border-2 transition-all"
-                        style={{ background: c.hex, borderColor: editForm.accentColor === c.hex ? '#fff' : 'transparent',
-                          boxShadow: editForm.accentColor === c.hex ? `0 0 8px ${c.hex}88` : undefined }}
-                        title={c.name}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="flex-1 py-2.5 rounded-xl btn-purple text-white font-black text-sm flex items-center justify-center gap-2 disabled:opacity-60"
-                  >
-                    {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                    {saving ? 'Saving…' : 'Save Changes'}
-                  </button>
-                  <button
-                    onClick={() => setEditing(false)}
-                    className="px-4 py-2.5 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-sm transition-colors"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
               </motion.div>
             )}
-
-            {/* Stats grid */}
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              {[
-                { label: 'Chats',  value: profile.totalChats || 0,         Icon: MessageCircle },
-                { label: 'Streak', value: `${profile.loginStreak || 0}d`,  Icon: Flame },
-                { label: 'Best',   value: `${profile.longestStreak || 0}d`, Icon: Trophy },
-              ].map(({ label, value, Icon }) => (
-                <div key={label} className="bg-vybe-card border border-vybe-border rounded-2xl p-3 text-center">
-                  <div className="flex justify-center mb-1"><Icon size={16} className="text-vybe-purple-light opacity-70" /></div>
-                  <p className="text-white font-black text-lg">{value}</p>
-                  <p className="text-vybe-muted text-[11px]">{label}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Badge collection (own profile only) */}
-
           </div>
         </div>
+
+        {/* ── Badge Collection ── */}
+        {(isOwn || (profile.equippedBadges || []).length > 0 || ownedBadgeIds.length > 0) && (
+          <div className="mt-4 rounded-2xl p-5" style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <h2 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: '#555566' }}>Badge Collection</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {BADGE_DEFS.map(def => {
+                const owned = isOwn ? ownedBadgeIds.includes(def.id) : (profile.equippedBadges || []).includes(def.id)
+                const equipped = (profile.equippedBadges || []).includes(def.id)
+                const rs = RARITY_STYLE[def.rarity]
+                return (
+                  <div key={def.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
+                    style={{
+                      background: equipped ? 'rgba(124,58,237,0.1)' : owned ? 'rgba(0,212,255,0.05)' : 'rgba(255,255,255,0.02)',
+                      border: equipped ? '1px solid rgba(124,58,237,0.35)' : owned ? `1px solid ${rs.border}` : '1px solid rgba(255,255,255,0.05)',
+                      opacity: owned || equipped ? 1 : 0.4,
+                    }}>
+                    <span className="text-2xl flex-shrink-0">{def.icon}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold truncate" style={{ color: equipped ? '#c084fc' : owned ? rs.color : '#444455' }}>
+                        {def.name}
+                      </p>
+                      {equipped && <p className="text-[9px] font-black uppercase tracking-wider" style={{ color: 'rgba(192,132,252,0.7)' }}>Equipped</p>}
+                      {!equipped && owned && <p className="text-[9px]" style={{ color: '#333344' }}>Owned</p>}
+                      {!owned && !equipped && <p className="text-[9px]" style={{ color: '#333344' }}>{def.cost} coins</p>}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Joined date */}
+        <p className="text-center text-xs mt-5" style={{ color: '#333344' }}>Joined {joinDate}</p>
       </div>
     </div>
   )
