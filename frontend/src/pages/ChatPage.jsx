@@ -1077,28 +1077,29 @@ export default function ChatPage() {
 
           {/* Fullscreen background: stranger video OR searching state */}
           {status === 'searching' ? (
-            <div className="absolute inset-0 bg-[#0a0a0f] flex flex-col items-center justify-center px-6" style={{ gap: 28 }}>
+            <div className="absolute inset-0 bg-[#0a0a0f] flex flex-col items-center justify-center px-6" style={{ gap: 20 }}>
               {/* Globe — fixed container so rings stay within bounds */}
               <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 240, height: 240 }}>
                 <motion.div className="absolute rounded-full" style={{ width: 232, height: 232, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
                 <motion.div className="absolute rounded-full" style={{ width: 210, height: 210, border: '1px solid rgba(0,212,255,0.4)' }} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
                 <VybeGlobe size={180} />
               </div>
-              <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 8 }}>
+              <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 10 }}>
                 <AnimatePresence mode="wait">
-                  <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="font-bold text-lg" style={{ color: '#00D4FF', letterSpacing: '-0.01em' }}>
+                  <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-lg" style={{ color: '#00D4FF', fontWeight: 600, letterSpacing: '-0.01em' }}>
                     {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
                     <AnimatedDots />
                   </motion.p>
                 </AnimatePresence>
                 {onlineCount > 0 && (
-                  <p className="text-sm flex items-center justify-center gap-1.5" style={{ color: '#00D4FF' }}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" />
-                    {onlineCount.toLocaleString()} {onlineCount === 1 ? 'person' : 'people'} online now
+                  <p className="text-sm flex items-center justify-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: '#00D4FF' }} />
+                    <span className="text-white font-medium">{onlineCount.toLocaleString()}</span>
+                    <span style={{ color: '#666677' }}>{onlineCount === 1 ? 'person' : 'people'} online now</span>
                   </p>
                 )}
                 <AnimatePresence mode="wait">
-                  <motion.p key={tipIdx} initial={{ opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: 0.4 }} className="text-[11px]" style={{ color: '#888899' }}>
+                  <motion.p key={tipIdx} initial={{ opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: 0.4 }} className="text-[11px]" style={{ color: '#555566' }}>
                     {TIPS[tipIdx % TIPS.length]}
                   </motion.p>
                 </AnimatePresence>
@@ -1447,35 +1448,36 @@ export default function ChatPage() {
         ══════════════════════════════════════════════════════════ */}
         <div className="hidden lg:flex" style={{ height: '100dvh', width: '100%' }}>
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex-1 grid grid-cols-2 gap-1.5 p-2 min-h-0">
+            <div className="flex-1 grid grid-cols-2 gap-0 p-2 pb-28 min-h-0">
 
               {/* Stranger video */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="relative rounded-l-2xl overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ borderRight: '1px solid rgba(0,212,255,0.08)' }}>
                 {status === 'searching' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 28 }}>
+                  <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 20 }}>
                     {/* Globe — fixed-size container so rings don't overflow into text */}
                     <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 280, height: 280 }}>
                       <motion.div className="absolute rounded-full" style={{ width: 272, height: 272, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
                       <motion.div className="absolute rounded-full" style={{ width: 248, height: 248, border: '1px solid rgba(0,212,255,0.4)' }} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
                       <VybeGlobe size={210} />
                     </div>
-                    <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 8 }}>
+                    <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 10 }}>
                       <AnimatePresence mode="wait">
                         <motion.div key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }}>
-                          <p className="font-bold text-xl" style={{ color: '#00D4FF', letterSpacing: '-0.01em' }}>
+                          <p className="text-xl" style={{ color: '#00D4FF', fontWeight: 600, letterSpacing: '-0.01em' }}>
                             {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
                             <AnimatedDots />
                           </p>
                         </motion.div>
                       </AnimatePresence>
                       {onlineCount > 0 && (
-                        <p className="text-sm flex items-center justify-center gap-1.5" style={{ color: '#00D4FF' }}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" />
-                          {onlineCount.toLocaleString()} {onlineCount === 1 ? 'person' : 'people'} online now
+                        <p className="text-sm flex items-center justify-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: '#00D4FF' }} />
+                          <span className="text-white font-medium">{onlineCount.toLocaleString()}</span>
+                          <span style={{ color: '#666677' }}>{onlineCount === 1 ? 'person' : 'people'} online now</span>
                         </p>
                       )}
                       <AnimatePresence mode="wait">
-                        <motion.p key={tipIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.4 }} className="text-[13px]" style={{ color: '#888899' }}>
+                        <motion.p key={tipIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.4 }} className="text-[12px]" style={{ color: '#555566' }}>
                           {TIPS[tipIdx % TIPS.length]}
                         </motion.p>
                       </AnimatePresence>
@@ -1611,15 +1613,14 @@ export default function ChatPage() {
               </div>
 
               {/* Your video — desktop only, uses localVideoDesktopRef */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="relative rounded-r-2xl overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0">
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0f] gap-3">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)' }}>
-                      <VideoOff size={24} style={{ color: '#00D4FF' }} />
-                    </div>
-                    <p className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: 'rgba(0,212,255,0.6)' }}>No Camera</p>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0f] gap-2">
+                    <VideoOff size={40} style={{ color: '#00D4FF' }} />
+                    <p className="text-sm font-semibold" style={{ color: '#444455' }}>No Camera</p>
+                    <p className="text-xs" style={{ color: '#333344' }}>Enable camera for more matches</p>
                   </div>
                 )}
                 {videoOff && hasCamera && (
@@ -1643,13 +1644,13 @@ export default function ChatPage() {
                         <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />
                       )}
                       {user?.isVip && (
-                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}>
-                          <Crown size={8} /> VIP
+                        <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[9px] font-black" style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: '#fff' }}>
+                          <Crown size={7} /> VIP
                         </span>
                       )}
                       {!user?.isVip && user?.isPremium && (
-                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.2)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.35)' }}>
-                          <Zap size={8} /> Member
+                        <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[9px] font-black" style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: '#fff' }}>
+                          <Zap size={7} /> Member
                         </span>
                       )}
                     </div>
@@ -1668,82 +1669,6 @@ export default function ChatPage() {
 
             </div>
 
-            {/* ── Desktop bottom control bar — floating glass pill ── */}
-            <div className="flex-shrink-0 relative z-40 flex items-center justify-center flex-wrap gap-2" style={{ background: 'rgba(6,6,14,0.98)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 12, paddingBottom: 20, paddingLeft: 20, paddingRight: 20 }}>
-              {/* Main glass pill */}
-              <div className="flex items-center gap-3 px-5 py-3" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 60, boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
-
-                {/* Mic */}
-                <GlassBtn onClick={toggleMute} red={isMuted} active={isMuted} title={isMuted ? 'Unmute' : 'Mute'}>
-                  {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
-                </GlassBtn>
-
-                {/* Camera */}
-                {hasCamera && (
-                  <GlassBtn onClick={toggleVideo} red={videoOff} active={videoOff} title={videoOff ? 'Camera On' : 'Camera Off'}>
-                    {videoOff ? <VideoOff size={18} /> : <Video size={18} />}
-                  </GlassBtn>
-                )}
-
-                {/* SKIP — solid cyan pill, always visible, disabled when not matched */}
-                <motion.button
-                  onClick={status === 'matched' ? handleSkip : undefined}
-                  disabled={status !== 'matched'}
-                  whileHover={status === 'matched' ? { scale: 1.06, opacity: 0.9 } : {}}
-                  whileTap={status === 'matched' ? { scale: 0.94 } : {}}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm flex-shrink-0 disabled:opacity-40 disabled:cursor-default"
-                  style={{ background: 'rgba(0,212,255,0.85)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(0,212,255,0.4)', borderRadius: 50, color: '#000', fontWeight: 700, boxShadow: status === 'matched' ? '0 0 20px rgba(0,212,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2)' : 'none', transition: 'all 200ms ease' }}>
-                  <SkipForward size={16} /> Next
-                </motion.button>
-
-                <div className="w-px h-7 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
-
-                {/* Chat */}
-                <GlassBtn onClick={toggleChat} active={showChat} title="Chat">
-                  <span className="relative">
-                    <MessageSquare size={18} />
-                    {unread > 0 && !showChat && <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-red-500 rounded-full text-[7px] font-black flex items-center justify-center">{unread > 9 ? '9+' : unread}</span>}
-                  </span>
-                </GlassBtn>
-
-                {/* Report */}
-                {reportSent ? (
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)' }}>
-                    <span className="text-cyan-400 text-xs font-bold">✓</span>
-                  </div>
-                ) : (
-                  <GlassBtn onClick={() => status === 'matched' && setShowReport(true)} disabled={status !== 'matched'} red title="Report">
-                    <Flag size={18} />
-                  </GlassBtn>
-                )}
-
-                {/* End / Leave — red glass circle */}
-                <GlassBtn onClick={handleEnd} red={status === 'matched'} active={status === 'matched'} title={status === 'matched' ? 'End Chat' : 'Leave'}>
-                  <PhoneOff size={18} />
-                </GlassBtn>
-
-                {/* Tip + Friend + Block when matched */}
-                {user && status === 'matched' && (
-                  <>
-                    <div className="w-px h-7 mx-0.5 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                    <GlassBtn onClick={() => setShowTip(true)} title="Send Tip">
-                      <VybeCoin size={17} />
-                    </GlassBtn>
-                    {partnerUid && (
-                      <GlassBtn onClick={handleAddFriend} disabled={friendReqLoad || friendReqSent} active={friendReqSent} title={friendReqSent ? 'Request sent' : 'Add Friend'}>
-                        {friendReqSent ? <span className="text-xs font-bold">✓</span> : <UserPlus size={17} />}
-                      </GlassBtn>
-                    )}
-                    {partnerUid && (
-                      <GlassBtn onClick={handleBlock} disabled={blockLoading} red title="Block">
-                        <UserX size={17} />
-                      </GlassBtn>
-                    )}
-                  </>
-                )}
-
-              </div>
-            </div>
           </div>
 
           {/* Desktop chat sidebar */}
@@ -1753,6 +1678,107 @@ export default function ChatPage() {
             transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
             <div className="w-[320px] h-full flex flex-col">{ChatContent()}</div>
           </motion.div>
+
+        </div>
+
+        {/* ── Desktop fixed floating control bar ── */}
+        <div className="hidden lg:flex fixed z-40 items-center" style={{
+          bottom: 28, left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(12,12,20,0.75)',
+          backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
+          border: '1px solid rgba(255,255,255,0.10)',
+          borderRadius: 60,
+          padding: '10px 20px',
+          gap: 10,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
+        }}>
+
+          {/* Mic */}
+          <motion.button onClick={toggleMute} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
+            title={isMuted ? 'Unmute' : 'Mute'}
+            style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isMuted ? 'rgba(255,50,50,0.2)' : 'rgba(255,255,255,0.07)', border: isMuted ? '1px solid rgba(255,50,50,0.35)' : '1px solid rgba(255,255,255,0.12)', color: isMuted ? '#FF4444' : 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: 'pointer' }}>
+            {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+          </motion.button>
+
+          {/* Camera */}
+          {hasCamera && (
+            <motion.button onClick={toggleVideo} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
+              title={videoOff ? 'Camera On' : 'Camera Off'}
+              style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: videoOff ? 'rgba(255,50,50,0.2)' : 'rgba(255,255,255,0.07)', border: videoOff ? '1px solid rgba(255,50,50,0.35)' : '1px solid rgba(255,255,255,0.12)', color: videoOff ? '#FF4444' : 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: 'pointer' }}>
+              {videoOff ? <VideoOff size={18} /> : <Video size={18} />}
+            </motion.button>
+          )}
+
+          {/* SKIP — always visible, dimmed when not matched */}
+          <motion.button
+            onClick={status === 'matched' ? handleSkip : undefined}
+            disabled={status !== 'matched'}
+            whileHover={status === 'matched' ? { scale: 1.06 } : {}}
+            whileTap={status === 'matched' ? { scale: 0.94 } : {}}
+            style={{ padding: '12px 28px', background: '#00D4FF', borderRadius: 50, color: '#000000', fontWeight: 700, fontSize: 15, border: 'none', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, boxShadow: status === 'matched' ? '0 0 24px rgba(0,212,255,0.35)' : 'none', opacity: status === 'matched' ? 1 : 0.38, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
+            <SkipForward size={16} /> Skip
+          </motion.button>
+
+          {/* Chat */}
+          <motion.button onClick={toggleChat} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
+            title="Chat"
+            style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', background: showChat ? 'rgba(0,212,255,0.18)' : 'rgba(255,255,255,0.07)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.12)', color: showChat ? '#00D4FF' : 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: 'pointer' }}>
+            <MessageSquare size={18} />
+            {unread > 0 && !showChat && (
+              <span style={{ position: 'absolute', top: -2, right: -2, width: 14, height: 14, background: '#FF4444', borderRadius: '50%', fontSize: 7, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                {unread > 9 ? '9+' : unread}
+              </span>
+            )}
+          </motion.button>
+
+          {/* Report */}
+          {reportSent ? (
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ color: '#00D4FF', fontSize: 12, fontWeight: 700 }}>✓</span>
+            </div>
+          ) : (
+            <motion.button onClick={() => status === 'matched' && setShowReport(true)} disabled={status !== 'matched'}
+              whileHover={status === 'matched' ? { scale: 1.08 } : {}} whileTap={status === 'matched' ? { scale: 0.92 } : {}}
+              title="Report"
+              style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)', opacity: status === 'matched' ? 1 : 0.38, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
+              <Flag size={18} />
+            </motion.button>
+          )}
+
+          {/* End */}
+          <motion.button onClick={handleEnd} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
+            title={status === 'matched' ? 'End Chat' : 'Leave'}
+            style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,45,45,0.25)', border: '1px solid rgba(255,45,45,0.35)', color: '#FF4444', boxShadow: '0 0 16px rgba(255,45,45,0.2)', transition: 'all 150ms ease', cursor: 'pointer' }}>
+            <PhoneOff size={18} />
+          </motion.button>
+
+          {/* Secondary: Tip + Friend + Block when matched */}
+          {user && status === 'matched' && (
+            <>
+              <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)', flexShrink: 0 }} />
+              <motion.button onClick={() => setShowTip(true)} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
+                title="Send Tip"
+                style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: 'pointer' }}>
+                <VybeCoin size={17} />
+              </motion.button>
+              {partnerUid && (
+                <motion.button onClick={handleAddFriend} disabled={friendReqLoad || friendReqSent}
+                  whileHover={!friendReqSent ? { scale: 1.08 } : {}} whileTap={!friendReqSent ? { scale: 0.92 } : {}}
+                  title={friendReqSent ? 'Request sent' : 'Add Friend'}
+                  style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: friendReqSent ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.07)', border: friendReqSent ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.12)', color: friendReqSent ? '#4ade80' : 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: friendReqSent ? 'default' : 'pointer' }}>
+                  {friendReqSent ? <span style={{ fontSize: 12, fontWeight: 700 }}>✓</span> : <UserPlus size={17} />}
+                </motion.button>
+              )}
+              {partnerUid && (
+                <motion.button onClick={handleBlock} disabled={blockLoading}
+                  whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
+                  title="Block"
+                  style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,50,50,0.1)', border: '1px solid rgba(255,50,50,0.25)', color: '#f87171', transition: 'all 150ms ease', cursor: 'pointer' }}>
+                  <UserX size={17} />
+                </motion.button>
+              )}
+            </>
+          )}
 
         </div>
 
