@@ -1024,10 +1024,10 @@ export default function MainPage() {
         </div>
 
         {/* ── Two-column area ── */}
-        <div className="flex-1 min-h-0" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'stretch' }}>
+        <div className="flex-1 min-h-0" style={{ display: 'flex', alignItems: 'flex-start', overflow: 'hidden' }}>
 
           {/* ────────── LEFT: Controls ────────── */}
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '40px 52px 40px 72px' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '40px 52px 40px 72px' }}>
 
             {/* Live badge */}
             <motion.div
@@ -1358,9 +1358,9 @@ export default function MainPage() {
 
 
           {/* ────────── RIGHT: Camera panel ────────── */}
-          <div className="flex items-center" style={{ padding: '32px 44px 32px 16px', background: '#0a0a0f' }}>
+          <div className="flex items-center" style={{ flex: '0 0 50%', padding: '32px 44px 32px 16px', background: '#0a0a0f', alignSelf: 'flex-start' }}>
           <div className="relative overflow-hidden" style={{
-            width: '100%', height: '100%', borderRadius: 28,
+            width: '100%', aspectRatio: '3/4', maxHeight: 'calc(100vh - 200px)', borderRadius: 28,
             background: '#0a0a0f',
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
