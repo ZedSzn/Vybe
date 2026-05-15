@@ -1109,7 +1109,17 @@ export default function ChatPage() {
             <div className="absolute inset-0 bg-[#080812] flex items-center justify-center">
               {status === 'matched' && <div className="loading-dots flex"><span /><span /><span /></div>}
             </div>
+          ) : isDuoMode ? (
+            /* DUO MODE: Stranger in top half only */
+            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%' }}>
+              <video
+                ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }}
+                autoPlay playsInline
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
           ) : (
+            /* SOLO MODE: Fullscreen stranger */
             <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute inset-0">
               {/* Primary opponent — always fullscreen */}
               <video
@@ -1117,8 +1127,8 @@ export default function ChatPage() {
                 autoPlay playsInline
                 className="w-full h-full object-cover"
               />
-              {/* Secondary opponent PiP — only when 2 opponents and no duo mate */}
-              {opponentSocketIds.length > 1 && !isDuoMode && (
+              {/* Secondary opponent PiP — only when 2 opponents */}
+              {opponentSocketIds.length > 1 && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -1130,6 +1140,54 @@ export default function ChatPage() {
                 </motion.div>
               )}
             </motion.div>
+          )}
+
+          {/* DUO MODE: Bottom half — your camera (left) + duo partner (right) */}
+          {isDuoMode && opponentSocketIds.length > 0 && (
+            <>
+              <div className="absolute z-[4] inset-x-0" style={{ top: 'calc(50% - 0.5px)', height: 1, background: 'rgba(0,212,255,0.2)' }} />
+              <div className="absolute z-[2] flex overflow-hidden" style={{ top: '50%', left: 0, right: 0, bottom: 0, background: '#0d0d18' }}>
+                {/* Left: Your camera */}
+                <div className="relative flex-1 overflow-hidden">
+                  <video
+                    ref={(el) => {
+                      if (el && localStreamRef.current) {
+                        el.srcObject = localStreamRef.current
+                        el.play().catch(() => {})
+                      }
+                    }}
+                    autoPlay muted playsInline className="w-full h-full object-cover"
+                  />
+                  {!hasCamera && <div className="absolute inset-0 bg-[#0a0a14]" />}
+                  {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                  <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
+                      <span className="text-white/75 font-semibold text-[9px]">{user ? user.username : 'You'}</span>
+                    </div>
+                  </div>
+                </div>
+                {/* Vertical divider */}
+                <div style={{ width: 1, background: 'rgba(0,212,255,0.2)', flexShrink: 0 }} />
+                {/* Right: Duo partner */}
+                <div className="relative flex-1 overflow-hidden">
+                  {mateSocketIds[0] ? (
+                    <>
+                      <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                      <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
+                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
+                          <span className="text-white/80 font-semibold text-[9px]">Duo</span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="loading-dots flex"><span /><span /><span /></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
           )}
 
           {/* Safe mode overlay */}
@@ -1220,7 +1278,8 @@ export default function ChatPage() {
             ))}
           </AnimatePresence>
 
-          {/* Draggable PiP self-view */}
+          {/* Draggable PiP self-view — solo mode only */}
+          {!isDuoMode && (
           <motion.div
             drag
             dragConstraints={{
@@ -1291,8 +1350,10 @@ export default function ChatPage() {
               </div>
             )}
           </motion.div>
+          )}
 
-          {/* ── DUO MODE: squad-mate floating PiP ── */}
+          {/* ── DUO MODE: squad-mate floating PiP — hidden in duo mode (partner shown in bottom panel) ── */}
+          {!isDuoMode && (
           <AnimatePresence>
             {isDuoMode && mateSocketIds[0] && (
               <motion.div
@@ -1351,6 +1412,7 @@ export default function ChatPage() {
               </motion.div>
             )}
           </AnimatePresence>
+          )}
 
           {/* ── DUO MODE badge — top center ── */}
           <AnimatePresence>
@@ -1631,62 +1693,105 @@ export default function ChatPage() {
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 120, background: 'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)' }} />
               </div>
 
-              {/* Your video — desktop only, uses localVideoDesktopRef */}
-              <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-
-                {!hasCamera && <div className="absolute inset-0 bg-[#0a0a0f]" />}
-                {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-
-                {(!hasCamera || videoOff) && (
-                  <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    <VideoOff size={24} style={{ color: '#00D4FF' }} />
-                    <div style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 12px 5px 5px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      {user?.avatar ? (
-                        <img src={user.avatar} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
-                      ) : (
-                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 10, flexShrink: 0 }}>
-                          {user?.username ? user.username[0].toUpperCase() : 'Y'}
-                        </div>
-                      )}
-                      <span style={{ color: 'white', fontWeight: 700, fontSize: 13, lineHeight: 1 }}>{user?.username || 'You'}</span>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
-                    </div>
-                  </div>
-                )}
-
-                {/* You label — top left, only when camera is live */}
-                {hasCamera && !videoOff && (
-                  <div className="absolute" style={{ top: 16, left: 16, zIndex: 10 }}>
-                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                      {user?.avatar ? (
-                        <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 28, height: 28, border: '1.5px solid rgba(0,212,255,0.4)' }} />
-                      ) : user?.username ? (
-                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
-                          style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
-                          {user.username[0].toUpperCase()}
-                        </div>
-                      ) : null}
-                      <div className="flex flex-col" style={{ gap: 2 }}>
-                        <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
-                        {user?.country && (
-                          <span className="text-[11px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{user.country}</span>
-                        )}
+              {/* Your video / Duo mode right panels — desktop only */}
+              {isDuoMode ? (
+                <div className="relative flex-1 overflow-hidden min-h-0 min-w-0 flex flex-col" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  {/* TOP: Your camera */}
+                  <div className="relative overflow-hidden min-h-0" style={{ flex: '0 0 50%', borderRadius: '20px 20px 0 0' }}>
+                    <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+                    {!hasCamera && <div className="absolute inset-0 bg-[#0a0a0f]" />}
+                    {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                    <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                        {user?.avatar ? (
+                          <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(0,212,255,0.4)' }} />
+                        ) : user?.username ? (
+                          <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                            {user.username[0].toUpperCase()}
+                          </div>
+                        ) : null}
+                        <span className="text-white font-bold text-[11px] leading-none">{user ? user.username : 'You'}</span>
+                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
                       </div>
                     </div>
+                    <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
                   </div>
-                )}
+                  {/* Divider */}
+                  <div style={{ height: 1, background: 'rgba(0,212,255,0.15)', flexShrink: 0 }} />
+                  {/* BOTTOM: Duo partner camera */}
+                  <div className="relative overflow-hidden min-h-0" style={{ flex: '0 0 50%', borderRadius: '0 0 20px 20px', background: '#0d0d18' }}>
+                    {mateSocketIds[0] ? (
+                      <>
+                        <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                        <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                          <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                            <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>D</div>
+                            <span className="text-white font-bold text-[11px] leading-none">Duo Partner</span>
+                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
+                          </div>
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.18)' }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,212,255,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <p className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.22)' }}>Duo partner connecting…</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
-                {/* Squad mates */}
-                {mateSocketIds.map((sid) => (
-                  <div key={sid} className="absolute inset-y-0 right-0 w-1/2 border-l border-white/10">
-                    <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                    <div className="absolute top-2 left-2 z-10"><span className="text-[9px] font-black tracking-widest text-cyan-400/80 uppercase bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">Duo</span></div>
-                  </div>
-                ))}
-                {/* Bottom fade for bar clearance */}
-                <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 120, background: 'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)' }} />
-              </div>
+                  {!hasCamera && <div className="absolute inset-0 bg-[#0a0a0f]" />}
+                  {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+
+                  {(!hasCamera || videoOff) && (
+                    <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <VideoOff size={24} style={{ color: '#00D4FF' }} />
+                      <div style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 12px 5px 5px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {user?.avatar ? (
+                          <img src={user.avatar} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
+                        ) : (
+                          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 10, flexShrink: 0 }}>
+                            {user?.username ? user.username[0].toUpperCase() : 'Y'}
+                          </div>
+                        )}
+                        <span style={{ color: 'white', fontWeight: 700, fontSize: 13, lineHeight: 1 }}>{user?.username || 'You'}</span>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* You label — top left, only when camera is live */}
+                  {hasCamera && !videoOff && (
+                    <div className="absolute" style={{ top: 16, left: 16, zIndex: 10 }}>
+                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                        {user?.avatar ? (
+                          <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 28, height: 28, border: '1.5px solid rgba(0,212,255,0.4)' }} />
+                        ) : user?.username ? (
+                          <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
+                            style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                            {user.username[0].toUpperCase()}
+                          </div>
+                        ) : null}
+                        <div className="flex flex-col" style={{ gap: 2 }}>
+                          <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
+                          {user?.country && (
+                            <span className="text-[11px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{user.country}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bottom fade for bar clearance */}
+                  <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 120, background: 'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)' }} />
+                </div>
+              )}
 
           </div>
 
