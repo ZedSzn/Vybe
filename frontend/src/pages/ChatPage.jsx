@@ -53,11 +53,12 @@ function FloatingChat({ messages, messagesEndRef, onSend, status }) {
           <input
             ref={inputRef}
             type="text"
+            className="chat-input"
             defaultValue=""
             onKeyDown={handleKeyDown}
             placeholder="Say something..."
             disabled={status !== 'matched'}
-            style={{ flex: 1, background: 'transparent', color: 'white', fontSize: 13, border: 'none', outline: 'none', opacity: status !== 'matched' ? 0.4 : 1 }}
+            style={{ flex: 1, background: 'transparent', color: 'white', fontSize: 13, border: 'none', outline: 'none', boxShadow: 'none', opacity: status !== 'matched' ? 0.4 : 1 }}
           />
           <button
             onClick={send}

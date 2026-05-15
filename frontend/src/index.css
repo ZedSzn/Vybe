@@ -58,6 +58,17 @@ body {
 video { transform: scaleX(-1); }
 video.no-mirror { transform: none; }
 
+/* Remove focus outlines from chat input */
+.chat-input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.20) !important;
+}
+.chat-input {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Glass morphism card */
 .glass-card {
   background: rgba(13, 13, 24, 0.94);
