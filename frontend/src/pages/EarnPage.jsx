@@ -91,8 +91,8 @@ function CompareTable({ onStartEarning }) {
 
             {/* Vybe */}
             <div style={{ ...headerCell, background: '#00D4FF' }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(0,0,0,0.45)', letterSpacing: '0.1em', textTransform: 'uppercase', background: 'rgba(0,0,0,0.1)', padding: '2px 8px', borderRadius: 99 }}>Best</span>
-              <span style={{ fontSize: 19, fontWeight: 900, color: '#000000', letterSpacing: '-0.03em', lineHeight: 1 }}>VYBE</span>
+              <img src="/favicon.svg" alt="Vybe" style={{ width: 40, height: 40, borderRadius: 10 }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'white', letterSpacing: '0.06em' }}>Best</span>
             </div>
 
             {/* Twitch */}
