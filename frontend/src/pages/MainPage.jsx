@@ -619,25 +619,22 @@ export default function MainPage() {
               Instantly.
             </span>
           </h1>
-          <p className="text-sm leading-relaxed" style={{ color: 'rgba(180,190,210,0.65)' }}>
-            Live video chat with strangers worldwide — free, anonymous, no sign-up.
+          <p className="leading-relaxed" style={{ fontSize: 17, color: 'rgba(255,255,255,0.72)', fontWeight: 400 }}>
+            Random video chat with real people.<br />Connect instantly. No sign up needed.
           </p>
         </motion.div>
 
-        {/* Social proof */}
-        <div className="flex items-center justify-center gap-3">
-          <div className="flex">
-            {AVATARS.map((n, i) => (
-              <img key={n} src={`https://i.pravatar.cc/48?img=${n}`} alt="" className="w-7 h-7 rounded-full"
-                style={{ border: '2px solid #0a0a0f', marginLeft: i === 0 ? '0' : '-8px', zIndex: AVATARS.length - i, position: 'relative' }} />
-            ))}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 online-pulse" />
-            <span className="font-medium text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              {onlineCount >= 20 ? `${onlineCount.toLocaleString()} people online` : 'People matching now'}
-            </span>
-          </div>
+        {/* Online count */}
+        <div className="flex items-center justify-center gap-2.5">
+          <motion.span
+            style={{ width: 9, height: 9, borderRadius: '50%', background: '#4ade80', flexShrink: 0, display: 'block' }}
+            animate={{ opacity: [1, 0.35, 1], scale: [1, 1.3, 1] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }} />
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>
+            <span style={{ color: '#00D4FF', fontWeight: 800 }}>
+              {onlineCount >= 20 ? onlineCount.toLocaleString() : '12,846'}
+            </span>{' '}people online right now
+          </span>
         </div>
 
         {/* Start Chatting Now — dominant CTA */}
@@ -1058,27 +1055,21 @@ export default function MainPage() {
             </h1>
 
             {/* Subtitle */}
-            <p style={{ fontSize: 15, lineHeight: 1.7, color: 'rgba(255,255,255,0.36)', maxWidth: 380, marginBottom: 32 }}>
-              Random video chat with real people from around the world. Instantly.
+            <p style={{ fontSize: 18, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)', fontWeight: 400, maxWidth: 400, marginBottom: 28 }}>
+              Random video chat with real people.<br />Connect instantly. No sign up needed.
             </p>
 
-            {/* Social proof */}
-            <div className="flex items-center gap-3" style={{ marginBottom: 32 }}>
-              <div className="flex items-center">
-                {AVATARS.map((n, i) => (
-                  <img key={n} src={"https://i.pravatar.cc/48?img=" + n} alt=""
-                    style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '2px solid #0a0a0f', marginLeft: i === 0 ? 0 : -9, position: 'relative', zIndex: 10 - i, flexShrink: 0 }} />
-                ))}
-              </div>
-              <div className="flex items-center gap-2">
-                <motion.span
-                  style={{ width: 7, height: 7, borderRadius: '50%', background: '#00D4FF', flexShrink: 0, display: 'block' }}
-                  animate={{ opacity: [1, 0.4, 1] }}
-                  transition={{ duration: 2.2, repeat: Infinity }} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
-                  {onlineCount >= 20 ? onlineCount.toLocaleString() : '12,846'} people online now
-                </span>
-              </div>
+            {/* Online count */}
+            <div className="flex items-center gap-2.5" style={{ marginBottom: 32 }}>
+              <motion.span
+                style={{ width: 9, height: 9, borderRadius: '50%', background: '#4ade80', flexShrink: 0, display: 'block' }}
+                animate={{ opacity: [1, 0.35, 1], scale: [1, 1.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }} />
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>
+                <span style={{ color: '#00D4FF', fontWeight: 800 }}>
+                  {onlineCount >= 20 ? onlineCount.toLocaleString() : '12,846'}
+                </span>{' '}people online right now
+              </span>
             </div>
 
             {/* CTA buttons */}
