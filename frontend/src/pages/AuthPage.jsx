@@ -16,7 +16,6 @@ export default function AuthPage() {
   const [error, setError]           = useState('')
   const [verifyBanner, setVerifyBanner] = useState(false)
   const [gender, setGender]             = useState('')
-  // Pre-fill referral code from URL (?ref=CODE)
   const refCode = searchParams.get('ref') || ''
 
   const { login, register } = useAuth()
@@ -34,7 +33,6 @@ export default function AuthPage() {
         if (!username.trim()) { setError('Username is required'); setLoading(false); return }
         if (!gender) { setError('Please select your gender'); setLoading(false); return }
         await register(username, email, password, refCode, gender)
-        // Navigate immediately — verification is optional (soft)
         navigate('/')
       }
     } catch (err) {
@@ -44,237 +42,293 @@ export default function AuthPage() {
     }
   }
 
+  const inputStyle = {
+    width: '100%', padding: '12px 16px', borderRadius: 12,
+    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+    color: 'white', fontSize: 14, outline: 'none',
+    transition: 'border-color 0.2s',
+  }
+  const labelStyle = {
+    display: 'block', fontSize: 10, fontWeight: 800,
+    letterSpacing: '0.18em', textTransform: 'uppercase',
+    color: 'rgba(255,255,255,0.35)', marginBottom: 6,
+  }
+
   return (
-    <div className="min-h-screen animated-bg font-space flex flex-col">
-      {/* Ambient glow */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[480px] h-[480px] bg-vybe-purple/12 rounded-full blur-3xl" />
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+
+      {/* Ambient cyan glow */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+        <div style={{
+          position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%,-50%)',
+          width: 600, height: 600, borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(0,212,255,0.07) 0%, transparent 70%)',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '10%', right: '15%',
+          width: 320, height: 320, borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(0,184,224,0.05) 0%, transparent 70%)',
+        }} />
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 py-10">
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="w-full max-w-[420px] relative z-10"
-      >
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-vybe-muted hover:text-white transition-colors mb-8 text-sm font-medium"
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', position: 'relative', zIndex: 1 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          style={{ width: '100%', maxWidth: 420 }}
         >
-          <ArrowLeft size={15} />
-          Back to Vybe
-        </Link>
-
-        {verifyBanner && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glass-card rounded-2xl p-6 mb-5 border border-cyan-400/30 text-center"
+          {/* Back link */}
+          <Link
+            to="/"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.35)', fontSize: 13, fontWeight: 600, textDecoration: 'none', marginBottom: 32, transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'white'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}
           >
-            <div className="w-12 h-12 rounded-full bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center mx-auto mb-4">
-              <Mail size={22} className="text-cyan-400" />
-            </div>
-            <h2 className="text-white font-black text-lg mb-2">Check your email!</h2>
-            <p className="text-vybe-muted text-sm leading-relaxed">
-              We sent a verification link to <span className="text-white font-semibold">{email}</span>.
-              Please verify your email to start Vybing.
-            </p>
-            <button
-              onClick={() => navigate('/')}
-              className="mt-5 w-full py-3 rounded-xl btn-purple text-white font-black text-sm"
+            <ArrowLeft size={15} />
+            Back to Vybe
+          </Link>
+
+          {/* Verify banner */}
+          {verifyBanner && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(0,212,255,0.25)', borderRadius: 20,
+                padding: 28, marginBottom: 20, textAlign: 'center',
+              }}
             >
-              Got it — Go to Vybe
-            </button>
-          </motion.div>
-        )}
-
-        {!verifyBanner && (
-        <div className="glass-card rounded-2xl overflow-hidden">
-          <div className="p-7 pb-0">
-            {/* Brand */}
-            <div className="text-center mb-7">
-              <div className="text-3xl font-black tracking-widest mb-1">
-                <span className="text-purple-gradient">VY</span>
-                <span className="text-white">BE</span>
+              <div style={{
+                width: 48, height: 48, borderRadius: '50%', margin: '0 auto 16px',
+                background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Mail size={22} style={{ color: '#00D4FF' }} />
               </div>
-              <p className="text-vybe-muted text-[13px]">Meet your next Vybe.</p>
-            </div>
-
-            {/* Tab toggle */}
-            <div className="flex bg-vybe-card2 rounded-xl p-1 mb-6">
-              {['login', 'signup'].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => { setTab(t); setError('') }}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                    tab === t
-                      ? 'bg-vybe-purple text-white shadow-purple-sm'
-                      : 'text-vybe-muted hover:text-white'
-                  }`}
-                >
-                  {t === 'login' ? 'Sign In' : 'Sign Up'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="p-7 pt-0">
-            <AnimatePresence mode="wait">
-              <motion.form
-                key={tab}
-                initial={{ opacity: 0, x: tab === 'login' ? -16 : 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: tab === 'login' ? 16 : -16 }}
-                transition={{ duration: 0.2 }}
-                onSubmit={handleSubmit}
-                className="space-y-4"
+              <h2 style={{ color: 'white', fontWeight: 900, fontSize: 18, marginBottom: 8 }}>Check your email!</h2>
+              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, lineHeight: 1.6 }}>
+                We sent a verification link to <span style={{ color: 'white', fontWeight: 600 }}>{email}</span>.
+                Please verify your email to start Vybing.
+              </p>
+              <button
+                onClick={() => navigate('/')}
+                style={{
+                  marginTop: 20, width: '100%', padding: '13px 0', borderRadius: 14, border: 'none',
+                  background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
+                  boxShadow: '0 4px 24px rgba(0,212,255,0.35)',
+                  color: 'white', fontWeight: 800, fontSize: 14, cursor: 'pointer',
+                }}
               >
-                {tab === 'signup' && (
-                  <>
+                Got it — Go to Vybe
+              </button>
+            </motion.div>
+          )}
+
+          {/* Main card */}
+          {!verifyBanner && (
+            <div style={{
+              background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24,
+              overflow: 'hidden',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,212,255,0.04) inset',
+            }}>
+              <div style={{ padding: '28px 28px 0' }}>
+                {/* Brand */}
+                <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{ fontSize: 30, fontWeight: 900, letterSpacing: '0.2em', marginBottom: 4 }}>
+                    <span style={{ background: 'linear-gradient(120deg,#00D4FF 0%,#00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>VY</span>
+                    <span style={{ color: 'white' }}>BE</span>
+                  </div>
+                  <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Meet your next Vybe.</p>
+                </div>
+
+                {/* Tab toggle */}
+                <div style={{ display: 'flex', background: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 4, marginBottom: 24 }}>
+                  {['login', 'signup'].map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => { setTab(t); setError('') }}
+                      style={{
+                        flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                        border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                        ...(tab === t
+                          ? { background: '#00D4FF', color: '#0a0a0f', boxShadow: '0 2px 12px rgba(0,212,255,0.4)' }
+                          : { background: 'transparent', color: 'rgba(255,255,255,0.35)' }),
+                      }}
+                    >
+                      {t === 'login' ? 'Sign In' : 'Sign Up'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ padding: '0 28px 28px' }}>
+                <AnimatePresence mode="wait">
+                  <motion.form
+                    key={tab}
+                    initial={{ opacity: 0, x: tab === 'login' ? -16 : 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: tab === 'login' ? 16 : -16 }}
+                    transition={{ duration: 0.2 }}
+                    onSubmit={handleSubmit}
+                    style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+                  >
+                    {tab === 'signup' && (
+                      <>
+                        <div>
+                          <label style={labelStyle}>Username</label>
+                          <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="cooluser123"
+                            required
+                            style={inputStyle}
+                            onFocus={e => e.target.style.borderColor = 'rgba(0,212,255,0.5)'}
+                            onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                          />
+                        </div>
+                        <div>
+                          <label style={labelStyle}>I am a <span style={{ color: '#f87171' }}>*</span></label>
+                          <div style={{ display: 'flex', gap: 10 }}>
+                            {[{ value: 'male', label: '♂ Male' }, { value: 'female', label: '♀ Female' }].map(({ value, label }) => (
+                              <button
+                                key={value}
+                                type="button"
+                                onClick={() => setGender(value)}
+                                style={{
+                                  flex: 1, padding: '10px 0', borderRadius: 12, fontSize: 13, fontWeight: 700,
+                                  border: '1px solid', cursor: 'pointer', transition: 'all 0.2s',
+                                  ...(gender === value
+                                    ? { background: 'rgba(0,212,255,0.15)', borderColor: 'rgba(0,212,255,0.5)', color: '#00D4FF' }
+                                    : { background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }),
+                                }}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
                     <div>
-                      <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-widest mb-1.5">
-                        Username
-                      </label>
+                      <label style={labelStyle}>Email</label>
                       <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="cooluser123"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@example.com"
                         required
-                        className="w-full px-4 py-3 bg-vybe-card2 border border-vybe-border rounded-xl text-white placeholder-vybe-muted text-sm focus:border-vybe-purple focus:shadow-purple-sm transition-all"
+                        style={inputStyle}
+                        onFocus={e => e.target.style.borderColor = 'rgba(0,212,255,0.5)'}
+                        onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
                       />
                     </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-widest mb-1.5">
-                        I am a <span className="text-red-400">*</span>
-                      </label>
-                      <div className="flex gap-3">
-                        {[{ value: 'male', label: '♂ Male' }, { value: 'female', label: '♀ Female' }].map(({ value, label }) => (
-                          <button
-                            key={value}
-                            type="button"
-                            onClick={() => setGender(value)}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all border ${
-                              gender === value
-                                ? 'bg-vybe-purple text-white border-vybe-purple'
-                                : 'bg-vybe-card2 text-vybe-muted border-vybe-border hover:text-white'
-                            }`}
-                          >
-                            {label}
-                          </button>
-                        ))}
+
+                    <div style={{ position: 'relative' }}>
+                      <label style={labelStyle}>Password</label>
+                      <input
+                        type={showPass ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        required
+                        minLength={6}
+                        style={{ ...inputStyle, paddingRight: 44 }}
+                        onFocus={e => e.target.style.borderColor = 'rgba(0,212,255,0.5)'}
+                        onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPass(!showPass)}
+                        style={{ position: 'absolute', right: 14, bottom: 13, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                      >
+                        {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </div>
+
+                    <AnimatePresence>
+                      {error && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          style={{ color: '#f87171', fontSize: 13, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12, padding: '12px 16px', margin: 0 }}
+                        >
+                          {error}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+
+                    <motion.button
+                      type="submit"
+                      disabled={loading}
+                      whileHover={{ scale: loading ? 1 : 1.012 }}
+                      whileTap={{ scale: loading ? 1 : 0.985 }}
+                      style={{
+                        width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
+                        background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
+                        boxShadow: '0 4px 24px rgba(0,212,255,0.35), 0 1px 0 rgba(255,255,255,0.12) inset',
+                        color: '#0a0a0f', fontWeight: 800, fontSize: 14, cursor: loading ? 'not-allowed' : 'pointer',
+                        opacity: loading ? 0.65 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      }}
+                    >
+                      {loading ? (
+                        <><Loader2 size={15} className="animate-spin" />{tab === 'login' ? 'Signing in…' : 'Creating account…'}</>
+                      ) : tab === 'login' ? 'Sign In' : 'Create Account'}
+                    </motion.button>
+
+                    {tab === 'login' && (
+                      <p style={{ textAlign: 'center', fontSize: 12, margin: 0 }}>
+                        <Link to="/forgot-password" style={{ color: 'rgba(0,212,255,0.7)', textDecoration: 'none' }}
+                          onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+                          onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+                        >
+                          Forgot password?
+                        </Link>
+                      </p>
+                    )}
+
+                    {/* Divider */}
+                    <div style={{ position: 'relative', margin: '2px 0' }}>
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center' }}>
+                        <div style={{ width: '100%', borderTop: '1px solid rgba(255,255,255,0.07)' }} />
+                      </div>
+                      <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
+                        <span style={{ padding: '0 12px', fontSize: 11, color: 'rgba(255,255,255,0.25)', background: 'rgba(13,13,24,0.9)' }}>or</span>
                       </div>
                     </div>
-                  </>
-                )}
 
-                <div>
-                  <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-widest mb-1.5">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    required
-                    className="w-full px-4 py-3 bg-vybe-card2 border border-vybe-border rounded-xl text-white placeholder-vybe-muted text-sm focus:border-vybe-purple focus:shadow-purple-sm transition-all"
-                  />
-                </div>
-
-                <div className="relative">
-                  <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-widest mb-1.5">
-                    Password
-                  </label>
-                  <input
-                    type={showPass ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    minLength={6}
-                    className="w-full px-4 py-3 pr-11 bg-vybe-card2 border border-vybe-border rounded-xl text-white placeholder-vybe-muted text-sm focus:border-vybe-purple focus:shadow-purple-sm transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3 bottom-3 text-vybe-muted hover:text-white transition-colors"
-                  >
-                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-
-                <AnimatePresence>
-                  {error && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="text-red-400 text-[13px] bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3"
+                    <button
+                      type="button"
+                      onClick={() => navigate('/chat', { state: { mode: 'solo', filterGender: null, filterCountry: '' } })}
+                      style={{
+                        width: '100%', padding: '13px 0', borderRadius: 14, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+                        color: 'rgba(255,255,255,0.4)', transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,212,255,0.25)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)' }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}
                     >
-                      {error}
-                    </motion.p>
-                  )}
+                      Continue as Guest
+                    </button>
+                  </motion.form>
                 </AnimatePresence>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3.5 rounded-xl btn-purple text-white font-bold text-sm mt-1 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 size={15} className="animate-spin" />
-                      {tab === 'login' ? 'Signing in…' : 'Creating account…'}
-                    </>
-                  ) : tab === 'login' ? (
-                    'Sign In'
-                  ) : (
-                    'Create Account'
-                  )}
-                </button>
-
-                {tab === 'login' && (
-                  <p className="text-center text-vybe-muted text-[12px]">
-                    <Link to="/forgot-password" className="text-vybe-purple-light hover:underline">
-                      Forgot password?
-                    </Link>
-                  </p>
-                )}
-
-                {/* Divider */}
-                <div className="relative my-1">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-vybe-border" />
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="px-3 text-[11px] text-vybe-muted" style={{ background: 'rgba(13,13,24,0.85)' }}>
-                      or
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => navigate('/chat', { state: { mode: 'solo', filterGender: null, filterCountry: '' } })}
-                  className="w-full py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white hover:border-vybe-purple/40 transition-all text-sm font-medium"
-                >
-                  Continue as Guest
-                </button>
-              </motion.form>
-            </AnimatePresence>
-
-            <p className="text-center text-vybe-muted text-[11px] mt-5 leading-relaxed">
-              By continuing you agree to our{' '}
-              <Link to="/terms" className="text-vybe-purple-light hover:underline">Terms</Link> and{' '}
-              <Link to="/privacy" className="text-vybe-purple-light hover:underline">Privacy Policy</Link>.
-              Must be 18+ to use Vybe.
-            </p>
-          </div>
-        </div>
-        )}
-      </motion.div>
+                <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.22)', fontSize: 11, marginTop: 20, lineHeight: 1.6 }}>
+                  By continuing you agree to our{' '}
+                  <Link to="/terms" style={{ color: 'rgba(0,212,255,0.6)', textDecoration: 'none' }}>Terms</Link> and{' '}
+                  <Link to="/privacy" style={{ color: 'rgba(0,212,255,0.6)', textDecoration: 'none' }}>Privacy Policy</Link>.
+                  Must be 18+ to use Vybe.
+                </p>
+              </div>
+            </div>
+          )}
+        </motion.div>
       </div>
       <Footer />
     </div>
