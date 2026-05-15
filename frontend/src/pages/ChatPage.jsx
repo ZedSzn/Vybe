@@ -1441,7 +1441,7 @@ export default function ChatPage() {
               {/* Stranger video */}
               <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
                 {status === 'searching' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 20 }}>
+                  <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 20, paddingBottom: 100 }}>
                     {/* Globe — fixed-size container so rings don't overflow into text */}
                     <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 280, height: 280 }}>
                       <motion.div className="absolute rounded-full" style={{ width: 272, height: 272, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
@@ -1598,6 +1598,8 @@ export default function ChatPage() {
                     </motion.div>
                   )}
                 </AnimatePresence>
+                {/* Bottom fade for bar clearance */}
+                <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 120, background: 'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)' }} />
               </div>
 
               {/* Your video — desktop only, uses localVideoDesktopRef */}
@@ -1650,7 +1652,8 @@ export default function ChatPage() {
                     <div className="absolute top-2 left-2 z-10"><span className="text-[9px] font-black tracking-widest text-cyan-400/80 uppercase bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md">Duo</span></div>
                   </div>
                 ))}
-
+                {/* Bottom fade for bar clearance */}
+                <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 120, background: 'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)' }} />
               </div>
 
           </div>
