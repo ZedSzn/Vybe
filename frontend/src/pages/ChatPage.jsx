@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -14,14 +14,24 @@ import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
 import { playMatchFound, playTipSent, playClick } from '../utils/sounds'
 
-// Stable outside ChatPage — input state lives here so parent re-renders never touch the input
+// Uncontrolled input — reads DOM value directly so React re-renders never interfere
 function FloatingChat({ messages, messagesEndRef, onSend, status }) {
-  const [text, setText] = useState('')
+  const inputRef = useRef(null)
+
   const send = () => {
-    if (!text.trim() || status !== 'matched') return
-    onSend(text.trim())
-    setText('')
+    const val = inputRef.current?.value?.trim()
+    if (!val || status !== 'matched') return
+    onSend(val)
+    if (inputRef.current) inputRef.current.value = ''
   }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      send()
+    }
+  }
+
   return (
     <>
       <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px 4px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
@@ -41,17 +51,17 @@ function FloatingChat({ messages, messagesEndRef, onSend, status }) {
       <div style={{ flexShrink: 0, padding: '6px 10px 10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 6px 5px 14px', gap: 8 }}>
           <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); send() } }}
+            ref={inputRef}
+            type="text"
+            defaultValue=""
+            onKeyDown={handleKeyDown}
             placeholder="Say something..."
             disabled={status !== 'matched'}
             style={{ flex: 1, background: 'transparent', color: 'white', fontSize: 13, border: 'none', outline: 'none', opacity: status !== 'matched' ? 0.4 : 1 }}
           />
           <button
             onClick={send}
-            disabled={!text.trim() || status !== 'matched'}
-            style={{ width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#00D4FF', color: '#000', border: 'none', cursor: 'pointer', flexShrink: 0, opacity: (!text.trim() || status !== 'matched') ? 0.4 : 1 }}
+            style={{ width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#00D4FF', color: '#000', border: 'none', cursor: 'pointer', flexShrink: 0, opacity: status !== 'matched' ? 0.4 : 1 }}
           >
             <Send size={12} />
           </button>
@@ -788,11 +798,11 @@ export default function ChatPage() {
     setSkipQueueLoading(false)
   }
 
-  const handleSend = (text) => {
+  const handleSend = useCallback((text) => {
     if (!text || !roomId || status !== 'matched') return
     setMessages((prev) => [...prev, { text, from: 'me', timestamp: Date.now() }])
     socketRef.current?.emit('chat-message', { message: text, room: roomId })
-  }
+  }, [roomId, status])
 
   const toggleMute = () => {
     const stream = localStreamRef.current
