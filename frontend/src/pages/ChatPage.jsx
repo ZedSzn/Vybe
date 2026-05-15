@@ -973,16 +973,6 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* Email verification */}
-        {user && !user.emailVerified && status === 'matched' && (
-          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm pointer-events-none">
-            <div className="bg-cyan-400/15 border border-cyan-400/30 rounded-2xl px-4 py-3 flex items-center gap-3 backdrop-blur-sm pointer-events-auto">
-              <span className="text-sm">📧</span>
-              <p className="text-cyan-400 text-xs flex-1">Verify your email to unlock all features</p>
-              <Link to="/settings?tab=account" className="text-cyan-400 text-xs font-bold hover:underline flex-shrink-0">→ Settings</Link>
-            </div>
-          </div>
-        )}
 
         {/* Tip/gift feedback toast */}
         <AnimatePresence>
