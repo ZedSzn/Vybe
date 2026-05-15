@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
-  MessageSquare, X, ChevronRight, Shield, ShieldCheck, Loader2, Ban, UserX, UserPlus, Camera, Crown, Zap, Heart, Flame, Edit2,
+  MessageSquare, X, ChevronRight, Shield, ShieldCheck, Loader2, Ban, UserX, UserPlus, Camera, Crown, Zap, Edit2,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -170,7 +170,6 @@ export default function ChatPage() {
   const [duoPipExpanded,   setDuoPipExpanded]   = useState(false)
   const [tipIdx,           setTipIdx]           = useState(0)
   const [giftAnimations,   setGiftAnimations]   = useState([])   // [{id, emoji}]
-  const [skipCount,        setSkipCount]        = useState(0)
   const [partnerCountry,   setPartnerCountry]   = useState(null)
 
   const searchTimerRef   = useRef(null)
@@ -644,7 +643,6 @@ export default function ChatPage() {
     setMessages([])
     setReportSent(false)
     setStatus('searching')
-    setSkipCount((c) => c + 1)
     socketRef.current?.emit('skip')
     if (socketRef.current?.connected) findMatch(socketRef.current)
   }
@@ -996,7 +994,8 @@ export default function ChatPage() {
               className="fixed inset-0 z-50 flex items-end justify-center px-4"
               style={{ background: 'rgba(0,0,0,0.75)', paddingBottom: '24px' }} onClick={() => setShowTip(false)}>
               <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm rounded-3xl p-5 border border-white/10" style={{ background: 'linear-gradient(160deg,#0d0d1c,#09091a)' }}>
+                className="w-full max-w-sm p-5"
+                style={{ background: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 20 }}>
                 <div className="flex items-center justify-between mb-4">
                   <div><h3 className="text-white font-black text-sm flex items-center gap-1.5">Send a Tip <VybeCoin size={15} /></h3><p className="text-white/40 text-xs mt-0.5">30% goes to Vybe · Min 10 coins</p></div>
                   <button onClick={() => setShowTip(false)} className="text-white/40 hover:text-white"><X size={15} /></button>
@@ -1016,17 +1015,28 @@ export default function ChatPage() {
                 </div>
                 <div className="flex gap-2 mb-3">{[10,50,100,250].map((v) => {
                   const canAfford = v <= coins
+                  const isSelected = tipAmount === String(v)
                   return (
                     <button key={v} onClick={() => canAfford && setTipAmount(String(v))} disabled={!canAfford}
-                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${tipAmount===String(v)?'bg-cyan-500 text-white':canAfford?'bg-white/8 text-white/60 hover:bg-white/12':'bg-white/4 text-white/25 cursor-not-allowed'}`}>
+                      style={{ background: isSelected ? '#00D4FF' : canAfford ? 'rgba(0,212,255,0.1)' : 'rgba(255,255,255,0.04)', border: isSelected ? '1px solid #00D4FF' : canAfford ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: isSelected ? '#000' : canAfford ? '#00D4FF' : 'rgba(255,255,255,0.25)', cursor: canAfford ? 'pointer' : 'not-allowed', flex: 1, padding: '8px 0', fontSize: 12, fontWeight: 700 }}>
                       {v}
                     </button>
                   )
                 })}</div>
-                <div className="flex gap-2 mb-3"><input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" max={coins} className="flex-1 bg-white/6 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-cyan-400/60 transition-colors" /></div>
+                <div className="flex gap-2 mb-3">
+                  <input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" max={coins}
+                    style={{ flex: 1, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '10px 16px', fontSize: 16, color: '#ffffff', outline: 'none' }}
+                    onFocus={(e) => e.target.style.borderColor = 'rgba(0,212,255,0.5)'}
+                    onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
+                  />
+                </div>
                 {tipAmount && parseInt(tipAmount) >= 10 && parseInt(tipAmount) <= coins && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
                 {tipAmount && parseInt(tipAmount) > coins && <p className="text-red-400 text-xs mb-3 text-center">You only have {coins} spendable coins</p>}
-                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins} className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#00D4FF,#00B8E0)', boxShadow: '0 0 20px rgba(0,212,255,0.4)' }}>{tipLoading?'Sending…':`Send ${tipAmount||0} coins`}</button>
+                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins}
+                  className="w-full py-3 rounded-xl text-sm font-extrabold disabled:opacity-50"
+                  style={{ background: '#00D4FF', color: '#000', boxShadow: '0 0 20px rgba(0,212,255,0.35)' }}>
+                  {tipLoading ? 'Sending…' : `Send ${tipAmount||0} coins`}
+                </button>
               </motion.div>
             </motion.div>
           )}
@@ -1195,33 +1205,6 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* Reaction buttons — right edge, mobile */}
-          <AnimatePresence>
-            {status === 'matched' && (
-              <motion.div
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 16 }}
-                className="absolute z-[6] flex flex-col gap-2"
-                style={{ right: 12, top: 'max(68px, env(safe-area-inset-top, 0px) + 60px)' }}
-              >
-                <motion.button
-                  onClick={() => sendReaction('❤️')}
-                  whileTap={{ scale: 0.82 }}
-                  style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,60,120,0.3)', border: '1px solid rgba(255,60,120,0.4)', backdropFilter: 'blur(10px)', color: '#FF3C78' }}
-                >
-                  <Heart size={16} fill="currentColor" />
-                </motion.button>
-                <motion.button
-                  onClick={() => sendReaction('🔥')}
-                  whileTap={{ scale: 0.82 }}
-                  style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,120,30,0.3)', border: '1px solid rgba(255,120,30,0.4)', backdropFilter: 'blur(10px)', color: '#FF781E' }}
-                >
-                  <Flame size={16} fill="currentColor" />
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Mobile gift animations */}
           <AnimatePresence>
@@ -1607,52 +1590,11 @@ export default function ChatPage() {
                   )}
                 </AnimatePresence>
 
-                {/* Skip counter + Reaction buttons — stacked on right edge */}
-                <AnimatePresence>
-                  {status === 'matched' && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 16 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 16 }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute right-3 top-3 z-10 flex flex-col items-center gap-2"
-                    >
-                      {/* Skip counter */}
-                      <div className="px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.45)' }}>
-                        Skip {skipCount}/10
-                      </div>
-                      {/* Connection time */}
-                      <div className="px-2.5 py-1 rounded-full font-mono text-[11px] font-bold" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
-                        {fmt(elapsed)}
-                      </div>
-                      {/* Heart reaction */}
-                      <motion.button
-                        onClick={() => sendReaction('❤️')}
-                        whileHover={{ scale: 1.12 }}
-                        whileTap={{ scale: 0.88 }}
-                        style={{ width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,60,120,0.3)', border: '1px solid rgba(255,60,120,0.4)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', color: '#FF3C78', cursor: 'pointer' }}
-                      >
-                        <Heart size={18} fill="currentColor" />
-                      </motion.button>
-                      {/* Fire reaction */}
-                      <motion.button
-                        onClick={() => sendReaction('🔥')}
-                        whileHover={{ scale: 1.12 }}
-                        whileTap={{ scale: 0.88 }}
-                        style={{ width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,120,30,0.3)', border: '1px solid rgba(255,120,30,0.4)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', color: '#FF781E', cursor: 'pointer' }}
-                      >
-                        <Flame size={18} fill="currentColor" />
-                      </motion.button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Connection timer — bottom center */}
+                {/* Timer — top right of left panel */}
                 {status === 'matched' && (
-                  <div className="absolute bottom-12 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
-                    <div className="px-3 py-1 rounded-full font-mono text-[11px] font-bold" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
-                      {fmt(elapsed)}
-                    </div>
+                  <div className="absolute right-3 top-3 z-10 px-2.5 py-1 rounded-full font-mono text-[11px] font-bold pointer-events-none"
+                    style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+                    {fmt(elapsed)}
                   </div>
                 )}
                 {/* Safe Mode overlay */}
