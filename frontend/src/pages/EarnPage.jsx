@@ -14,7 +14,7 @@ const HOW_IT_WORKS = [
   {
     icon: <Gift size={22} style={{ color: '#00D4FF' }} />,
     title: 'Viewers send you gifts',
-    desc: 'Other users send you virtual gifts — roses, stars, diamonds, and more — each worth real money.',
+    desc: 'Other users send you Vybe Coins during your chat. Every coin you receive converts directly into real money you can withdraw.',
   },
   {
     icon: <DollarSign size={22} style={{ color: '#00D4FF' }} />,
