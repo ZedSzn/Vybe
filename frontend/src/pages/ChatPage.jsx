@@ -1794,9 +1794,8 @@ export default function ChatPage() {
 
         {/* ── Desktop fixed floating control bar ── */}
         <div className="hidden lg:flex fixed z-40 items-center" style={{
-          bottom: 28,
-          left: '50%',
-          transform: 'translateX(-50%)',
+          top: 80,
+          left: 24,
           maxWidth: 'calc(100vw - 48px)',
           overflowX: 'auto',
           background: 'rgba(6,6,14,0.92)',
