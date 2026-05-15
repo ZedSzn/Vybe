@@ -12,14 +12,29 @@ export function AuthProvider({ children }) {
     const storedUser  = localStorage.getItem('vybe_user')
     const storedToken = localStorage.getItem('vybe_token')
     if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser))
+      let parsed = null
+      try {
+        parsed = JSON.parse(storedUser)
+      } catch {
+        localStorage.removeItem('vybe_user')
+        localStorage.removeItem('vybe_token')
+        setLoading(false)
+        return
+      }
+      if (!parsed) {
+        localStorage.removeItem('vybe_user')
+        localStorage.removeItem('vybe_token')
+        setLoading(false)
+        return
+      }
+      setUser(parsed)
       setToken(storedToken)
       axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
-      // Always refresh from server on load so membership/ban changes are picked up
-      // even if the user was offline when admin made changes
       axios.get('/api/user/me').then(({ data }) => {
-        setUser(data.user)
-        localStorage.setItem('vybe_user', JSON.stringify(data.user))
+        if (data.user) {
+          setUser(data.user)
+          localStorage.setItem('vybe_user', JSON.stringify(data.user))
+        }
       }).catch(() => {})
     }
     setLoading(false)
