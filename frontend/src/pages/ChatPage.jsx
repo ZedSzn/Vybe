@@ -12,7 +12,7 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
-import { playMatchFound, playTipSent, playClick } from '../utils/sounds'
+import { playTipSent, playClick } from '../utils/sounds'
 
 // Uncontrolled input — reads DOM value directly so React re-renders never interfere
 function FloatingChat({ messages, messagesEndRef, onSend, status }) {
@@ -563,7 +563,6 @@ export default function ChatPage() {
         setPartnerCountry(pCountry || null)
         setGiftAnimations([])
         setFriendReqSent(false)
-        playMatchFound()
         setMatchFlash(true)
         clearTimeout(matchFlashTimer.current)
         matchFlashTimer.current = setTimeout(() => setMatchFlash(false), 1200)
