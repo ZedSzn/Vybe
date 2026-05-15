@@ -70,7 +70,7 @@ function GlassBtn({ onClick, children, active, red, disabled: dis, title: t }) {
       title={t}
       whileHover={!dis ? { scale: 1.05, background: 'rgba(255,255,255,0.12)' } : {}}
       whileTap={!dis ? { scale: 0.9 } : {}}
-      className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-30"
+      className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-30"
       style={{
         background: red ? 'rgba(255,50,50,0.18)' : active ? 'rgba(0,212,255,0.18)' : 'rgba(255,255,255,0.06)',
         backdropFilter: 'blur(10px)',
@@ -1077,12 +1077,11 @@ export default function ChatPage() {
 
           {/* Fullscreen background: stranger video OR searching state */}
           {status === 'searching' ? (
-            <div className="absolute inset-0 bg-[#060d14] flex flex-col items-center justify-center px-6" style={{ gap: 28 }}>
-              <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 42%, rgba(0,212,255,0.08) 0%, transparent 62%)' }} />
+            <div className="absolute inset-0 bg-[#0a0a0f] flex flex-col items-center justify-center px-6" style={{ gap: 28 }}>
               {/* Globe — fixed container so rings stay within bounds */}
               <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 240, height: 240 }}>
-                <motion.div className="absolute rounded-full" style={{ width: 232, height: 232, border: '1.5px solid rgba(0,212,255,0.4)', boxShadow: '0 0 40px rgba(0,212,255,0.2)' }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
-                <motion.div className="absolute rounded-full" style={{ width: 210, height: 210, border: '1px solid rgba(0,212,255,0.18)' }} animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
+                <motion.div className="absolute rounded-full" style={{ width: 232, height: 232, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
+                <motion.div className="absolute rounded-full" style={{ width: 210, height: 210, border: '1px solid rgba(0,212,255,0.4)' }} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
                 <VybeGlobe size={180} />
               </div>
               <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 8 }}>
@@ -1451,14 +1450,13 @@ export default function ChatPage() {
             <div className="flex-1 grid grid-cols-2 gap-1.5 p-2 min-h-0">
 
               {/* Stranger video */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] min-h-0 min-w-0" style={{ border: '1px solid rgba(0,212,255,0.18)', transition: 'box-shadow 0.5s ease', boxShadow: status === 'matched' ? '0 0 30px rgba(0,212,255,0.12), inset 0 0 30px rgba(0,212,255,0.04)' : '0 0 20px rgba(0,212,255,0.06)' }}>
+              <div className="relative rounded-2xl overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
                 {status === 'searching' ? (
                   <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 28 }}>
-                    <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 42%, rgba(0,212,255,0.08) 0%, transparent 62%)' }} />
                     {/* Globe — fixed-size container so rings don't overflow into text */}
                     <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 280, height: 280 }}>
-                      <motion.div className="absolute rounded-full" style={{ width: 272, height: 272, border: '1.5px solid rgba(0,212,255,0.4)', boxShadow: '0 0 50px rgba(0,212,255,0.22), 0 0 90px rgba(0,212,255,0.08)' }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
-                      <motion.div className="absolute rounded-full" style={{ width: 248, height: 248, border: '1px solid rgba(0,212,255,0.2)' }} animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
+                      <motion.div className="absolute rounded-full" style={{ width: 272, height: 272, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
+                      <motion.div className="absolute rounded-full" style={{ width: 248, height: 248, border: '1px solid rgba(0,212,255,0.4)' }} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
                       <VybeGlobe size={210} />
                     </div>
                     <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 8 }}>
@@ -1577,8 +1575,6 @@ export default function ChatPage() {
                     </div>
                   </div>
                 )}
-                <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
-
                 {/* Safe Mode overlay */}
                 <AnimatePresence>
                   {strangerHidden && (
@@ -1615,15 +1611,15 @@ export default function ChatPage() {
               </div>
 
               {/* Your video — desktop only, uses localVideoDesktopRef */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#0d0d18] min-h-0 min-w-0" style={{ border: '1px solid rgba(0,212,255,0.18)', boxShadow: '0 0 30px rgba(0,212,255,0.08), inset 0 0 20px rgba(0,212,255,0.03)' }}>
+              <div className="relative rounded-2xl overflow-hidden bg-[#0a0a0f] min-h-0 min-w-0" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#060d14] gap-3">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.25)' }}>
-                      <VideoOff size={24} style={{ color: 'rgba(0,212,255,0.5)' }} />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0f] gap-3">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)' }}>
+                      <VideoOff size={24} style={{ color: '#00D4FF' }} />
                     </div>
-                    <p className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: 'rgba(0,212,255,0.4)' }}>No Camera</p>
+                    <p className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: 'rgba(0,212,255,0.6)' }}>No Camera</p>
                   </div>
                 )}
                 {videoOff && hasCamera && (
@@ -1668,21 +1664,14 @@ export default function ChatPage() {
                   </div>
                 ))}
 
-                {/* YOUR PREVIEW label */}
-                <div className="absolute bottom-3 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
-                  <div className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF', backdropFilter: 'blur(8px)' }}>
-                    YOUR PREVIEW
-                  </div>
-                </div>
-                <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.3) 100%)' }} />
               </div>
 
             </div>
 
             {/* ── Desktop bottom control bar — floating glass pill ── */}
-            <div className="flex-shrink-0 relative z-40 flex items-center justify-center flex-wrap gap-2" style={{ background: 'rgba(6,6,14,0.98)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 14, paddingBottom: 22, paddingLeft: 16, paddingRight: 16 }}>
+            <div className="flex-shrink-0 relative z-40 flex items-center justify-center flex-wrap gap-2" style={{ background: 'rgba(6,6,14,0.98)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 12, paddingBottom: 20, paddingLeft: 20, paddingRight: 20 }}>
               {/* Main glass pill */}
-              <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 60, boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
+              <div className="flex items-center gap-3 px-5 py-3" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 60, boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
 
                 {/* Mic */}
                 <GlassBtn onClick={toggleMute} red={isMuted} active={isMuted} title={isMuted ? 'Unmute' : 'Mute'}>
@@ -1696,28 +1685,18 @@ export default function ChatPage() {
                   </GlassBtn>
                 )}
 
-                {/* Safe mode */}
-                <GlassBtn onClick={() => setStrangerHidden(h => !h)} active={strangerHidden} title={strangerHidden ? 'Reveal camera' : 'Safe Mode'}>
-                  <Shield size={18} />
-                </GlassBtn>
+                {/* SKIP — solid cyan pill, always visible, disabled when not matched */}
+                <motion.button
+                  onClick={status === 'matched' ? handleSkip : undefined}
+                  disabled={status !== 'matched'}
+                  whileHover={status === 'matched' ? { scale: 1.06, opacity: 0.9 } : {}}
+                  whileTap={status === 'matched' ? { scale: 0.94 } : {}}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm flex-shrink-0 disabled:opacity-40 disabled:cursor-default"
+                  style={{ background: 'rgba(0,212,255,0.85)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(0,212,255,0.4)', borderRadius: 50, color: '#000', fontWeight: 700, boxShadow: status === 'matched' ? '0 0 20px rgba(0,212,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2)' : 'none', transition: 'all 200ms ease' }}>
+                  <SkipForward size={16} /> Next
+                </motion.button>
 
-                <div className="w-px h-7 mx-0.5 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
-
-                {/* SKIP — solid cyan pill */}
-                {status === 'matched' && (
-                  <motion.button onClick={handleSkip} whileHover={{ scale: 1.06, opacity: 0.9 }} whileTap={{ scale: 0.94 }}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm flex-shrink-0"
-                    style={{ background: 'rgba(0,212,255,0.85)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(0,212,255,0.4)', borderRadius: 50, color: '#000', fontWeight: 700, boxShadow: '0 0 20px rgba(0,212,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2)', transition: 'all 200ms ease' }}>
-                    <SkipForward size={16} /> Next
-                  </motion.button>
-                )}
-
-                {/* End / Leave — red glass circle */}
-                <GlassBtn onClick={handleEnd} red={status === 'matched'} active={status === 'matched'} title={status === 'matched' ? 'End Chat' : 'Leave'}>
-                  <PhoneOff size={18} />
-                </GlassBtn>
-
-                <div className="w-px h-7 mx-0.5 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                <div className="w-px h-7 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
 
                 {/* Chat */}
                 <GlassBtn onClick={toggleChat} active={showChat} title="Chat">
@@ -1729,7 +1708,7 @@ export default function ChatPage() {
 
                 {/* Report */}
                 {reportSent ? (
-                  <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)' }}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)' }}>
                     <span className="text-cyan-400 text-xs font-bold">✓</span>
                   </div>
                 ) : (
@@ -1737,6 +1716,11 @@ export default function ChatPage() {
                     <Flag size={18} />
                   </GlassBtn>
                 )}
+
+                {/* End / Leave — red glass circle */}
+                <GlassBtn onClick={handleEnd} red={status === 'matched'} active={status === 'matched'} title={status === 'matched' ? 'End Chat' : 'Leave'}>
+                  <PhoneOff size={18} />
+                </GlassBtn>
 
                 {/* Tip + Friend + Block when matched */}
                 {user && status === 'matched' && (
