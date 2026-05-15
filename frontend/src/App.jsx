@@ -2,9 +2,30 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from
 import { AuthProvider } from './context/AuthContext'
 import { SocketProvider, useSocket } from './context/SocketContext'
 import { LangProvider } from './context/LangContext'
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { useState, useEffect, lazy, Suspense, Component } from 'react'
 import axios from 'axios'
 import { useAuth } from './context/AuthContext'
+
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { error: null } }
+  static getDerivedStateFromError(err) { return { error: err } }
+  componentDidCatch(err, info) { console.error('[Vybe] Uncaught error:', err, info) }
+  render() {
+    if (!this.state.error) return this.props.children
+    return (
+      <div style={{ minHeight: '100vh', background: '#07090f', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, fontFamily: 'Space Grotesk, sans-serif' }}>
+        <div style={{ maxWidth: 480, width: '100%', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 20, padding: 32 }}>
+          <p style={{ color: '#f87171', fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>App Error</p>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>{this.state.error?.message || 'An unexpected error occurred.'}</p>
+          <pre style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, lineHeight: 1.5, overflow: 'auto', marginBottom: 24, maxHeight: 160 }}>{this.state.error?.stack}</pre>
+          <button onClick={() => { localStorage.clear(); window.location.reload() }} style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171', borderRadius: 12, padding: '10px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+            Clear Cache &amp; Reload
+          </button>
+        </div>
+      </div>
+    )
+  }
+}
 
 // Eager — only the landing page and auth need to render immediately
 import MainPage  from './pages/MainPage'
@@ -280,14 +301,16 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <LangProvider>
-        <AuthProvider>
-          <SocketProvider>
-            <AppRoutes />
-          </SocketProvider>
-        </AuthProvider>
-      </LangProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <LangProvider>
+          <AuthProvider>
+            <SocketProvider>
+              <AppRoutes />
+            </SocketProvider>
+          </AuthProvider>
+        </LangProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
