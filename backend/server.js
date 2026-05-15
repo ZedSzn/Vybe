@@ -2392,6 +2392,53 @@ const squadMatchBuf  = new Map();
 const lastMatchInfo  = new Map(); // userId(string) → { username, userId }
 const privateRooms   = new Map(); // code → { hostChatSocketId, guestChatSocketId, createdAt }
 
+// ─── Dev Bot (development only — stripped from production) ────────────────────
+const IS_DEV     = process.env.NODE_ENV === 'development';
+const botTimers  = new Map(); // socketId → timeoutId
+
+function spawnBotMatch(socket) {
+  if (!IS_DEV) return;
+  cancelBotTimer(socket.id);
+  const timer = setTimeout(() => {
+    botTimers.delete(socket.id);
+    const inQueue = waitingQueue.some(e =>
+      e.socketId === socket.id || (e.socketIds && e.socketIds.includes(socket.id))
+    );
+    if (!inQueue) return;
+    for (let i = waitingQueue.length - 1; i >= 0; i--) {
+      const e = waitingQueue[i];
+      if (e.socketId === socket.id || (e.socketIds && e.socketIds.includes(socket.id))) waitingQueue.splice(i, 1);
+    }
+    const botId = `dev_bot_${Date.now()}`;
+    const room  = `bot_room_${Date.now()}`;
+    activePairs.set(socket.id, [botId]);
+    socket.join(room);
+    socket.emit('match-found', {
+      room,
+      peers:                [{ socketId: botId, isInitiator: true }],
+      squadMates:           [],
+      isInitiator:          true,
+      partnerId:            botId,
+      partnerUsername:      'TestBot',
+      partnerUserId:        null,
+      partnerAvatar:        null,
+      partnerIsPremium:     false,
+      partnerIsVip:         false,
+      partnerEmailVerified: false,
+      partnerCountry:       'US',
+    });
+    setTimeout(() => {
+      socket.emit('chat-message', { message: 'Hello! This is a test connection.', timestamp: Date.now() });
+    }, 1500);
+  }, 3000);
+  botTimers.set(socket.id, timer);
+}
+
+function cancelBotTimer(socketId) {
+  const t = botTimers.get(socketId);
+  if (t) { clearTimeout(t); botTimers.delete(socketId); }
+}
+
 function genSquadCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars (0/O, 1/I)
   let suffix = '';
@@ -2637,6 +2684,7 @@ io.on('connection', (socket) => {
     // Attach block list to onlineUsers entry for use in findSoloMatch
     if (me) onlineUsers.set(socket.id, { ...me, blockedIds: myBlockedIds });
 
+    cancelBotTimer(socket.id);
     for (let i = waitingQueue.length - 1; i >= 0; i--) {
       const e = waitingQueue[i];
       if (e.socketId === socket.id || (e.socketIds && e.socketIds.includes(socket.id))) waitingQueue.splice(i, 1);
@@ -2681,6 +2729,7 @@ io.on('connection', (socket) => {
       const queueEntry = { type: 'solo', socketId: socket.id, socketIds: [socket.id], gender: userData.gender || 'other', country: userData.country || '', mode: prefs.mode || 'solo', filterGender: prefs.filterGender || null, filterCountry: prefs.filterCountry || '' };
       if (isBoosted) waitingQueue.unshift(queueEntry); else waitingQueue.push(queueEntry);
       socket.emit('waiting');
+      spawnBotMatch(socket);
     }
   });
 
@@ -2716,6 +2765,7 @@ io.on('connection', (socket) => {
   }
 
   socket.on('skip', () => {
+    cancelBotTimer(socket.id);
     const partners = activePairs.get(socket.id);
     if (partners?.length) {
       storeLastMatch(socket.id, partners);
@@ -2849,6 +2899,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    cancelBotTimer(socket.id);
     console.log(`❌ ${socket.id}`);
     onlineUsers.delete(socket.id);
     for (let i = waitingQueue.length - 1; i >= 0; i--) {
