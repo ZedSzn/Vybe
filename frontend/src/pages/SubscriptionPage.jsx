@@ -525,7 +525,7 @@ export default function SubscriptionPage() {
         )}
       </div>
 
-      <Footer />
+      {!loading && <Footer />}
     </div>
   )
 }
