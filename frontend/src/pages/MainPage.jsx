@@ -691,7 +691,7 @@ export default function MainPage() {
                     ? { background: 'linear-gradient(135deg, #0099BB, #00D4FF)', color: 'white', borderRadius: '10px' }
                     : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}>
                   {label}
-                  {!free && <Lock size={8} className="absolute top-1 right-1" style={{ opacity: 0.3 }} />}
+                  {!free && !user?.isPremium && <Lock size={8} className="absolute top-1 right-1" style={{ opacity: 0.3 }} />}
                 </motion.button>
               ))}
             </div>
@@ -1129,12 +1129,15 @@ export default function MainPage() {
                         onClick={() => handleGender(val)}
                         whileTap={{ scale: 0.94 }}
                         style={{
-                          flex: 1, padding: '6px 0', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none',
+                          flex: 1, padding: '6px 0', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', position: 'relative',
                           ...(filterGender === val
                             ? { background: '#00D4FF', color: '#0a0a0f', boxShadow: '0 2px 10px rgba(0,212,255,0.4)' }
                             : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.38)' }),
                         }}>
                         {label}
+                        {val !== 'both' && !user?.isPremium && (
+                          <Lock size={8} style={{ position: 'absolute', top: 3, right: 4, opacity: 0.35 }} />
+                        )}
                       </motion.button>
                     ))}
                   </div>
