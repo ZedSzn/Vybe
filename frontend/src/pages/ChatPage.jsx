@@ -742,11 +742,10 @@ export default function ChatPage() {
     setSkipQueueLoading(false)
   }
 
-  const handleSend = (e) => {
-    e.preventDefault()
+  const handleSend = () => {
     if (!input.trim() || !roomId || status !== 'matched') return
-    setMessages((prev) => [...prev, { text: input, from: 'me', timestamp: Date.now() }])
-    socketRef.current?.emit('chat-message', { message: input, room: roomId })
+    setMessages((prev) => [...prev, { text: input.trim(), from: 'me', timestamp: Date.now() }])
+    socketRef.current?.emit('chat-message', { message: input.trim(), room: roomId })
     setInput('')
   }
 
@@ -777,24 +776,19 @@ export default function ChatPage() {
   const mateSocketIds      = allRemoteEntries.filter((sid) => squadMates.includes(sid))
   const isDuoMode          = mateSocketIds.length > 0
 
-  // ── Floating glass chat content (no header) ─────────────────────────────
+  // ── Floating glass chat content ──────────────────────────────────────────
   const ChatContent = () => (
     <>
-      <div className="flex-1 overflow-y-auto p-3" style={{ display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px 4px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
         {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-            <div className="px-3 py-2 text-[13px] leading-relaxed text-white"
-              style={msg.from === 'me' ? {
-                background: 'rgba(0,212,255,0.15)',
-                border: '1px solid rgba(0,212,255,0.2)',
-                borderRadius: '18px 18px 4px 18px',
-                maxWidth: '85%',
-              } : {
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '18px 18px 18px 4px',
-                maxWidth: '85%',
-              }}>
+          <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
+            <div style={{
+              padding: '7px 11px', fontSize: 13, lineHeight: 1.45, color: 'white', maxWidth: '75%', wordBreak: 'break-word',
+              ...(msg.from === 'me'
+                ? { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '18px 18px 4px 18px' }
+                : { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px 18px 18px 4px' }
+              ),
+            }}>
               {msg.text}
             </div>
           </div>
@@ -802,25 +796,25 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="flex-shrink-0 p-2">
-        <div className="flex items-center" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 8px 6px 16px', gap: 8 }}>
+      <div style={{ flexShrink: 0, padding: '6px 10px 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 6px 5px 14px', gap: 8 }}>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend() } }}
             placeholder="Say something..."
             disabled={status !== 'matched'}
-            className="flex-1 bg-transparent text-white placeholder-white/30 text-[13px] focus:outline-none disabled:opacity-40"
+            style={{ flex: 1, background: 'transparent', color: 'white', fontSize: 13, border: 'none', outline: 'none', opacity: status !== 'matched' ? 0.4 : 1 }}
           />
           <button
-            type="submit"
+            onClick={handleSend}
             disabled={!input.trim() || status !== 'matched'}
-            className="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-40 flex-shrink-0"
-            style={{ background: '#00D4FF', color: '#000' }}
+            style={{ width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#00D4FF', color: '#000', border: 'none', cursor: 'pointer', flexShrink: 0, opacity: (!input.trim() || status !== 'matched') ? 0.4 : 1 }}
           >
             <Send size={12} />
           </button>
         </div>
-      </form>
+      </div>
     </>
   )
 
@@ -1701,11 +1695,11 @@ export default function ChatPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="absolute flex flex-col"
+                className="flex flex-col"
                 style={{
-                  bottom: 120, right: 16, width: 280, maxHeight: '60vh', zIndex: 20,
-                  background: 'rgba(0,0,0,0.25)',
-                  backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                  position: 'fixed', bottom: 100, right: 16, width: 280, maxHeight: 400, zIndex: 40,
+                  background: 'rgba(0,0,0,0.3)',
+                  backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
                   border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: 20, overflow: 'hidden',
                 }}
@@ -1834,16 +1828,18 @@ export default function ChatPage() {
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
               style={{
-                bottom: 120,
+                position: 'fixed',
+                bottom: 100,
                 left: 16,
                 right: 16,
-                maxHeight: '50vh',
-                background: 'rgba(0,0,0,0.25)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
+                maxHeight: 400,
+                background: 'rgba(0,0,0,0.3)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: 20,
                 overflow: 'hidden',
+                zIndex: 40,
               }}
             >
               {ChatContent()}
