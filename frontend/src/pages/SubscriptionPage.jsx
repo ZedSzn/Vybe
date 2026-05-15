@@ -222,54 +222,54 @@ export default function SubscriptionPage() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 pt-28 pb-24">
 
-        {/* Header */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+        {/* Back button — always visible */}
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-sm mb-6 transition-colors"
+          style={{ color: '#888899' }}
         >
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 text-sm mb-6 transition-colors"
-            style={{ color: '#888899' }}
-          >
-            <ArrowLeft size={15} />
-            Back
-          </button>
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-            {isActive ? 'Manage Membership' : 'Upgrade to Membership'}
-          </h1>
-          <p style={{ color: '#888899' }} className="text-base max-w-md mx-auto">
-            {isActive
-              ? 'You\'re on a membership plan. Manage your billing below.'
-              : 'Unlock gender and country filters.'}
-          </p>
-        </motion.div>
-
-        {error && (
-          <div className="mb-8 p-4 rounded-xl text-sm flex items-center gap-3"
-            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
-            <AlertCircle size={15} className="flex-shrink-0" />
-            {error}
-          </div>
-        )}
+          <ArrowLeft size={15} />
+          Back
+        </button>
 
         {loading ? (
           <div className="space-y-6">
-            {/* Status card skeleton */}
-            <Skeleton className="h-28 w-full" rounded="rounded-2xl" />
-            {/* Plan cards skeleton */}
+            <div className="text-center mb-12 space-y-3">
+              <Skeleton className="h-10 w-72 mx-auto" rounded="rounded-xl" />
+              <Skeleton className="h-5 w-56 mx-auto" rounded="rounded-lg" />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Skeleton className="h-72" rounded="rounded-2xl" />
               <Skeleton className="h-72" rounded="rounded-2xl" />
             </div>
+            <Skeleton className="h-48 w-full" rounded="rounded-2xl" />
           </div>
         ) : (
-          <>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+
+            {/* Header */}
+            <div className="text-center mb-12">
+              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
+                {isActive ? 'Manage Membership' : 'Upgrade to Membership'}
+              </h1>
+              <p style={{ color: '#888899' }} className="text-base max-w-md mx-auto">
+                {isActive
+                  ? 'You\'re on a membership plan. Manage your billing below.'
+                  : 'Unlock gender and country filters.'}
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-8 p-4 rounded-xl text-sm flex items-center gap-3"
+                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
+                <AlertCircle size={15} className="flex-shrink-0" />
+                {error}
+              </div>
+            )}
+
             {/* Current plan status card */}
             {(isActive || isPastDue) && (
-              <motion.div
+              <div
                 className="mb-10 rounded-2xl p-6"
                 style={{
                   background: isPastDue
@@ -279,9 +279,6 @@ export default function SubscriptionPage() {
                     ? '1px solid rgba(239,68,68,0.2)'
                     : isCancelling ? '1px solid rgba(0,212,255,0.15)' : '1px solid rgba(0,212,255,0.2)',
                 }}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4 }}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
@@ -364,7 +361,7 @@ export default function SubscriptionPage() {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Plan cards */}
@@ -374,7 +371,7 @@ export default function SubscriptionPage() {
                 const isOtherSub = isActive && sub?.plan !== plan.id
 
                 return (
-                  <motion.div
+                  <div
                     key={plan.id}
                     className="relative rounded-2xl p-6 flex flex-col"
                     style={{
@@ -382,10 +379,8 @@ export default function SubscriptionPage() {
                       border: isCurrent
                         ? `2px solid ${plan.color}`
                         : plan.popular ? `1px solid ${plan.color}50` : '1px solid rgba(255,255,255,0.07)',
+                      boxShadow: plan.popular ? `0 0 50px ${plan.glow}` : 'none',
                     }}
-                    initial={{ opacity: 0, y: 20, boxShadow: 'none' }}
-                    animate={{ opacity: 1, y: 0, boxShadow: plan.popular ? `0 0 50px ${plan.glow}` : 'none' }}
-                    transition={{ delay: i * 0.1, duration: 0.45 }}
                   >
                     {plan.popular && !isCurrent && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-black"
@@ -463,7 +458,7 @@ export default function SubscriptionPage() {
                         Get {plan.name} — {plan.price}/mo
                       </motion.button>
                     )}
-                  </motion.div>
+                  </div>
                 )
               })}
             </div>
@@ -477,13 +472,9 @@ export default function SubscriptionPage() {
 
             {/* Feature comparison */}
             <div className="overflow-x-auto sub-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            <motion.div
+            <div
               className="rounded-2xl overflow-hidden min-w-[380px]"
               style={{ border: '1px solid rgba(255,255,255,0.06)' }}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45 }}
             >
               <div className="grid grid-cols-4 text-xs font-extrabold uppercase tracking-widest px-5 py-3"
                 style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#888899' }}>
@@ -512,7 +503,7 @@ export default function SubscriptionPage() {
                   </div>
                 </div>
               ))}
-            </motion.div>
+            </div>
 
             </div>
 
@@ -521,7 +512,7 @@ export default function SubscriptionPage() {
               <Shield size={14} className="flex-shrink-0" />
               <span>Secure billing via Stripe · Cancel anytime · No hidden fees</span>
             </div>
-          </>
+          </motion.div>
         )}
       </div>
 
