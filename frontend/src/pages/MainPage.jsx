@@ -1024,12 +1024,10 @@ export default function MainPage() {
         </div>
 
         {/* ── Two-column area ── */}
-        <div className="flex flex-1 min-h-0">
+        <div className="flex-1 min-h-0" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'stretch' }}>
 
           {/* ────────── LEFT: Controls ────────── */}
-          <div
-            className="flex flex-col justify-center"
-            style={{ width: '48%', flexShrink: 0, padding: '0 52px 0 72px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '40px 52px 40px 72px' }}>
 
             {/* Live badge */}
             <motion.div
@@ -1118,6 +1116,7 @@ export default function MainPage() {
 
             {/* ── Filter bar ── */}
             <div style={{
+              marginTop: 'auto',
               borderRadius: 16, padding: '10px 14px',
               background: 'rgba(13,13,24,0.65)', backdropFilter: 'blur(24px) saturate(1.4)',
               border: '1px solid rgba(0,212,255,0.15)',
@@ -1360,7 +1359,7 @@ export default function MainPage() {
 
 
           {/* ────────── RIGHT: Camera panel ────────── */}
-          <div className="flex-1 flex items-center" style={{ padding: '32px 44px 32px 16px', background: '#0a0a0f' }}>
+          <div className="flex items-center" style={{ padding: '32px 44px 32px 16px', background: '#0a0a0f' }}>
           <div className="relative overflow-hidden" style={{
             width: '100%', height: '100%', borderRadius: 28,
             background: '#0a0a0f',
