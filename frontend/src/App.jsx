@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { SocketProvider, useSocket } from './context/SocketContext'
 import { LangProvider } from './context/LangContext'
@@ -140,6 +140,13 @@ function AnnouncementToast({ message, onDismiss }) {
   )
 }
 
+function OwnProfileRedirect() {
+  const { user, loading } = useAuth()
+  if (loading) return null
+  if (!user) return <Navigate to="/auth" replace />
+  return <Navigate to={`/profile/${user.id || user._id}`} replace />
+}
+
 function AppRoutes() {
   const location  = useLocation()
   const navigate  = useNavigate()
@@ -256,6 +263,7 @@ function AppRoutes() {
           <Route path="/forgot-password"            element={<ForgotPasswordPage />} />
           <Route path="/reset-password"             element={<ResetPasswordPage />} />
           <Route path="/profile/:id"                element={<ProfilePage />} />
+          <Route path="/profile" element={<OwnProfileRedirect />} />
           <Route path="/settings"                   element={<SettingsPage />} />
           <Route path="/wallet"                     element={<WalletPage />} />
           <Route path="/coins"                      element={<CoinsPage />} />

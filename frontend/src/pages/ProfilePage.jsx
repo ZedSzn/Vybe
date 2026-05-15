@@ -220,7 +220,17 @@ export default function ProfilePage() {
     </div>
   )
 
-  if (!profile) return null
+  if (!profile) return (
+    <div className="min-h-screen animated-bg font-space">
+      <Navbar />
+      <div className="pt-32 flex flex-col items-center justify-center px-4 text-center">
+        <p className="text-white/40 text-sm">Profile not found or failed to load.</p>
+        <button onClick={() => navigate('/')} className="mt-4 px-5 py-2.5 rounded-xl text-sm text-vybe-muted border border-vybe-border hover:text-white transition-colors">
+          Back to Home
+        </button>
+      </div>
+    </div>
+  )
 
   const joinDate = profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''
 
