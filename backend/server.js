@@ -2393,7 +2393,7 @@ const lastMatchInfo  = new Map(); // userId(string) → { username, userId }
 const privateRooms   = new Map(); // code → { hostChatSocketId, guestChatSocketId, createdAt }
 
 // ─── Dev Bot (development only — stripped from production) ────────────────────
-const IS_DEV     = process.env.NODE_ENV === 'development';
+const IS_DEV     = process.env.NODE_ENV !== 'production';
 const botTimers  = new Map(); // socketId → timeoutId
 
 function spawnBotMatch(socket) {
