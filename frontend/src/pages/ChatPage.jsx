@@ -1697,33 +1697,43 @@ export default function ChatPage() {
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                 {!hasCamera && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0f]">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0f]" style={{ gap: 14 }}>
                     <VideoOff size={48} style={{ color: '#00D4FF' }} />
+                    <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 16px', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
+                      You
+                    </div>
                   </div>
                 )}
                 {videoOff && hasCamera && (
-                  <div className="absolute inset-0 bg-black/80 flex items-center justify-center"><VideoOff size={26} className="text-white/30" /></div>
-                )}
-
-                {/* You label — top left */}
-                <div className="absolute" style={{ top: 16, left: 16, zIndex: 10 }}>
-                  <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                    {user?.avatar ? (
-                      <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 28, height: 28, border: '1.5px solid rgba(0,212,255,0.4)' }} />
-                    ) : user?.username ? (
-                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
-                        style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
-                        {user.username[0].toUpperCase()}
-                      </div>
-                    ) : null}
-                    <div className="flex flex-col" style={{ gap: 2 }}>
-                      <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
-                      {user?.country && (
-                        <span className="text-[11px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{user.country}</span>
-                      )}
+                  <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center" style={{ gap: 14 }}>
+                    <VideoOff size={26} className="text-white/30" />
+                    <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 16px', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500 }}>
+                      You
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* You label — top left, only when camera is live */}
+                {hasCamera && !videoOff && (
+                  <div className="absolute" style={{ top: 16, left: 16, zIndex: 10 }}>
+                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 28, height: 28, border: '1.5px solid rgba(0,212,255,0.4)' }} />
+                      ) : user?.username ? (
+                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
+                          style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                          {user.username[0].toUpperCase()}
+                        </div>
+                      ) : null}
+                      <div className="flex flex-col" style={{ gap: 2 }}>
+                        <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
+                        {user?.country && (
+                          <span className="text-[11px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{user.country}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Squad mates */}
                 {mateSocketIds.map((sid) => (
