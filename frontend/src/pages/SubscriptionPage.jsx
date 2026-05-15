@@ -382,10 +382,9 @@ export default function SubscriptionPage() {
                       border: isCurrent
                         ? `2px solid ${plan.color}`
                         : plan.popular ? `1px solid ${plan.color}50` : '1px solid rgba(255,255,255,0.07)',
-                      boxShadow: plan.popular ? `0 0 50px ${plan.glow}` : 'none',
                     }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 20, boxShadow: 'none' }}
+                    animate={{ opacity: 1, y: 0, boxShadow: plan.popular ? `0 0 50px ${plan.glow}` : 'none' }}
                     transition={{ delay: i * 0.1, duration: 0.45 }}
                   >
                     {plan.popular && !isCurrent && (
