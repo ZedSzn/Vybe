@@ -57,193 +57,118 @@ const FAQS = [
   },
 ]
 
-/* ─── Platform logo SVGs ─── */
-const TwitchIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
-    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
-  </svg>
-)
-const TikTokIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
-    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.23 8.23 0 004.83 1.56V6.81a4.85 4.85 0 01-1.06-.12z"/>
-  </svg>
-)
-const YouTubeIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
-    <path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 00.5 6.2 31.2 31.2 0 000 12a31.2 31.2 0 00.5 5.8 3 3 0 002.1 2.1C4.5 20.4 12 20.4 12 20.4s7.5 0 9.4-.5a3 3 0 002.1-2.1A31.2 31.2 0 0024 12a31.2 31.2 0 00-.5-5.8zM9.7 15.5V8.5l6.2 3.5-6.2 3.5z"/>
-  </svg>
-)
-
 function CompareTable({ onStartEarning }) {
   const [hoveredRow, setHoveredRow] = useState(null)
 
-  const compCell = (val) => {
+  const COLS = ['', 'Vybe', 'Twitch', 'TikTok', 'YouTube']
+
+  const renderVal = (val, isVybe) => {
     if (typeof val === 'boolean') {
       return val
-        ? <span style={{ color: 'rgba(255,255,255,0.28)', fontSize: 18, lineHeight: 1 }}>✓</span>
-        : (
-          <span style={{
-            width: 26, height: 26, borderRadius: '50%',
-            background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)',
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            color: '#f87171', fontSize: 13, fontWeight: 700,
-          }}>✗</span>
-        )
+        ? <span style={{ color: isVybe ? '#00D4FF' : '#444455', fontSize: 16 }}>✓</span>
+        : <span style={{ color: '#444455', fontSize: 16 }}>✗</span>
     }
-    return <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>{val}</span>
+    return val
   }
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, overflow: 'hidden',
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 20, overflow: 'hidden',
     }}>
       <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        <div style={{ minWidth: 620 }}>
+        <div style={{ minWidth: 560 }}>
 
-          {/* ── Platform header cards ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '195px 1fr 1fr 1fr 1fr', alignItems: 'flex-end', padding: '0 12px' }}>
-
-            {/* empty corner */}
-            <div style={{ padding: '24px 0 0' }} />
-
-            {/* Vybe — taller, glowing */}
-            <div style={{
-              background: 'linear-gradient(160deg, #00C8EE 0%, #00D4FF 60%, #00BCE0 100%)',
-              borderRadius: '14px 14px 0 0',
-              padding: '18px 10px 16px',
-              textAlign: 'center',
-              marginTop: -16,
-              boxShadow: '0 0 30px rgba(0,212,255,0.45), 0 -6px 20px rgba(0,212,255,0.2)',
-              position: 'relative', zIndex: 2,
-            }}>
-              <span style={{
-                display: 'inline-block', fontSize: 9, fontWeight: 900, letterSpacing: '0.12em',
-                background: '#0a0a0f', color: '#00D4FF', padding: '3px 8px', borderRadius: 6, marginBottom: 10,
-              }}>⭐ BEST CHOICE</span>
-              <div style={{ fontWeight: 900, fontSize: 20, color: '#0a0a0f', letterSpacing: '0.12em' }}>VYBE</div>
-            </div>
-
-            {/* Twitch */}
-            <div style={{ padding: '16px 10px 14px', textAlign: 'center', background: 'rgba(145,70,255,0.07)', borderRadius: '12px 12px 0 0', marginLeft: 4, marginRight: 4 }}>
-              <div style={{ width: 30, height: 30, borderRadius: 9, background: '#9146FF', margin: '0 auto 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <TwitchIcon />
+          {/* Header row */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
+            background: 'rgba(255,255,255,0.05)',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+          }}>
+            {COLS.map((col, ci) => (
+              <div key={ci} style={{
+                padding: '20px 16px',
+                textAlign: ci === 0 ? 'left' : 'center',
+                background: ci === 1 ? '#00D4FF' : 'transparent',
+                position: ci === 1 ? 'relative' : 'static',
+              }}>
+                {ci === 1 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(0,0,0,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Best</span>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>Vybe</span>
+                  </div>
+                ) : ci === 0 ? null : (
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#666677' }}>{col}</span>
+                )}
               </div>
-              <div style={{ fontWeight: 700, fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.04em' }}>Twitch</div>
-            </div>
-
-            {/* TikTok */}
-            <div style={{ padding: '16px 10px 14px', textAlign: 'center', background: 'rgba(255,0,80,0.05)', borderRadius: '12px 12px 0 0', marginLeft: 4, marginRight: 4 }}>
-              <div style={{ width: 30, height: 30, borderRadius: 9, background: '#111', border: '1px solid rgba(255,255,255,0.1)', margin: '0 auto 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <TikTokIcon />
-              </div>
-              <div style={{ fontWeight: 700, fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.04em' }}>TikTok Live</div>
-            </div>
-
-            {/* YouTube */}
-            <div style={{ padding: '16px 10px 14px', textAlign: 'center', background: 'rgba(255,0,0,0.05)', borderRadius: '12px 12px 0 0', marginLeft: 4, marginRight: 4 }}>
-              <div style={{ width: 30, height: 30, borderRadius: 9, background: '#FF0000', margin: '0 auto 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <YouTubeIcon />
-              </div>
-              <div style={{ fontWeight: 700, fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.04em' }}>YouTube Live</div>
-            </div>
+            ))}
           </div>
 
-          {/* ── Divider ── */}
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.07)', margin: '0 12px' }} />
-
-          {/* ── Feature rows ── */}
+          {/* Feature rows */}
           {COMPARE_ROWS.map((row, ri) => (
             <div
               key={ri}
               onMouseEnter={() => setHoveredRow(ri)}
               onMouseLeave={() => setHoveredRow(null)}
               style={{
-                display: 'grid',
-                gridTemplateColumns: '195px 1fr 1fr 1fr 1fr',
+                display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
                 borderBottom: ri < COMPARE_ROWS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                background: hoveredRow === ri
-                  ? 'rgba(0,212,255,0.04)'
-                  : ri % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+                background: hoveredRow === ri ? 'rgba(255,255,255,0.02)' : 'transparent',
                 transition: 'background 0.15s',
-                margin: '0 12px',
+                minHeight: 56,
               }}
             >
-              {/* Feature name — sticky on mobile */}
+              {/* Feature name */}
               <div style={{
-                padding: '15px 0 15px 4px',
-                display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
-                position: 'sticky', left: 0, zIndex: 1,
-                background: 'inherit',
+                padding: '0 16px', display: 'flex', alignItems: 'center',
+                position: 'sticky', left: 0, background: hoveredRow === ri ? 'rgba(18,18,28,1)' : 'rgba(13,13,24,1)',
+                transition: 'background 0.15s', zIndex: 1,
               }}>
-                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600 }}>{row.feature}</span>
-                {row.vybeWins && (
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 3,
-                    fontSize: 9, fontWeight: 800, letterSpacing: '0.06em',
-                    color: '#00D4FF', background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)',
-                    padding: '2px 7px', borderRadius: 99, flexShrink: 0, whiteSpace: 'nowrap',
-                  }}>🏆 Vybe Wins</span>
-                )}
+                <span style={{ color: '#ffffff', fontSize: 14, fontWeight: 500 }}>{row.feature}</span>
               </div>
 
               {/* Vybe value */}
               <div style={{
-                padding: '15px 8px', textAlign: 'center',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                borderLeft: '2px solid rgba(0,212,255,0.25)',
-                background: 'rgba(0,212,255,0.05)',
+                padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(0,212,255,0.04)',
+                color: '#00D4FF', fontWeight: 700, fontSize: 14,
               }}>
-                {typeof row.vybe === 'boolean' && row.vybe ? (
-                  <span style={{
-                    width: 28, height: 28, borderRadius: '50%',
-                    background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)',
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#4ade80', fontSize: 14, fontWeight: 800,
-                  }}>✓</span>
-                ) : (
-                  <span style={{ color: '#00D4FF', fontWeight: 900, fontSize: 15 }}>{row.vybe}</span>
-                )}
+                {renderVal(row.vybe, true)}
               </div>
 
-              {/* Twitch value */}
-              <div style={{ padding: '15px 8px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {compCell(row.twitch)}
-              </div>
-
-              {/* TikTok value */}
-              <div style={{ padding: '15px 8px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {compCell(row.tiktok)}
-              </div>
-
-              {/* YouTube value */}
-              <div style={{ padding: '15px 8px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {compCell(row.youtube)}
-              </div>
+              {/* Twitch, TikTok, YouTube */}
+              {['twitch', 'tiktok', 'youtube'].map(key => (
+                <div key={key} style={{
+                  padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#555566', fontSize: 14,
+                }}>
+                  {renderVal(row[key], false)}
+                </div>
+              ))}
             </div>
           ))}
 
-          {/* ── Bottom banner ── */}
+          {/* Bottom banner */}
           <div style={{
-            background: 'linear-gradient(135deg, rgba(0,212,255,0.13) 0%, rgba(0,184,224,0.1) 100%)',
-            borderTop: '1px solid rgba(0,212,255,0.18)',
-            padding: '28px 24px', textAlign: 'center',
+            background: 'rgba(0,212,255,0.06)',
+            borderTop: '1px solid rgba(0,212,255,0.15)',
+            padding: '24px', textAlign: 'center',
           }}>
-            <p style={{ fontWeight: 900, fontSize: 18, color: 'white', marginBottom: 6, letterSpacing: '-0.02em' }}>
+            <p style={{ fontWeight: 700, fontSize: 17, color: 'white', marginBottom: 6 }}>
               Vybe wins on 6 out of 7 features
             </p>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 18 }}>
               Join thousands already earning on Vybe
             </p>
             <motion.button
               onClick={onStartEarning}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               style={{
-                padding: '13px 32px', borderRadius: 12, border: 'none',
+                padding: '12px 28px', borderRadius: 10, border: 'none',
                 background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
-                boxShadow: '0 4px 20px rgba(0,212,255,0.4)',
-                color: '#0a0a0f', fontWeight: 900, fontSize: 14, cursor: 'pointer',
+                color: '#0a0a0f', fontWeight: 800, fontSize: 14, cursor: 'pointer',
               }}
             >
               Start Earning Free
