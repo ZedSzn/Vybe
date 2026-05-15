@@ -1024,10 +1024,13 @@ export default function MainPage() {
         </div>
 
         {/* ── Two-column area ── */}
-        <div className="flex-1 min-h-0" style={{ display: 'flex', alignItems: 'flex-start', overflow: 'hidden' }}>
+        <div className="flex-1 min-h-0" style={{ display: 'flex', alignItems: 'stretch', overflow: 'hidden' }}>
 
           {/* ────────── LEFT: Controls ────────── */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px 52px 40px 72px' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '40px 52px 40px 72px' }}>
+
+            {/* ── Top section: headline + buttons (centered) ── */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
 
             {/* Live badge */}
             <motion.div
@@ -1113,6 +1116,11 @@ export default function MainPage() {
               </motion.button>
 
             </div>
+
+            </div>{/* end top section */}
+
+            {/* ── Bottom section: filter + panels pinned to bottom ── */}
+            <div style={{ position: 'relative' }}>
 
             {/* ── Filter bar ── */}
             <div style={{
@@ -1201,11 +1209,11 @@ export default function MainPage() {
               </div>
             </div>
 
-            {/* Desktop: Duo room invite panel */}
+            {/* Desktop: Duo room invite panel — absolute above filter */}
             <AnimatePresence initial={false}>
               {mode === 'squad' && (
-                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
-                  <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 16, paddingBottom: 20, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'visible' }}>
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.18 }} style={{ position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, right: 0, zIndex: 10 }}>
+                  <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 16, paddingBottom: 20, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'visible' }}>
                     {!duoDisplayCode ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0' }}>
                         <Loader2 size={14} className="animate-spin" style={{ color: '#00D4FF' }} />
@@ -1291,11 +1299,11 @@ export default function MainPage() {
               )}
             </AnimatePresence>
 
-            {/* Desktop: Private room invite panel */}
+            {/* Desktop: Private room invite panel — absolute above filter */}
             <AnimatePresence initial={false}>
               {mode === 'private' && (
-                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
-                  <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 16, paddingBottom: 20, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'visible' }}>
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.18 }} style={{ position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, right: 0, zIndex: 10 }}>
+                  <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 16, paddingBottom: 20, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'visible' }}>
                     {!privDisplayCode ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0' }}>
                         <Loader2 size={14} className="animate-spin" style={{ color: '#00D4FF' }} />
@@ -1354,13 +1362,15 @@ export default function MainPage() {
               )}
             </AnimatePresence>
 
+            </div>{/* end bottom section */}
+
           </div>
 
 
           {/* ────────── RIGHT: Camera panel ────────── */}
-          <div className="flex items-center" style={{ flex: '0 0 50%', padding: '32px 44px 32px 16px', background: '#0a0a0f', alignSelf: 'flex-start' }}>
+          <div className="flex items-center" style={{ flex: '0 0 50%', padding: '32px 44px 32px 16px', background: '#0a0a0f' }}>
           <div className="relative overflow-hidden" style={{
-            width: '100%', aspectRatio: '3/4', maxHeight: 'calc(100vh - 200px)', borderRadius: 28,
+            width: '100%', height: '100%', borderRadius: 28,
             background: '#0a0a0f',
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
