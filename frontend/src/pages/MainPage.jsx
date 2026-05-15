@@ -1120,14 +1120,9 @@ export default function MainPage() {
           <div className="flex-1 flex items-center" style={{ padding: '32px 44px 32px 16px', background: '#0a0a0f' }}>
           <div className="relative overflow-hidden" style={{
             width: '100%', height: '100%', borderRadius: 28,
-            background: '#0d0d18',
-            border: '1px solid rgba(0,212,255,0.12)',
-            boxShadow: '0 24px 48px rgba(0,0,0,0.4)',
+            background: '#0a0a0f',
+            border: '1px solid rgba(255,255,255,0.06)',
           }}>
-
-            {/* Cinematic ambient layers */}
-            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 75% 65% at 50% 35%, rgba(0,212,255,0.09) 0%, transparent 70%)' }} />
-            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 45% 35% at 15% 85%, rgba(20,50,150,0.06) 0%, transparent 65%)' }} />
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
@@ -1161,12 +1156,16 @@ export default function MainPage() {
                   </div>
                 </motion.div>
 
-                <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
-                  {cameraErr ? 'Camera access needed' : 'Your video preview'}
-                </p>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', marginBottom: 24, textAlign: 'center', maxWidth: 200, lineHeight: 1.45 }}>
-                  {cameraErr ? (cameraErrMsg || 'Allow camera access in browser settings') : 'Only you can see this preview'}
-                </p>
+                {cameraErr && (
+                  <>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
+                      Camera access needed
+                    </p>
+                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', marginBottom: 24, textAlign: 'center', maxWidth: 200, lineHeight: 1.45 }}>
+                      {cameraErrMsg || 'Allow camera access in browser settings'}
+                    </p>
+                  </>
+                )}
 
                 <motion.button
                   onClick={enableCamera}

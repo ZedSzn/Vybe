@@ -1383,8 +1383,8 @@ export default function ChatPage() {
                 border: '1px solid rgba(255,255,255,0.10)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
                 borderRadius: 60,
-                padding: '8px 12px',
-                gap: '5px',
+                padding: '10px 18px',
+                gap: '8px',
               }}
             >
               {/* Mute */}
@@ -1392,15 +1392,13 @@ export default function ChatPage() {
                 {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
               </MobileFloatBtn>
 
-              {/* Divider */}
-              {status === 'matched' && <div className="w-px h-5 flex-shrink-0 mx-0.5" style={{ background: 'rgba(255,255,255,0.07)' }} />}
-
-              {/* Skip — primary accent */}
-              {status === 'matched' && (
-                <MobileFloatBtn onClick={handleSkip} primary>
-                  <SkipForward size={18} />
-                </MobileFloatBtn>
-              )}
+              {/* Skip — always visible, dimmed when searching */}
+              <motion.button
+                onClick={status === 'matched' ? handleSkip : undefined}
+                whileTap={status === 'matched' ? { scale: 0.88 } : {}}
+                style={{ padding: '10px 20px', background: '#00D4FF', borderRadius: 50, color: '#000', fontWeight: 700, fontSize: 14, border: 'none', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, boxShadow: status === 'matched' ? '0 0 20px rgba(0,212,255,0.35)' : 'none', opacity: status === 'matched' ? 1 : 0.45, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
+                <SkipForward size={15} /> Skip
+              </motion.button>
 
               {/* End call */}
               <MobileFloatBtn onClick={handleEnd} red active={status === 'matched'}>
