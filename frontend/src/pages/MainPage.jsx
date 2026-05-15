@@ -719,7 +719,7 @@ export default function MainPage() {
           {/* Duo room inline panel */}
           <AnimatePresence initial={false}>
             {mode === 'squad' && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+              <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
                 <div className="rounded-2xl p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', paddingBottom: 20, overflow: 'visible' }}>
                   {!duoDisplayCode ? (
                     <div className="flex items-center justify-center gap-2 py-3">
@@ -810,7 +810,7 @@ export default function MainPage() {
           {/* Private room inline panel */}
           <AnimatePresence initial={false}>
             {mode === 'private' && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+              <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
                 <div className="rounded-2xl p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', paddingBottom: 20, overflow: 'visible' }}>
                   {!privDisplayCode ? (
                     <div className="flex items-center justify-center gap-2 py-3">
@@ -1076,7 +1076,7 @@ export default function MainPage() {
             </div>
 
             {/* CTA buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 12 }}>
 
               {/* Primary */}
               <motion.button
@@ -1116,7 +1116,6 @@ export default function MainPage() {
 
             {/* ── Filter bar ── */}
             <div style={{
-              marginTop: 'auto',
               borderRadius: 16, padding: '10px 14px',
               background: 'rgba(13,13,24,0.65)', backdropFilter: 'blur(24px) saturate(1.4)',
               border: '1px solid rgba(0,212,255,0.15)',
@@ -1205,7 +1204,7 @@ export default function MainPage() {
             {/* Desktop: Duo room invite panel */}
             <AnimatePresence initial={false}>
               {mode === 'squad' && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} style={{ overflow: 'hidden' }}>
+                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
                   <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 16, paddingBottom: 20, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'visible' }}>
                     {!duoDisplayCode ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0' }}>
@@ -1295,7 +1294,7 @@ export default function MainPage() {
             {/* Desktop: Private room invite panel */}
             <AnimatePresence initial={false}>
               {mode === 'private' && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} style={{ overflow: 'hidden' }}>
+                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
                   <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 16, paddingBottom: 20, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'visible' }}>
                     {!privDisplayCode ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0' }}>
