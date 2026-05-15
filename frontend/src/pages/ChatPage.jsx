@@ -830,6 +830,7 @@ export default function ChatPage() {
   const opponentSocketIds  = allRemoteEntries.filter((sid) => !squadMates.includes(sid))
   const mateSocketIds      = allRemoteEntries.filter((sid) => squadMates.includes(sid))
   const isDuoMode          = mateSocketIds.length > 0
+  const is2v2              = isDuoMode && opponentSocketIds.length >= 2
 
   const handleUnbanPurchase = async () => {
     setUnbanLoading(true)
@@ -1109,6 +1110,67 @@ export default function ChatPage() {
             <div className="absolute inset-0 bg-[#080812] flex items-center justify-center">
               {status === 'matched' && <div className="loading-dots flex"><span /><span /><span /></div>}
             </div>
+          ) : is2v2 ? (
+            /* 2V2 MOBILE: Full-screen 2×2 grid */
+            <div className="absolute inset-0" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
+              {/* TOP LEFT: Stranger 1 */}
+              <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)', borderRight: '1px solid rgba(0,212,255,0.2)' }}>
+                <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                {strangerHidden && <div className="absolute inset-0 z-[2] flex items-center justify-center" style={{ background: 'rgba(4,4,12,0.95)', backdropFilter: 'blur(24px)' }}><Shield size={20} style={{ color: '#00B8E0' }} /></div>}
+                <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
+                    <span className="text-white/80 font-semibold text-[9px]">{partnerUsername || 'Stranger'}</span>
+                  </div>
+                </div>
+              </div>
+              {/* TOP RIGHT: Stranger 2 */}
+              <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)' }}>
+                <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                {strangerHidden && <div className="absolute inset-0 z-[2] flex items-center justify-center" style={{ background: 'rgba(4,4,12,0.95)', backdropFilter: 'blur(24px)' }}><Shield size={20} style={{ color: '#00B8E0' }} /></div>}
+                <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
+                    <span className="text-white/80 font-semibold text-[9px]">Stranger</span>
+                  </div>
+                </div>
+              </div>
+              {/* BOTTOM LEFT: Your camera */}
+              <div className="relative overflow-hidden" style={{ borderRight: '1px solid rgba(0,212,255,0.2)' }}>
+                <video
+                  ref={(el) => {
+                    if (el && localStreamRef.current) {
+                      el.srcObject = localStreamRef.current
+                      el.play().catch(() => {})
+                    }
+                  }}
+                  autoPlay muted playsInline className="w-full h-full object-cover"
+                />
+                {!hasCamera && <div className="absolute inset-0 bg-[#0a0a14]" />}
+                {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
+                    <span className="text-white/75 font-semibold text-[9px]">{user ? user.username : 'You'}</span>
+                  </div>
+                </div>
+              </div>
+              {/* BOTTOM RIGHT: Duo partner */}
+              <div className="relative overflow-hidden" style={{ background: '#0d0d18' }}>
+                {mateSocketIds[0] ? (
+                  <>
+                    <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                    <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
+                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
+                        <span className="text-white/80 font-semibold text-[9px]">Duo</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="loading-dots flex"><span /><span /><span /></div>
+                  </div>
+                )}
+              </div>
+            </div>
           ) : isDuoMode ? (
             /* DUO MODE: Stranger in top half only */
             <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%' }}>
@@ -1142,8 +1204,8 @@ export default function ChatPage() {
             </motion.div>
           )}
 
-          {/* DUO MODE: Bottom half — your camera (left) + duo partner (right) */}
-          {isDuoMode && opponentSocketIds.length > 0 && (
+          {/* DUO MODE: Bottom half — your camera (left) + duo partner (right) — 3-panel only */}
+          {isDuoMode && !is2v2 && opponentSocketIds.length > 0 && (
             <>
               <div className="absolute z-[4] inset-x-0" style={{ top: 'calc(50% - 0.5px)', height: 1, background: 'rgba(0,212,255,0.2)' }} />
               <div className="absolute z-[2] flex overflow-hidden" style={{ top: '50%', left: 0, right: 0, bottom: 0, background: '#0d0d18' }}>
@@ -1516,6 +1578,133 @@ export default function ChatPage() {
             DESKTOP LAYOUT
         ══════════════════════════════════════════════════════════ */}
         <div className="hidden lg:flex" style={{ height: '100dvh', width: '100%', background: '#0a0a0f', position: 'relative' }}>
+          {is2v2 ? (
+            /* ── 2V2: 2×2 CSS Grid ── */
+            <motion.div
+              key="2v2-grid"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              style={{ flex: 1, display: 'grid', padding: 8, gap: 8, gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', minHeight: 0 }}
+            >
+              {/* TOP LEFT: Stranger 1 */}
+              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                <AnimatePresence>
+                  {strangerHidden && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+                      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
+                      style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}>
+                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.35)' }}>
+                        <Shield size={20} style={{ color: '#00B8E0' }} />
+                      </div>
+                      <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>Camera hidden</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {status === 'matched' && (
+                  <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                      {partnerAvatar ? (
+                        <img src={partnerAvatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(255,255,255,0.2)' }} />
+                      ) : (
+                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                          {(partnerUsername || 'S')[0].toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex flex-col" style={{ gap: 1 }}>
+                        <div className="flex items-center gap-1">
+                          <span className="text-white font-bold text-[11px] leading-none">{partnerUsername || 'Stranger'}</span>
+                          {partnerEmailVerified && <ShieldCheck size={9} style={{ color: '#00B8E0', flexShrink: 0 }} />}
+                          {partnerIsVip && <span className="flex items-center gap-0.5 px-1 py-0.5 rounded-full text-[7px] font-black" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(124,58,237,0.3))', color: '#e0f0ff', border: '1px solid rgba(0,212,255,0.3)' }}><Crown size={6} />VIP</span>}
+                        </div>
+                        {partnerCountry && <span className="text-[9px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{partnerCountry}</span>}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {status === 'matched' && (
+                  <div className="absolute right-3 top-3 z-10 px-2 py-0.5 rounded-full font-mono text-[10px] font-bold pointer-events-none" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+                    {fmt(elapsed)}
+                  </div>
+                )}
+                <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
+              </div>
+
+              {/* TOP RIGHT: Stranger 2 */}
+              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                <AnimatePresence>
+                  {strangerHidden && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+                      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
+                      style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}>
+                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.35)' }}>
+                        <Shield size={20} style={{ color: '#00B8E0' }} />
+                      </div>
+                      <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>Camera hidden</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {status === 'matched' && (
+                  <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>S</div>
+                      <span className="text-white font-bold text-[11px] leading-none">Stranger</span>
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
+                    </div>
+                  </div>
+                )}
+                <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
+              </div>
+
+              {/* BOTTOM LEFT: Your camera */}
+              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+                {!hasCamera && <div className="absolute inset-0 bg-[#0a0a0f]" />}
+                {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                  <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(0,212,255,0.4)' }} />
+                    ) : user?.username ? (
+                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                        {user.username[0].toUpperCase()}
+                      </div>
+                    ) : null}
+                    <span className="text-white font-bold text-[11px] leading-none">{user ? user.username : 'You'}</span>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
+              </div>
+
+              {/* BOTTOM RIGHT: Duo partner camera */}
+              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+                {mateSocketIds[0] ? (
+                  <>
+                    <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                    <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>D</div>
+                        <span className="text-white font-bold text-[11px] leading-none">Duo Partner</span>
+                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
+                      </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
+                  </>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.18)' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,212,255,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <p className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.22)' }}>Duo partner connecting…</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ) : (
           <div className="flex-1 flex min-h-0" style={{ padding: 8, gap: 8 }}>
 
               {/* Stranger video */}
@@ -1794,6 +1983,7 @@ export default function ChatPage() {
               )}
 
           </div>
+          )}
 
           {/* Floating glass chat overlay — right panel, no layout shift */}
           <AnimatePresence>
