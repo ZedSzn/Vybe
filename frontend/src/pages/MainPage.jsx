@@ -1365,17 +1365,49 @@ export default function MainPage() {
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
             <style>{`
-              @keyframes patternMove {
-                0% { background-position: 0% 0%; }
-                100% { background-position: 100% 100%; }
+              @keyframes smoothFlow {
+                0%   { background-position: 0% 0%;     opacity: 0.6; }
+                33%  { background-position: 100% 0%;   opacity: 1;   }
+                66%  { background-position: 100% 100%; opacity: 0.7; }
+                100% { background-position: 0% 100%;   opacity: 1;   }
               }
+              @keyframes floatUp1 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.6; } 100% { transform: translateY(-20px) translateX(6px);  opacity: 0; } }
+              @keyframes floatUp2 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.4; } 100% { transform: translateY(-20px) translateX(-8px); opacity: 0; } }
+              @keyframes floatUp3 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.5; } 100% { transform: translateY(-20px) translateX(4px);  opacity: 0; } }
+              @keyframes floatUp4 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.3; } 100% { transform: translateY(-20px) translateX(-5px); opacity: 0; } }
+              @keyframes floatUp5 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.5; } 100% { transform: translateY(-20px) translateX(10px); opacity: 0; } }
+              @keyframes floatUp6 { 0% { transform: translateY(100%) translateX(0px);   opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.4; } 100% { transform: translateY(-20px) translateX(-3px); opacity: 0; } }
             `}</style>
+
+            {/* Gradient mesh */}
             <div style={{
               position: 'absolute', inset: 0, borderRadius: 'inherit', pointerEvents: 'none', zIndex: 0,
-              backgroundImage: 'repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px)',
+              background: [
+                'radial-gradient(ellipse at 20% 50%, rgba(0,212,255,0.03) 0%, transparent 50%)',
+                'radial-gradient(ellipse at 80% 20%, rgba(124,58,237,0.03) 0%, transparent 50%)',
+                'radial-gradient(ellipse at 50% 80%, rgba(0,212,255,0.02) 0%, transparent 50%)',
+              ].join(', '),
               backgroundSize: '200% 200%',
-              animation: 'patternMove 8s linear infinite',
+              animation: 'smoothFlow 12s ease-in-out infinite alternate',
             }} />
+
+            {/* Floating particles */}
+            {[
+              { left: '18%', bottom: '8%',  size: 2, dur: '9s',  delay: '0s'    },
+              { left: '35%', bottom: '12%', size: 3, dur: '12s', delay: '-3s'   },
+              { left: '55%', bottom: '5%',  size: 2, dur: '10s', delay: '-6s'   },
+              { left: '70%', bottom: '15%', size: 4, dur: '14s', delay: '-1.5s' },
+              { left: '82%', bottom: '9%',  size: 2, dur: '11s', delay: '-5s'   },
+              { left: '28%', bottom: '20%', size: 3, dur: '13s', delay: '-8s'   },
+            ].map((p, i) => (
+              <div key={i} style={{
+                position: 'absolute', left: p.left, bottom: p.bottom,
+                width: p.size, height: p.size, borderRadius: '50%',
+                background: 'rgba(0,212,255,0.15)',
+                pointerEvents: 'none', zIndex: 0,
+                animation: `floatUp${i + 1} ${p.dur} ease-in-out ${p.delay} infinite`,
+              }} />
+            ))}
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
