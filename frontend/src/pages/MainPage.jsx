@@ -1027,7 +1027,7 @@ export default function MainPage() {
         <div className="flex-1 min-h-0" style={{ display: 'flex', alignItems: 'flex-start', overflow: 'hidden' }}>
 
           {/* ────────── LEFT: Controls ────────── */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '40px 52px 40px 72px' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px 52px 40px 72px' }}>
 
             {/* Live badge */}
             <motion.div
