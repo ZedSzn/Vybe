@@ -1794,7 +1794,11 @@ export default function ChatPage() {
 
         {/* ── Desktop fixed floating control bar ── */}
         <div className="hidden lg:flex fixed z-40 items-center" style={{
-          bottom: 28, left: '50%', transform: 'translateX(-50%)',
+          bottom: 28,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          maxWidth: 'calc(100vw - 48px)',
+          overflowX: 'auto',
           background: 'rgba(6,6,14,0.92)',
           backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)',
           border: '1px solid rgba(255,255,255,0.16)',
@@ -1802,6 +1806,8 @@ export default function ChatPage() {
           padding: '12px 24px',
           gap: 14,
           boxShadow: '0 12px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12)',
+          flexShrink: 0,
+          whiteSpace: 'nowrap',
         }}>
 
           {/* Mic */}
