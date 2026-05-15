@@ -783,35 +783,29 @@ export default function ChatPage() {
   const ChatContent = () => (
     <>
       <div className="flex-1 overflow-y-auto p-3" style={{ display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
-        {messages.length === 0 ? (
-          <p className="text-white/30 text-[12px] text-center py-4 mt-auto">
-            {status === 'matched' ? 'Say hello! 👋' : 'Waiting to connect…'}
-          </p>
-        ) : (
-          messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-              <div className="px-3 py-2 text-[13px] leading-relaxed text-white"
-                style={msg.from === 'me' ? {
-                  background: 'rgba(0,212,255,0.15)',
-                  border: '1px solid rgba(0,212,255,0.2)',
-                  borderRadius: '18px 18px 4px 18px',
-                  maxWidth: '85%',
-                } : {
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '18px 18px 18px 4px',
-                  maxWidth: '85%',
-                }}>
-                {msg.text}
-              </div>
+        {messages.map((msg, i) => (
+          <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
+            <div className="px-3 py-2 text-[13px] leading-relaxed text-white"
+              style={msg.from === 'me' ? {
+                background: 'rgba(0,212,255,0.15)',
+                border: '1px solid rgba(0,212,255,0.2)',
+                borderRadius: '18px 18px 4px 18px',
+                maxWidth: '85%',
+              } : {
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '18px 18px 18px 4px',
+                maxWidth: '85%',
+              }}>
+              {msg.text}
             </div>
-          ))
-        )}
+          </div>
+        ))}
         <div ref={messagesEndRef} />
       </div>
 
       <form onSubmit={handleSend} className="flex-shrink-0 p-2">
-        <div className="flex items-center" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 8px 6px 16px', gap: 8 }}>
+        <div className="flex items-center" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 8px 6px 16px', gap: 8 }}>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -823,7 +817,7 @@ export default function ChatPage() {
             type="submit"
             disabled={!input.trim() || status !== 'matched'}
             className="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-40 flex-shrink-0"
-            style={{ background: 'rgba(0,212,255,0.85)', color: '#000' }}
+            style={{ background: '#00D4FF', color: '#000' }}
           >
             <Send size={12} />
           </button>
@@ -1746,7 +1740,7 @@ export default function ChatPage() {
 
           {/* Floating glass chat overlay — right panel, no layout shift */}
           <AnimatePresence>
-            {showChat && (
+            {showChat && status === 'matched' && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1754,7 +1748,7 @@ export default function ChatPage() {
                 transition={{ duration: 0.2, ease: 'easeOut' }}
                 className="absolute flex flex-col"
                 style={{
-                  bottom: 100, right: 16, width: 280, maxHeight: '60vh', zIndex: 20,
+                  bottom: 120, right: 16, width: 280, maxHeight: '60vh', zIndex: 20,
                   background: 'rgba(0,0,0,0.25)',
                   backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
                   border: '1px solid rgba(255,255,255,0.08)',
@@ -1877,7 +1871,7 @@ export default function ChatPage() {
 
         {/* ── Mobile chat floating overlay ── */}
         <AnimatePresence>
-          {showChat && (
+          {showChat && status === 'matched' && (
             <motion.div
               className="lg:hidden fixed z-[35] flex flex-col"
               initial={{ opacity: 0, y: 10 }}
@@ -1885,7 +1879,7 @@ export default function ChatPage() {
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
               style={{
-                bottom: 90,
+                bottom: 120,
                 left: 16,
                 right: 16,
                 maxHeight: '50vh',
