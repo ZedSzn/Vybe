@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
-  MessageSquare, X, ChevronRight, Shield, ShieldCheck, Loader2, Ban, UserX, UserPlus, Camera, Crown, Zap,
+  MessageSquare, X, ChevronRight, Shield, ShieldCheck, Loader2, Ban, UserX, UserPlus, Camera, Crown, Zap, Heart, Flame, Edit2,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -169,6 +169,9 @@ export default function ChatPage() {
   const [selfViewExpanded, setSelfViewExpanded] = useState(true)
   const [duoPipExpanded,   setDuoPipExpanded]   = useState(false)
   const [tipIdx,           setTipIdx]           = useState(0)
+  const [giftAnimations,   setGiftAnimations]   = useState([])   // [{id, emoji}]
+  const [skipCount,        setSkipCount]        = useState(0)
+  const [partnerCountry,   setPartnerCountry]   = useState(null)
 
   const searchTimerRef   = useRef(null)
   const searchTextTimer  = useRef(null)
@@ -338,6 +341,8 @@ export default function ChatPage() {
     setPartnerIsVip(false)
     setPartnerIsPremium(false)
     setPartnerEmailVerified(false)
+    setPartnerCountry(null)
+    setGiftAnimations([])
   }
 
   const findMatch = (socket) => {
@@ -479,7 +484,7 @@ export default function ChatPage() {
 
       socket.on('waiting', () => { if (mounted) setStatus('searching') })
 
-      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername, partnerAvatar: pAvatar, partnerIsPremium: pIsPremium, partnerIsVip: pIsVip, partnerEmailVerified: pEmailVerified }) => {
+      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername, partnerAvatar: pAvatar, partnerIsPremium: pIsPremium, partnerIsVip: pIsVip, partnerEmailVerified: pEmailVerified, partnerCountry: pCountry }) => {
         if (!mounted) return
 
         // Destroy existing peers
@@ -499,6 +504,8 @@ export default function ChatPage() {
         setPartnerIsVip(pIsVip || false)
         setPartnerIsPremium(pIsPremium || false)
         setPartnerEmailVerified(pEmailVerified || false)
+        setPartnerCountry(pCountry || null)
+        setGiftAnimations([])
         setFriendReqSent(false)
         playMatchFound()
         setMatchFlash(true)
@@ -637,8 +644,19 @@ export default function ChatPage() {
     setMessages([])
     setReportSent(false)
     setStatus('searching')
+    setSkipCount((c) => c + 1)
     socketRef.current?.emit('skip')
     if (socketRef.current?.connected) findMatch(socketRef.current)
+  }
+
+  const sendReaction = (emoji) => {
+    if (status !== 'matched') return
+    const id = Date.now() + Math.random()
+    setGiftAnimations((prev) => [...prev, { id, emoji }])
+    setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2400)
+    if (user && partnerSockRef.current && coins >= 5) {
+      socketRef.current?.emit('send-tip', { amount: 5, recipientSocketId: partnerSockRef.current })
+    }
   }
 
   const handleEnd = () => {
@@ -1196,11 +1214,56 @@ export default function ChatPage() {
 
           {/* Timer — top right */}
           {status === 'matched' && (
-            <div className="absolute z-[6] px-2.5 py-1.5 rounded-xl font-mono text-[11px] text-white/70"
-              style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="absolute z-[6] px-2.5 py-1.5 rounded-xl font-mono text-[11px] font-bold"
+              style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
               {fmt(elapsed)}
             </div>
           )}
+
+          {/* Reaction buttons — right edge, mobile */}
+          <AnimatePresence>
+            {status === 'matched' && (
+              <motion.div
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 16 }}
+                className="absolute z-[6] flex flex-col gap-2"
+                style={{ right: 12, top: 'max(68px, env(safe-area-inset-top, 0px) + 60px)' }}
+              >
+                <motion.button
+                  onClick={() => sendReaction('❤️')}
+                  whileTap={{ scale: 0.82 }}
+                  style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,60,120,0.3)', border: '1px solid rgba(255,60,120,0.4)', backdropFilter: 'blur(10px)', color: '#FF3C78' }}
+                >
+                  <Heart size={16} fill="currentColor" />
+                </motion.button>
+                <motion.button
+                  onClick={() => sendReaction('🔥')}
+                  whileTap={{ scale: 0.82 }}
+                  style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,120,30,0.3)', border: '1px solid rgba(255,120,30,0.4)', backdropFilter: 'blur(10px)', color: '#FF781E' }}
+                >
+                  <Flame size={16} fill="currentColor" />
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Mobile gift animations */}
+          <AnimatePresence>
+            {giftAnimations.map(({ id, emoji }) => (
+              <motion.div
+                key={id}
+                className="absolute z-[7] pointer-events-none select-none"
+                style={{ left: '50%', bottom: 120, fontSize: 44, translateX: '-50%' }}
+                initial={{ y: 0, opacity: 1, scale: 0.5 }}
+                animate={{ y: -280, opacity: 0, scale: 1.3 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {emoji}
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
           {/* Draggable PiP self-view */}
           <motion.div
@@ -1491,7 +1554,24 @@ export default function ChatPage() {
                   </motion.div>
                 )}
 
-                {/* Partner identity overlay */}
+                {/* Gift floating animations */}
+                <AnimatePresence>
+                  {giftAnimations.map(({ id, emoji }) => (
+                    <motion.div
+                      key={id}
+                      className="absolute z-20 pointer-events-none select-none"
+                      style={{ left: '50%', bottom: 80, fontSize: 48, translateX: '-50%' }}
+                      initial={{ y: 0, opacity: 1, scale: 0.5 }}
+                      animate={{ y: -320, opacity: 0, scale: 1.4 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {emoji}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {/* Partner identity overlay — top left */}
                 <AnimatePresence>
                   {status === 'matched' && (
                     <motion.div
@@ -1500,28 +1580,34 @@ export default function ChatPage() {
                       exit={{ opacity: 0, y: -4, scale: 0.97 }}
                       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                       className="absolute top-3 left-3 z-10 flex items-center gap-2">
-                      <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
+                      <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
                         {partnerAvatar ? (
-                          <img src={partnerAvatar} alt="" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                          <img src={partnerAvatar} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.2)' }} />
                         ) : (
-                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[11px]"
+                            style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                            {(partnerUsername || 'S')[0].toUpperCase()}
+                          </div>
                         )}
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-white font-bold text-[13px]">
-                            {partnerUsername ? partnerUsername : 'Stranger'}
-                          </span>
-                          {partnerEmailVerified && (
-                            <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />
-                          )}
-                          {partnerIsVip && (
-                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(124,58,237,0.3))', color: '#e0f0ff', border: '1px solid rgba(0,212,255,0.3)' }}>
-                              <Crown size={8} /> VIP
+                        <div className="flex flex-col" style={{ gap: 1 }}>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-white font-bold text-[13px] leading-none">
+                              {partnerUsername || 'Stranger'}
                             </span>
-                          )}
-                          {!partnerIsVip && partnerIsPremium && (
-                            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}>
-                              <Zap size={8} /> Member
-                            </span>
+                            {partnerEmailVerified && <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />}
+                            {partnerIsVip && (
+                              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(124,58,237,0.3))', color: '#e0f0ff', border: '1px solid rgba(0,212,255,0.3)' }}>
+                                <Crown size={7} /> VIP
+                              </span>
+                            )}
+                            {!partnerIsVip && partnerIsPremium && (
+                              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}>
+                                <Zap size={7} /> Member
+                              </span>
+                            )}
+                          </div>
+                          {partnerCountry && (
+                            <span className="text-[11px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{partnerCountry}</span>
                           )}
                         </div>
                         {user && partnerUid && !friendReqSent && (
@@ -1541,7 +1627,7 @@ export default function ChatPage() {
                         className="flex items-center justify-center w-7 h-7 rounded-full"
                         style={{
                           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-                          background: strangerHidden ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.05)',
+                          background: strangerHidden ? 'rgba(0,212,255,0.2)' : 'rgba(0,0,0,0.4)',
                           border: strangerHidden ? '1px solid rgba(0,212,255,0.4)' : '1px solid rgba(255,255,255,0.12)',
                           transition: 'all 200ms ease',
                         }}>
@@ -1551,17 +1637,51 @@ export default function ChatPage() {
                   )}
                 </AnimatePresence>
 
-                {/* Timer */}
-                {status === 'matched' && (
-                  <div className="absolute top-3 right-3 z-10 px-2.5 py-1.5 rounded-full font-mono text-[12px] text-white/80" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                    {fmt(elapsed)}
-                  </div>
-                )}
+                {/* Skip counter + Reaction buttons — stacked on right edge */}
+                <AnimatePresence>
+                  {status === 'matched' && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 16 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute right-3 top-3 z-10 flex flex-col items-center gap-2"
+                    >
+                      {/* Skip counter */}
+                      <div className="px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.45)' }}>
+                        Skip {skipCount}/10
+                      </div>
+                      {/* Connection time */}
+                      <div className="px-2.5 py-1 rounded-full font-mono text-[11px] font-bold" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+                        {fmt(elapsed)}
+                      </div>
+                      {/* Heart reaction */}
+                      <motion.button
+                        onClick={() => sendReaction('❤️')}
+                        whileHover={{ scale: 1.12 }}
+                        whileTap={{ scale: 0.88 }}
+                        style={{ width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,60,120,0.3)', border: '1px solid rgba(255,60,120,0.4)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', color: '#FF3C78', cursor: 'pointer' }}
+                      >
+                        <Heart size={18} fill="currentColor" />
+                      </motion.button>
+                      {/* Fire reaction */}
+                      <motion.button
+                        onClick={() => sendReaction('🔥')}
+                        whileHover={{ scale: 1.12 }}
+                        whileTap={{ scale: 0.88 }}
+                        style={{ width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,120,30,0.3)', border: '1px solid rgba(255,120,30,0.4)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', color: '#FF781E', cursor: 'pointer' }}
+                      >
+                        <Flame size={18} fill="currentColor" />
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
+                {/* Connection timer — bottom center */}
                 {status === 'matched' && (
-                  <div className="absolute bottom-3 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
-                    <div className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
-                      STRANGER
+                  <div className="absolute bottom-12 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
+                    <div className="px-3 py-1 rounded-full font-mono text-[11px] font-bold" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+                      {fmt(elapsed)}
                     </div>
                   </div>
                 )}
@@ -1615,33 +1735,37 @@ export default function ChatPage() {
                   <div className="absolute inset-0 bg-black/80 flex items-center justify-center"><VideoOff size={26} className="text-white/30" /></div>
                 )}
 
-                {/* You label */}
-                <div className="absolute top-3 right-3 z-10">
-                  <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
+                {/* You label — bottom left */}
+                <div className="absolute bottom-12 left-3 z-10">
+                  <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
                     {user?.avatar ? (
-                      <img src={user.avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-white/20" />
+                      <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" style={{ border: '1.5px solid rgba(0,212,255,0.4)' }} />
                     ) : user?.username ? (
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[11px]"
                         style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
                         {user.username[0].toUpperCase()}
                       </div>
                     ) : null}
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-white font-bold text-[13px]">{user ? user.username : 'You'}</span>
-                      {user?.emailVerified && (
-                        <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />
-                      )}
-                      {user?.isVip && (
-                        <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[9px] font-black" style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: '#fff' }}>
-                          <Crown size={7} /> VIP
-                        </span>
-                      )}
-                      {!user?.isVip && user?.isPremium && (
-                        <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[9px] font-black" style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: '#fff' }}>
-                          <Zap size={7} /> Member
-                        </span>
-                      )}
+                    <div className="flex flex-col" style={{ gap: 1 }}>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
+                        {user?.emailVerified && <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />}
+                        {user?.isVip && (
+                          <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: '#fff' }}>
+                            <Crown size={7} /> VIP
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[11px] font-bold leading-none" style={{ color: '#00D4FF' }}>You</span>
                     </div>
+                    <button
+                      onClick={() => navigate('/profile')}
+                      title="Edit profile"
+                      className="flex items-center justify-center w-6 h-6 rounded-full active:scale-90"
+                      style={{ background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF', flexShrink: 0 }}
+                    >
+                      <Edit2 size={10} />
+                    </button>
                   </div>
                 </div>
 
