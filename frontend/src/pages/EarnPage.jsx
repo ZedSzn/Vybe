@@ -60,8 +60,6 @@ const FAQS = [
 function CompareTable({ onStartEarning }) {
   const [hoveredRow, setHoveredRow] = useState(null)
 
-  const COLS = ['', 'Vybe', 'Twitch', 'TikTok', 'YouTube']
-
   const renderVal = (val, isVybe) => {
     if (typeof val === 'boolean') {
       return val
@@ -70,6 +68,8 @@ function CompareTable({ onStartEarning }) {
     }
     return val
   }
+
+  const headerCell = { padding: '20px 16px', height: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 7 }
 
   return (
     <div style={{
@@ -86,23 +86,38 @@ function CompareTable({ onStartEarning }) {
             background: 'rgba(255,255,255,0.05)',
             borderBottom: '1px solid rgba(255,255,255,0.08)',
           }}>
-            {COLS.map((col, ci) => (
-              <div key={ci} style={{
-                padding: '20px 16px',
-                textAlign: ci === 0 ? 'left' : 'center',
-                background: ci === 1 ? '#00D4FF' : 'transparent',
-                position: ci === 1 ? 'relative' : 'static',
-              }}>
-                {ci === 1 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(0,0,0,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Best</span>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>Vybe</span>
-                  </div>
-                ) : ci === 0 ? null : (
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#666677' }}>{col}</span>
-                )}
-              </div>
-            ))}
+            {/* Feature label column — empty */}
+            <div style={{ padding: '20px 16px', height: 80 }} />
+
+            {/* Vybe */}
+            <div style={{ ...headerCell, background: '#00D4FF' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(0,0,0,0.45)', letterSpacing: '0.1em', textTransform: 'uppercase', background: 'rgba(0,0,0,0.1)', padding: '2px 8px', borderRadius: 99 }}>Best</span>
+              <span style={{ fontSize: 19, fontWeight: 900, color: '#000000', letterSpacing: '-0.03em', lineHeight: 1 }}>VYBE</span>
+            </div>
+
+            {/* Twitch */}
+            <div style={{ ...headerCell, background: 'rgba(255,255,255,0.02)' }}>
+              <svg viewBox="0 0 24 24" fill="#9146FF" width="32" height="32">
+                <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
+              </svg>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#666677' }}>Twitch</span>
+            </div>
+
+            {/* TikTok */}
+            <div style={{ ...headerCell, background: 'rgba(255,255,255,0.02)' }}>
+              <svg viewBox="0 0 24 24" width="32" height="32">
+                <path fill="white" d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.19 8.19 0 004.79 1.52V6.75a4.85 4.85 0 01-1.02-.06z"/>
+              </svg>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#666677' }}>TikTok</span>
+            </div>
+
+            {/* YouTube */}
+            <div style={{ ...headerCell, background: 'rgba(255,255,255,0.02)' }}>
+              <svg viewBox="0 0 24 24" width="32" height="32">
+                <path fill="#FF0000" d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>
+              </svg>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#666677' }}>YouTube</span>
+            </div>
           </div>
 
           {/* Feature rows */}
