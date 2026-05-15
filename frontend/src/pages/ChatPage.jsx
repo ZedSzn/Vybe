@@ -1886,8 +1886,8 @@ export default function ChatPage() {
               {isDuoMode ? (
                 <div className="relative flex-1 overflow-hidden min-h-0 min-w-0 flex flex-col" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
                   {/* TOP: Your camera */}
-                  <div className="relative overflow-hidden min-h-0" style={{ flex: '0 0 50%', borderRadius: '20px 20px 0 0' }}>
-                    <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+                  <div className="relative overflow-hidden" style={{ flex: 1, minHeight: 0, borderRadius: '20px 20px 0 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <video ref={localVideoDesktopRef} autoPlay muted playsInline className="absolute inset-0 w-full h-full object-cover" />
                     {!hasCamera && <div className="absolute inset-0 bg-[#0a0a0f]" />}
                     {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
                     <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
@@ -1905,13 +1905,11 @@ export default function ChatPage() {
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
                   </div>
-                  {/* Divider */}
-                  <div style={{ height: 1, background: 'rgba(0,212,255,0.15)', flexShrink: 0 }} />
                   {/* BOTTOM: Duo partner camera */}
-                  <div className="relative overflow-hidden min-h-0" style={{ flex: '0 0 50%', borderRadius: '0 0 20px 20px', background: '#0d0d18' }}>
+                  <div className="relative overflow-hidden" style={{ flex: 1, minHeight: 0, borderRadius: '0 0 20px 20px', background: '#0d0d18' }}>
                     {mateSocketIds[0] ? (
                       <>
-                        <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                        <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" />
                         <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
                           <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
                             <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>D</div>
