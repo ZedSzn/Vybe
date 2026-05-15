@@ -97,7 +97,7 @@ function CompareTable() {
         </thead>
         <tbody>
           {COMPARE_ROWS.map((row, ri) => (
-            <tr key={ri} style={{ borderBottom: ri < COMPARE_ROWS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+            <tr key={ri} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: ri % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
               {colKeys.map((key, ci) => {
                 const val = row[key]
                 const isVybe = key === 'vybe'
@@ -106,10 +106,11 @@ function CompareTable() {
                   <td key={ci} style={{
                     padding: isFeature ? '13px 16px' : '13px 12px',
                     textAlign: isFeature ? 'left' : 'center',
-                    fontSize: isFeature ? 13 : 13,
+                    fontSize: isFeature ? 13 : isVybe ? 14 : 13,
                     fontWeight: isVybe ? 800 : 500,
                     color: isFeature ? 'rgba(255,255,255,0.55)' : isVybe ? '#ffffff' : 'rgba(255,255,255,0.35)',
-                    background: isVybe ? 'rgba(0,212,255,0.07)' : isFeature ? 'rgba(13,13,24,0.8)' : 'transparent',
+                    background: isVybe ? 'rgba(0,212,255,0.09)' : isFeature ? 'rgba(13,13,24,0.8)' : 'transparent',
+                    boxShadow: isVybe ? 'inset 0 0 12px rgba(0,212,255,0.04)' : 'none',
                     position: isFeature ? 'sticky' : 'static', left: 0, zIndex: isFeature ? 1 : 'auto',
                   }}>
                     {typeof val === 'boolean'
@@ -218,7 +219,10 @@ function EarningsCalculator({ onStartEarning }) {
             £{monthly.toFixed(2)}
           </motion.p>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 0 }}>per month</p>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 10 }}>
+          <p style={{ fontSize: 12, color: 'rgba(0,212,255,0.55)', fontWeight: 600, marginTop: 8 }}>
+            Top Vybers earn £200+ per month
+          </p>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 6 }}>
             Based on average gift values. Results may vary.
           </p>
         </div>
