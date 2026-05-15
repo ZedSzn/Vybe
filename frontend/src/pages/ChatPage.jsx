@@ -1579,7 +1579,7 @@ export default function ChatPage() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -4, scale: 0.97 }}
                       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                      className="absolute top-3 left-3 z-10 flex items-center gap-2">
+                      className="absolute flex items-center gap-2" style={{ top: 16, left: 16, zIndex: 10 }}>
                       <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
                         {partnerAvatar ? (
                           <img src={partnerAvatar} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" style={{ border: '1.5px solid rgba(255,255,255,0.2)' }} />
