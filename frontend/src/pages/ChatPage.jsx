@@ -1346,13 +1346,56 @@ export default function ChatPage() {
             )}
           </AnimatePresence>
 
-          {/* Timer — top right */}
+          {/* Timer — shifted left for Skip button */}
           {status === 'matched' && (
             <div className="absolute z-[6] px-2.5 py-1.5 rounded-xl font-mono text-[11px] font-bold"
-              style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+              style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 80, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
               {fmt(elapsed)}
             </div>
           )}
+
+          {/* Mobile Skip — top right */}
+          <motion.button
+            onClick={status === 'matched' ? handleSkip : undefined}
+            whileTap={status === 'matched' ? { scale: 0.92 } : {}}
+            style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, zIndex: 6, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 50, padding: '8px 20px', color: 'white', fontWeight: 700, fontSize: 14, cursor: status === 'matched' ? 'pointer' : 'default', opacity: status === 'matched' ? 1 : 0.35, transition: 'all 150ms ease' }}>
+            Skip
+          </motion.button>
+
+          {/* Mobile Coins — top left, below partner pill */}
+          {user && status === 'matched' && (
+            <motion.button
+              onClick={() => setShowTip(true)}
+              whileTap={{ scale: 0.92 }}
+              style={{ position: 'absolute', top: 'max(52px, env(safe-area-inset-top, 0px) + 50px)', left: 12, zIndex: 6, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <VybeCoin size={13} />
+              <span style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>{coins.toLocaleString()}</span>
+            </motion.button>
+          )}
+
+          {/* Mobile Report — bottom left */}
+          {status === 'matched' && (
+            <motion.button
+              onClick={() => !reportSent && setShowReport(true)}
+              whileTap={!reportSent ? { scale: 0.92 } : {}}
+              style={{ position: 'absolute', bottom: 'max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, zIndex: 6, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '7px 16px', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, cursor: reportSent ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {reportSent ? '✓ Reported' : <><Flag size={12} />Report</>}
+            </motion.button>
+          )}
+
+          {/* Mobile Chat — bottom right */}
+          <div style={{ position: 'absolute', bottom: 'max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px))', right: 12, zIndex: 6 }}>
+            <motion.button
+              onClick={toggleChat}
+              whileTap={{ scale: 0.92 }}
+              style={{ position: 'relative', background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '7px 16px', color: showChat ? '#00D4FF' : 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <MessageSquare size={14} />
+              Chat
+              {unread > 0 && !showChat && (
+                <span style={{ position: 'absolute', top: -3, right: -3, width: 8, height: 8, background: '#00D4FF', borderRadius: '50%' }} />
+              )}
+            </motion.button>
+          </div>
 
 
           {/* Mobile gift animations */}
@@ -1529,77 +1572,6 @@ export default function ChatPage() {
 
         </div>
 
-        {/* ── MOBILE: floating glassmorphism controls pill ── */}
-        <AnimatePresence>
-          {!showChat && (
-            <motion.div
-              initial={{ opacity: 0, y: 22, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 18, scale: 0.92 }}
-              transition={{ type: 'spring', damping: 30, stiffness: 340 }}
-              className="lg:hidden fixed z-[30] flex items-center rounded-full"
-              style={{
-                bottom: 'max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px))',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(30px)',
-                WebkitBackdropFilter: 'blur(30px)',
-                border: '1px solid rgba(255,255,255,0.10)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
-                borderRadius: 60,
-                padding: '10px 18px',
-                gap: '8px',
-              }}
-            >
-              {/* Mute */}
-              <MobileFloatBtn onClick={toggleMute} active={isMuted} red={isMuted}>
-                {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
-              </MobileFloatBtn>
-
-              {/* Skip — always visible, dimmed when searching */}
-              <motion.button
-                onClick={status === 'matched' ? handleSkip : undefined}
-                whileTap={status === 'matched' ? { scale: 0.88 } : {}}
-                style={{ padding: '10px 20px', background: '#00D4FF', borderRadius: 50, color: '#000', fontWeight: 700, fontSize: 14, border: 'none', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, boxShadow: status === 'matched' ? '0 0 20px rgba(0,212,255,0.35)' : 'none', opacity: status === 'matched' ? 1 : 0.45, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
-                <SkipForward size={15} /> Skip
-              </motion.button>
-
-              {/* End call */}
-              <MobileFloatBtn onClick={handleEnd} red active={status === 'matched'}>
-                <PhoneOff size={status === 'matched' ? 18 : 16} />
-              </MobileFloatBtn>
-
-              {/* Divider */}
-              <div className="w-px h-5 flex-shrink-0 mx-0.5" style={{ background: 'rgba(255,255,255,0.07)' }} />
-
-              {/* Chat */}
-              <MobileFloatBtn onClick={toggleChat}>
-                <span className="relative">
-                  <MessageSquare size={16} />
-                  {unread > 0 && !showChat && (
-                    <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-[7px] font-black flex items-center justify-center"
-                      style={{ background: '#00D4FF', color: '#fff' }}>
-                      {unread > 9 ? '9+' : unread}
-                    </span>
-                  )}
-                </span>
-              </MobileFloatBtn>
-
-              {/* Report */}
-              {!reportSent ? (
-                <MobileFloatBtn onClick={() => status === 'matched' && setShowReport(true)} disabled={status !== 'matched'}>
-                  <Flag size={16} />
-                </MobileFloatBtn>
-              ) : (
-                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)' }}>
-                  <span className="text-cyan-400 text-xs font-bold">✓</span>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* ══════════════════════════════════════════════════════════
             DESKTOP LAYOUT
@@ -1829,15 +1801,48 @@ export default function ChatPage() {
                   )}
                 </AnimatePresence>
 
-                {/* Timer — top right of left panel */}
+                {/* Timer — shifted left for Skip button */}
                 {status === 'matched' && (
-                  <div className="absolute right-3 top-3 z-10 px-2.5 py-1 rounded-full font-mono text-[11px] font-bold pointer-events-none"
-                    style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+                  <div className="absolute z-10 px-2.5 py-1 rounded-full font-mono text-[11px] font-bold pointer-events-none"
+                    style={{ top: 16, right: 80, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
                     {fmt(elapsed)}
                   </div>
                 )}
-                {/* Bottom fade for bar clearance */}
-                <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 120, background: 'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)' }} />
+
+                {/* Skip — top right */}
+                <motion.button
+                  onClick={status === 'matched' ? handleSkip : undefined}
+                  whileHover={{ background: 'rgba(255,255,255,0.14)' }}
+                  whileTap={status === 'matched' ? { scale: 0.93 } : {}}
+                  style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 50, padding: '8px 20px', color: 'white', fontWeight: 700, fontSize: 14, cursor: status === 'matched' ? 'pointer' : 'default', opacity: status === 'matched' ? 1 : 0.35, transition: 'all 150ms ease' }}>
+                  Skip
+                </motion.button>
+
+                {/* Coins/tip — top left, below partner pill */}
+                {user && status === 'matched' && (
+                  <motion.button
+                    onClick={() => setShowTip(true)}
+                    whileHover={{ background: 'rgba(255,255,255,0.10)' }}
+                    whileTap={{ scale: 0.93 }}
+                    style={{ position: 'absolute', top: 56, left: 16, zIndex: 10, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', transition: 'background 150ms ease' }}>
+                    <VybeCoin size={14} />
+                    <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>{coins.toLocaleString()}</span>
+                  </motion.button>
+                )}
+
+                {/* Report — bottom left */}
+                {status === 'matched' && (
+                  <motion.button
+                    onClick={() => !reportSent && setShowReport(true)}
+                    whileHover={!reportSent ? { background: 'rgba(255,255,255,0.10)' } : {}}
+                    whileTap={!reportSent ? { scale: 0.93 } : {}}
+                    style={{ position: 'absolute', bottom: 16, left: 16, zIndex: 10, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '7px 16px', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, cursor: reportSent ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 150ms ease' }}>
+                    {reportSent ? '✓ Reported' : <><Flag size={12} />Report</>}
+                  </motion.button>
+                )}
+
+                {/* Bottom fade */}
+                <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 80, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
               </div>
 
               {/* Your video / Duo mode right panels — desktop only */}
@@ -1950,144 +1955,47 @@ export default function ChatPage() {
                     </div>
                   )}
 
-                  {/* Bottom fade for bar clearance */}
-                  <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 120, background: 'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)' }} />
+                  {/* Chat overlay — inside right panel */}
+                  <AnimatePresence>
+                    {showChat && status === 'matched' && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                        className="flex flex-col"
+                        style={{ position: 'absolute', bottom: 60, right: 16, width: 260, maxHeight: '50vh', zIndex: 30, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, overflow: 'hidden' }}>
+                        <FloatingChat messages={messages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Chat toggle — bottom right */}
+                  <div style={{ position: 'absolute', bottom: 16, right: 16, zIndex: 10 }}>
+                    <motion.button
+                      onClick={toggleChat}
+                      whileHover={{ background: showChat ? 'rgba(0,212,255,0.22)' : 'rgba(255,255,255,0.14)' }}
+                      whileTap={{ scale: 0.93 }}
+                      style={{ position: 'relative', background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '7px 16px', color: showChat ? '#00D4FF' : 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 150ms ease' }}>
+                      <MessageSquare size={14} />
+                      Chat
+                      {unread > 0 && !showChat && (
+                        <span style={{ position: 'absolute', top: -3, right: -3, width: 8, height: 8, background: '#00D4FF', borderRadius: '50%' }} />
+                      )}
+                    </motion.button>
+                  </div>
+
+                  {/* Bottom fade */}
+                  <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 80, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
                 </div>
               )}
 
           </div>
           )}
 
-          {/* Floating glass chat overlay — right panel, no layout shift */}
-          <AnimatePresence>
-            {showChat && status === 'matched' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="flex flex-col"
-                style={{
-                  position: 'fixed', bottom: 100, right: 16, width: 280, maxHeight: 400, zIndex: 40,
-                  background: 'rgba(0,0,0,0.3)',
-                  backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 20, overflow: 'hidden',
-                }}
-              >
-                <FloatingChat messages={messages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} />
-              </motion.div>
-            )}
-          </AnimatePresence>
 
         </div>
 
-        {/* ── Desktop fixed floating control bar ── */}
-        <div className="hidden lg:flex fixed z-40 items-center" style={{
-          bottom: 28,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          maxWidth: 'calc(100vw - 48px)',
-          overflowX: 'auto',
-          background: 'rgba(6,6,14,0.92)',
-          backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)',
-          border: '1px solid rgba(255,255,255,0.16)',
-          borderRadius: 60,
-          padding: '12px 24px',
-          gap: 14,
-          boxShadow: '0 12px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12)',
-          flexShrink: 0,
-          whiteSpace: 'nowrap',
-        }}>
-
-          {/* Mic */}
-          <motion.button onClick={toggleMute} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
-            title={isMuted ? 'Unmute' : 'Mute'}
-            style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isMuted ? 'rgba(255,50,50,0.2)' : 'rgba(255,255,255,0.07)', border: isMuted ? '1px solid rgba(255,50,50,0.35)' : '1px solid rgba(255,255,255,0.12)', color: isMuted ? '#FF4444' : 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: 'pointer' }}>
-            {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
-          </motion.button>
-
-          {/* Camera */}
-          {hasCamera && (
-            <motion.button onClick={toggleVideo} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
-              title={videoOff ? 'Camera On' : 'Camera Off'}
-              style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: videoOff ? 'rgba(255,50,50,0.2)' : 'rgba(255,255,255,0.07)', border: videoOff ? '1px solid rgba(255,50,50,0.35)' : '1px solid rgba(255,255,255,0.12)', color: videoOff ? '#FF4444' : 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: 'pointer' }}>
-              {videoOff ? <VideoOff size={18} /> : <Video size={18} />}
-            </motion.button>
-          )}
-
-          {/* SKIP — always visible, dimmed when not matched */}
-          <motion.button
-            onClick={status === 'matched' ? handleSkip : undefined}
-            disabled={status !== 'matched'}
-            whileHover={status === 'matched' ? { scale: 1.06 } : {}}
-            whileTap={status === 'matched' ? { scale: 0.94 } : {}}
-            style={{ padding: '12px 28px', background: '#00D4FF', borderRadius: 50, color: '#000000', fontWeight: 700, fontSize: 15, border: 'none', display: 'flex', alignItems: 'center', flexShrink: 0, boxShadow: '0 0 24px rgba(0,212,255,0.35)', opacity: status === 'matched' ? 1 : 0.45, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
-            Skip
-          </motion.button>
-
-          {/* Chat */}
-          <motion.button onClick={toggleChat} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
-            title="Chat"
-            style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', background: showChat ? 'rgba(0,212,255,0.18)' : 'rgba(255,255,255,0.07)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.12)', color: showChat ? '#00D4FF' : 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: 'pointer' }}>
-            <MessageSquare size={18} />
-            {unread > 0 && !showChat && (
-              <span style={{ position: 'absolute', top: -2, right: -2, width: 14, height: 14, background: '#FF4444', borderRadius: '50%', fontSize: 7, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                {unread > 9 ? '9+' : unread}
-              </span>
-            )}
-          </motion.button>
-
-          {/* Report */}
-          {reportSent ? (
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <span style={{ color: '#00D4FF', fontSize: 12, fontWeight: 700 }}>✓</span>
-            </div>
-          ) : (
-            <motion.button onClick={() => status === 'matched' && setShowReport(true)} disabled={status !== 'matched'}
-              whileHover={status === 'matched' ? { scale: 1.08 } : {}} whileTap={status === 'matched' ? { scale: 0.92 } : {}}
-              title="Report"
-              style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)', opacity: status === 'matched' ? 1 : 0.38, cursor: status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
-              <Flag size={18} />
-            </motion.button>
-          )}
-
-          {/* End */}
-          <motion.button onClick={handleEnd} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
-            title={status === 'matched' ? 'End Chat' : 'Leave'}
-            style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,45,45,0.25)', border: '1px solid rgba(255,45,45,0.35)', color: '#FF4444', boxShadow: '0 0 16px rgba(255,45,45,0.2)', transition: 'all 150ms ease', cursor: 'pointer' }}>
-            <PhoneOff size={18} />
-          </motion.button>
-
-          {/* Secondary: Tip + Friend + Block when matched */}
-          {user && status === 'matched' && (
-            <>
-              <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)', flexShrink: 0 }} />
-              <motion.button onClick={() => setShowTip(true)} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
-                title="Send Tip"
-                style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: 'pointer' }}>
-                <VybeCoin size={17} />
-              </motion.button>
-              {partnerUid && (
-                <motion.button onClick={handleAddFriend} disabled={friendReqLoad || friendReqSent}
-                  whileHover={!friendReqSent ? { scale: 1.08 } : {}} whileTap={!friendReqSent ? { scale: 0.92 } : {}}
-                  title={friendReqSent ? 'Request sent' : 'Add Friend'}
-                  style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: friendReqSent ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.07)', border: friendReqSent ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.12)', color: friendReqSent ? '#4ade80' : 'rgba(255,255,255,0.85)', transition: 'all 150ms ease', cursor: friendReqSent ? 'default' : 'pointer' }}>
-                  {friendReqSent ? <span style={{ fontSize: 12, fontWeight: 700 }}>✓</span> : <UserPlus size={17} />}
-                </motion.button>
-              )}
-              {partnerUid && (
-                <motion.button onClick={handleBlock} disabled={blockLoading}
-                  whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
-                  title="Block"
-                  style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,50,50,0.1)', border: '1px solid rgba(255,50,50,0.25)', color: '#f87171', transition: 'all 150ms ease', cursor: 'pointer' }}>
-                  <UserX size={17} />
-                </motion.button>
-              )}
-            </>
-          )}
-
-        </div>
 
         {/* ── Mobile chat floating overlay ── */}
         <AnimatePresence>
@@ -2100,7 +2008,7 @@ export default function ChatPage() {
               transition={{ duration: 0.2, ease: 'easeOut' }}
               style={{
                 position: 'fixed',
-                bottom: 100,
+                bottom: 80,
                 left: 16,
                 right: 16,
                 maxHeight: 400,
