@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'f
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
   MessageSquare, X, ChevronRight, Shield, ShieldCheck, Loader2, Ban, UserX, UserPlus, Camera, Crown, Zap, Edit2,
+  ChevronDown, Lock, Globe,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -161,6 +162,25 @@ function AnimatedDots() {
   )
 }
 
+const CHAT_COUNTRIES = [
+  'Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan',
+  'Bahrain','Bangladesh','Belgium','Bolivia','Bosnia & Herzegovina','Brazil','Bulgaria',
+  'Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cuba',
+  'Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','El Salvador','Ethiopia',
+  'Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Haiti','Honduras',
+  'Hong Kong','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy',
+  'Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Kyrgyzstan','Laos','Lebanon',
+  'Libya','Lithuania','Malaysia','Mali','Mexico','Moldova','Mongolia','Morocco','Mozambique',
+  'Myanmar','Nepal','Netherlands','New Zealand','Nigeria','North Macedonia','Norway','Oman',
+  'Pakistan','Panama','Papua New Guinea','Paraguay','Peru','Philippines','Poland','Portugal',
+  'Puerto Rico','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia',
+  'Sierra Leone','Singapore','Slovakia','Somalia','South Africa','South Korea','South Sudan',
+  'Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Tajikistan','Tanzania',
+  'Thailand','Tunisia','Turkey','Turkmenistan','Uganda','Ukraine','United Arab Emirates',
+  'United Kingdom','United States','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen',
+  'Zambia','Zimbabwe',
+]
+
 const REPORT_REASONS = [
   { id: 'nudity',     label: '🔞 Nudity / Sexual content' },
   { id: 'harassment', label: '😤 Harassment or bullying' },
@@ -229,6 +249,11 @@ export default function ChatPage() {
   const [tipIdx,           setTipIdx]           = useState(0)
   const [giftAnimations,   setGiftAnimations]   = useState([])   // [{id, emoji}]
   const [partnerCountry,   setPartnerCountry]   = useState(null)
+  const [chatFilterGender,  setChatFilterGender]  = useState(prefs.filterGender === 'male' || prefs.filterGender === 'female' ? prefs.filterGender : 'both')
+  const [chatFilterCountry, setChatFilterCountry] = useState(prefs.filterCountry || '')
+  const [showGenderDrop,    setShowGenderDrop]    = useState(false)
+  const [showChatCountryDrop, setShowChatCountryDrop] = useState(false)
+  const [chatCountrySearch, setChatCountrySearch] = useState('')
 
   const searchTimerRef   = useRef(null)
   const searchTextTimer  = useRef(null)
@@ -757,6 +782,21 @@ export default function ChatPage() {
     setStatus('searching')
     socketRef.current?.emit('skip')
     if (socketRef.current?.connected) findMatch(socketRef.current)
+  }
+
+  const handleChatGender = (val) => {
+    if (val !== 'both' && !user?.isPremium && !user?.isVip) { navigate('/subscription'); return }
+    setChatFilterGender(val)
+    prefsRef.current = { ...prefsRef.current, filterGender: val === 'both' ? null : val }
+    setShowGenderDrop(false)
+  }
+
+  const handleChatCountry = (val) => {
+    if (!user?.isVip) { navigate('/subscription'); return }
+    setChatFilterCountry(val)
+    prefsRef.current = { ...prefsRef.current, filterCountry: val }
+    setShowChatCountryDrop(false)
+    setChatCountrySearch('')
   }
 
   const sendReaction = (emoji) => {
@@ -1961,29 +2001,109 @@ export default function ChatPage() {
           </div>
           )}
           </div>
+          {/* Gender dropdown above bar */}
+          <AnimatePresence>
+            {showGenderDrop && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.14 }}
+                style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-220px)', zIndex: 60, background: 'rgba(13,13,24,0.97)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(0,212,255,0.18)', borderRadius: 14, overflow: 'hidden', minWidth: 160, boxShadow: '0 -8px 32px rgba(0,0,0,0.5)' }}>
+                {[['Both', 'both', true], ['Male', 'male', false], ['Female', 'female', false]].map(([label, val, free]) => (
+                  <button key={val} onClick={() => handleChatGender(val)}
+                    style={{ width: '100%', textAlign: 'left', padding: '11px 16px', background: chatFilterGender === val ? 'rgba(0,212,255,0.15)' : 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: chatFilterGender === val ? '#00D4FF' : 'rgba(255,255,255,0.75)', fontWeight: chatFilterGender === val ? 700 : 400, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, transition: 'background 100ms' }}
+                    onMouseEnter={e => { if (chatFilterGender !== val) e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+                    onMouseLeave={e => { if (chatFilterGender !== val) e.currentTarget.style.background = 'transparent' }}>
+                    {label}
+                    {!free && !user?.isPremium && !user?.isVip && <Lock size={11} style={{ opacity: 0.4, flexShrink: 0 }} />}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Country dropdown above bar */}
+          <AnimatePresence>
+            {showChatCountryDrop && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.14 }}
+                style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-60px)', zIndex: 60, background: 'rgba(13,13,24,0.97)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(0,212,255,0.18)', borderRadius: 14, overflow: 'hidden', width: 220, boxShadow: '0 -8px 32px rgba(0,0,0,0.5)' }}>
+                <div style={{ padding: '8px 10px 6px', borderBottom: '1px solid rgba(0,212,255,0.1)' }}>
+                  <input autoFocus value={chatCountrySearch} onChange={e => setChatCountrySearch(e.target.value)}
+                    placeholder="Search country..."
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(0,212,255,0.14)', outline: 'none', color: 'white', fontSize: 12, padding: '6px 10px', borderRadius: 8, letterSpacing: '-0.01em' }} />
+                </div>
+                <div style={{ overflowY: 'auto', maxHeight: 200 }}>
+                  {!chatCountrySearch && (
+                    <button onClick={() => handleChatCountry('')}
+                      style={{ width: '100%', textAlign: 'left', padding: '9px 14px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 12, color: chatFilterCountry === '' ? '#00D4FF' : 'rgba(130,160,255,0.6)', fontWeight: chatFilterCountry === '' ? 700 : 400, display: 'flex', alignItems: 'center', gap: 8 }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,212,255,0.1)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
+                      <Globe size={11} style={{ flexShrink: 0 }} /> Any country
+                    </button>
+                  )}
+                  {CHAT_COUNTRIES.filter(c => c.toLowerCase().includes(chatCountrySearch.toLowerCase())).map(c => (
+                    <button key={c} onClick={() => handleChatCountry(c)}
+                      style={{ width: '100%', textAlign: 'left', padding: '8px 14px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 12, color: chatFilterCountry === c ? 'white' : 'rgba(200,215,255,0.65)', fontWeight: chatFilterCountry === c ? 700 : 400, transition: 'background 100ms' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,212,255,0.1)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Desktop bottom bar */}
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 64, background: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50 }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 64, background: 'rgba(10,10,20,0.9)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50 }}>
+            {/* Left: Report */}
             <motion.button
               onClick={() => status === 'matched' && !reportSent && setShowReport(true)}
               whileHover={!reportSent && status === 'matched' ? { background: 'rgba(255,255,255,0.12)' } : {}}
               whileTap={!reportSent && status === 'matched' ? { scale: 0.93 } : {}}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 22px', borderRadius: 50, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: !reportSent && status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
-              {reportSent ? <><ShieldCheck size={14} style={{ marginRight: 6 }} />Reported</> : <><Flag size={14} />Report</>}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 50, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: !reportSent && status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
+              {reportSent ? <><ShieldCheck size={13} style={{ marginRight: 4 }} />Reported</> : <><Flag size={13} />Report</>}
             </motion.button>
-            <motion.button
-              onClick={status === 'matched' ? handleSkip : undefined}
-              whileHover={status === 'matched' ? { scale: 1.04 } : {}}
-              whileTap={status === 'matched' ? { scale: 0.93 } : {}}
-              style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '11px 44px', borderRadius: 50, background: status === 'matched' ? '#00D4FF' : 'rgba(0,212,255,0.1)', color: status === 'matched' ? '#0a0a0f' : 'rgba(0,212,255,0.3)', fontSize: 15, fontWeight: 800, border: 'none', cursor: status === 'matched' ? 'pointer' : 'default', boxShadow: status === 'matched' ? '0 0 28px rgba(0,212,255,0.4)' : 'none', transition: 'all 150ms ease' }}>
-              <SkipForward size={16} />
-              Skip
-            </motion.button>
+
+            {/* Center group: Gender + Country + Skip */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {/* Gender */}
+              <motion.button
+                onClick={() => { setShowGenderDrop(v => !v); setShowChatCountryDrop(false) }}
+                whileTap={{ scale: 0.95 }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 50, background: chatFilterGender !== 'both' ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: chatFilterGender !== 'both' ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.10)', color: chatFilterGender !== 'both' ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease' }}>
+                {chatFilterGender === 'both' ? 'Both' : chatFilterGender === 'male' ? 'Male' : 'Female'}
+                <ChevronDown size={12} style={{ transition: 'transform 150ms', transform: showGenderDrop ? 'rotate(180deg)' : 'none', flexShrink: 0 }} />
+              </motion.button>
+
+              {/* Country */}
+              <motion.button
+                onClick={() => { setShowChatCountryDrop(v => !v); setShowGenderDrop(false) }}
+                whileTap={{ scale: 0.95 }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 50, background: chatFilterCountry ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: chatFilterCountry ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.10)', color: chatFilterCountry ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease', whiteSpace: 'nowrap' }}>
+                {user?.isVip ? <Globe size={12} style={{ flexShrink: 0 }} /> : <Lock size={12} style={{ opacity: 0.5, flexShrink: 0 }} />}
+                {chatFilterCountry || 'Any Country'}
+                <ChevronDown size={12} style={{ transition: 'transform 150ms', transform: showChatCountryDrop ? 'rotate(180deg)' : 'none', flexShrink: 0 }} />
+              </motion.button>
+
+              {/* Skip */}
+              <motion.button
+                onClick={status === 'matched' ? handleSkip : undefined}
+                whileHover={status === 'matched' ? { scale: 1.04 } : {}}
+                whileTap={status === 'matched' ? { scale: 0.93 } : {}}
+                style={{ padding: '10px 28px', borderRadius: 50, background: status === 'matched' ? '#00D4FF' : 'rgba(0,212,255,0.1)', color: status === 'matched' ? '#0a0a0f' : 'rgba(0,212,255,0.3)', fontSize: 14, fontWeight: 700, border: 'none', cursor: status === 'matched' ? 'pointer' : 'default', boxShadow: status === 'matched' ? '0 0 24px rgba(0,212,255,0.4)' : 'none', transition: 'all 150ms ease' }}>
+                Skip
+              </motion.button>
+            </div>
+
+            {/* Right: Chat */}
             <motion.button
               onClick={toggleChat}
               whileHover={{ background: showChat ? 'rgba(0,212,255,0.22)' : 'rgba(255,255,255,0.12)' }}
               whileTap={{ scale: 0.93 }}
-              style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6, padding: '9px 22px', borderRadius: 50, background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.10)', color: showChat ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease' }}>
-              <MessageSquare size={14} />
+              style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 50, background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.10)', color: showChat ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease' }}>
+              <MessageSquare size={13} />
               Chat
               {unread > 0 && !showChat && (
                 <span style={{ position: 'absolute', top: -3, right: -3, width: 8, height: 8, background: '#00D4FF', borderRadius: '50%' }} />
