@@ -1852,17 +1852,6 @@ export default function ChatPage() {
                   </div>
                 )}
 
-                {/* Coins/tip — top left, below partner pill */}
-                {user && status === 'matched' && (
-                  <motion.button
-                    onClick={() => setShowTip(true)}
-                    whileHover={{ background: 'rgba(255,255,255,0.10)' }}
-                    whileTap={{ scale: 0.93 }}
-                    style={{ position: 'absolute', top: 60, left: 16, zIndex: 10, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', transition: 'background 150ms ease' }}>
-                    <VybeCoin size={14} />
-                    <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>{coins.toLocaleString()}</span>
-                  </motion.button>
-                )}
 
                 {/* Bottom fade */}
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 80, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
@@ -2007,15 +1996,14 @@ export default function ChatPage() {
               <motion.div
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
                 transition={{ duration: 0.14 }}
-                style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-220px)', zIndex: 60, background: 'rgba(13,13,24,0.97)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(0,212,255,0.18)', borderRadius: 14, overflow: 'hidden', minWidth: 160, boxShadow: '0 -8px 32px rgba(0,0,0,0.5)' }}>
+                style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-220px)', zIndex: 9999, background: 'rgb(16,16,28)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 14, overflow: 'hidden', minWidth: 160, boxShadow: '0 -12px 40px rgba(0,0,0,0.7)' }}>
                 {[['Both', 'both', true], ['Male', 'male', false], ['Female', 'female', false]].map(([label, val, free]) => (
-                  <button key={val} onClick={() => handleChatGender(val)}
-                    style={{ width: '100%', textAlign: 'left', padding: '11px 16px', background: chatFilterGender === val ? 'rgba(0,212,255,0.15)' : 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: chatFilterGender === val ? '#00D4FF' : 'rgba(255,255,255,0.75)', fontWeight: chatFilterGender === val ? 700 : 400, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, transition: 'background 100ms' }}
-                    onMouseEnter={e => { if (chatFilterGender !== val) e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
-                    onMouseLeave={e => { if (chatFilterGender !== val) e.currentTarget.style.background = 'transparent' }}>
+                  <motion.button key={val} onClick={() => handleChatGender(val)}
+                    whileHover={{ background: chatFilterGender === val ? 'rgba(0,212,255,0.2)' : 'rgba(255,255,255,0.08)' }}
+                    style={{ width: '100%', textAlign: 'left', padding: '11px 16px', background: chatFilterGender === val ? 'rgba(0,212,255,0.15)' : 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: chatFilterGender === val ? '#00D4FF' : 'rgba(255,255,255,0.8)', fontWeight: chatFilterGender === val ? 700 : 400, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                     {label}
                     {!free && !user?.isPremium && !user?.isVip && <Lock size={11} style={{ opacity: 0.4, flexShrink: 0 }} />}
-                  </button>
+                  </motion.button>
                 ))}
               </motion.div>
             )}
@@ -2027,28 +2015,26 @@ export default function ChatPage() {
               <motion.div
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
                 transition={{ duration: 0.14 }}
-                style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-60px)', zIndex: 60, background: 'rgba(13,13,24,0.97)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(0,212,255,0.18)', borderRadius: 14, overflow: 'hidden', width: 220, boxShadow: '0 -8px 32px rgba(0,0,0,0.5)' }}>
+                style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-60px)', zIndex: 9999, background: 'rgb(16,16,28)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 14, overflow: 'hidden', width: 220, boxShadow: '0 -12px 40px rgba(0,0,0,0.7)' }}>
                 <div style={{ padding: '8px 10px 6px', borderBottom: '1px solid rgba(0,212,255,0.1)' }}>
                   <input autoFocus value={chatCountrySearch} onChange={e => setChatCountrySearch(e.target.value)}
                     placeholder="Search country..."
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(0,212,255,0.14)', outline: 'none', color: 'white', fontSize: 12, padding: '6px 10px', borderRadius: 8, letterSpacing: '-0.01em' }} />
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(0,212,255,0.14)', outline: 'none', color: 'white', fontSize: 12, padding: '6px 10px', borderRadius: 8, letterSpacing: '-0.01em' }} />
                 </div>
                 <div style={{ overflowY: 'auto', maxHeight: 200 }}>
                   {!chatCountrySearch && (
-                    <button onClick={() => handleChatCountry('')}
-                      style={{ width: '100%', textAlign: 'left', padding: '9px 14px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 12, color: chatFilterCountry === '' ? '#00D4FF' : 'rgba(130,160,255,0.6)', fontWeight: chatFilterCountry === '' ? 700 : 400, display: 'flex', alignItems: 'center', gap: 8 }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,212,255,0.1)' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
+                    <motion.button onClick={() => handleChatCountry('')}
+                      whileHover={{ background: 'rgba(0,212,255,0.1)' }}
+                      style={{ width: '100%', textAlign: 'left', padding: '9px 14px', background: chatFilterCountry === '' ? 'rgba(0,212,255,0.12)' : 'transparent', border: 'none', cursor: 'pointer', fontSize: 12, color: chatFilterCountry === '' ? '#00D4FF' : 'rgba(160,180,255,0.7)', fontWeight: chatFilterCountry === '' ? 700 : 400, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Globe size={11} style={{ flexShrink: 0 }} /> Any country
-                    </button>
+                    </motion.button>
                   )}
                   {CHAT_COUNTRIES.filter(c => c.toLowerCase().includes(chatCountrySearch.toLowerCase())).map(c => (
-                    <button key={c} onClick={() => handleChatCountry(c)}
-                      style={{ width: '100%', textAlign: 'left', padding: '8px 14px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 12, color: chatFilterCountry === c ? 'white' : 'rgba(200,215,255,0.65)', fontWeight: chatFilterCountry === c ? 700 : 400, transition: 'background 100ms' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,212,255,0.1)' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
+                    <motion.button key={c} onClick={() => handleChatCountry(c)}
+                      whileHover={{ background: 'rgba(0,212,255,0.1)' }}
+                      style={{ width: '100%', textAlign: 'left', padding: '8px 14px', background: chatFilterCountry === c ? 'rgba(0,212,255,0.12)' : 'transparent', border: 'none', cursor: 'pointer', fontSize: 12, color: chatFilterCountry === c ? 'white' : 'rgba(200,215,255,0.7)', fontWeight: chatFilterCountry === c ? 700 : 400 }}>
                       {c}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </motion.div>
@@ -2057,7 +2043,17 @@ export default function ChatPage() {
 
           {/* Desktop bottom bar */}
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 64, background: 'rgba(10,10,20,0.9)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50 }}>
-            {/* Left: Report */}
+            {/* Far left: Coins */}
+            <motion.button
+              onClick={() => setShowTip(true)}
+              whileHover={{ background: 'rgba(255,255,255,0.10)' }}
+              whileTap={{ scale: 0.93 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 50, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', cursor: 'pointer', transition: 'background 150ms ease' }}>
+              <VybeCoin size={14} style={{ color: '#00D4FF' }} />
+              <span style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>{coins.toLocaleString()}</span>
+            </motion.button>
+
+            {/* Report */}
             <motion.button
               onClick={() => status === 'matched' && !reportSent && setShowReport(true)}
               whileHover={!reportSent && status === 'matched' ? { background: 'rgba(255,255,255,0.12)' } : {}}
