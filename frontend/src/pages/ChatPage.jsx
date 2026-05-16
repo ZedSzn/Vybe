@@ -1774,6 +1774,7 @@ export default function ChatPage() {
                     <span className="text-white font-bold text-[11px] leading-none">{user ? user.username : 'You'}</span>
                     <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
                   </div>
+                  </div>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
               </div>
