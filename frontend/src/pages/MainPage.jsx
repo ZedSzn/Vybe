@@ -1300,7 +1300,11 @@ export default function MainPage() {
             position: 'relative', overflow: 'hidden',
             width: '100%', aspectRatio: '3/4', maxHeight: 'calc(100vh - 200px)', borderRadius: 28,
             background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            border: 'none', outline: 'none', boxShadow: 'none',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)',
+            WebkitMaskComposite: 'destination-in',
+            maskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)',
+            maskComposite: 'intersect',
           }}>
             <style>{`
               @keyframes lightDrift {
