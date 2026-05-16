@@ -270,6 +270,7 @@ export default function ChatPage() {
   const [showChat,         setShowChat]         = useState(false)
   const [isMuted,          setIsMuted]          = useState(false)
   const [videoOff,         setVideoOff]         = useState(false)
+  const [cameraReady,      setCameraReady]      = useState(false)
   const [showReport,       setShowReport]       = useState(false)
   const [reportSent,       setReportSent]       = useState(false)
   const [elapsed,          setElapsed]          = useState(0)
@@ -577,66 +578,6 @@ export default function ChatPage() {
   useEffect(() => {
     let mounted = true
 
-    // Build a processed video stream with the chosen background composited in.
-    // Returns the canvas-captured stream, or null to fall back to the raw camera.
-    const setupVirtualBg = async (rawStream, preset, bgImageData) => {
-      try {
-        const SelfieSegmentation = await loadSelfieSegmentation()
-        if (!mounted) return null
-
-        if (preset.type === 'custom' && bgImageData) {
-          const img = new Image()
-          img.src = bgImageData
-          await new Promise((res) => { img.onload = res; img.onerror = res })
-          bgImgRef.current = img
-        }
-
-        const segVideo = document.createElement('video')
-        segVideo.muted = true
-        segVideo.playsInline = true
-        segVideo.srcObject = rawStream
-        await segVideo.play().catch(() => {})
-        segVideoRef.current = segVideo
-
-        const settings = rawStream.getVideoTracks()[0]?.getSettings?.() || {}
-        const canvas = document.createElement('canvas')
-        canvas.width  = settings.width  || 640
-        canvas.height = settings.height || 480
-        segCanvasRef.current = canvas
-        const ctx = canvas.getContext('2d')
-
-        const seg = new SelfieSegmentation({
-          locateFile: (f) => `${MEDIAPIPE_BASE}/${f}`,
-        })
-        seg.setOptions({ modelSelection: 1, selfieMode: false })
-        seg.onResults((results) => {
-          if (segCanvasRef.current) compositeFrame(ctx, segCanvasRef.current, results, preset, bgImgRef.current)
-        })
-        segRef.current = seg
-
-        const tick = async () => {
-          if (!mounted) return
-          const v = segVideoRef.current
-          if (v && v.readyState >= 2 && !segBusyRef.current) {
-            segBusyRef.current = true
-            try { await seg.send({ image: v }) } catch { /* transient */ }
-            segBusyRef.current = false
-          }
-          segRafRef.current = requestAnimationFrame(tick)
-        }
-        segRafRef.current = requestAnimationFrame(tick)
-
-        const outStream = canvas.captureStream(30)
-        const audioTrack = rawStream.getAudioTracks()[0]
-        if (audioTrack) outStream.addTrack(audioTrack)
-        return outStream
-      } catch (e) {
-        console.warn('[Vybe] Virtual background unavailable, using raw camera:', e?.message || e)
-        if (segRafRef.current) { cancelAnimationFrame(segRafRef.current); segRafRef.current = null }
-        return null
-      }
-    }
-
     const init = async () => {
       // Try video+audio with progressively simpler constraints, then audio-only, then nothing.
       let stream = null
@@ -667,22 +608,19 @@ export default function ChatPage() {
       setHasCamera(camAvailable)
       if (stream) {
         rawStreamRef.current = stream
-        let displayStream = stream
-        const preset = getCameraBgPreset(user?.cameraBackground || 'none')
-        if (camAvailable && preset.id !== 'none') {
-          const processed = await setupVirtualBg(stream, preset, user?.cameraBackgroundImage || '')
-          if (processed && mounted) displayStream = processed
-        }
-        if (!mounted) { stream.getTracks().forEach((t) => t.stop()); return }
-        localStreamRef.current = displayStream
+        // Separate stream object for what we display/send — lets the virtual
+        // background swap the video track without disturbing the raw camera
+        // that feeds the segmentation pipeline.
+        localStreamRef.current = new MediaStream(stream.getTracks())
         if (localVideoRef.current) {
-          localVideoRef.current.srcObject = displayStream
+          localVideoRef.current.srcObject = localStreamRef.current
           localVideoRef.current.play().catch(() => {})
         }
         if (localVideoDesktopRef.current) {
-          localVideoDesktopRef.current.srcObject = displayStream
+          localVideoDesktopRef.current.srcObject = localStreamRef.current
           localVideoDesktopRef.current.play().catch(() => {})
         }
+        if (mounted) setCameraReady(true)
       }
 
       // Progress past 'init' immediately — don't wait for socket to connect.
@@ -887,6 +825,106 @@ export default function ChatPage() {
       clearTimeout(matchFlashTimer.current)
     }
   }, []) // eslint-disable-line
+
+  // ─── Virtual camera background ─────────────────────────────────────────────
+  // State-driven so it activates whenever the camera is ready AND the user's
+  // chosen background is known — independent of mount-time ordering.
+  useEffect(() => {
+    const preset = getCameraBgPreset(user?.cameraBackground || 'none')
+    if (!cameraReady || preset.id === 'none') return
+    if (!rawStreamRef.current?.getVideoTracks?.().length) return
+
+    let cancelled = false
+
+    const start = async () => {
+      try {
+        console.log(`[Vybe] camera background: initializing (${preset.id})…`)
+        const SelfieSegmentation = await loadSelfieSegmentation()
+        if (cancelled) return
+        console.log('[Vybe] camera background: MediaPipe loaded')
+
+        let bgImg = null
+        if (preset.type === 'custom' && user?.cameraBackgroundImage) {
+          bgImg = new Image()
+          bgImg.src = user.cameraBackgroundImage
+          await new Promise((res) => { bgImg.onload = res; bgImg.onerror = res })
+          if (cancelled) return
+        }
+        bgImgRef.current = bgImg
+
+        const segVideo = document.createElement('video')
+        segVideo.muted = true
+        segVideo.playsInline = true
+        segVideo.srcObject = rawStreamRef.current
+        await segVideo.play().catch(() => {})
+        segVideoRef.current = segVideo
+
+        const settings = rawStreamRef.current.getVideoTracks()[0]?.getSettings?.() || {}
+        const canvas = document.createElement('canvas')
+        canvas.width  = settings.width  || 640
+        canvas.height = settings.height || 480
+        segCanvasRef.current = canvas
+        const ctx = canvas.getContext('2d')
+
+        // Swap the raw camera track for the composited canvas track — done on
+        // the first rendered frame so viewers never see a blank panel.
+        let swapped = false
+        const swapInProcessedTrack = () => {
+          if (swapped || cancelled) return
+          swapped = true
+          const canvasStream = canvas.captureStream(30)
+          const canvasTrack  = canvasStream.getVideoTracks()[0]
+          if (!canvasTrack) return
+          const ls = localStreamRef.current
+          const rawVideoTrack = ls?.getVideoTracks()[0]
+          if (ls) {
+            ls.getVideoTracks().forEach((t) => ls.removeTrack(t))
+            ls.addTrack(canvasTrack)
+          }
+          Object.values(peersRef.current).forEach((peer) => {
+            try { peer.replaceTrack(rawVideoTrack, canvasTrack, ls) } catch { /* no sender yet */ }
+          })
+          if (localVideoRef.current)        localVideoRef.current.srcObject        = ls
+          if (localVideoDesktopRef.current) localVideoDesktopRef.current.srcObject = ls
+          console.log('[Vybe] camera background: active')
+        }
+
+        const seg = new SelfieSegmentation({ locateFile: (f) => `${MEDIAPIPE_BASE}/${f}` })
+        seg.setOptions({ modelSelection: 1 })
+        seg.onResults((results) => {
+          if (cancelled || !segCanvasRef.current) return
+          compositeFrame(ctx, segCanvasRef.current, results, preset, bgImgRef.current)
+          swapInProcessedTrack()
+        })
+        segRef.current = seg
+
+        const tick = async () => {
+          if (cancelled) return
+          const v = segVideoRef.current
+          if (v && v.readyState >= 2 && !segBusyRef.current) {
+            segBusyRef.current = true
+            try { await seg.send({ image: v }) } catch { /* transient */ }
+            segBusyRef.current = false
+          }
+          segRafRef.current = requestAnimationFrame(tick)
+        }
+        segRafRef.current = requestAnimationFrame(tick)
+      } catch (e) {
+        console.warn('[Vybe] Virtual background failed:', e?.message || e)
+      }
+    }
+
+    start()
+
+    return () => {
+      cancelled = true
+      if (segRafRef.current) { cancelAnimationFrame(segRafRef.current); segRafRef.current = null }
+      try { segRef.current?.close() } catch { /* ignore */ }
+      segRef.current = null
+      segVideoRef.current = null
+      segCanvasRef.current = null
+    }
+  }, [cameraReady, user?.cameraBackground, user?.cameraBackgroundImage])
 
   const flipCamera = async () => {
     const newFacing = facingMode === 'user' ? 'environment' : 'user'
