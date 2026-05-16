@@ -2215,6 +2215,7 @@ app.post('/api/subscription/trial', authMiddleware, async (req, res) => {
         quantity: 1,
       }],
       subscription_data: { trial_period_days: 7 },
+      payment_method_collection: 'always',
       metadata: { userId: String(user._id), purchaseType: 'subscription', plan: 'vip', isTrial: 'true' },
       success_url: `${CLIENT_URL}/subscription?trial_success=true`,
       cancel_url:  `${CLIENT_URL}/`,

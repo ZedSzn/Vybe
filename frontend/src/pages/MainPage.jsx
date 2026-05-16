@@ -803,7 +803,8 @@ export default function MainPage() {
                     const res = await axios.post('/api/subscription/trial', {}, { headers: { Authorization: `Bearer ${token}` } })
                     if (res.data.url) window.location.href = res.data.url
                   } catch (e) {
-                    alert(e?.response?.data?.error || 'Could not start trial. Try again.')
+                    const msg = e?.response?.data?.error || e?.response?.data?.message || e?.message || 'Could not start trial. Try again.'
+                    alert(msg)
                   }
                 }}
                 style={{ width: '100%', padding: '13px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
@@ -1192,7 +1193,8 @@ export default function MainPage() {
                         const res = await axios.post('/api/subscription/trial', {}, { headers: { Authorization: `Bearer ${token}` } })
                         if (res.data.url) window.location.href = res.data.url
                       } catch (e) {
-                        alert(e?.response?.data?.error || 'Could not start trial. Try again.')
+                        const msg = e?.response?.data?.error || e?.response?.data?.message || e?.message || 'Could not start trial. Try again.'
+                        alert(msg)
                       }
                     }}
                     style={{ padding: '12px 24px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
