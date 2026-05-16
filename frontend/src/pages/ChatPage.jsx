@@ -1088,7 +1088,7 @@ export default function ChatPage() {
           {showTip && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 flex items-end justify-center px-4"
-              style={{ background: 'rgba(0,0,0,0.75)', paddingBottom: '24px' }} onClick={() => setShowTip(false)}>
+              style={{ background: 'rgba(0,0,0,0.75)', paddingBottom: '80px' }} onClick={() => setShowTip(false)}>
               <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-sm p-5"
                 style={{ background: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 20 }}>
