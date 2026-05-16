@@ -1332,6 +1332,17 @@ export default function ChatPage() {
                   />
                   {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                  {(!hasCamera || videoOff) && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ zIndex: 5 }}>
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
+                      ) : (
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, color: '#00D4FF' }}>
+                          {user?.username?.[0]?.toUpperCase() || 'Y'}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
                     <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
                       <span className="text-white/75 font-semibold text-[9px]">{user ? user.username : 'You'}</span>
@@ -1907,6 +1918,18 @@ export default function ChatPage() {
                     <video ref={localVideoDesktopRef} autoPlay muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                     {!hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
                     {videoOff && hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)' }} />}
+                    {(!hasCamera || videoOff) && (
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 5 }}>
+                        {user?.avatar ? (
+                          <img src={user.avatar} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 32px rgba(0,212,255,0.12)' }} />
+                        ) : (
+                          <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#00D4FF' }}>
+                            {user?.username?.[0]?.toUpperCase() || 'Y'}
+                          </div>
+                        )}
+                        <p style={{ fontSize: 11, fontWeight: 700, color: 'white', margin: 0 }}>{user?.username || 'You'}</p>
+                      </div>
+                    )}
                     <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
                       <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
                         {user?.avatar ? (
