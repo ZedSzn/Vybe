@@ -1313,13 +1313,23 @@ export default function MainPage() {
                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
                   {(!cameraOn || cameraErr) && (
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                      <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Camera size={16} style={{ color: 'rgba(0,212,255,0.45)' }} />
-                      </div>
-                      <motion.button onClick={enableCamera} whileTap={{ scale: 0.95 }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 99, background: 'rgba(13,13,24,0.8)', border: '1px solid rgba(0,212,255,0.25)', color: 'rgba(255,255,255,0.7)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                        <Camera size={11} />{cameraErr ? 'Try Again' : 'Enable Camera'}
-                      </motion.button>
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 32px rgba(0,212,255,0.12)' }} />
+                      ) : user ? (
+                        <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#00D4FF' }}>
+                          {user?.username?.[0]?.toUpperCase() || 'Y'}
+                        </div>
+                      ) : (
+                        <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Camera size={16} style={{ color: 'rgba(0,212,255,0.45)' }} />
+                        </div>
+                      )}
+                      {!cameraErr && (
+                        <motion.button onClick={enableCamera} whileTap={{ scale: 0.95 }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 99, background: 'rgba(13,13,24,0.8)', border: '1px solid rgba(0,212,255,0.25)', color: 'rgba(255,255,255,0.7)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                          <Camera size={11} />Enable Camera
+                        </motion.button>
+                      )}
                     </div>
                   )}
                   {/* Bottom fade */}
