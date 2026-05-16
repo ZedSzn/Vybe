@@ -1763,10 +1763,9 @@ export default function ChatPage() {
                         {user?.username?.[0]?.toUpperCase() || 'Y'}
                       </div>
                     )}
-                    <div style={{ textAlign: 'center' }}>
-                      <p style={{ color: 'white', fontWeight: 700, fontSize: 14, marginBottom: 3, lineHeight: 1 }}>{user?.username || 'You'}</p>
-                      {user?.country && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4, lineHeight: 1 }}>{user.country}</p>}
-                    </div>
+                    {user?.country && (
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, lineHeight: 1, textAlign: 'center' }}>{user.country}</p>
+                    )}
                   </div>
                 )}
                 <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
@@ -1980,7 +1979,6 @@ export default function ChatPage() {
                             {user?.username?.[0]?.toUpperCase() || 'Y'}
                           </div>
                         )}
-                        <p style={{ fontSize: 11, fontWeight: 700, color: 'white', margin: 0 }}>{user?.username || 'You'}</p>
                       </div>
                     )}
                     <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
@@ -2060,10 +2058,9 @@ export default function ChatPage() {
                           {user?.username ? user.username[0].toUpperCase() : 'Y'}
                         </div>
                       )}
-                      <div style={{ textAlign: 'center' }}>
-                        <p style={{ color: 'white', fontWeight: 700, fontSize: 16, marginBottom: 3, lineHeight: 1 }}>{user?.username || 'You'}</p>
-                        {user?.country && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4, lineHeight: 1 }}>{user.country}</p>}
-                      </div>
+                      {user?.country && (
+                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, lineHeight: 1, textAlign: 'center' }}>{user.country}</p>
+                      )}
                     </div>
                   )}
 
