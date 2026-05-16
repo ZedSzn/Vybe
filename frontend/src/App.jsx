@@ -263,7 +263,7 @@ function AppRoutes() {
         <BanModal info={bannedInfo} onDismiss={handleBanDismiss} />
       )}
 
-      <Suspense fallback={<PageLoader />}>
+      <Suspense fallback={null}>
         <Routes>
           {/* Eager routes */}
           <Route path="/"     element={<MainPage />} />
