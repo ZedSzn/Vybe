@@ -1219,10 +1219,6 @@ export default function ChatPage() {
                     <p style={{ color: 'white', fontWeight: 700, fontSize: 15, marginBottom: 3, lineHeight: 1 }}>{partnerUsername || 'Stranger'}</p>
                     {partnerCountry && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4, lineHeight: 1 }}>{partnerCountry}</p>}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                    <VideoOff size={10} style={{ color: 'rgba(255,255,255,0.25)' }} />
-                    <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 11 }}>Camera off</span>
-                  </div>
                 </>
               ) : null}
             </div>
@@ -1805,10 +1801,6 @@ export default function ChatPage() {
                           <p style={{ color: 'white', fontWeight: 700, fontSize: 16, marginBottom: 3, lineHeight: 1 }}>{partnerUsername || 'Stranger'}</p>
                           {partnerCountry && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4, lineHeight: 1 }}>{partnerCountry}</p>}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                          <VideoOff size={11} style={{ color: 'rgba(255,255,255,0.25)' }} />
-                          <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 11 }}>Camera off</span>
-                        </div>
                       </>
                     ) : null}
                   </div>
@@ -1990,10 +1982,6 @@ export default function ChatPage() {
                       <div style={{ textAlign: 'center' }}>
                         <p style={{ color: 'white', fontWeight: 700, fontSize: 16, marginBottom: 3, lineHeight: 1 }}>{user?.username || 'You'}</p>
                         {user?.country && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4, lineHeight: 1 }}>{user.country}</p>}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                        <VideoOff size={11} style={{ color: 'rgba(255,255,255,0.25)' }} />
-                        <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 11 }}>Camera off</span>
                       </div>
                     </div>
                   )}
