@@ -261,6 +261,7 @@ export default function ChatPage() {
   const [isMuted,          setIsMuted]          = useState(false)
   const [videoOff,         setVideoOff]         = useState(false)
   const [cameraReady,      setCameraReady]      = useState(false)
+  const [vbgStatus,        setVbgStatus]        = useState('idle') // idle|loading|active|failed
   const [showReport,       setShowReport]       = useState(false)
   const [reportSent,       setReportSent]       = useState(false)
   const [elapsed,          setElapsed]          = useState(0)
@@ -821,17 +822,26 @@ export default function ChatPage() {
   // chosen background is known — independent of mount-time ordering.
   useEffect(() => {
     const preset = getCameraBgPreset(user?.cameraBackground || 'none')
-    if (!cameraReady || preset.id === 'none') return
+    if (!cameraReady || preset.id === 'none') { setVbgStatus('idle'); return }
     if (!rawStreamRef.current?.getVideoTracks?.().length) return
 
     let cancelled = false
+    let swapped   = false
+    setVbgStatus('loading')
+    console.log(`[Vybe] camera background: initializing (${preset.id})…`)
+
+    const watchdog = setTimeout(() => {
+      if (!cancelled && !swapped) {
+        console.warn('[Vybe] camera background: no rendered frame after 15s')
+        setVbgStatus('failed')
+      }
+    }, 15000)
 
     const start = async () => {
       try {
-        console.log(`[Vybe] camera background: initializing (${preset.id})…`)
         const SelfieSegmentation = await loadSelfieSegmentation()
         if (cancelled) return
-        console.log('[Vybe] camera background: MediaPipe loaded')
+        console.log('[Vybe] camera background: MediaPipe script loaded')
 
         let bgImg = null
         if (preset.type === 'custom' && user?.cameraBackgroundImage) {
@@ -842,10 +852,14 @@ export default function ChatPage() {
         }
         bgImgRef.current = bgImg
 
+        // Hidden but DOM-attached so the browser reliably decodes its frames.
         const segVideo = document.createElement('video')
         segVideo.muted = true
         segVideo.playsInline = true
+        segVideo.autoplay = true
+        segVideo.style.cssText = 'position:fixed;width:2px;height:2px;opacity:0;pointer-events:none;top:0;left:0;z-index:-1'
         segVideo.srcObject = rawStreamRef.current
+        document.body.appendChild(segVideo)
         await segVideo.play().catch(() => {})
         segVideoRef.current = segVideo
 
@@ -858,7 +872,6 @@ export default function ChatPage() {
 
         // Swap the raw camera track for the composited canvas track — done on
         // the first rendered frame so viewers never see a blank panel.
-        let swapped = false
         const swapInProcessedTrack = () => {
           if (swapped || cancelled) return
           swapped = true
@@ -876,6 +889,7 @@ export default function ChatPage() {
           })
           if (localVideoRef.current)        localVideoRef.current.srcObject        = ls
           if (localVideoDesktopRef.current) localVideoDesktopRef.current.srcObject = ls
+          setVbgStatus('active')
           console.log('[Vybe] camera background: active')
         }
 
@@ -888,12 +902,18 @@ export default function ChatPage() {
         })
         segRef.current = seg
 
+        let sendFails = 0
         const tick = async () => {
           if (cancelled) return
           const v = segVideoRef.current
           if (v && v.readyState >= 2 && !segBusyRef.current) {
             segBusyRef.current = true
-            try { await seg.send({ image: v }) } catch { /* transient */ }
+            try {
+              await seg.send({ image: v })
+            } catch (err) {
+              if (++sendFails === 1) console.warn('[Vybe] camera background: seg.send error —', err?.message || err)
+              if (sendFails > 60 && !swapped && !cancelled) setVbgStatus('failed')
+            }
             segBusyRef.current = false
           }
           segRafRef.current = requestAnimationFrame(tick)
@@ -901,6 +921,7 @@ export default function ChatPage() {
         segRafRef.current = requestAnimationFrame(tick)
       } catch (e) {
         console.warn('[Vybe] Virtual background failed:', e?.message || e)
+        if (!cancelled) setVbgStatus('failed')
       }
     }
 
@@ -908,8 +929,10 @@ export default function ChatPage() {
 
     return () => {
       cancelled = true
+      clearTimeout(watchdog)
       if (segRafRef.current) { cancelAnimationFrame(segRafRef.current); segRafRef.current = null }
       try { segRef.current?.close() } catch { /* ignore */ }
+      try { segVideoRef.current?.remove() } catch { /* ignore */ }
       segRef.current = null
       segVideoRef.current = null
       segCanvasRef.current = null
@@ -1196,6 +1219,22 @@ export default function ChatPage() {
 
   return (
     <div className="chat-fullscreen bg-black font-space">
+
+      {/* Camera background status — only shown while a custom background is set */}
+      {vbgStatus !== 'idle' && (
+        <div style={{
+          position: 'fixed', top: 64, left: '50%', transform: 'translateX(-50%)', zIndex: 60,
+          padding: '5px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+          backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+          background: vbgStatus === 'active' ? 'rgba(34,197,94,0.18)' : vbgStatus === 'failed' ? 'rgba(239,68,68,0.2)' : 'rgba(0,212,255,0.15)',
+          border: `1px solid ${vbgStatus === 'active' ? 'rgba(34,197,94,0.5)' : vbgStatus === 'failed' ? 'rgba(239,68,68,0.5)' : 'rgba(0,212,255,0.4)'}`,
+          color: vbgStatus === 'active' ? '#86efac' : vbgStatus === 'failed' ? '#fca5a5' : '#7dd3fc',
+        }}>
+          {vbgStatus === 'loading' && '⏳ Camera background: loading…'}
+          {vbgStatus === 'active'  && '✅ Camera background: on'}
+          {vbgStatus === 'failed'  && '⚠️ Camera background: unavailable'}
+        </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════
           SHARED FIXED OVERLAYS — visible on both mobile and desktop
