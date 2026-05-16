@@ -1295,16 +1295,13 @@ export default function MainPage() {
 
 
           {/* ────────── RIGHT: Camera panel ────────── */}
-          <div className="flex items-center" style={{ flex: '0 0 50%', padding: '32px 44px 32px 16px', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', alignSelf: 'flex-start' }}>
+          <div style={{ flex: '0 0 50%', alignSelf: 'stretch', background: 'transparent' }}>
           <div style={{
             position: 'relative', overflow: 'hidden',
-            width: '100%', aspectRatio: '3/4', maxHeight: 'calc(100vh - 200px)', borderRadius: 28,
+            height: 'calc(100% - 24px)', borderRadius: 20,
+            margin: '12px 12px 12px 8px',
             background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)',
             border: 'none', outline: 'none', boxShadow: 'none',
-            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)',
-            WebkitMaskComposite: 'destination-in',
-            maskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)',
-            maskComposite: 'intersect',
           }}>
             <style>{`
               @keyframes lightDrift {
