@@ -3,6 +3,17 @@ import axios from 'axios'
 
 const AuthContext = createContext(null)
 
+// localStorage has a ~5MB quota; a user object carrying base64 images can
+// exceed it. Persisting is best-effort — the server (/api/user/me) is the
+// source of truth and re-hydrates the user on next load.
+function storeUser(userData) {
+  try {
+    localStorage.setItem('vybe_user', JSON.stringify(userData))
+  } catch {
+    try { localStorage.removeItem('vybe_user') } catch { /* ignore */ }
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user,    setUser]    = useState(null)
   const [token,   setToken]   = useState(null)
@@ -33,7 +44,7 @@ export function AuthProvider({ children }) {
       axios.get('/api/user/me').then(({ data }) => {
         if (data.user) {
           setUser(data.user)
-          localStorage.setItem('vybe_user', JSON.stringify(data.user))
+          storeUser(data.user)
         }
       }).catch(() => {})
     }
@@ -44,7 +55,7 @@ export function AuthProvider({ children }) {
     setUser(userData)
     setToken(tok)
     localStorage.setItem('vybe_token', tok)
-    localStorage.setItem('vybe_user', JSON.stringify(userData))
+    storeUser(userData)
     axios.defaults.headers.common['Authorization'] = `Bearer ${tok}`
   }
 
@@ -62,14 +73,14 @@ export function AuthProvider({ children }) {
 
   const updateUser = (updatedUser) => {
     setUser(updatedUser)
-    localStorage.setItem('vybe_user', JSON.stringify(updatedUser))
+    storeUser(updatedUser)
   }
 
   const refreshUser = async () => {
     try {
       const { data } = await axios.get('/api/user/me')
       setUser(data.user)
-      localStorage.setItem('vybe_user', JSON.stringify(data.user))
+      storeUser(data.user)
     } catch {}
   }
 

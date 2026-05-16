@@ -271,7 +271,8 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
   res.json({ received: true });
 });
 
-app.use(express.json());
+// Raised limit: avatar, banner, and camera-background images are sent as base64.
+app.use(express.json({ limit: '12mb' }));
 
 // ─── MongoDB — retry connection ────────────────────────────────────────────────
 let dbConnected = false;
@@ -1932,7 +1933,7 @@ app.put('/api/user/cosmetics', authMiddleware, async (req, res) => {
     const { accentColor, bannerGradient, cameraBackground } = req.body;
     const ACCENT_COLORS = ['#7c3aed','#1b62f5','#ec4899','#f59e0b','#10b981','#06b6d4',''];
     const BANNER_GRADIENTS = ['default','sunset','ocean','forest','ember','aurora','midnight','rose',''];
-    const CAMERA_BACKGROUNDS = ['none','blur','space','sunset','ocean','forest','neon','custom'];
+    const CAMERA_BACKGROUNDS = ['none','custom'];
     const update = {};
     if (accentColor !== undefined) {
       if (!ACCENT_COLORS.includes(accentColor)) return res.status(400).json({ error: 'Invalid accent color' });

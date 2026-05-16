@@ -60,17 +60,7 @@ function compositeFrame(ctx, canvas, results, preset, bgImg) {
   ctx.drawImage(results.image, 0, 0, w, h)
   ctx.globalCompositeOperation = 'destination-over'
 
-  if (preset.type === 'blur') {
-    ctx.filter = 'blur(14px)'
-    ctx.drawImage(results.image, -30, -30, w + 60, h + 60)
-    ctx.filter = 'none'
-  } else if (preset.type === 'colors') {
-    const cs = preset.colors || ['#0d1020']
-    const g = ctx.createLinearGradient(0, 0, w, h)
-    cs.forEach((c, i) => g.addColorStop(cs.length === 1 ? 0 : i / (cs.length - 1), c))
-    ctx.fillStyle = g
-    ctx.fillRect(0, 0, w, h)
-  } else if (preset.type === 'custom' && bgImg) {
+  if (preset.type === 'custom' && bgImg) {
     drawCover(ctx, bgImg, w, h)
   } else {
     ctx.fillStyle = '#0d1020'

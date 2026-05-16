@@ -35,6 +35,34 @@ const INTERESTS_OPTIONS = [
 
 const PRONOUNS_OPTIONS = ['he/him', 'she/her', 'they/them', 'he/they', 'she/they', 'any', 'prefer not to say']
 
+// Downscale + re-encode an image file so large phone photos stay well under
+// upload/storage limits. Returns a JPEG data URL.
+function resizeImageFile(file, maxDim = 1600, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = reject
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onerror = reject
+      img.onload = () => {
+        let { width, height } = img
+        if (Math.max(width, height) > maxDim) {
+          const scale = maxDim / Math.max(width, height)
+          width  = Math.round(width  * scale)
+          height = Math.round(height * scale)
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width  = width
+        canvas.height = height
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+        resolve(canvas.toDataURL('image/jpeg', quality))
+      }
+      img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
 const BANNER_PRESETS = [
   { id: 'default',  name: 'Vybe',     style: 'linear-gradient(135deg, rgba(0,212,255,0.4) 0%, rgba(99,102,241,0.3) 40%, rgba(0,212,255,0.35) 100%)' },
   { id: 'sunset',   name: 'Sunset',   style: 'linear-gradient(135deg, rgba(234,88,12,0.5) 0%, rgba(236,72,153,0.35) 50%, rgba(0,212,255,0.3) 100%)' },
@@ -189,15 +217,19 @@ export default function ProfilePage() {
     reader.readAsDataURL(file)
   }
 
-  const handleCameraBgChange = (e) => {
+  const handleCameraBgChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 3000000) { setSaveError('Camera background image must be under 3MB'); setTimeout(() => setSaveError(''), 4000); return }
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      setEditForm(f => ({ ...f, cameraBackgroundImage: ev.target.result, cameraBackground: 'custom' }))
+    if (!file.type.startsWith('image/')) {
+      setSaveError('Please choose an image file'); setTimeout(() => setSaveError(''), 4000); return
     }
-    reader.readAsDataURL(file)
+    try {
+      const dataUrl = await resizeImageFile(file, 1600, 0.85)
+      setEditForm(f => ({ ...f, cameraBackgroundImage: dataUrl, cameraBackground: 'custom' }))
+    } catch {
+      setSaveError('Could not process that image. Try a different one.')
+      setTimeout(() => setSaveError(''), 4000)
+    }
   }
 
   const toggleInterest = (intId) => {
@@ -677,14 +709,14 @@ export default function ProfilePage() {
                       </button>
                     </div>
                   )}
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {CAMERA_BG_PRESETS.map(bg => {
                       const active   = editForm.cameraBackground === bg.id
                       const disabled = bg.id === 'custom' && !editForm.cameraBackgroundImage
                       return (
                         <button key={bg.id} type="button" disabled={disabled}
                           onClick={() => setEditForm(f => ({ ...f, cameraBackground: bg.id }))}
-                          className="relative flex flex-col items-center justify-center gap-1 h-14 rounded-lg overflow-hidden transition-all disabled:opacity-35"
+                          className="relative flex flex-col items-center justify-center gap-1 h-16 rounded-lg overflow-hidden transition-all disabled:opacity-35"
                           style={{
                             background: bg.id === 'custom' && editForm.cameraBackgroundImage
                               ? `center/cover url(${editForm.cameraBackgroundImage})`
@@ -692,13 +724,16 @@ export default function ProfilePage() {
                             boxShadow: active ? '0 0 0 2px #a78bfa' : undefined,
                           }}
                           title={bg.label}>
-                          <span className="text-sm leading-none drop-shadow">{bg.icon}</span>
-                          <span className="text-[9px] font-bold text-white/90 drop-shadow leading-none">{bg.label}</span>
-                          {active && <span className="absolute top-1 right-1"><Check size={11} className="text-white drop-shadow" /></span>}
+                          <span className="text-base leading-none drop-shadow">{bg.icon}</span>
+                          <span className="text-[10px] font-bold text-white/90 drop-shadow leading-none">{bg.label}</span>
+                          {active && <span className="absolute top-1.5 right-1.5"><Check size={12} className="text-white drop-shadow" /></span>}
                         </button>
                       )
                     })}
                   </div>
+                  {!editForm.cameraBackgroundImage && (
+                    <p className="text-[10px] text-vybe-muted mt-2">Upload an image to enable a custom background.</p>
+                  )}
                 </div>
 
                 {/* Save / cancel */}
