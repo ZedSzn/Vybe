@@ -1577,9 +1577,9 @@ export default function ChatPage() {
         {/* ══════════════════════════════════════════════════════════
             DESKTOP LAYOUT
         ══════════════════════════════════════════════════════════ */}
-        <div className="hidden lg:flex flex-col" style={{ height: '100dvh', width: '100%', background: '#0a0a0f' }}>
+        <div className="hidden lg:block" style={{ width: '100%', background: '#0a0a0f' }}>
           <Navbar onPremiumClick={() => {}} />
-          <div className="flex-1 min-h-0 flex" style={{ position: 'relative' }}>
+          <div className="flex" style={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 64, overflow: 'hidden' }}>
           {is2v2 ? (
             /* ── 2V2: 2×2 CSS Grid ── */
             <motion.div
@@ -1818,7 +1818,7 @@ export default function ChatPage() {
                     onClick={() => setShowTip(true)}
                     whileHover={{ background: 'rgba(255,255,255,0.10)' }}
                     whileTap={{ scale: 0.93 }}
-                    style={{ position: 'absolute', top: 70, left: 16, zIndex: 10, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', transition: 'background 150ms ease' }}>
+                    style={{ position: 'absolute', top: 60, left: 16, zIndex: 10, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', transition: 'background 150ms ease' }}>
                     <VybeCoin size={14} />
                     <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>{coins.toLocaleString()}</span>
                   </motion.button>
@@ -1962,7 +1962,7 @@ export default function ChatPage() {
           )}
           </div>
           {/* Desktop bottom bar */}
-          <div style={{ flexShrink: 0, background: 'rgba(10,10,20,0.9)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 40px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50 }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 64, background: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50 }}>
             <motion.button
               onClick={() => status === 'matched' && !reportSent && setShowReport(true)}
               whileHover={!reportSent && status === 'matched' ? { background: 'rgba(255,255,255,0.12)' } : {}}
