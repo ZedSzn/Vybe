@@ -507,7 +507,16 @@ export default function MainPage() {
           </div>
           <video ref={videoRef} autoPlay muted playsInline className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
           {noCameraDevice && camBgImage && (
-            <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ zIndex: 20 }} />
+            <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 15 }}>
+              <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+              {user?.avatar ? (
+                <img src={user.avatar} alt="" style={{ position: 'relative', width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 32px rgba(0,212,255,0.15)' }} />
+              ) : (
+                <div style={{ position: 'relative', width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 900, color: '#00D4FF' }}>
+                  {user?.username?.[0]?.toUpperCase() || 'Y'}
+                </div>
+              )}
+            </div>
           )}
           {!cameraOn || cameraErr ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
@@ -1332,7 +1341,16 @@ export default function MainPage() {
                   <video ref={videoRefDesktop} autoPlay muted playsInline
                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
                   {noCameraDevice && camBgImage && (
-                    <img src={camBgImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 20 }} />
+                    <div style={{ position: 'absolute', inset: 0, zIndex: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={camBgImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" style={{ position: 'relative', width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 32px rgba(0,212,255,0.12)' }} />
+                      ) : (
+                        <div style={{ position: 'relative', width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#00D4FF' }}>
+                          {user?.username?.[0]?.toUpperCase() || 'Y'}
+                        </div>
+                      )}
+                    </div>
                   )}
                   {(!cameraOn || cameraErr) && (
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
@@ -1474,7 +1492,16 @@ export default function MainPage() {
                   style={{ objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
 
                 {noCameraDevice && camBgImage && (
-                  <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ zIndex: 20 }} />
+                  <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 15 }}>
+                    <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="" style={{ position: 'relative', width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />
+                    ) : (
+                      <div style={{ position: 'relative', width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 900, color: '#00D4FF' }}>
+                        {user?.username?.[0]?.toUpperCase() || 'Y'}
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {/* Idle state */}

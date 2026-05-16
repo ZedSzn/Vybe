@@ -1341,7 +1341,7 @@ export default function ChatPage() {
                   ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                  {((!hasCamera && !camBgImage) || videoOff) && (
+                  {(!hasCamera || videoOff) && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ zIndex: 5 }}>
                       {user?.avatar ? (
                         <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
@@ -1533,19 +1533,18 @@ export default function ChatPage() {
             }}
           >
             <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-            {!hasCamera && (camBgImage ? (
-              <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-[#0a0a14]">
+            {!hasCamera && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ background: camBgImage ? '#000' : '#0a0a14' }}>
+                {camBgImage && <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />}
                 {user?.avatar ? (
-                  <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
+                  <img src={user.avatar} alt="" style={{ position: 'relative', width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
                 ) : (
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#00D4FF' }}>
+                  <div style={{ position: 'relative', width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#00D4FF' }}>
                     {user?.username ? user.username[0].toUpperCase() : 'Y'}
                   </div>
                 )}
               </div>
-            ))}
+            )}
             {videoOff && hasCamera && (
               <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-1.5">
                 {user?.avatar ? (
@@ -1755,7 +1754,7 @@ export default function ChatPage() {
                   ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                {((!hasCamera && !camBgImage) || videoOff) && (
+                {(!hasCamera || videoOff) && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
                     {user?.avatar ? (
                       <img src={user.avatar} alt="" style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06)' }} />
@@ -1972,7 +1971,7 @@ export default function ChatPage() {
                       ? <img src={camBgImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                       : <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                     {videoOff && hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)' }} />}
-                    {((!hasCamera && !camBgImage) || videoOff) && (
+                    {(!hasCamera || videoOff) && (
                       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 5 }}>
                         {user?.avatar ? (
                           <img src={user.avatar} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 32px rgba(0,212,255,0.12)' }} />
@@ -2052,7 +2051,7 @@ export default function ChatPage() {
                   : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
 
-                  {((!hasCamera && !camBgImage) || videoOff) && (
+                  {(!hasCamera || videoOff) && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
                       {user?.avatar ? (
                         <img src={user.avatar} alt="" style={{ width: 88, height: 88, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />
