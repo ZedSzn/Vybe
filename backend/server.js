@@ -2391,6 +2391,7 @@ const inviteCodes    = new Map();
 const squadMatchBuf  = new Map();
 const lastMatchInfo  = new Map(); // userId(string) → { username, userId }
 const privateRooms   = new Map(); // code → { hostChatSocketId, guestChatSocketId, createdAt }
+const liveSquadPairs = new Map(); // socketId → [squadMateSocketId, ...]
 
 // ─── Dev Bot (development only — stripped from production) ────────────────────
 const IS_DEV     = process.env.NODE_ENV !== 'production';
@@ -2513,6 +2514,8 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
     const peers      = others.map(peerId => ({ socketId: peerId, isInitiator: sid > peerId }));
     const myGroup    = mySquadSocketIds.includes(sid) ? mySquadSocketIds : opponentSocketIds;
     const squadMates = myGroup.filter(x => x !== sid);
+    // Track live squad pairs for skip/end coordination
+    if (squadMates.length > 0) liveSquadPairs.set(sid, squadMates);
     const partnerSid = peers.find(p => !squadMates.includes(p.socketId))?.socketId ?? null;
     const partnerData = partnerSid ? onlineUsers.get(partnerSid) : null;
     io.to(sid).emit('match-found', {
@@ -2699,6 +2702,14 @@ io.on('connection', (socket) => {
       if (buf.length < squad.members.length) { socket.emit('waiting'); return; }
       const mySocketIds = [...buf];
       squadMatchBuf.delete(prefs.squadId);
+      // Tell squad members about each other so they can pre-connect via WebRTC while searching
+      for (const sid of mySocketIds) {
+        const mates = mySocketIds.filter(x => x !== sid);
+        if (mates.length > 0) {
+          liveSquadPairs.set(sid, mates);
+          io.to(sid).emit('squad-peer-ready', { mates });
+        }
+      }
       const opponent = findSquadMatch(prefs.squadId);
       if (opponent) {
         const opponentSocketIds = opponent.socketIds || [opponent.socketId];
@@ -2767,13 +2778,19 @@ io.on('connection', (socket) => {
   socket.on('skip', () => {
     cancelBotTimer(socket.id);
     const partners = activePairs.get(socket.id);
+    const mySquadMates = liveSquadPairs.get(socket.id) || [];
     if (partners?.length) {
       storeLastMatch(socket.id, partners);
       recordChatCompletion(socket.id);
       partners.forEach((p) => {
         storeLastMatch(p, [socket.id]);
         recordChatCompletion(p);
-        io.to(p).emit('partner-skipped');
+        if (mySquadMates.includes(p)) {
+          // Squad mate: tell them to requeue together (not that a stranger skipped them)
+          io.to(p).emit('duo-requeue');
+        } else {
+          io.to(p).emit('partner-skipped');
+        }
         const pp = activePairs.get(p);
         if (pp) { const u = pp.filter(x => x !== socket.id); u.length ? activePairs.set(p, u) : activePairs.delete(p); }
       });
@@ -2783,18 +2800,25 @@ io.on('connection', (socket) => {
 
   socket.on('end-chat', () => {
     const partners = activePairs.get(socket.id);
+    const mySquadMates = liveSquadPairs.get(socket.id) || [];
     if (partners?.length) {
       storeLastMatch(socket.id, partners);
       recordChatCompletion(socket.id);
       partners.forEach((p) => {
         storeLastMatch(p, [socket.id]);
         recordChatCompletion(p);
-        io.to(p).emit('partner-left');
+        if (mySquadMates.includes(p)) {
+          // Squad mate: tell them their partner ended (they'll go home)
+          io.to(p).emit('duo-partner-ended');
+        } else {
+          io.to(p).emit('partner-left');
+        }
         const pp = activePairs.get(p);
         if (pp) { const u = pp.filter(x => x !== socket.id); u.length ? activePairs.set(p, u) : activePairs.delete(p); }
       });
       activePairs.delete(socket.id);
     }
+    liveSquadPairs.delete(socket.id);
   });
 
   socket.on('send-tip', async ({ amount, recipientSocketId }) => {
@@ -2907,14 +2931,20 @@ io.on('connection', (socket) => {
       if (e.socketId === socket.id || (e.socketIds && e.socketIds.includes(socket.id))) waitingQueue.splice(i, 1);
     }
     const partners = activePairs.get(socket.id);
+    const mySquadMates = liveSquadPairs.get(socket.id) || [];
     if (partners?.length) {
       partners.forEach((p) => {
-        io.to(p).emit('partner-left');
+        if (mySquadMates.includes(p)) {
+          io.to(p).emit('duo-partner-ended');
+        } else {
+          io.to(p).emit('partner-left');
+        }
         const pp = activePairs.get(p);
         if (pp) { const u = pp.filter(x => x !== socket.id); u.length ? activePairs.set(p, u) : activePairs.delete(p); }
       });
       activePairs.delete(socket.id);
     }
+    liveSquadPairs.delete(socket.id);
     for (const [squadId, squad] of squads.entries()) {
       if (!squad.members.some(m => m.socketId === socket.id)) continue;
       squad.members = squad.members.filter(m => m.socketId !== socket.id);

@@ -193,6 +193,7 @@ export default function ChatPage() {
   const [partnerUid,       setPartnerUid]       = useState(null)
   const [remoteStreams,    setRemoteStreams]     = useState({})   // socketId → MediaStream
   const [squadMates,       setSquadMates]       = useState([])   // socket IDs of own squad (not opponents)
+  const [persistentMateId, setPersistentMateId] = useState(null) // squad mate socket ID, persists through re-searches
   // Searching / loading UX
   const [searchElapsed,    setSearchElapsed]    = useState(0)   // seconds spent searching
   const [onlineCount,      setOnlineCount]      = useState(0)
@@ -252,6 +253,7 @@ export default function ChatPage() {
   const socketRef       = useRef(null)
   const peersRef        = useRef({})           // socketId → SimplePeer
   const remoteVideoRefs = useRef({})           // socketId → HTMLVideoElement
+  const squadMatesRef   = useRef([])           // persists through re-renders for use in callbacks
   const localStreamRef      = useRef(null)
   const localVideoRef       = useRef(null)   // mobile PiP
   const localVideoDesktopRef = useRef(null)  // desktop panel
@@ -294,6 +296,7 @@ export default function ChatPage() {
   useEffect(() => { partnerSockRef.current = partnerSock }, [partnerSock])
   useEffect(() => { partnerUidRef.current  = partnerUid  }, [partnerUid])
   useEffect(() => { statusRef.current = status }, [status])
+  useEffect(() => { squadMatesRef.current = squadMates }, [squadMates])
 
   // Sync remote streams → video elements (stream objects don't trigger re-renders on srcObject change)
   useEffect(() => {
@@ -390,6 +393,28 @@ export default function ChatPage() {
     peersRef.current = {}
     setRemoteStreams({})
     setSquadMates([])
+    setPersistentMateId(null)
+    setPartnerSock(null)
+    setPartnerUid(null)
+    setPartnerAvatar(null)
+    setPartnerIsVip(false)
+    setPartnerIsPremium(false)
+    setPartnerEmailVerified(false)
+    setPartnerCountry(null)
+    setGiftAnimations([])
+  }
+
+  // Destroy only opponent peers — preserves squad mate peer/stream during re-searching
+  const destroyOpponentPeers = () => {
+    const mates = new Set(squadMatesRef.current)
+    Object.entries(peersRef.current).forEach(([sid, p]) => {
+      if (!mates.has(sid)) { try { p.destroy() } catch {}; delete peersRef.current[sid] }
+    })
+    setRemoteStreams((prev) => {
+      const next = {}
+      mates.forEach((id) => { if (prev[id]) next[id] = prev[id] })
+      return next
+    })
     setPartnerSock(null)
     setPartnerUid(null)
     setPartnerAvatar(null)
@@ -542,17 +567,25 @@ export default function ChatPage() {
       socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername, partnerAvatar: pAvatar, partnerIsPremium: pIsPremium, partnerIsVip: pIsVip, partnerEmailVerified: pEmailVerified, partnerCountry: pCountry }) => {
         if (!mounted) return
 
-        // Destroy existing peers
-        Object.values(peersRef.current).forEach((p) => { try { p.destroy() } catch {} })
-        peersRef.current = {}
-        setRemoteStreams({})
+        // Destroy opponent peers only — preserve any existing squad mate peers
+        const existingMates = new Set(squadMatesRef.current)
+        Object.entries(peersRef.current).forEach(([sid, p]) => {
+          if (!existingMates.has(sid)) { try { p.destroy() } catch {}; delete peersRef.current[sid] }
+        })
+        setRemoteStreams((prev) => {
+          const next = {}
+          existingMates.forEach((id) => { if (prev[id]) next[id] = prev[id] })
+          return next
+        })
 
         setRoomId(room)
         setMessages([])
         setElapsed(0)
         setReportSent(false)
         setStatus('matched')
-        setSquadMates(mates || [])
+        const newMates = mates || []
+        setSquadMates(newMates)
+        if (newMates[0]) setPersistentMateId(newMates[0])
         setPartnerUsername(pUsername || null)
         setPartnerAvatar(pAvatar || null)
         setPartnerIsVip(pIsVip || false)
@@ -571,15 +604,46 @@ export default function ChatPage() {
           : (partnerId ? [{ socketId: partnerId, isInitiator }] : [])
 
         // Set partner sock to first opponent for reporting
-        const opponents = peersToCreate.filter((p) => !(mates || []).includes(p.socketId))
+        const opponents = peersToCreate.filter((p) => !(newMates).includes(p.socketId))
         if (opponents.length > 0) {
           setPartnerSock(opponents[0].socketId)
           setPartnerUid(partnerUserId || null)
         }
 
         for (const { socketId: peerId, isInitiator: init } of peersToCreate) {
+          // Skip squad mate peers that already have an established connection
+          if (newMates.includes(peerId) && peersRef.current[peerId]) continue
           createPeerForSocket(socket, peerId, init)
         }
+      })
+
+      // Squad mate pre-connection: establish WebRTC with partner before stranger match
+      socket.on('squad-peer-ready', ({ mates }) => {
+        if (!mounted) return
+        setSquadMates(mates)
+        if (mates[0]) setPersistentMateId(mates[0])
+        for (const mateId of mates) {
+          if (!peersRef.current[mateId]) {
+            createPeerForSocket(socket, mateId, socket.id > mateId)
+          }
+        }
+      })
+
+      // Duo skip: squad mate re-searches but keeps partner connection alive
+      socket.on('duo-requeue', () => {
+        if (!mounted) return
+        destroyOpponentPeers()
+        setMessages([])
+        setReportSent(false)
+        setStatus('searching')
+        findMatch(socket)
+      })
+
+      // Duo partner ended: navigate home after brief message
+      socket.on('duo-partner-ended', () => {
+        if (!mounted) return
+        setTipFeedback({ type: 'error', msg: 'Your partner ended the chat' })
+        setTimeout(() => navigate('/'), 2200)
       })
 
       // Route WebRTC signals to the correct peer using `from`
@@ -595,10 +659,12 @@ export default function ChatPage() {
 
       const handlePartnerGone = () => {
         if (!mounted) return
-        Object.values(peersRef.current).forEach((p) => { try { p.destroy() } catch {} })
-        peersRef.current = {}
-        setRemoteStreams({})
-        setSquadMates([])
+        if (squadMatesRef.current.length > 0) {
+          // In duo mode: keep squad mate connection, only clear opponent state
+          destroyOpponentPeers()
+        } else {
+          destroyAllPeers()
+        }
         setMessages([])
         setReportSent(false)
         setStatus('searching')
@@ -693,7 +759,11 @@ export default function ChatPage() {
   }
 
   const handleSkip = () => {
-    destroyAllPeers()
+    if (squadMatesRef.current.length > 0) {
+      destroyOpponentPeers()
+    } else {
+      destroyAllPeers()
+    }
     setMessages([])
     setReportSent(false)
     setStatus('searching')
@@ -824,10 +894,12 @@ export default function ChatPage() {
   }
 
   // Derive opponent vs squad-mate video entries
+  const isSquadSession     = prefs.mode === 'squad' && !!prefs.squadId
   const allRemoteEntries   = Object.keys(remoteStreams)
   const opponentSocketIds  = allRemoteEntries.filter((sid) => !squadMates.includes(sid))
   const mateSocketIds      = allRemoteEntries.filter((sid) => squadMates.includes(sid))
-  const isDuoMode          = mateSocketIds.length > 0
+  // isDuoMode is true for the entire squad session so the 3-panel layout shows during searching too
+  const isDuoMode          = isSquadSession || mateSocketIds.length > 0
   const is2v2              = isDuoMode && opponentSocketIds.length >= 2
 
   const handleUnbanPurchase = async () => {
@@ -1806,26 +1878,43 @@ export default function ChatPage() {
                   </div>
                   {/* BOTTOM: Duo partner camera — absolute bottom half */}
                   <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, bottom: 0, overflow: 'hidden', borderRadius: '0 0 20px 20px', background: '#0d0d18' }}>
-                    {mateSocketIds[0] ? (
-                      <>
-                        <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>D</div>
-                            <span style={{ color: 'white', fontWeight: 700, fontSize: 11, lineHeight: 1 }}>Duo Partner</span>
-                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
+                    {/* Always render video element so stream attaches immediately when available */}
+                    {(() => {
+                      const mateId = mateSocketIds[0] || persistentMateId
+                      const hasStream = !!remoteStreams[mateId]
+                      return (
+                        <>
+                          {mateId && (
+                            <video ref={(el) => { if (mateId) remoteVideoRefs.current[mateId] = el }} autoPlay playsInline
+                              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: hasStream ? 1 : 0, transition: 'opacity 0.4s ease' }} />
+                          )}
+                          {!hasStream && (
+                            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 40% 35%, rgba(0,212,255,0.07) 0%, transparent 65%)', pointerEvents: 'none' }} />
+                              <motion.div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                                <motion.div style={{ position: 'absolute', width: 72, height: 72, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.15)' }}
+                                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.1, 0.5] }} transition={{ duration: 3, repeat: Infinity }} />
+                                <motion.div style={{ position: 'absolute', width: 54, height: 54, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.1)' }}
+                                  animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.05, 0.3] }} transition={{ duration: 3, repeat: Infinity, delay: 0.4 }} />
+                              </motion.div>
+                              <div style={{ position: 'relative', zIndex: 1, width: 44, height: 44, borderRadius: '50%', background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 900, color: '#00D4FF' }}>
+                                D
+                              </div>
+                              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', margin: 0, position: 'relative', zIndex: 1 }}>Partner connecting…</p>
+                            </div>
+                          )}
+                          {/* Profile pill */}
+                          <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>D</div>
+                              <span style={{ color: 'white', fontWeight: 700, fontSize: 11, lineHeight: 1 }}>Partner</span>
+                              <span style={{ width: 5, height: 5, borderRadius: '50%', background: hasStream ? '#4ade80' : 'rgba(255,255,255,0.3)', display: 'inline-block', flexShrink: 0, transition: 'background 0.3s' }} />
+                            </div>
                           </div>
-                        </div>
-                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
-                      </>
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.18)' }}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,212,255,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                        <p style={{ fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.22)' }}>Duo partner connecting…</p>
-                      </div>
-                    )}
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
+                        </>
+                      )
+                    })()}
                   </div>
                 </div>
               ) : (
