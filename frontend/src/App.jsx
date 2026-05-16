@@ -52,7 +52,6 @@ const WalletPage           = lazy(() => import('./pages/WalletPage'))
 const CoinsPage            = lazy(() => import('./pages/CoinsPage'))
 const SubscriptionPage     = lazy(() => import('./pages/SubscriptionPage'))
 const FriendsPage          = lazy(() => import('./pages/FriendsPage'))
-const PrivateRoomJoinPage  = lazy(() => import('./pages/PrivateRoomJoinPage'))
 const EarnPage             = lazy(() => import('./pages/EarnPage'))
 
 import ScrollToTop from './components/ScrollToTop'
@@ -290,7 +289,6 @@ function AppRoutes() {
           <Route path="/coins"                      element={<CoinsPage />} />
           <Route path="/subscription"               element={<SubscriptionPage />} />
           <Route path="/friends"                    element={<FriendsPage />} />
-          <Route path="/private/:code"              element={<PrivateRoomJoinPage />} />
           <Route path="/earn"                       element={<EarnPage />} />
           <Route path="*" element={<MainPage />} />
         </Routes>

@@ -1131,14 +1131,6 @@ app.patch('/api/dm/:userId/read', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ─── Private Room HTTP Route ──────────────────────────────────────────────────
-app.get('/api/private/:code', (req, res) => {
-  const room = privateRooms.get(req.params.code.toUpperCase());
-  if (!room) return res.status(404).json({ error: 'Room not found or expired.' });
-  if (room.guestChatSocketId) return res.status(400).json({ error: 'Room is already full.' });
-  res.json({ success: true, code: req.params.code.toUpperCase() });
-});
-
 // ─── Duo HTTP Route ────────────────────────────────────────────────────────────
 app.get('/api/duo/:code', (req, res) => {
   const squadId = inviteCodes.get(req.params.code.toUpperCase());
@@ -2390,7 +2382,6 @@ const squads         = new Map();
 const inviteCodes    = new Map();
 const squadMatchBuf  = new Map();
 const lastMatchInfo  = new Map(); // userId(string) → { username, userId }
-const privateRooms   = new Map(); // code → { hostChatSocketId, guestChatSocketId, createdAt }
 const liveSquadPairs = new Map(); // socketId → [squadMateSocketId, ...]
 
 // ─── Dev Bot (development only — stripped from production) ────────────────────
@@ -2445,18 +2436,6 @@ function genSquadCode() {
   let suffix = '';
   for (let i = 0; i < 4; i++) suffix += chars[Math.floor(Math.random() * chars.length)];
   return `VY-${suffix}`;
-}
-
-function matchPrivateRoom(code, room) {
-  const { hostChatSocketId: hostSid, guestChatSocketId: guestSid } = room;
-  const roomId = `priv_${Date.now()}`;
-  activePairs.set(hostSid,  [guestSid]);
-  activePairs.set(guestSid, [hostSid]);
-  const hostData  = onlineUsers.get(hostSid)  || {};
-  const guestData = onlineUsers.get(guestSid) || {};
-  io.to(hostSid).emit('match-found',  { room: roomId, peers: [{ socketId: guestSid, isInitiator: true  }], squadMates: [], isInitiator: true,  partnerId: guestSid, partnerUsername: guestData.username || null, partnerUserId: guestData.userId || null, partnerAvatar: guestData.avatar || null, partnerIsPremium: guestData.isPremium || false, partnerIsVip: guestData.isVip || false, partnerEmailVerified: guestData.emailVerified || false });
-  io.to(guestSid).emit('match-found', { room: roomId, peers: [{ socketId: hostSid,  isInitiator: false }], squadMates: [], isInitiator: false, partnerId: hostSid,  partnerUsername: hostData.username  || null, partnerUserId: hostData.userId  || null, partnerAvatar: hostData.avatar  || null, partnerIsPremium: hostData.isPremium  || false, partnerIsVip: hostData.isVip  || false,  partnerEmailVerified: hostData.emailVerified  || false });
-  privateRooms.delete(code);
 }
 
 function dissolveSquad(squadId) {
@@ -2853,35 +2832,6 @@ io.on('connection', (socket) => {
       }
       socket.emit('tip-sent', { to: recipient.username || 'user', amount: tipAmount, coins: senderUpdated.coins });
     } catch { socket.emit('tip-error', { message: 'Failed to send tip. Try again.' }); }
-  });
-
-  // ── Private Room ──────────────────────────────────────────────────────────
-  socket.on('create-private-room', () => {
-    // Remove any existing room this socket owns
-    for (const [code, room] of privateRooms.entries()) {
-      if (room.ownerSocketId === socket.id) privateRooms.delete(code);
-    }
-    const code = genSquadCode();
-    privateRooms.set(code, { ownerSocketId: socket.id, hostChatSocketId: null, guestChatSocketId: null, createdAt: Date.now() });
-    setTimeout(() => privateRooms.delete(code), 10 * 60 * 1000);
-    socket.emit('private-room-created', { code });
-  });
-
-  socket.on('wait-private-room', ({ code }) => {
-    const room = privateRooms.get(code?.toUpperCase());
-    if (!room) { socket.emit('private-room-error', { message: 'Room expired or not found.' }); return; }
-    room.hostChatSocketId = socket.id;
-    if (room.guestChatSocketId) matchPrivateRoom(code.toUpperCase(), room);
-    else socket.emit('private-room-waiting', {});
-  });
-
-  socket.on('join-private-room', ({ code }) => {
-    const room = privateRooms.get(code?.toUpperCase());
-    if (!room) { socket.emit('private-room-error', { message: 'Room not found or expired.' }); return; }
-    if (room.guestChatSocketId) { socket.emit('private-room-error', { message: 'Room is already full.' }); return; }
-    room.guestChatSocketId = socket.id;
-    if (room.hostChatSocketId) matchPrivateRoom(code.toUpperCase(), room);
-    else socket.emit('private-room-waiting', {});
   });
 
   socket.on('dm-typing', ({ toUserId, isTyping }) => {

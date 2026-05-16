@@ -538,20 +538,7 @@ export default function ChatPage() {
           emailVerified: user?.emailVerified || false,
         })
         if (mounted) setStatus('searching')
-        const p = prefsRef.current
-        if (p.mode === 'private') {
-          if (p.joining) socket.emit('join-private-room',  { code: p.privateCode })
-          else           socket.emit('wait-private-room',  { code: p.privateCode })
-        } else {
-          findMatch(socket)
-        }
-      })
-
-      socket.on('private-room-waiting', () => { if (mounted) setStatus('searching') })
-      socket.on('private-room-error',   ({ message }) => {
-        if (!mounted) return
-        setStatus('searching')
-        console.warn('Private room error:', message)
+        findMatch(socket)
       })
 
       socket.on('you-are-banned', ({ reason, banType: bt, banExpiresAt: bea }) => {
@@ -1157,8 +1144,8 @@ export default function ChatPage() {
               </div>
               <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 10 }}>
                 <AnimatePresence mode="wait">
-                  <motion.p key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-lg" style={{ color: '#00D4FF', fontWeight: 600, letterSpacing: '-0.01em' }}>
-                    {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
+                  <motion.p key={searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-lg" style={{ color: '#00D4FF', fontWeight: 600, letterSpacing: '-0.01em' }}>
+                    {SEARCH_TEXTS[searchTextIdx]}
                     <AnimatedDots />
                   </motion.p>
                 </AnimatePresence>
@@ -1735,9 +1722,9 @@ export default function ChatPage() {
                     </div>
                     <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 10 }}>
                       <AnimatePresence mode="wait">
-                        <motion.div key={prefs.mode === 'private' ? 'private' : searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }}>
+                        <motion.div key={searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }}>
                           <p className="text-xl" style={{ color: '#00D4FF', fontWeight: 600, letterSpacing: '-0.01em' }}>
-                            {prefs.mode === 'private' ? 'Waiting for your friend…' : SEARCH_TEXTS[searchTextIdx]}
+                            {SEARCH_TEXTS[searchTextIdx]}
                             <AnimatedDots />
                           </p>
                         </motion.div>
