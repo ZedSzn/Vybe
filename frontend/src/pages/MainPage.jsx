@@ -1365,20 +1365,19 @@ export default function MainPage() {
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
             <style>{`
-              .camera-dot-grid {
+              .camera-panel-bg {
                 position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: 0;
-                background-color: #0a0a0f;
-                background-image: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px);
-                background-size: 24px 24px;
-                animation: dotPulse 4s ease-in-out infinite;
-              }
-              @keyframes dotPulse {
-                0%   { opacity: 0.4; }
-                50%  { opacity: 0.8; }
-                100% { opacity: 0.4; }
+                background-color: #0d0d0d;
+                background-image:
+                  linear-gradient(135deg, rgba(255,255,255,0.02) 25%, transparent 25%),
+                  linear-gradient(225deg, rgba(255,255,255,0.02) 25%, transparent 25%),
+                  linear-gradient(315deg, rgba(255,255,255,0.02) 25%, transparent 25%),
+                  linear-gradient(45deg,  rgba(255,255,255,0.02) 25%, transparent 25%);
+                background-size: 200px 200px;
+                background-position: 0 0, 100px 0, 100px -100px, 0px 100px;
               }
             `}</style>
-            <div className="camera-dot-grid" />
+            <div className="camera-panel-bg" />
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
