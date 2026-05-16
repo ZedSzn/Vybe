@@ -1170,8 +1170,6 @@ export default function MainPage() {
                   padding: '16px 20px',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
                 }}>
-                {/* VIP watermark */}
-                <span style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 80, fontWeight: 900, color: 'rgba(255,255,255,0.03)', letterSpacing: -4, pointerEvents: 'none', zIndex: 0, userSelect: 'none', lineHeight: 1 }}>VIP</span>
                 {/* Left content */}
                 <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
                   <div style={{ marginBottom: 8 }}>
