@@ -5,8 +5,8 @@ import Navbar from '../components/Navbar'
 
 const Section = ({ title, children }) => (
   <section className="mb-8">
-    <h2 className="text-lg font-black text-white mb-3 flex items-center gap-2">
-      <span className="w-1 h-5 bg-vybe-blue rounded-full inline-block" />
+    <h2 className="text-lg font-black text-white mb-3 flex items-center gap-2.5">
+      <span className="w-1 h-5 rounded-full inline-block flex-shrink-0" style={{ background: 'linear-gradient(to bottom, #00D4FF, #00B8E0)' }} />
       {title}
     </h2>
     <div className="text-vybe-muted text-[14px] leading-relaxed space-y-2 pl-3">{children}</div>
@@ -21,7 +21,10 @@ export default function TermsPage() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-10" style={{ marginTop: '64px' }}>
         {/* Title block */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-vybe-blue/10 border border-vybe-blue/20 text-vybe-blue text-xs font-bold mb-4">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-4"
+            style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}
+          >
             <Shield size={12} />
             Legal Document
           </div>
@@ -31,18 +34,29 @@ export default function TermsPage() {
           </p>
         </div>
 
-        <div className="bg-vybe-card border border-vybe-border rounded-2xl p-6 sm:p-8">
+        <div
+          className="rounded-2xl p-6 sm:p-8"
+          style={{
+            background: 'linear-gradient(135deg, rgba(0,212,255,0.04) 0%, #111120 40%, #111120 100%)',
+            border: '1px solid rgba(0,212,255,0.14)',
+            boxShadow: '0 0 40px rgba(0,212,255,0.05)',
+          }}
+        >
 
           <Section title="Acceptance of Terms">
             <p>By accessing or using Vybe ("the Service", "the Platform"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using the Service.</p>
             <p>We reserve the right to modify these terms at any time. Continued use of the platform following any changes constitutes your acceptance of the new terms.</p>
           </Section>
 
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
+
           <Section title="Age Requirement — 18+ Only">
-            <p className="text-cyan-400 font-semibold">You must be at least 18 years of age to use Vybe. This is a strict requirement with zero exceptions.</p>
+            <p style={{ color: '#00D4FF' }} className="font-semibold">You must be at least 18 years of age to use Vybe. This is a strict requirement with zero exceptions.</p>
             <p>By using this platform, you represent and warrant that you are 18 years of age or older. If we discover that a user is under 18, we will immediately terminate their account and report the matter to appropriate authorities where required by law.</p>
             <p>Parents and guardians are responsible for monitoring their children's online activity. Vybe is not intended for, nor marketed to, anyone under the age of 18.</p>
           </Section>
+
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
 
           <Section title="Prohibited Content and Conduct">
             <p>Users of Vybe are strictly prohibited from:</p>
@@ -60,10 +74,14 @@ export default function TermsPage() {
             </ul>
           </Section>
 
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
+
           <Section title="User-Generated Content">
             <p>You are solely responsible for all content you transmit through Vybe, including audio, video, and text communications. You retain ownership of your content, but by using the Service you grant Vybe a non-exclusive license to process and transmit that content for the purpose of operating the platform.</p>
             <p>We do not store video streams between users. However, we may log metadata including connection times, report records, and account activity for safety and moderation purposes.</p>
           </Section>
+
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
 
           <Section title="Moderation and Bans">
             <p>Vybe operates a zero-tolerance moderation policy for serious violations. We reserve the right, at our sole discretion, to:</p>
@@ -76,33 +94,71 @@ export default function TermsPage() {
             <p>Ban decisions are made at the sole discretion of Vybe administrators. Banned users may submit an appeal by contacting us at support@vybelivechat.com.</p>
           </Section>
 
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
+
           <Section title="Privacy and Data">
             <p>Your use of Vybe is also governed by our Privacy Policy. By using the Service, you consent to the collection and use of your information as described therein.</p>
             <p>We collect the minimum data necessary to operate the platform safely, including email addresses, usage logs, and report records. We do not sell personal data to third parties.</p>
           </Section>
+
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
 
           <Section title="Membership Services">
             <p>Vybe offers optional paid memberships (Basic and VIP). Memberships are billed monthly and may be cancelled at any time. Refunds are not provided for partial months of service.</p>
             <p>Membership features are subject to change. We reserve the right to modify, suspend, or discontinue any paid feature with reasonable notice.</p>
           </Section>
 
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
+
           <Section title="Disclaimer of Warranties">
             <p>The Service is provided "as is" and "as available" without any warranties of any kind, express or implied. Vybe does not warrant that the Service will be uninterrupted, error-free, or free of viruses or other harmful components.</p>
             <p>Vybe is not responsible for the content, conduct, or communications of any user. We encourage all users to exercise caution and good judgement when interacting with strangers online.</p>
           </Section>
 
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
+
           <Section title="Limitation of Liability">
             <p>To the fullest extent permitted by applicable law, Vybe shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of, or inability to use, the Service.</p>
           </Section>
+
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
 
           <Section title="Governing Law">
             <p>These Terms shall be governed by and construed in accordance with applicable law. Any disputes arising from these Terms shall be subject to the exclusive jurisdiction of the competent courts.</p>
           </Section>
 
+          <div className="my-6" style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(0,212,255,0.12), transparent)' }} />
+
           <Section title="Contact">
-            <p>If you have questions about these Terms of Service, please contact us at <span className="text-vybe-blue-light">support@vybelivechat.com</span>.</p>
+            <p>If you have questions about these Terms of Service, please contact us at{' '}
+              <a href="mailto:support@vybelivechat.com" style={{ color: '#00D4FF' }} className="hover:underline">
+                support@vybelivechat.com
+              </a>.
+            </p>
           </Section>
 
+        </div>
+
+        {/* Report CTA */}
+        <div
+          className="rounded-2xl p-6 mt-6"
+          style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.18)' }}
+        >
+          <h2 className="text-lg font-black text-white mb-2">See something? Report it.</h2>
+          <p className="text-vybe-muted text-[13px] leading-relaxed mb-4">
+            Every video chat session includes a Report button. Use it if you see any violation of these guidelines. Reports are reviewed by our moderation team and you will never be identified as the reporter.
+          </p>
+          <div className="flex flex-wrap gap-2 text-[12px]">
+            {['Nudity', 'Harassment', 'Underage User', 'Spam', 'Hate Speech'].map((tag) => (
+              <span
+                key={tag}
+                className="px-3 py-1 rounded-full font-semibold"
+                style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.22)', color: '#00D4FF' }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-4 text-sm text-vybe-muted">
