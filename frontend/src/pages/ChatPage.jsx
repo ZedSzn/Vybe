@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { getBannerStyle } from '../utils/bannerUtils'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -193,6 +194,8 @@ export default function ChatPage() {
   const navigate  = useNavigate()
   const location  = useLocation()
   const { user }  = useAuth()
+  const bannerStyle = getBannerStyle(user)
+  const bannerImage = user?.bannerImage || null
 
   const prefs = location.state || { mode: 'solo', filterGender: null, filterCountry: '' }
 
@@ -1254,8 +1257,13 @@ export default function ChatPage() {
                   }}
                   autoPlay muted playsInline className="w-full h-full object-cover"
                 />
-                {!hasCamera && <div className="absolute inset-0 bg-[#0a0a14]" />}
-                {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                {(!hasCamera || (videoOff && hasCamera)) && (
+                  <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute inset-0" style={{ background: bannerStyle }} />
+                    {bannerImage && <img src={bannerImage} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                    <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
+                  </div>
+                )}
                 <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
                   <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
                     <span className="text-white/75 font-semibold text-[9px]">{user ? user.username : 'You'}</span>
@@ -1330,8 +1338,13 @@ export default function ChatPage() {
                     }}
                     autoPlay muted playsInline className="w-full h-full object-cover"
                   />
-                  {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
-                  {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                  {(!hasCamera || (videoOff && hasCamera)) && (
+                    <div className="absolute inset-0 overflow-hidden">
+                      <div className="absolute inset-0" style={{ background: bannerStyle }} />
+                      {bannerImage && <img src={bannerImage} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
+                    </div>
+                  )}
                   {(!hasCamera || videoOff) && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ zIndex: 5 }}>
                       {user?.avatar ? (
@@ -1524,26 +1537,20 @@ export default function ChatPage() {
             }}
           >
             <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-            {!hasCamera && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-[#0a0a14]">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
-                ) : (
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#00D4FF' }}>
-                    {user?.username ? user.username[0].toUpperCase() : 'Y'}
-                  </div>
-                )}
-              </div>
-            )}
-            {videoOff && hasCamera && (
-              <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-1.5">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
-                ) : (
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#00D4FF' }}>
-                    {user?.username ? user.username[0].toUpperCase() : 'Y'}
-                  </div>
-                )}
+            {(!hasCamera || (videoOff && hasCamera)) && (
+              <div className="absolute inset-0 overflow-hidden flex flex-col items-center justify-center gap-1.5">
+                <div className="absolute inset-0" style={{ background: bannerStyle }} />
+                {bannerImage && <img src={bannerImage} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
+                  ) : (
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#00D4FF' }}>
+                      {user?.username ? user.username[0].toUpperCase() : 'Y'}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             {/* Username label */}
@@ -1740,8 +1747,13 @@ export default function ChatPage() {
               {/* BOTTOM LEFT: Your camera */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-                {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
-                {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                {(!hasCamera || (videoOff && hasCamera)) && (
+                  <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute inset-0" style={{ background: bannerStyle }} />
+                    {bannerImage && <img src={bannerImage} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                    <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
+                  </div>
+                )}
                 {(!hasCamera || videoOff) && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
                     {user?.avatar ? (
@@ -1952,8 +1964,13 @@ export default function ChatPage() {
                   {/* TOP: Your camera — absolute top half */}
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '50%', overflow: 'hidden', borderRadius: '20px 20px 0 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                     <video ref={localVideoDesktopRef} autoPlay muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                    {!hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
-                    {videoOff && hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)' }} />}
+                    {(!hasCamera || (videoOff && hasCamera)) && (
+                      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', inset: 0, background: bannerStyle }} />
+                        {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} />
+                      </div>
+                    )}
                     {(!hasCamera || videoOff) && (
                       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 5 }}>
                         {user?.avatar ? (
@@ -2026,8 +2043,13 @@ export default function ChatPage() {
                 <div className="flex-1 min-h-0 min-w-0" style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
-                  {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
-                  {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                  {(!hasCamera || (videoOff && hasCamera)) && (
+                    <div className="absolute inset-0 overflow-hidden">
+                      <div className="absolute inset-0" style={{ background: bannerStyle }} />
+                      {bannerImage && <img src={bannerImage} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
+                    </div>
+                  )}
 
                   {(!hasCamera || videoOff) && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>

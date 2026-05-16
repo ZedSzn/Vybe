@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { getBannerStyle } from '../utils/bannerUtils'
 import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -136,6 +137,8 @@ const GRID_USERS = [
 export default function MainPage() {
   const { user }                              = useAuth()
   const { socket, isConnected, onlineCount } = useSocket()
+  const bannerStyle = getBannerStyle(user)
+  const bannerImage = user?.bannerImage || null
   const navigate                             = useNavigate()
   const location                             = useLocation()
   const videoRef                             = useRef(null)   // mobile camera
@@ -493,8 +496,10 @@ export default function MainPage() {
           </div>
           <video ref={videoRef} autoPlay muted playsInline className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
           {!cameraOn || cameraErr ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
-              style={{ background: 'radial-gradient(ellipse at 40% 35%, rgba(0,212,255,0.18) 0%, rgba(8,12,20,1) 65%)' }}>
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6 overflow-hidden"
+              style={{ background: bannerStyle }}>
+              {bannerImage && <img src={bannerImage} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />}
+              <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.45)' }} />
               {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && (
                 <div className="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-semibold"
                   style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
@@ -1312,7 +1317,10 @@ export default function MainPage() {
                   <video ref={videoRefDesktop} autoPlay muted playsInline
                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
                   {(!cameraOn || cameraErr) && (
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: bannerStyle, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                      {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
+                      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
                       {user?.avatar ? (
                         <img src={user.avatar} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 32px rgba(0,212,255,0.12)' }} />
                       ) : user ? (
@@ -1330,6 +1338,7 @@ export default function MainPage() {
                           <Camera size={11} />Enable Camera
                         </motion.button>
                       )}
+                      </div>
                     </div>
                   )}
                   {/* Bottom fade */}
@@ -1452,7 +1461,10 @@ export default function MainPage() {
 
                 {/* Idle state */}
                 {(!cameraOn || cameraErr) && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ zIndex: 10 }}>
+                  <div className="absolute inset-0 overflow-hidden flex flex-col items-center justify-center" style={{ zIndex: 10, background: bannerStyle }}>
+                    {bannerImage && <img src={bannerImage} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />}
+                    <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.45)' }} />
+                    <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <motion.div className="relative flex items-center justify-center" style={{ marginBottom: 24 }}>
                       <motion.div style={{ position: 'absolute', width: 96, height: 96, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.25)' }}
                         animate={{ scale: [1, 1.18, 1], opacity: [0.6, 0.15, 0.6] }} transition={{ duration: 3, repeat: Infinity }} />
@@ -1483,6 +1495,7 @@ export default function MainPage() {
                         Enable Camera
                       </motion.button>
                     )}
+                    </div>
                   </div>
                 )}
 
