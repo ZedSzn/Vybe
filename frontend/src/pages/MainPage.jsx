@@ -1162,7 +1162,7 @@ export default function MainPage() {
               <motion.div
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}
                 style={{
-                  marginTop: 6, borderRadius: 16, position: 'relative', overflow: 'hidden',
+                  marginTop: 16, borderRadius: 16, position: 'relative', overflow: 'hidden',
                   background: 'linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(124,58,237,0.05) 100%)',
                   backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
                   border: '1px solid rgba(0,212,255,0.25)',
@@ -1203,7 +1203,7 @@ export default function MainPage() {
                         alert(msg)
                       }
                     }}
-                    style={{ padding: '12px 24px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
+                    style={{ padding: '12px 24px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,212,255,0.35), 0 2px 8px rgba(124,58,237,0.2)' }}>
                     Start Free Trial
                   </motion.button>
                   <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>🔒 Secured by Stripe</span>
