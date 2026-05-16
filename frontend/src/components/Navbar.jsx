@@ -372,7 +372,7 @@ export default function Navbar({ onPremiumClick }) {
 
                   {/* Staggered menu items */}
                   {[
-                    { to: `/profile/${user?.id || user?._id}`, icon: <User size={13} />, label: t('profile'), extra: null },
+                    { to: '/profile/me', icon: <User size={13} />, label: t('profile'), extra: null },
                     { to: '/friends', icon: <Users size={13} />, label: 'Friends', extra: pendingRequests > 0 ? (
                       <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-cyan-500 text-[9px] font-black flex items-center justify-center text-white">
                         {pendingRequests > 9 ? '9+' : pendingRequests}

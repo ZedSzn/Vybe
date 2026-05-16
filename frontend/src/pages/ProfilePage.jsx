@@ -102,7 +102,11 @@ export default function ProfilePage() {
   const { id }          = useParams()
   const { user: me, updateUser, loading: authLoading } = useAuth()
   const navigate        = useNavigate()
-  const isOwn           = !!me && (String(id) === String(me?.id) || String(id) === String(me?._id))
+  // 'me', a missing id, or a literal 'undefined'/'null' all mean "my own profile"
+  const isOwn           = !!me && (
+    !id || ['me', 'undefined', 'null'].includes(id) ||
+    String(id) === String(me?.id) || String(id) === String(me?._id)
+  )
 
   const [profile,       setProfile]       = useState(null)
   const [loading,       setLoading]       = useState(true)

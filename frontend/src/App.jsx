@@ -164,7 +164,7 @@ function OwnProfileRedirect() {
   const { user, loading } = useAuth()
   if (loading) return null
   if (!user) return <Navigate to="/auth" replace />
-  return <Navigate to={`/profile/${user.id || user._id}`} replace />
+  return <Navigate to="/profile/me" replace />
 }
 
 function AppRoutes() {
