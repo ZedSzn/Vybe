@@ -1064,25 +1064,32 @@ export default function MainPage() {
             </div>
 
             {/* ── Filters: Gender / Country / Mode ── */}
-            <div style={{ marginTop: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'stretch' }}>
+            <div style={{
+              marginTop: 14, borderRadius: 16, display: 'flex', alignItems: 'stretch', overflow: 'hidden',
+              background: 'linear-gradient(135deg, rgba(0,212,255,0.04) 0%, rgba(10,10,28,0.9) 50%, rgba(124,58,237,0.04) 100%)',
+              border: '1px solid rgba(0,212,255,0.14)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            }}>
 
               {/* GENDER */}
-              <div style={{ flex: 1, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Gender</span>
+              <div style={{ flex: 1, padding: '11px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                <span style={{ fontSize: 8, fontWeight: 900, letterSpacing: '0.22em', color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase' }}>Gender</span>
                 <div style={{ display: 'flex', gap: 4 }}>
                   {[['Both', 'both'], ['Male', 'male'], ['Female', 'female']].map(([label, val]) => (
                     <motion.button key={val}
                       onClick={() => handleGender(val)}
-                      whileTap={{ scale: 0.93 }}
+                      whileHover={filterGender !== val ? { background: 'rgba(255,255,255,0.10)' } : {}}
+                      whileTap={{ scale: 0.92 }}
                       style={{
-                        padding: '5px 11px', borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', position: 'relative',
+                        padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', position: 'relative', transition: 'all 0.15s ease',
                         ...(filterGender === val
-                          ? { background: '#00D4FF', color: '#0a0a0f', boxShadow: '0 2px 8px rgba(0,212,255,0.4)' }
-                          : { background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)' }),
+                          ? { background: '#00D4FF', color: '#060612', border: 'none', boxShadow: '0 0 14px rgba(0,212,255,0.5), 0 2px 6px rgba(0,212,255,0.3)' }
+                          : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.08)' }),
                       }}>
                       {label}
                       {val !== 'both' && !user?.isPremium && !user?.isVip && (
-                        <Lock size={6} style={{ position: 'absolute', top: 1, right: 2, opacity: 0.4 }} />
+                        <Lock size={6} style={{ position: 'absolute', top: 1, right: 2, opacity: 0.35 }} />
                       )}
                     </motion.button>
                   ))}
@@ -1090,45 +1097,49 @@ export default function MainPage() {
               </div>
 
               {/* Divider */}
-              <div style={{ width: 1, background: 'rgba(255,255,255,0.07)', flexShrink: 0, margin: '10px 0' }} />
+              <div style={{ width: 1, background: 'linear-gradient(to bottom, transparent, rgba(0,212,255,0.15), transparent)', flexShrink: 0 }} />
 
               {/* COUNTRY */}
-              <div style={{ flex: 1, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Country</span>
+              <div style={{ flex: 1, padding: '11px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                <span style={{ fontSize: 8, fontWeight: 900, letterSpacing: '0.22em', color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase' }}>Country</span>
                 <motion.button
                   ref={countryBtnRef}
                   onClick={handleCountryClick}
+                  whileHover={{ background: filterCountry ? 'rgba(0,212,255,0.22)' : 'rgba(255,255,255,0.10)' }}
                   whileTap={{ scale: 0.96 }}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 7,
-                    background: filterCountry ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.07)', border: 'none',
-                    color: filterCountry ? '#00D4FF' : 'rgba(255,255,255,0.5)',
+                    display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, transition: 'all 0.15s ease',
+                    background: filterCountry ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.06)',
+                    border: filterCountry ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                    color: filterCountry ? '#00D4FF' : 'rgba(255,255,255,0.55)',
                     fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', width: 'fit-content',
+                    boxShadow: filterCountry ? '0 0 10px rgba(0,212,255,0.2)' : 'none',
                   }}>
                   {user?.isVip
-                    ? <Globe size={10} style={{ color: filterCountry ? '#00D4FF' : 'rgba(0,212,255,0.5)', flexShrink: 0 }} />
-                    : <Lock size={10} style={{ color: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />}
+                    ? <Globe size={10} style={{ color: filterCountry ? '#00D4FF' : 'rgba(0,212,255,0.45)', flexShrink: 0 }} />
+                    : <Lock size={10} style={{ color: 'rgba(255,255,255,0.22)', flexShrink: 0 }} />}
                   {filterCountry || 'Any country'}
                   <ChevronDown size={8} style={{ color: filterCountry ? '#00D4FF' : 'rgba(255,255,255,0.3)', transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }} />
                 </motion.button>
               </div>
 
               {/* Divider */}
-              <div style={{ width: 1, background: 'rgba(255,255,255,0.07)', flexShrink: 0, margin: '10px 0' }} />
+              <div style={{ width: 1, background: 'linear-gradient(to bottom, transparent, rgba(0,212,255,0.15), transparent)', flexShrink: 0 }} />
 
               {/* MODE */}
-              <div style={{ flex: 1, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Mode</span>
+              <div style={{ flex: 1, padding: '11px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                <span style={{ fontSize: 8, fontWeight: 900, letterSpacing: '0.22em', color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase' }}>Mode</span>
                 <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   {[['Solo', 'solo'], ['Duo', 'squad']].map(([label, val]) => (
                     <motion.button key={val}
                       onClick={() => handleModeClick(val)}
-                      whileTap={{ scale: 0.93 }}
+                      whileHover={mode !== val ? { background: 'rgba(255,255,255,0.10)' } : {}}
+                      whileTap={{ scale: 0.92 }}
                       style={{
-                        padding: '5px 11px', borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none',
+                        padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s ease',
                         ...(mode === val
-                          ? { background: '#00D4FF', color: '#0a0a0f', boxShadow: '0 2px 8px rgba(0,212,255,0.4)' }
-                          : { background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)' }),
+                          ? { background: '#00D4FF', color: '#060612', border: 'none', boxShadow: '0 0 14px rgba(0,212,255,0.5), 0 2px 6px rgba(0,212,255,0.3)' }
+                          : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.08)' }),
                       }}>
                       {label}
                     </motion.button>
@@ -1136,7 +1147,7 @@ export default function MainPage() {
                   <motion.button
                     onClick={() => setShowAdvanced(v => !v)}
                     whileTap={{ scale: 0.9 }}
-                    style={{ marginLeft: 'auto', padding: 5, borderRadius: 7, color: showAdvanced ? '#00D4FF' : 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
+                    style={{ marginLeft: 'auto', padding: '4px 6px', borderRadius: 7, color: showAdvanced ? '#00D4FF' : 'rgba(255,255,255,0.28)', background: showAdvanced ? 'rgba(0,212,255,0.1)' : 'none', border: 'none', cursor: 'pointer', display: 'flex', transition: 'all 0.15s ease' }}>
                     <SlidersHorizontal size={13} />
                   </motion.button>
                 </div>
