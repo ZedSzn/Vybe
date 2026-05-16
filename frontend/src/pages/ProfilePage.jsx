@@ -398,7 +398,7 @@ export default function ProfilePage() {
                 {profile.country && joinDate && <span className="opacity-30">·</span>}
                 {joinDate && <span>Joined {joinDate}</span>}
                 {profile.isOnline ? (
-                  <><span className="opacity-30">·</span><span className="text-cyan-400 font-semibold text-xs">Online now</span></>
+                  <><span className="opacity-30">·</span><span className="flex items-center gap-1.5"><span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" /></span><span className="text-cyan-400 font-semibold text-xs">Online now</span></span></>
                 ) : profile.lastSeen ? (
                   <><span className="opacity-30">·</span><span className="flex items-center gap-1"><Clock size={11} />{lastSeenText(profile.lastSeen)}</span></>
                 ) : null}
