@@ -506,9 +506,17 @@ export default function MainPage() {
                 style={{ background: 'radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 70%)', top: '16%' }} />
               {!permissionAsked || cameraErr ? (
                 <div className="relative z-10 flex flex-col items-center w-full">
-                  <div className="flex items-center justify-center mb-3 rounded-2xl" style={{ width: 48, height: 48, background: cameraErr ? 'rgba(220,38,38,0.12)' : 'rgba(0,212,255,0.15)', border: `1.5px solid ${cameraErr ? 'rgba(220,38,38,0.28)' : 'rgba(0,212,255,0.35)'}` }}>
-                    {cameraErr ? <VideoOff size={20} style={{ color: '#f87171' }} /> : <Camera size={20} style={{ color: 'rgba(0,184,224,0.85)' }} />}
-                  </div>
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="" className="mb-3" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 32px rgba(0,212,255,0.15)' }} />
+                  ) : user ? (
+                    <div className="mb-3" style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 900, color: '#00D4FF' }}>
+                      {user.username?.[0]?.toUpperCase() || 'Y'}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center mb-3 rounded-2xl" style={{ width: 48, height: 48, background: 'rgba(0,212,255,0.15)', border: '1.5px solid rgba(0,212,255,0.35)' }}>
+                      <Camera size={20} style={{ color: 'rgba(0,184,224,0.85)' }} />
+                    </div>
+                  )}
                   {cameraErr ? (
                     <>
                       <p className="text-white font-bold text-[13px] text-center mb-1 leading-snug">Camera blocked</p>
@@ -536,12 +544,12 @@ export default function MainPage() {
                     <>
                       <p className="text-white font-bold text-[13px] text-center mb-1 leading-snug">Allow camera access</p>
                       <p className="text-[11px] text-center mb-4 leading-relaxed" style={{ color: 'rgba(160,160,180,0.55)' }}>Required to start video chatting</p>
+                      <motion.button onClick={enableCamera} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                        className="w-full py-2.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2" style={{ background: 'linear-gradient(140deg, #004466 0%, #00D4FF 55%, #00B8E0 100%)' }}>
+                        <Video size={14} />Allow Camera
+                      </motion.button>
                     </>
                   )}
-                  <motion.button onClick={enableCamera} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                    className="w-full py-2.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2" style={{ background: "linear-gradient(140deg, #004466 0%, #00D4FF 55%, #00B8E0 100%)" }}>
-                    <Video size={14} />{cameraErr ? 'Try Again' : 'Allow Camera'}
-                  </motion.button>
                 </div>
               ) : (
                 <div className="relative z-10 flex flex-col items-center gap-3">
@@ -724,9 +732,9 @@ export default function MainPage() {
                             onClick={toggleCodeVisibility}
                             title="Click to reveal your code"
                             className="flex items-center justify-center rounded-md transition-colors"
-                            style={{ color: codeVisible ? '#00D4FF' : 'rgba(0,212,255,0.35)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 2 }}
+                            style={{ color: codeVisible ? '#00D4FF' : 'rgba(0,212,255,0.5)', background: codeVisible ? 'rgba(0,212,255,0.1)' : 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.15)', cursor: 'pointer', padding: '3px 5px', borderRadius: 6 }}
                           >
-                            {codeVisible ? <EyeOff size={9} /> : <Eye size={9} />}
+                            {codeVisible ? <EyeOff size={13} /> : <Eye size={13} />}
                           </button>
                         </div>
                         <p
@@ -1335,9 +1343,9 @@ export default function MainPage() {
                             <button
                               onClick={toggleCodeVisibility}
                               title="Click to reveal your code"
-                              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: codeVisible ? '#00D4FF' : 'rgba(0,212,255,0.35)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 2 }}
+                              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: codeVisible ? '#00D4FF' : 'rgba(0,212,255,0.5)', background: codeVisible ? 'rgba(0,212,255,0.1)' : 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.15)', cursor: 'pointer', padding: '3px 5px', borderRadius: 6 }}
                             >
-                              {codeVisible ? <EyeOff size={8} /> : <Eye size={8} />}
+                              {codeVisible ? <EyeOff size={12} /> : <Eye size={12} />}
                             </button>
                           </div>
                           {duoDisplayCode
@@ -1440,9 +1448,17 @@ export default function MainPage() {
                         animate={{ scale: [1, 1.18, 1], opacity: [0.6, 0.15, 0.6] }} transition={{ duration: 3, repeat: Infinity }} />
                       <motion.div style={{ position: 'absolute', width: 72, height: 72, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.18)' }}
                         animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.08, 0.4] }} transition={{ duration: 3, repeat: Infinity, delay: 0.3 }} />
-                      <div style={{ width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(13,13,24,0.8)', border: '1px solid rgba(0,212,255,0.2)', backdropFilter: 'blur(12px)' }}>
-                        {cameraErr ? <VideoOff size={24} style={{ color: 'rgba(0,212,255,0.4)' }} /> : <Camera size={24} style={{ color: 'rgba(0,212,255,0.5)' }} />}
-                      </div>
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />
+                      ) : user ? (
+                        <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 900, color: '#00D4FF' }}>
+                          {user?.username?.[0]?.toUpperCase() || 'Y'}
+                        </div>
+                      ) : (
+                        <div style={{ width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(13,13,24,0.8)', border: '1px solid rgba(0,212,255,0.2)', backdropFilter: 'blur(12px)' }}>
+                          <Camera size={24} style={{ color: 'rgba(0,212,255,0.5)' }} />
+                        </div>
+                      )}
                     </motion.div>
                     {cameraErr && (
                       <>
@@ -1450,11 +1466,13 @@ export default function MainPage() {
                         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', marginBottom: 24, textAlign: 'center', maxWidth: 200, lineHeight: 1.45 }}>{cameraErrMsg || 'Allow camera access in browser settings'}</p>
                       </>
                     )}
-                    <motion.button onClick={enableCamera} whileHover={{ scale: 1.04, boxShadow: '0 0 24px rgba(0,212,255,0.3)' }} whileTap={{ scale: 0.96 }}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', borderRadius: 99, background: 'rgba(13,13,24,0.75)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 0 0 1px rgba(0,212,255,0.06) inset' }}>
-                      {cameraErr ? <VideoOff size={14} /> : <Camera size={14} />}
-                      {cameraErr ? 'Try Again' : 'Enable Camera'}
-                    </motion.button>
+                    {!cameraErr && (
+                      <motion.button onClick={enableCamera} whileHover={{ scale: 1.04, boxShadow: '0 0 24px rgba(0,212,255,0.3)' }} whileTap={{ scale: 0.96 }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', borderRadius: 99, background: 'rgba(13,13,24,0.75)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 0 0 1px rgba(0,212,255,0.06) inset' }}>
+                        <Camera size={14} />
+                        Enable Camera
+                      </motion.button>
+                    )}
                   </div>
                 )}
 
