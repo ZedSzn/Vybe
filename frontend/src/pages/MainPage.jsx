@@ -1064,10 +1064,10 @@ export default function MainPage() {
             </div>
 
             {/* ── Filters: Gender / Country / Mode ── */}
-            <div style={{ marginTop: 16, borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'stretch' }}>
+            <div style={{ marginTop: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'stretch' }}>
 
               {/* GENDER */}
-              <div style={{ flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ flex: 1, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Gender</span>
                 <div style={{ display: 'flex', gap: 4 }}>
                   {[['Both', 'both'], ['Male', 'male'], ['Female', 'female']].map(([label, val]) => (
@@ -1093,7 +1093,7 @@ export default function MainPage() {
               <div style={{ width: 1, background: 'rgba(255,255,255,0.07)', flexShrink: 0, margin: '10px 0' }} />
 
               {/* COUNTRY */}
-              <div style={{ flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ flex: 1, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Country</span>
                 <motion.button
                   ref={countryBtnRef}
@@ -1117,7 +1117,7 @@ export default function MainPage() {
               <div style={{ width: 1, background: 'rgba(255,255,255,0.07)', flexShrink: 0, margin: '10px 0' }} />
 
               {/* MODE */}
-              <div style={{ flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ flex: 1, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Mode</span>
                 <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   {[['Solo', 'solo'], ['Duo', 'squad']].map(([label, val]) => (
@@ -1151,7 +1151,7 @@ export default function MainPage() {
               <motion.div
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}
                 style={{
-                  marginTop: 10, borderRadius: 16, position: 'relative', overflow: 'hidden',
+                  marginTop: 6, borderRadius: 16, position: 'relative', overflow: 'hidden',
                   background: 'linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(124,58,237,0.05) 100%)',
                   backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
                   border: '1px solid rgba(0,212,255,0.25)',
