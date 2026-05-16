@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import { Skeleton } from '../components/Skeleton'
+import { CAMERA_BG_PRESETS } from '../utils/cameraBackgrounds'
 
 const COUNTRY_FLAGS = {
   'United States': '🇺🇸', 'United Kingdom': '🇬🇧', 'Canada': '🇨🇦', 'Australia': '🇦🇺',
@@ -114,10 +115,12 @@ export default function ProfilePage() {
     interests: [], socialLinks: { instagram: '', tiktok: '', twitter: '', twitch: '', kick: '' },
     privacyShowBio: true, privacyShowCountry: true,
     accentColor: '', bannerGradient: '', bannerImage: '',
+    cameraBackground: 'none', cameraBackgroundImage: '',
   })
 
-  const fileRef       = useRef(null)
-  const bannerFileRef = useRef(null)
+  const fileRef         = useRef(null)
+  const bannerFileRef   = useRef(null)
+  const cameraBgFileRef = useRef(null)
 
   useEffect(() => {
     if (authLoading) return
@@ -141,6 +144,8 @@ export default function ProfilePage() {
             accentColor:        data.user.accentColor || '',
             bannerGradient:     data.user.bannerGradient || '',
             bannerImage:        data.user.bannerImage || '',
+            cameraBackground:      data.user.cameraBackground || 'none',
+            cameraBackgroundImage: data.user.cameraBackgroundImage || '',
           })
           axios.get('/api/badges/mine').then(r => setOwnedBadgeIds(r.data.owned || [])).catch(() => {})
         } else {
@@ -180,6 +185,17 @@ export default function ProfilePage() {
     reader.readAsDataURL(file)
   }
 
+  const handleCameraBgChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 3000000) { setSaveError('Camera background image must be under 3MB'); setTimeout(() => setSaveError(''), 4000); return }
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      setEditForm(f => ({ ...f, cameraBackgroundImage: ev.target.result, cameraBackground: 'custom' }))
+    }
+    reader.readAsDataURL(file)
+  }
+
   const toggleInterest = (intId) => {
     setEditForm(f => {
       const cur = f.interests || []
@@ -205,9 +221,11 @@ export default function ProfilePage() {
           privacyShowCountry: editForm.privacyShowCountry,
           avatar:             editForm.avatar || profile.avatar,
           bannerImage:        editForm.bannerImage,
+          cameraBackgroundImage: editForm.cameraBackgroundImage,
         }),
         axios.put('/api/user/cosmetics', {
           accentColor: editForm.accentColor, bannerGradient: editForm.bannerGradient,
+          cameraBackground: editForm.cameraBackground,
         }).catch(() => {}),
       ])
       const updated = {
@@ -215,6 +233,8 @@ export default function ProfilePage() {
         accentColor:   editForm.accentColor,
         bannerGradient: editForm.bannerGradient,
         bannerImage:   editForm.bannerImage,
+        cameraBackground:      editForm.cameraBackground,
+        cameraBackgroundImage: editForm.cameraBackgroundImage,
         displayName:   editForm.displayName,
         pronouns:      editForm.pronouns,
         interests:     editForm.interests,
@@ -626,6 +646,54 @@ export default function ProfilePage() {
                           boxShadow: editForm.accentColor === c.hex ? `0 0 8px ${c.hex}88` : undefined }}
                         title={c.name} />
                     ))}
+                  </div>
+                </div>
+
+                {/* Camera background */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider">Camera Background</label>
+                    <button type="button" onClick={() => cameraBgFileRef.current?.click()}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold text-vybe-muted hover:text-white border border-vybe-border hover:border-vybe-purple/40 transition-all">
+                      <Camera size={10} /> Upload Image
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-vybe-muted mb-2.5 leading-relaxed">
+                    Replaces what's behind you on camera during chats. Your face stays — everything else becomes the scene you pick.
+                  </p>
+                  <input ref={cameraBgFileRef} type="file" accept="image/*" className="hidden" onChange={handleCameraBgChange} />
+                  {editForm.cameraBackgroundImage && (
+                    <div className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl border border-vybe-border" style={{ background: 'rgba(0,212,255,0.07)' }}>
+                      <img src={editForm.cameraBackgroundImage} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+                      <span className="text-xs text-white/70 flex-1">Custom image</span>
+                      <button type="button"
+                        onClick={() => setEditForm(f => ({ ...f, cameraBackgroundImage: '', cameraBackground: f.cameraBackground === 'custom' ? 'none' : f.cameraBackground }))}
+                        className="text-vybe-muted hover:text-red-400 transition-colors">
+                        <X size={12} />
+                      </button>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-4 gap-2">
+                    {CAMERA_BG_PRESETS.map(bg => {
+                      const active   = editForm.cameraBackground === bg.id
+                      const disabled = bg.id === 'custom' && !editForm.cameraBackgroundImage
+                      return (
+                        <button key={bg.id} type="button" disabled={disabled}
+                          onClick={() => setEditForm(f => ({ ...f, cameraBackground: bg.id }))}
+                          className="relative flex flex-col items-center justify-center gap-1 h-14 rounded-lg overflow-hidden transition-all disabled:opacity-35"
+                          style={{
+                            background: bg.id === 'custom' && editForm.cameraBackgroundImage
+                              ? `center/cover url(${editForm.cameraBackgroundImage})`
+                              : bg.preview,
+                            boxShadow: active ? '0 0 0 2px #a78bfa' : undefined,
+                          }}
+                          title={bg.label}>
+                          <span className="text-sm leading-none drop-shadow">{bg.icon}</span>
+                          <span className="text-[9px] font-bold text-white/90 drop-shadow leading-none">{bg.label}</span>
+                          {active && <span className="absolute top-1 right-1"><Check size={11} className="text-white drop-shadow" /></span>}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 

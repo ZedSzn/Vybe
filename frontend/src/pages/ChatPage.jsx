@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { getBannerStyle } from '../utils/bannerUtils'
+import { getCameraBgPreset } from '../utils/cameraBackgrounds'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -16,6 +17,67 @@ import { useAuth } from '../context/AuthContext'
 import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
 import { playTipSent, playClick } from '../utils/sounds'
+
+// ─── Virtual camera background (MediaPipe Selfie Segmentation) ───────────────
+const MEDIAPIPE_BASE = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747'
+
+function loadSelfieSegmentation() {
+  return new Promise((resolve, reject) => {
+    if (window.SelfieSegmentation) { resolve(window.SelfieSegmentation); return }
+    const s = document.createElement('script')
+    s.src = `${MEDIAPIPE_BASE}/selfie_segmentation.js`
+    s.crossOrigin = 'anonymous'
+    s.onload = () => window.SelfieSegmentation
+      ? resolve(window.SelfieSegmentation)
+      : reject(new Error('SelfieSegmentation global missing'))
+    s.onerror = () => reject(new Error('Failed to load segmentation script'))
+    document.head.appendChild(s)
+  })
+}
+
+// Draw an image cover-fitted (no distortion) into a w×h canvas region.
+function drawCover(ctx, img, w, h) {
+  const ir = img.width / img.height
+  const cr = w / h
+  let dw, dh, dx, dy
+  if (ir > cr) { dh = h; dw = h * ir; dx = (w - dw) / 2; dy = 0 }
+  else         { dw = w; dh = w / ir; dx = 0; dy = (h - dh) / 2 }
+  ctx.drawImage(img, dx, dy, dw, dh)
+}
+
+// Composite one segmentation result: keep the person, paint chosen background behind.
+function compositeFrame(ctx, canvas, results, preset, bgImg) {
+  const w = results.image.width
+  const h = results.image.height
+  if (!w || !h) return
+  if (canvas.width  !== w) canvas.width  = w
+  if (canvas.height !== h) canvas.height = h
+
+  ctx.save()
+  ctx.clearRect(0, 0, w, h)
+  ctx.drawImage(results.segmentationMask, 0, 0, w, h)
+  ctx.globalCompositeOperation = 'source-in'
+  ctx.drawImage(results.image, 0, 0, w, h)
+  ctx.globalCompositeOperation = 'destination-over'
+
+  if (preset.type === 'blur') {
+    ctx.filter = 'blur(14px)'
+    ctx.drawImage(results.image, -30, -30, w + 60, h + 60)
+    ctx.filter = 'none'
+  } else if (preset.type === 'colors') {
+    const cs = preset.colors || ['#0d1020']
+    const g = ctx.createLinearGradient(0, 0, w, h)
+    cs.forEach((c, i) => g.addColorStop(cs.length === 1 ? 0 : i / (cs.length - 1), c))
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, w, h)
+  } else if (preset.type === 'custom' && bgImg) {
+    drawCover(ctx, bgImg, w, h)
+  } else {
+    ctx.fillStyle = '#0d1020'
+    ctx.fillRect(0, 0, w, h)
+  }
+  ctx.restore()
+}
 
 // Uncontrolled input — reads DOM value directly so React re-renders never interfere
 function FloatingChat({ messages, messagesEndRef, onSend, status }) {
@@ -309,6 +371,15 @@ export default function ChatPage() {
   const partnerSockRef  = useRef(null)
   const partnerUidRef   = useRef(null)
 
+  // Virtual camera background
+  const rawStreamRef    = useRef(null)   // untouched camera stream (segmentation source)
+  const segRef          = useRef(null)   // MediaPipe SelfieSegmentation instance
+  const segVideoRef     = useRef(null)   // hidden <video> fed with the raw stream
+  const segCanvasRef    = useRef(null)   // <canvas> the composited frames are drawn to
+  const segRafRef       = useRef(null)   // requestAnimationFrame id for the processing loop
+  const segBusyRef      = useRef(false)  // guards against overlapping seg.send() calls
+  const bgImgRef        = useRef(null)   // decoded custom background image
+
   useEffect(() => {
     // Always fetch fresh balance — localStorage can be stale
     if (user) {
@@ -506,6 +577,66 @@ export default function ChatPage() {
   useEffect(() => {
     let mounted = true
 
+    // Build a processed video stream with the chosen background composited in.
+    // Returns the canvas-captured stream, or null to fall back to the raw camera.
+    const setupVirtualBg = async (rawStream, preset, bgImageData) => {
+      try {
+        const SelfieSegmentation = await loadSelfieSegmentation()
+        if (!mounted) return null
+
+        if (preset.type === 'custom' && bgImageData) {
+          const img = new Image()
+          img.src = bgImageData
+          await new Promise((res) => { img.onload = res; img.onerror = res })
+          bgImgRef.current = img
+        }
+
+        const segVideo = document.createElement('video')
+        segVideo.muted = true
+        segVideo.playsInline = true
+        segVideo.srcObject = rawStream
+        await segVideo.play().catch(() => {})
+        segVideoRef.current = segVideo
+
+        const settings = rawStream.getVideoTracks()[0]?.getSettings?.() || {}
+        const canvas = document.createElement('canvas')
+        canvas.width  = settings.width  || 640
+        canvas.height = settings.height || 480
+        segCanvasRef.current = canvas
+        const ctx = canvas.getContext('2d')
+
+        const seg = new SelfieSegmentation({
+          locateFile: (f) => `${MEDIAPIPE_BASE}/${f}`,
+        })
+        seg.setOptions({ modelSelection: 1, selfieMode: false })
+        seg.onResults((results) => {
+          if (segCanvasRef.current) compositeFrame(ctx, segCanvasRef.current, results, preset, bgImgRef.current)
+        })
+        segRef.current = seg
+
+        const tick = async () => {
+          if (!mounted) return
+          const v = segVideoRef.current
+          if (v && v.readyState >= 2 && !segBusyRef.current) {
+            segBusyRef.current = true
+            try { await seg.send({ image: v }) } catch { /* transient */ }
+            segBusyRef.current = false
+          }
+          segRafRef.current = requestAnimationFrame(tick)
+        }
+        segRafRef.current = requestAnimationFrame(tick)
+
+        const outStream = canvas.captureStream(30)
+        const audioTrack = rawStream.getAudioTracks()[0]
+        if (audioTrack) outStream.addTrack(audioTrack)
+        return outStream
+      } catch (e) {
+        console.warn('[Vybe] Virtual background unavailable, using raw camera:', e?.message || e)
+        if (segRafRef.current) { cancelAnimationFrame(segRafRef.current); segRafRef.current = null }
+        return null
+      }
+    }
+
     const init = async () => {
       // Try video+audio with progressively simpler constraints, then audio-only, then nothing.
       let stream = null
@@ -535,13 +666,21 @@ export default function ChatPage() {
       const camAvailable = !!(stream?.getVideoTracks().length)
       setHasCamera(camAvailable)
       if (stream) {
-        localStreamRef.current = stream
+        rawStreamRef.current = stream
+        let displayStream = stream
+        const preset = getCameraBgPreset(user?.cameraBackground || 'none')
+        if (camAvailable && preset.id !== 'none') {
+          const processed = await setupVirtualBg(stream, preset, user?.cameraBackgroundImage || '')
+          if (processed && mounted) displayStream = processed
+        }
+        if (!mounted) { stream.getTracks().forEach((t) => t.stop()); return }
+        localStreamRef.current = displayStream
         if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream
+          localVideoRef.current.srcObject = displayStream
           localVideoRef.current.play().catch(() => {})
         }
         if (localVideoDesktopRef.current) {
-          localVideoDesktopRef.current.srcObject = stream
+          localVideoDesktopRef.current.srcObject = displayStream
           localVideoDesktopRef.current.play().catch(() => {})
         }
       }
@@ -739,6 +878,9 @@ export default function ChatPage() {
     return () => {
       mounted = false
       destroyAllPeers()
+      if (segRafRef.current) cancelAnimationFrame(segRafRef.current)
+      try { segRef.current?.close() } catch { /* ignore */ }
+      rawStreamRef.current?.getTracks().forEach((t) => t.stop())
       localStreamRef.current?.getTracks().forEach((t) => t.stop())
       socketRef.current?.disconnect()
       clearInterval(timerRef.current)
@@ -749,6 +891,26 @@ export default function ChatPage() {
   const flipCamera = async () => {
     const newFacing = facingMode === 'user' ? 'environment' : 'user'
     setFacingMode(newFacing)
+    // With a virtual background active, the camera only feeds the segmentation
+    // pipeline — swap the track on the raw stream so the composited canvas
+    // stream (and the WebRTC senders reading it) stay untouched.
+    if (segRef.current && rawStreamRef.current) {
+      try {
+        const videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: newFacing, width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false,
+        })
+        const newVideoTrack = videoStream.getVideoTracks()[0]
+        if (newVideoTrack) {
+          rawStreamRef.current.getVideoTracks().forEach((t) => { t.stop(); rawStreamRef.current.removeTrack(t) })
+          rawStreamRef.current.addTrack(newVideoTrack)
+          if (segVideoRef.current) segVideoRef.current.srcObject = rawStreamRef.current
+        }
+      } catch {
+        setFacingMode(facingMode)
+      }
+      return
+    }
     // Only stop video tracks — preserve the existing audio track so mute keeps working
     localStreamRef.current?.getVideoTracks().forEach((t) => t.stop())
     try {

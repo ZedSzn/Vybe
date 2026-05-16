@@ -393,9 +393,11 @@ const userSchema = new mongoose.Schema({
   equippedBadges:   { type: [String], default: [] },
   borderColor:      { type: String, default: '' },
   animatedBorder:   { type: Boolean, default: false },
-  accentColor:      { type: String, default: '' },
-  bannerGradient:   { type: String, default: '' },
-  bannerImage:      { type: String, default: '' },
+  accentColor:          { type: String, default: '' },
+  bannerGradient:       { type: String, default: '' },
+  bannerImage:          { type: String, default: '' },
+  cameraBackground:     { type: String, default: 'none' },
+  cameraBackgroundImage:{ type: String, default: '' },
 });
 
 const reportSchema = new mongoose.Schema({
@@ -606,9 +608,11 @@ const serializeUser = (user, extra = {}) => ({
   equippedBadges: user.equippedBadges || [],
   borderColor:    user.borderColor    || '',
   animatedBorder: user.animatedBorder || false,
-  accentColor:    user.accentColor    || '',
-  bannerGradient: user.bannerGradient || '',
-  bannerImage:    user.bannerImage    || '',
+  accentColor:           user.accentColor           || '',
+  bannerGradient:        user.bannerGradient        || '',
+  bannerImage:           user.bannerImage           || '',
+  cameraBackground:      user.cameraBackground      || 'none',
+  cameraBackgroundImage: user.cameraBackgroundImage || '',
   ...extra,
 });
 
@@ -1746,7 +1750,7 @@ app.get('/api/user/me', authMiddleware, async (req, res) => {
 
 app.get('/api/user/:id/profile', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient bannerImage');
+    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient bannerImage cameraBackground');
     if (!user) return res.status(404).json({ error: 'User not found' });
     const friendCount = await Friendship.countDocuments({ $or: [{ requester: user._id }, { recipient: user._id }], status: 'accepted' });
     const isOnline    = [...onlineUsers.values()].some((s) => String(s.userId) === String(user._id));
@@ -1765,13 +1769,14 @@ app.get('/api/user/:id/profile', async (req, res) => {
       accentColor: user.accentColor || '',
       bannerGradient: user.bannerGradient || '',
       bannerImage: user.bannerImage || '',
+      cameraBackground: user.cameraBackground || 'none',
     }});
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.put('/api/user/profile', authMiddleware, async (req, res) => {
   try {
-    const { bio, avatar, bannerImage, gender, country, privacyShowCountry, privacyShowBio } = req.body;
+    const { bio, avatar, bannerImage, gender, country, privacyShowCountry, privacyShowBio, cameraBackgroundImage } = req.body;
     const update = {};
     if (bio !== undefined)  update.bio    = String(bio).slice(0, 100);
     if (gender !== undefined) update.gender = gender;
@@ -1785,6 +1790,10 @@ app.put('/api/user/profile', authMiddleware, async (req, res) => {
     if (bannerImage !== undefined) {
       if (bannerImage && bannerImage.length > 2800000) return res.status(400).json({ error: 'Banner image too large (max ~2MB)' });
       update.bannerImage = bannerImage;
+    }
+    if (cameraBackgroundImage !== undefined) {
+      if (cameraBackgroundImage && cameraBackgroundImage.length > 4000000) return res.status(400).json({ error: 'Camera background image too large (max ~3MB)' });
+      update.cameraBackgroundImage = cameraBackgroundImage;
     }
     const user = await User.findByIdAndUpdate(req.user._id, update, { new: true }).select('-password');
     res.json({ success: true, user: serializeUser(user) });
@@ -1921,9 +1930,10 @@ app.put('/api/user/border', authMiddleware, async (req, res) => {
 
 app.put('/api/user/cosmetics', authMiddleware, async (req, res) => {
   try {
-    const { accentColor, bannerGradient } = req.body;
+    const { accentColor, bannerGradient, cameraBackground } = req.body;
     const ACCENT_COLORS = ['#7c3aed','#1b62f5','#ec4899','#f59e0b','#10b981','#06b6d4',''];
     const BANNER_GRADIENTS = ['default','sunset','ocean','forest','ember','aurora','midnight','rose',''];
+    const CAMERA_BACKGROUNDS = ['none','blur','space','sunset','ocean','forest','neon','custom'];
     const update = {};
     if (accentColor !== undefined) {
       if (!ACCENT_COLORS.includes(accentColor)) return res.status(400).json({ error: 'Invalid accent color' });
@@ -1933,9 +1943,13 @@ app.put('/api/user/cosmetics', authMiddleware, async (req, res) => {
       if (!BANNER_GRADIENTS.includes(bannerGradient)) return res.status(400).json({ error: 'Invalid banner' });
       update.bannerGradient = bannerGradient;
     }
+    if (cameraBackground !== undefined) {
+      if (!CAMERA_BACKGROUNDS.includes(cameraBackground)) return res.status(400).json({ error: 'Invalid camera background' });
+      update.cameraBackground = cameraBackground;
+    }
     await User.findByIdAndUpdate(req.user._id, update);
-    const updated = await User.findById(req.user._id).select('accentColor bannerGradient');
-    res.json({ success: true, accentColor: updated.accentColor, bannerGradient: updated.bannerGradient });
+    const updated = await User.findById(req.user._id).select('accentColor bannerGradient cameraBackground');
+    res.json({ success: true, accentColor: updated.accentColor, bannerGradient: updated.bannerGradient, cameraBackground: updated.cameraBackground });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
