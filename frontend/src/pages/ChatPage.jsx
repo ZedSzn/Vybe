@@ -206,7 +206,6 @@ export default function ChatPage() {
   const [partnerIsVip,         setPartnerIsVip]         = useState(false)
   const [partnerIsPremium,     setPartnerIsPremium]     = useState(false)
   const [partnerEmailVerified, setPartnerEmailVerified] = useState(false)
-  const [strangerHidden,   setStrangerHidden]   = useState(false)
   const [blockLoading,   setBlockLoading]     = useState(false)
   const [friendReqSent,  setFriendReqSent]    = useState(false)
   const [friendReqLoad,  setFriendReqLoad]    = useState(false)
@@ -554,7 +553,6 @@ export default function ChatPage() {
         setReportSent(false)
         setStatus('matched')
         setSquadMates(mates || [])
-        setStrangerHidden(false)
         setPartnerUsername(pUsername || null)
         setPartnerAvatar(pAvatar || null)
         setPartnerIsVip(pIsVip || false)
@@ -1116,7 +1114,6 @@ export default function ChatPage() {
               {/* TOP LEFT: Stranger 1 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)', borderRight: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                {strangerHidden && <div className="absolute inset-0 z-[2] flex items-center justify-center" style={{ background: 'rgba(4,4,12,0.95)', backdropFilter: 'blur(24px)' }}><Shield size={20} style={{ color: '#00B8E0' }} /></div>}
                 <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
                   <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
                     <span className="text-white/80 font-semibold text-[9px]">{partnerUsername || 'Stranger'}</span>
@@ -1126,7 +1123,6 @@ export default function ChatPage() {
               {/* TOP RIGHT: Stranger 2 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                {strangerHidden && <div className="absolute inset-0 z-[2] flex items-center justify-center" style={{ background: 'rgba(4,4,12,0.95)', backdropFilter: 'blur(24px)' }}><Shield size={20} style={{ color: '#00B8E0' }} /></div>}
                 <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
                   <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
                     <span className="text-white/80 font-semibold text-[9px]">Stranger</span>
@@ -1251,29 +1247,6 @@ export default function ChatPage() {
               </div>
             </>
           )}
-
-          {/* Safe mode overlay */}
-          <AnimatePresence>
-            {strangerHidden && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                className="absolute inset-0 z-[5] flex flex-col items-center justify-center gap-2.5"
-                style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}>
-                <div className="relative flex items-center justify-center">
-                  <div className="absolute w-14 h-14 rounded-full" style={{ background: 'radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 70%)' }} />
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.35)', boxShadow: '0 0 16px rgba(0,212,255,0.15)' }}>
-                    <Shield size={18} style={{ color: '#00B8E0' }} />
-                  </div>
-                </div>
-                <div className="text-center">
-                  <p className="text-white font-black text-xs tracking-wide mb-0.5">Safe Mode Active</p>
-                  <p className="text-white/35 text-[10px]">Stranger's camera is hidden</p>
-                </div>
-                <button onClick={() => setStrangerHidden(false)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold active:scale-95 mt-1" style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.35)', color: '#00B8E0' }}>
-                  <Video size={11} /> Reveal Camera
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Top gradient overlay */}
           <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-[3]" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)' }} />
@@ -1554,11 +1527,6 @@ export default function ChatPage() {
                 </span>
               </MobileFloatBtn>
 
-              {/* Safe mode */}
-              <MobileFloatBtn onClick={() => setStrangerHidden(h => !h)} amber={strangerHidden} active={strangerHidden}>
-                <Shield size={16} />
-              </MobileFloatBtn>
-
               {/* Report */}
               {!reportSent ? (
                 <MobileFloatBtn onClick={() => status === 'matched' && setShowReport(true)} disabled={status !== 'matched'}>
@@ -1591,18 +1559,6 @@ export default function ChatPage() {
               {/* TOP LEFT: Stranger 1 */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                <AnimatePresence>
-                  {strangerHidden && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
-                      style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}>
-                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.35)' }}>
-                        <Shield size={20} style={{ color: '#00B8E0' }} />
-                      </div>
-                      <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>Camera hidden</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
                 {status === 'matched' && (
                   <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
                     <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
@@ -1635,18 +1591,6 @@ export default function ChatPage() {
               {/* TOP RIGHT: Stranger 2 */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                <AnimatePresence>
-                  {strangerHidden && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
-                      style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}>
-                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.35)' }}>
-                        <Shield size={20} style={{ color: '#00B8E0' }} />
-                      </div>
-                      <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>Camera hidden</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
                 {status === 'matched' && (
                   <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
                     <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
@@ -1822,18 +1766,6 @@ export default function ChatPage() {
                           </span>
                         )}
                       </div>
-                      <button
-                        onClick={() => setStrangerHidden(h => !h)}
-                        title={strangerHidden ? 'Reveal camera (exit safe mode)' : 'Safe Mode — hide camera instantly'}
-                        className="flex items-center justify-center w-7 h-7 rounded-full"
-                        style={{
-                          backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-                          background: strangerHidden ? 'rgba(0,212,255,0.2)' : 'rgba(0,0,0,0.4)',
-                          border: strangerHidden ? '1px solid rgba(0,212,255,0.4)' : '1px solid rgba(255,255,255,0.12)',
-                          transition: 'all 200ms ease',
-                        }}>
-                        <Shield size={13} style={{ color: strangerHidden ? '#00D4FF' : 'rgba(255,255,255,0.7)' }} />
-                      </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -1845,39 +1777,6 @@ export default function ChatPage() {
                     {fmt(elapsed)}
                   </div>
                 )}
-                {/* Safe Mode overlay */}
-                <AnimatePresence>
-                  {strangerHidden && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4"
-                      style={{ background: 'rgba(4,4,12,0.97)', backdropFilter: 'blur(32px)' }}
-                    >
-                      <div className="relative flex items-center justify-center">
-                        <div className="absolute w-20 h-20 rounded-full"
-                          style={{ background: 'radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 70%)' }} />
-                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                          style={{ background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.35)', boxShadow: '0 0 24px rgba(0,212,255,0.15)' }}>
-                          <Shield size={26} style={{ color: '#00B8E0' }} />
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-white font-black text-sm tracking-wide mb-0.5">Safe Mode Active</p>
-                        <p className="text-white/35 text-[11px]">Stranger's camera is hidden</p>
-                      </div>
-                      <button
-                        onClick={() => setStrangerHidden(false)}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold active:scale-95"
-                        style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.35)', color: '#00B8E0' }}
-                      >
-                        <Video size={12} /> Reveal Camera
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
                 {/* Bottom fade for bar clearance */}
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 120, background: 'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)' }} />
               </div>
