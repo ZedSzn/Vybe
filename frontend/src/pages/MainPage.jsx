@@ -1364,22 +1364,12 @@ export default function MainPage() {
             background: '#0a0a0f',
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
-            <style>{`
-              .camera-panel-bg {
-                position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: 0;
-                background: #0d0d0d;
-              }
-              .camera-panel-bg::before {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='0,0 50,30 100,0 100,100 50,70 0,100' fill='rgba(255,255,255,0.015)' stroke='rgba(255,255,255,0.02)' stroke-width='0.5'/%3E%3C/svg%3E");
-                background-size: 100px 100px;
-                background-repeat: repeat;
-                opacity: 1;
-              }
-            `}</style>
-            <div className="camera-panel-bg" />
+            <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', zIndex: 0, background: '#0d0d0d' }}>
+              {/* Light leak — top right */}
+              <div style={{ position: 'absolute', top: 0, right: 0, width: '60%', height: '60%', background: 'radial-gradient(ellipse at top right, rgba(255,255,255,0.04) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+              {/* Shadow — bottom left */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, width: '50%', height: '50%', background: 'radial-gradient(ellipse at bottom left, rgba(0,0,0,0.3) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+            </div>
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
