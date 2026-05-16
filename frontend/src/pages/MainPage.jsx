@@ -1488,25 +1488,48 @@ export default function MainPage() {
                       </motion.div>
                     ) : (
                       <motion.div key="friend-joined"
-                        initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                        style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#0a0a14' }}>
-                        {/* Ambient green glow */}
-                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(74,222,128,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                          <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Check size={17} style={{ color: '#4ade80' }} />
-                          </div>
-                          <p style={{ fontSize: 13, fontWeight: 800, color: '#4ade80', margin: 0 }}>Friend connected!</p>
-                          <div style={{ display: 'flex', gap: 6 }}>
-                            {squad?.members?.map((m) => (
-                              <div key={m.socketId} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px 3px 5px', borderRadius: 50, background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)' }}>
-                                <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,212,255,0.2)', color: '#00D4FF', fontSize: 8, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{m.username?.[0]?.toUpperCase() || '?'}</div>
-                                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.65)' }}>{m.username || 'User'}</span>
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        style={{ position: 'absolute', inset: 0, background: '#0d0d14' }}>
+                        {(() => {
+                          const partner = squad?.members?.find(m => m.socketId !== socket?.id)
+                          const initial = partner?.username?.[0]?.toUpperCase() || '?'
+                          const name = partner?.username || 'Partner'
+                          return (
+                            <>
+                              {/* Subtle ambient glow */}
+                              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 40% 35%, rgba(0,212,255,0.09) 0%, transparent 65%)', pointerEvents: 'none' }} />
+                              {/* Pulsing rings */}
+                              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                                <motion.div style={{ position: 'absolute', width: 90, height: 90, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.15)' }}
+                                  animate={{ scale: [1, 1.18, 1], opacity: [0.5, 0.1, 0.5] }} transition={{ duration: 3.2, repeat: Infinity }} />
+                                <motion.div style={{ position: 'absolute', width: 68, height: 68, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.1)' }}
+                                  animate={{ scale: [1, 1.1, 1], opacity: [0.35, 0.05, 0.35] }} transition={{ duration: 3.2, repeat: Infinity, delay: 0.4 }} />
                               </div>
-                            ))}
-                          </div>
-                          <p style={{ fontSize: 10, color: 'rgba(74,222,128,0.55)', margin: 0 }}>Ready to start Vybe!</p>
-                        </div>
+                              {/* Avatar + name */}
+                              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, zIndex: 1 }}>
+                                <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(0,212,255,0.12)', border: '1.5px solid rgba(0,212,255,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: '#00D4FF', boxShadow: '0 0 20px rgba(0,212,255,0.18)' }}>
+                                  {initial}
+                                </div>
+                                <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)', margin: 0 }}>{name}</p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                                  <motion.span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block', boxShadow: '0 0 6px rgba(74,222,128,0.7)' }}
+                                    animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+                                  <span style={{ fontSize: 10, color: 'rgba(74,222,128,0.65)' }}>Connected</span>
+                                </div>
+                              </div>
+                              {/* Profile pill top-left */}
+                              <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 50, padding: '3px 9px 3px 3px' }}>
+                                  <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,212,255,0.2)', color: '#00D4FF', fontSize: 8, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{initial}</div>
+                                  <span style={{ color: 'white', fontWeight: 700, fontSize: 10 }}>{name}</span>
+                                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
+                                </div>
+                              </div>
+                              {/* Bottom fade */}
+                              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 100%)', pointerEvents: 'none' }} />
+                            </>
+                          )
+                        })()}
                       </motion.div>
                     )}
                   </AnimatePresence>
