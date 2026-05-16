@@ -195,6 +195,7 @@ export default function ChatPage() {
   const location  = useLocation()
   const { user }  = useAuth()
   const bannerStyle = getBannerStyle(user)
+  const bannerImage = user?.bannerImage || null
 
   const prefs = location.state || { mode: 'solo', filterGender: null, filterCountry: '' }
 
@@ -1760,7 +1761,9 @@ export default function ChatPage() {
                   </div>
                 )}
                 <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
-                  <div className="flex items-center" style={{ background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                  <div className="flex items-center" style={{ position: 'relative', overflow: 'hidden', background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                    {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
+                    <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
                     {user?.avatar ? (
                       <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(0,212,255,0.4)' }} />
                     ) : user?.username ? (
@@ -1969,16 +1972,19 @@ export default function ChatPage() {
                       </div>
                     )}
                     <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                        {user?.avatar ? (
-                          <img src={user.avatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
-                        ) : user?.username ? (
-                          <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>
-                            {user.username[0].toUpperCase()}
-                          </div>
-                        ) : null}
-                        <span style={{ color: 'white', fontWeight: 700, fontSize: 11, lineHeight: 1 }}>{user ? user.username : 'You'}</span>
-                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
+                      <div style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                        {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
+                        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+                          {user?.avatar ? (
+                            <img src={user.avatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
+                          ) : user?.username ? (
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>
+                              {user.username[0].toUpperCase()}
+                            </div>
+                          ) : null}
+                          <span style={{ color: 'white', fontWeight: 700, fontSize: 11, lineHeight: 1 }}>{user ? user.username : 'You'}</span>
+                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
+                        </div>
                       </div>
                     </div>
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
