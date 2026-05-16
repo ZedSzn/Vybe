@@ -1365,35 +1365,20 @@ export default function MainPage() {
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
             <style>{`
-              .camera-panel-bg { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: 0; pointer-events: none; background: #0a0a0f; }
-              .smoke-1 { position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 70%); animation: smokeFloat1 10s ease-in-out infinite; filter: blur(60px); top: -150px; left: -150px; }
-              .smoke-2 { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%); animation: smokeFloat2 13s ease-in-out infinite; filter: blur(70px); bottom: -150px; right: -150px; }
-              .smoke-3 { position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%); animation: smokeFloat3 8s ease-in-out infinite; filter: blur(50px); top: 50%; left: 50%; transform: translate(-50%, -50%); }
-              .smoke-4 { position: absolute; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%); animation: smokeFloat1 11s ease-in-out infinite reverse; filter: blur(45px); top: 30%; right: -50px; }
-              @keyframes smokeFloat1 {
-                0%   { transform: translate(0px, 0px) scale(1);      opacity: 0.7; }
-                33%  { transform: translate(100px, 80px) scale(1.3); opacity: 1;   }
-                66%  { transform: translate(50px, 150px) scale(0.9); opacity: 0.8; }
-                100% { transform: translate(0px, 0px) scale(1);      opacity: 0.7; }
+              .camera-dot-grid {
+                position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: 0;
+                background-color: #0a0a0f;
+                background-image: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px);
+                background-size: 24px 24px;
+                animation: dotPulse 4s ease-in-out infinite;
               }
-              @keyframes smokeFloat2 {
-                0%   { transform: translate(0px, 0px) scale(1);        opacity: 0.6; }
-                33%  { transform: translate(-80px, -100px) scale(1.2); opacity: 1;   }
-                66%  { transform: translate(-40px, -60px) scale(1.4);  opacity: 0.7; }
-                100% { transform: translate(0px, 0px) scale(1);        opacity: 0.6; }
-              }
-              @keyframes smokeFloat3 {
-                0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.5; }
-                50%  { transform: translate(-50%, -50%) scale(1.5); opacity: 1;   }
-                100% { transform: translate(-50%, -50%) scale(1);   opacity: 0.5; }
+              @keyframes dotPulse {
+                0%   { opacity: 0.4; }
+                50%  { opacity: 0.8; }
+                100% { opacity: 0.4; }
               }
             `}</style>
-            <div className="camera-panel-bg">
-              <div className="smoke-1" />
-              <div className="smoke-2" />
-              <div className="smoke-3" />
-              <div className="smoke-4" />
-            </div>
+            <div className="camera-dot-grid" />
 
             {/* Live video feed */}
             <video ref={videoRefDesktop} autoPlay muted playsInline
