@@ -2042,33 +2042,34 @@ export default function ChatPage() {
           </AnimatePresence>
 
           {/* Desktop bottom bar */}
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 64, background: 'rgba(10,10,20,0.9)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50 }}>
-            {/* Far left: Coins */}
-            <motion.button
-              onClick={() => setShowTip(true)}
-              whileHover={{ background: 'rgba(255,255,255,0.10)' }}
-              whileTap={{ scale: 0.93 }}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 50, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', cursor: 'pointer', transition: 'background 150ms ease' }}>
-              <VybeCoin size={14} style={{ color: '#00D4FF' }} />
-              <span style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>{coins.toLocaleString()}</span>
-            </motion.button>
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 64, background: 'rgba(10,10,20,0.9)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50 }}>
 
-            {/* Report */}
+            {/* Far left: Report */}
             <motion.button
               onClick={() => status === 'matched' && !reportSent && setShowReport(true)}
               whileHover={!reportSent && status === 'matched' ? { background: 'rgba(255,255,255,0.12)' } : {}}
               whileTap={!reportSent && status === 'matched' ? { scale: 0.93 } : {}}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 50, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: !reportSent && status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease' }}>
+              style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 18px', borderRadius: 50, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: !reportSent && status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease', flexShrink: 0 }}>
               {reportSent ? <><ShieldCheck size={13} style={{ marginRight: 4 }} />Reported</> : <><Flag size={13} />Report</>}
             </motion.button>
 
-            {/* Center group: Gender + Country + Skip */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* Center: Coins | Gender | Country | Skip */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {/* Spend Coins */}
+              <motion.button
+                onClick={() => setShowTip(true)}
+                whileHover={{ background: 'rgba(255,255,255,0.10)' }}
+                whileTap={{ scale: 0.93 }}
+                style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', borderRadius: 50, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', cursor: 'pointer', transition: 'background 150ms ease', flexShrink: 0 }}>
+                <VybeCoin size={14} style={{ color: '#00D4FF' }} />
+                <span style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>{coins.toLocaleString()}</span>
+              </motion.button>
+
               {/* Gender */}
               <motion.button
                 onClick={() => { setShowGenderDrop(v => !v); setShowChatCountryDrop(false) }}
                 whileTap={{ scale: 0.95 }}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 50, background: chatFilterGender !== 'both' ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: chatFilterGender !== 'both' ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.10)', color: chatFilterGender !== 'both' ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease' }}>
+                style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', borderRadius: 50, background: chatFilterGender !== 'both' ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: chatFilterGender !== 'both' ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.10)', color: chatFilterGender !== 'both' ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease', flexShrink: 0 }}>
                 {chatFilterGender === 'both' ? 'Both' : chatFilterGender === 'male' ? 'Male' : 'Female'}
                 <ChevronDown size={12} style={{ transition: 'transform 150ms', transform: showGenderDrop ? 'rotate(180deg)' : 'none', flexShrink: 0 }} />
               </motion.button>
@@ -2077,7 +2078,7 @@ export default function ChatPage() {
               <motion.button
                 onClick={() => { setShowChatCountryDrop(v => !v); setShowGenderDrop(false) }}
                 whileTap={{ scale: 0.95 }}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 50, background: chatFilterCountry ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: chatFilterCountry ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.10)', color: chatFilterCountry ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease', whiteSpace: 'nowrap' }}>
+                style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', borderRadius: 50, background: chatFilterCountry ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: chatFilterCountry ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.10)', color: chatFilterCountry ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 {user?.isVip ? <Globe size={12} style={{ flexShrink: 0 }} /> : <Lock size={12} style={{ opacity: 0.5, flexShrink: 0 }} />}
                 {chatFilterCountry || 'Any Country'}
                 <ChevronDown size={12} style={{ transition: 'transform 150ms', transform: showChatCountryDrop ? 'rotate(180deg)' : 'none', flexShrink: 0 }} />
@@ -2088,17 +2089,17 @@ export default function ChatPage() {
                 onClick={status === 'matched' ? handleSkip : undefined}
                 whileHover={status === 'matched' ? { scale: 1.04 } : {}}
                 whileTap={status === 'matched' ? { scale: 0.93 } : {}}
-                style={{ padding: '10px 28px', borderRadius: 50, background: status === 'matched' ? '#00D4FF' : 'rgba(0,212,255,0.1)', color: status === 'matched' ? '#0a0a0f' : 'rgba(0,212,255,0.3)', fontSize: 14, fontWeight: 700, border: 'none', cursor: status === 'matched' ? 'pointer' : 'default', boxShadow: status === 'matched' ? '0 0 24px rgba(0,212,255,0.4)' : 'none', transition: 'all 150ms ease' }}>
+                style={{ height: 40, padding: '0 28px', borderRadius: 50, background: status === 'matched' ? '#00D4FF' : 'rgba(0,212,255,0.1)', color: status === 'matched' ? '#0a0a0f' : 'rgba(0,212,255,0.3)', fontSize: 14, fontWeight: 700, border: 'none', cursor: status === 'matched' ? 'pointer' : 'default', boxShadow: status === 'matched' ? '0 0 24px rgba(0,212,255,0.4)' : 'none', transition: 'all 150ms ease', flexShrink: 0 }}>
                 Skip
               </motion.button>
             </div>
 
-            {/* Right: Chat */}
+            {/* Far right: Chat */}
             <motion.button
               onClick={toggleChat}
               whileHover={{ background: showChat ? 'rgba(0,212,255,0.22)' : 'rgba(255,255,255,0.12)' }}
               whileTap={{ scale: 0.93 }}
-              style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 50, background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.10)', color: showChat ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease' }}>
+              style={{ position: 'relative', height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 18px', borderRadius: 50, background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.10)', color: showChat ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease', flexShrink: 0 }}>
               <MessageSquare size={13} />
               Chat
               {unread > 0 && !showChat && (
