@@ -1770,7 +1770,7 @@ export default function ChatPage() {
                   </div>
                 )}
                 <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
-                  <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                  <div className="flex items-center" style={{ background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
                     {user?.avatar ? (
                       <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(0,212,255,0.4)' }} />
                     ) : user?.username ? (
@@ -1984,7 +1984,7 @@ export default function ChatPage() {
                       </div>
                     )}
                     <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
                         {user?.avatar ? (
                           <img src={user.avatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
                         ) : user?.username ? (

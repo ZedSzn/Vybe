@@ -1294,7 +1294,7 @@ export default function MainPage() {
 
             {/* Your profile pill — always inside panel top-left */}
             <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: bannerStyle, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px' }}>
                 {user?.avatar
                   ? <img src={user.avatar} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)' }} />
                   : <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.25), rgba(124,58,237,0.25))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#00D4FF', border: '1.5px solid rgba(0,212,255,0.35)', flexShrink: 0 }}>{user?.username?.[0]?.toUpperCase() || 'Y'}</div>
