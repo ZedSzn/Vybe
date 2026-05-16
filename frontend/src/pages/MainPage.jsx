@@ -6,6 +6,7 @@ import {
   Lock, Globe, ChevronDown, UserPlus, Copy, Check,
   Crown, Loader2, X as XIcon, Video, VideoOff, Shield,
   Camera, DollarSign, SlidersHorizontal, User, Users, RefreshCw,
+  Eye, EyeOff,
 } from 'lucide-react'
 
 const FEATURE_CARDS = [
@@ -165,8 +166,10 @@ export default function MainPage() {
 
   const [snapCopied,     setSnapCopied]     = useState(false)
   const [instantDuoCode, setInstantDuoCode] = useState('')
+  const [codeVisible,    setCodeVisible]    = useState(false)
 
-  const countryBtnRef = useRef(null)
+  const countryBtnRef    = useRef(null)
+  const codeRevealTimer  = useRef(null)
   const [countryDropPos, setCountryDropPos] = useState({ top: 0, left: 0, width: 0 })
 
   const flipCamera = async () => {
@@ -397,6 +400,16 @@ export default function MainPage() {
   }
 
   const inviteText = `Join my duo on Vybe! ${inviteUrl}`
+
+  const toggleCodeVisibility = () => {
+    if (codeRevealTimer.current) clearTimeout(codeRevealTimer.current)
+    if (codeVisible) {
+      setCodeVisible(false)
+    } else {
+      setCodeVisible(true)
+      codeRevealTimer.current = setTimeout(() => setCodeVisible(false), 10000)
+    }
+  }
 
   const copyLink = async () => {
     try { await navigator.clipboard.writeText(inviteUrl); setCopied(true); setTimeout(() => setCopied(false), 2000) }
@@ -703,12 +716,43 @@ export default function MainPage() {
                           <button onClick={leaveSquad} className="w-5 h-5 flex items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/10 transition-all"><XIcon size={10} /></button>
                         </div>
                       </div>
-                      <div className="text-center py-1">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.25em] mb-1" style={{ color: 'rgba(0,212,255,0.5)' }}>Room Code</p>
-                        <p className="text-2xl font-black tracking-[0.18em]" style={{ color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)' }}>{duoDisplayCode}</p>
+                      <div className="py-1">
+                        <div className="flex items-center justify-center gap-1.5 mb-1">
+                          <Lock size={8} style={{ color: 'rgba(0,212,255,0.4)', flexShrink: 0 }} />
+                          <p className="text-[9px] font-bold uppercase tracking-[0.25em]" style={{ color: 'rgba(0,212,255,0.5)' }}>Room Code</p>
+                          <button
+                            onClick={toggleCodeVisibility}
+                            title="Click to reveal your code"
+                            className="flex items-center justify-center rounded-md transition-colors"
+                            style={{ color: codeVisible ? '#00D4FF' : 'rgba(0,212,255,0.35)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 2 }}
+                          >
+                            {codeVisible ? <EyeOff size={9} /> : <Eye size={9} />}
+                          </button>
+                        </div>
+                        <p
+                          className="text-2xl font-black tracking-[0.18em] text-center"
+                          style={{
+                            color: '#00D4FF',
+                            fontFamily: 'ui-monospace, monospace',
+                            textShadow: codeVisible ? '0 0 20px rgba(0,212,255,0.4)' : 'none',
+                            filter: codeVisible ? 'none' : 'blur(6px)',
+                            userSelect: codeVisible ? 'text' : 'none',
+                            transition: 'filter 0.2s',
+                          }}
+                        >{duoDisplayCode}</p>
                       </div>
                       <div className="flex gap-1.5">
-                        <div className="flex-1 px-2.5 py-2 rounded-xl text-[9px] font-mono truncate select-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(200,210,255,0.5)' }}>{inviteUrl}</div>
+                        <div
+                          className="flex-1 px-2.5 py-2 rounded-xl text-[9px] font-mono truncate select-all"
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            color: 'rgba(200,210,255,0.5)',
+                            filter: codeVisible ? 'none' : 'blur(5px)',
+                            userSelect: codeVisible ? 'text' : 'none',
+                            transition: 'filter 0.2s',
+                          }}
+                        >{inviteUrl}</div>
                         <motion.button onClick={copyLink} whileTap={{ scale: 0.85 }} animate={copied ? { scale: [1, 1.15, 1] } : {}} transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                           className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                           style={copied ? { background: 'rgba(34,197,94,0.2)', color: '#4ade80' } : { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.7)' }}>
@@ -1285,9 +1329,19 @@ export default function MainPage() {
                         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
                         {/* Room code */}
                         <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-                          <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: '0.25em', color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase', marginBottom: 3 }}>Room Code</p>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, marginBottom: 4 }}>
+                            <Lock size={7} style={{ color: 'rgba(0,212,255,0.4)', flexShrink: 0 }} />
+                            <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: '0.25em', color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase', margin: 0 }}>Room Code</p>
+                            <button
+                              onClick={toggleCodeVisibility}
+                              title="Click to reveal your code"
+                              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: codeVisible ? '#00D4FF' : 'rgba(0,212,255,0.35)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 2 }}
+                            >
+                              {codeVisible ? <EyeOff size={8} /> : <Eye size={8} />}
+                            </button>
+                          </div>
                           {duoDisplayCode
-                            ? <p style={{ fontSize: 20, fontWeight: 900, letterSpacing: '0.18em', color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 16px rgba(0,212,255,0.5)', margin: 0 }}>{duoDisplayCode}</p>
+                            ? <p style={{ fontSize: 20, fontWeight: 900, letterSpacing: '0.18em', color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: codeVisible ? '0 0 16px rgba(0,212,255,0.5)' : 'none', margin: 0, filter: codeVisible ? 'none' : 'blur(6px)', transition: 'filter 0.2s', userSelect: codeVisible ? 'text' : 'none' }}>{duoDisplayCode}</p>
                             : <Loader2 size={14} className="animate-spin" style={{ color: '#00D4FF' }} />
                           }
                         </div>
