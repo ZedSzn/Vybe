@@ -8,7 +8,6 @@ import {
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
-import { Skeleton } from '../components/Skeleton'
 import axios from 'axios'
 
 
@@ -295,28 +294,15 @@ export default function SubscriptionPage() {
           Back
         </button>
 
-        {loading ? (
-          <div className="space-y-6">
-            <div className="text-center mb-12 space-y-3">
-              <Skeleton className="h-10 w-72 mx-auto" rounded="rounded-xl" />
-              <Skeleton className="h-5 w-56 mx-auto" rounded="rounded-lg" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Skeleton className="h-72" rounded="rounded-2xl" />
-              <Skeleton className="h-72" rounded="rounded-2xl" />
-            </div>
-            <Skeleton className="h-48 w-full" rounded="rounded-2xl" />
-          </div>
-        ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
 
             {/* Header */}
             <div className="text-center mb-12">
               <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-                {isTrial ? 'Your VIP Trial' : isActive ? 'Manage Membership' : 'Upgrade to Membership'}
+                {loading ? 'Membership' : isTrial ? 'Your VIP Trial' : isActive ? 'Manage Membership' : 'Upgrade to Membership'}
               </h1>
               <p style={{ color: '#888899' }} className="text-base max-w-md mx-auto">
-                {isTrial
+                {loading ? ' ' : isTrial
                   ? `${trialDaysLeft != null ? `${trialDaysLeft} days` : 'Time'} left in your free trial.`
                   : isActive
                     ? 'You\'re on a membership plan. Manage your billing below.'
@@ -613,11 +599,10 @@ export default function SubscriptionPage() {
               <Shield size={14} className="flex-shrink-0" />
               <span>Secure billing via Stripe · Cancel anytime · No hidden fees</span>
             </div>
-          </motion.div>
-        )}
+        </motion.div>
       </div>
 
-      {!loading && <Footer />}
+      <Footer />
     </div>
   )
 }
