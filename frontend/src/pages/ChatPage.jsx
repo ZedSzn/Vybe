@@ -1518,12 +1518,26 @@ export default function ChatPage() {
           >
             <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
             {!hasCamera && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a14]">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-[#0a0a14]">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
+                ) : (
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#00D4FF' }}>
+                    {user?.username ? user.username[0].toUpperCase() : 'Y'}
+                  </div>
+                )}
               </div>
             )}
             {videoOff && hasCamera && (
-              <div className="absolute inset-0 bg-black/80 flex items-center justify-center"><VideoOff size={14} className="text-white/30" /></div>
+              <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-1.5">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
+                ) : (
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#00D4FF' }}>
+                    {user?.username ? user.username[0].toUpperCase() : 'Y'}
+                  </div>
+                )}
+              </div>
             )}
             {/* Username label */}
             <div className="absolute bottom-1 inset-x-0 flex items-center justify-center pointer-events-none">
@@ -1965,18 +1979,21 @@ export default function ChatPage() {
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
 
                   {(!hasCamera || videoOff) && (
-                    <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                      <VideoOff size={24} style={{ color: '#00D4FF' }} />
-                      <div style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 12px 5px 5px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        {user?.avatar ? (
-                          <img src={user.avatar} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
-                        ) : (
-                          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 10, flexShrink: 0 }}>
-                            {user?.username ? user.username[0].toUpperCase() : 'Y'}
-                          </div>
-                        )}
-                        <span style={{ color: 'white', fontWeight: 700, fontSize: 13, lineHeight: 1 }}>{user?.username || 'You'}</span>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" style={{ width: 88, height: 88, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />
+                      ) : (
+                        <div style={{ width: 88, height: 88, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 34, fontWeight: 900, color: '#00D4FF', boxShadow: '0 0 40px rgba(0,212,255,0.1)' }}>
+                          {user?.username ? user.username[0].toUpperCase() : 'Y'}
+                        </div>
+                      )}
+                      <div style={{ textAlign: 'center' }}>
+                        <p style={{ color: 'white', fontWeight: 700, fontSize: 16, marginBottom: 3, lineHeight: 1 }}>{user?.username || 'You'}</p>
+                        {user?.country && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4, lineHeight: 1 }}>{user.country}</p>}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                        <VideoOff size={11} style={{ color: 'rgba(255,255,255,0.25)' }} />
+                        <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 11 }}>Camera off</span>
                       </div>
                     </div>
                   )}
