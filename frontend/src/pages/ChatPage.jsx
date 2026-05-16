@@ -1220,21 +1220,18 @@ export default function ChatPage() {
   return (
     <div className="chat-fullscreen bg-black font-space">
 
-      {/* Camera background status — only shown while a custom background is set */}
-      {vbgStatus !== 'idle' && (
-        <div style={{
-          position: 'fixed', top: 64, left: '50%', transform: 'translateX(-50%)', zIndex: 60,
-          padding: '5px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700,
-          backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-          background: vbgStatus === 'active' ? 'rgba(34,197,94,0.18)' : vbgStatus === 'failed' ? 'rgba(239,68,68,0.2)' : 'rgba(0,212,255,0.15)',
-          border: `1px solid ${vbgStatus === 'active' ? 'rgba(34,197,94,0.5)' : vbgStatus === 'failed' ? 'rgba(239,68,68,0.5)' : 'rgba(0,212,255,0.4)'}`,
-          color: vbgStatus === 'active' ? '#86efac' : vbgStatus === 'failed' ? '#fca5a5' : '#7dd3fc',
-        }}>
-          {vbgStatus === 'loading' && '⏳ Camera background: loading…'}
-          {vbgStatus === 'active'  && '✅ Camera background: on'}
-          {vbgStatus === 'failed'  && '⚠️ Camera background: unavailable'}
-        </div>
-      )}
+      {/* Camera background — diagnostic badge (always shown for now) */}
+      <div style={{
+        position: 'fixed', top: 64, left: '50%', transform: 'translateX(-50%)', zIndex: 60,
+        padding: '5px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+        backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+        background: vbgStatus === 'active' ? 'rgba(34,197,94,0.18)' : vbgStatus === 'failed' ? 'rgba(239,68,68,0.2)' : 'rgba(0,212,255,0.15)',
+        border: `1px solid ${vbgStatus === 'active' ? 'rgba(34,197,94,0.5)' : vbgStatus === 'failed' ? 'rgba(239,68,68,0.5)' : 'rgba(0,212,255,0.4)'}`,
+        color: vbgStatus === 'active' ? '#86efac' : vbgStatus === 'failed' ? '#fca5a5' : '#7dd3fc',
+        whiteSpace: 'nowrap',
+      }}>
+        BG:{user?.cameraBackground || 'none'} · img:{user?.cameraBackgroundImage ? 'yes' : 'no'} · cam:{cameraReady ? 'ready' : 'wait'} · {vbgStatus}
+      </div>
 
       {/* ═══════════════════════════════════════════════════════════════
           SHARED FIXED OVERLAYS — visible on both mobile and desktop
