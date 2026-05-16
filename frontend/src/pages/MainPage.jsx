@@ -639,14 +639,29 @@ export default function MainPage() {
 
         {/* Start Chatting Now — dominant CTA */}
         <motion.button
-          onClick={startVybing}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
-          className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl text-white font-extrabold"
-          style={{ fontSize: '16px', background: 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)', boxShadow: '0 0 20px rgba(0,212,255,0.28), 0 4px 20px rgba(0,0,0,0.4)' }}
+          onClick={mode === 'squad' && !squadReady ? undefined : startVybing}
+          whileHover={mode === 'squad' && !squadReady ? {} : { scale: 1.02 }}
+          whileTap={mode === 'squad' && !squadReady ? {} : { scale: 0.97 }}
+          className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl font-extrabold"
+          style={{
+            fontSize: '16px',
+            background: mode === 'squad' && !squadReady
+              ? 'rgba(20,20,36,0.8)'
+              : 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)',
+            boxShadow: mode === 'squad' && !squadReady
+              ? 'none'
+              : '0 0 20px rgba(0,212,255,0.28), 0 4px 20px rgba(0,0,0,0.4)',
+            border: mode === 'squad' && !squadReady ? '1px solid rgba(255,255,255,0.08)' : 'none',
+            color: mode === 'squad' && !squadReady ? 'rgba(255,255,255,0.35)' : 'white',
+            cursor: mode === 'squad' && !squadReady ? 'not-allowed' : 'pointer',
+          }}
         >
-          <Video size={19} strokeWidth={2.5} />
-          Start Chatting Now
+          {mode === 'squad' && !squadReady
+            ? <><Loader2 size={17} className="animate-spin" />Waiting for partner…</>
+            : mode === 'squad' && squadReady
+              ? <><Video size={19} strokeWidth={2.5} />Start Vybing</>
+              : <><Video size={19} strokeWidth={2.5} />Start Chatting Now</>
+          }
         </motion.button>
 
         <motion.button
@@ -1077,17 +1092,29 @@ export default function MainPage() {
 
               {/* Primary */}
               <motion.button
-                onClick={startVybing}
-                whileHover={{ scale: 1.012 }}
-                whileTap={{ scale: 0.985 }}
+                onClick={mode === 'squad' && !squadReady ? undefined : startVybing}
+                whileHover={mode === 'squad' && !squadReady ? {} : { scale: 1.012 }}
+                whileTap={mode === 'squad' && !squadReady ? {} : { scale: 0.985 }}
                 style={{
                   width: '100%', height: 56, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                  background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
-                  boxShadow: '0 4px 28px rgba(0,212,255,0.38), 0 1px 0 rgba(255,255,255,0.12) inset',
-                  border: 'none', color: 'white', fontSize: 15, fontWeight: 800, letterSpacing: '-0.01em', cursor: 'pointer',
+                  background: mode === 'squad' && !squadReady
+                    ? 'rgba(20,20,36,0.8)'
+                    : 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
+                  boxShadow: mode === 'squad' && !squadReady
+                    ? 'none'
+                    : '0 4px 28px rgba(0,212,255,0.38), 0 1px 0 rgba(255,255,255,0.12) inset',
+                  border: mode === 'squad' && !squadReady ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                  color: mode === 'squad' && !squadReady ? 'rgba(255,255,255,0.35)' : 'white',
+                  fontSize: 15, fontWeight: 800, letterSpacing: '-0.01em',
+                  cursor: mode === 'squad' && !squadReady ? 'not-allowed' : 'pointer',
+                  opacity: 1, transition: 'all 0.25s ease',
                 }}>
-                <Video size={17} />
-                Start Video Chat
+                {mode === 'squad' && !squadReady
+                  ? <><Loader2 size={17} className="animate-spin" />Waiting for partner…</>
+                  : mode === 'squad' && squadReady
+                    ? <><Video size={17} />Start Vybing</>
+                    : <><Video size={17} />Start Video Chat</>
+                }
               </motion.button>
 
               {/* Secondary */}
@@ -1359,14 +1386,15 @@ export default function MainPage() {
 
           {/* ────────── RIGHT: Camera panel ────────── */}
           <div className="flex items-center" style={{ flex: '0 0 50%', padding: '32px 44px 32px 16px', background: '#0a0a0f', alignSelf: 'flex-start' }}>
-          <div className="relative overflow-hidden" style={{
+          <div style={{
+            position: 'relative', overflow: 'hidden',
             width: '100%', aspectRatio: '3/4', maxHeight: 'calc(100vh - 200px)', borderRadius: 28,
             background: '#0a0a0f',
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
             <style>{`
               @keyframes lightDrift {
-                0%   { transform: translate(0px, 0px) scale(1);     opacity: 0.6; }
+                0%   { transform: translate(0px, 0px) scale(1);      opacity: 0.6; }
                 33%  { transform: translate(-30px, 20px) scale(1.1); opacity: 1;   }
                 66%  { transform: translate(-10px, 40px) scale(0.95); opacity: 0.7; }
                 100% { transform: translate(-40px, 10px) scale(1.05); opacity: 0.8; }
@@ -1377,79 +1405,162 @@ export default function MainPage() {
                 100% { transform: translate(10px, -40px) scale(0.9); opacity: 0.6; }
               }
             `}</style>
-            <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', zIndex: 0, background: '#0d0d0d' }}>
-              <div style={{ position: 'absolute', top: '-20%', right: '-20%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.05) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0, animation: 'lightDrift 8s ease-in-out infinite alternate' }} />
-              <div style={{ position: 'absolute', bottom: '-20%', left: '-20%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.03) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0, animation: 'lightDrift2 10s ease-in-out infinite alternate' }} />
-            </div>
 
-            {/* Live video feed */}
-            <video ref={videoRefDesktop} autoPlay muted playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
+            {mode === 'squad' ? (
+              <>
+                {/* Shared animated background */}
+                <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: '#0d0d0d' }}>
+                  <div style={{ position: 'absolute', top: '-20%', right: '-20%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.04) 0%, transparent 70%)', animation: 'lightDrift 8s ease-in-out infinite alternate' }} />
+                  <div style={{ position: 'absolute', bottom: '-20%', left: '-20%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(0,212,255,0.03) 0%, transparent 70%)', animation: 'lightDrift2 10s ease-in-out infinite alternate' }} />
+                </div>
 
-            {/* Idle state — no photo, cinematic dark */}
-            {(!cameraOn || cameraErr) && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ zIndex: 10 }}>
-                {/* Pulsing ring */}
-                <motion.div
-                  className="relative flex items-center justify-center"
-                  style={{ marginBottom: 24 }}>
-                  <motion.div
-                    style={{ position: 'absolute', width: 96, height: 96, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.25)' }}
-                    animate={{ scale: [1, 1.18, 1], opacity: [0.6, 0.15, 0.6] }}
-                    transition={{ duration: 3, repeat: Infinity }} />
-                  <motion.div
-                    style={{ position: 'absolute', width: 72, height: 72, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.18)' }}
-                    animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.08, 0.4] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 0.3 }} />
-                  <div style={{
-                    width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'rgba(13,13,24,0.8)', border: '1px solid rgba(0,212,255,0.2)',
-                    backdropFilter: 'blur(12px)',
-                  }}>
-                    {cameraErr
-                      ? <VideoOff size={24} style={{ color: 'rgba(0,212,255,0.4)' }} />
-                      : <Camera size={24} style={{ color: 'rgba(0,212,255,0.5)' }} />
-                    }
+                {/* TOP HALF: Your camera */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '50%', overflow: 'hidden', borderRadius: '28px 28px 0 0', borderBottom: '1px solid rgba(0,212,255,0.18)', zIndex: 1 }}>
+                  <video ref={videoRefDesktop} autoPlay muted playsInline
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
+                  {(!cameraOn || cameraErr) && (
+                    <div style={{ position: 'absolute', inset: 0, background: '#0d0d14', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Camera size={16} style={{ color: 'rgba(0,212,255,0.45)' }} />
+                      </div>
+                      <motion.button onClick={enableCamera} whileTap={{ scale: 0.95 }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 99, background: 'rgba(13,13,24,0.8)', border: '1px solid rgba(0,212,255,0.25)', color: 'rgba(255,255,255,0.7)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                        <Camera size={11} />{cameraErr ? 'Try Again' : 'Enable Camera'}
+                      </motion.button>
+                    </div>
+                  )}
+                  {/* You label */}
+                  <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 50, padding: '3px 9px 3px 3px' }}>
+                      {user?.avatar
+                        ? <img src={user.avatar} style={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'cover' }} />
+                        : <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,212,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#00D4FF' }}>{user?.username?.[0]?.toUpperCase() || 'Y'}</div>
+                      }
+                      <span style={{ color: 'white', fontWeight: 700, fontSize: 10 }}>{user?.username || 'You'}</span>
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block' }} />
+                    </div>
                   </div>
-                </motion.div>
+                  {/* Bottom fade */}
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 100%)', pointerEvents: 'none' }} />
+                </div>
 
-                {cameraErr && (
-                  <>
-                    <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
-                      Camera access needed
-                    </p>
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', marginBottom: 24, textAlign: 'center', maxWidth: 200, lineHeight: 1.45 }}>
-                      {cameraErrMsg || 'Allow camera access in browser settings'}
-                    </p>
-                  </>
+                {/* BOTTOM HALF: Invite UI or partner joined */}
+                <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, bottom: 0, overflow: 'hidden', borderRadius: '0 0 28px 28px', zIndex: 1 }}>
+                  <AnimatePresence mode="wait">
+                    {!squadReady ? (
+                      <motion.div key="invite-panel"
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#0a0a14' }}>
+                        {/* Ambient cyan glow */}
+                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                        {/* Room code */}
+                        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+                          <p style={{ fontSize: 8, fontWeight: 800, letterSpacing: '0.25em', color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase', marginBottom: 3 }}>Room Code</p>
+                          {duoDisplayCode
+                            ? <p style={{ fontSize: 20, fontWeight: 900, letterSpacing: '0.18em', color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 16px rgba(0,212,255,0.5)', margin: 0 }}>{duoDisplayCode}</p>
+                            : <Loader2 size={14} className="animate-spin" style={{ color: '#00D4FF' }} />
+                          }
+                        </div>
+                        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', margin: 0, zIndex: 1 }}>Invite a friend to join</p>
+                        {/* Share buttons */}
+                        <div style={{ display: 'flex', gap: 7, zIndex: 1 }}>
+                          <a href={shareUrls.whatsapp} target="_blank" rel="noopener noreferrer"
+                            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 20, background: '#25D366', textDecoration: 'none' }}>
+                            <svg viewBox="0 0 24 24" style={{ width: 11, height: 11, fill: 'white', flexShrink: 0 }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            <span style={{ color: 'white', fontSize: 10, fontWeight: 700 }}>WhatsApp</span>
+                          </a>
+                          <motion.button onClick={copySnapDuo} whileTap={{ scale: 0.9 }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 20, background: 'linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', border: 'none', cursor: 'pointer' }}>
+                            <svg viewBox="0 0 24 24" style={{ width: 11, height: 11, fill: 'white', flexShrink: 0 }}><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                            <span style={{ color: 'white', fontSize: 10, fontWeight: 700 }}>{snapCopied ? 'Copied!' : 'Instagram'}</span>
+                          </motion.button>
+                          <motion.button onClick={copyLink} whileTap={{ scale: 0.9 }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 20, border: 'none', cursor: 'pointer', ...(copied ? { background: 'rgba(34,197,94,0.2)' } : { background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }) }}>
+                            {copied ? <Check size={11} style={{ color: '#4ade80' }} /> : <Copy size={11} style={{ color: 'rgba(255,255,255,0.6)' }} />}
+                            <span style={{ color: copied ? '#4ade80' : 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 700 }}>{copied ? 'Copied!' : 'Copy Link'}</span>
+                          </motion.button>
+                        </div>
+                        {/* Waiting indicator */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, zIndex: 1 }}>
+                          <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(0,212,255,0.35)' }} />
+                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>Waiting for friend<WaitingDots /></span>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div key="friend-joined"
+                        initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                        style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#0a0a14' }}>
+                        {/* Ambient green glow */}
+                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(74,222,128,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                          <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Check size={17} style={{ color: '#4ade80' }} />
+                          </div>
+                          <p style={{ fontSize: 13, fontWeight: 800, color: '#4ade80', margin: 0 }}>Friend connected!</p>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            {squad?.members?.map((m) => (
+                              <div key={m.socketId} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px 3px 5px', borderRadius: 50, background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)' }}>
+                                <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,212,255,0.2)', color: '#00D4FF', fontSize: 8, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{m.username?.[0]?.toUpperCase() || '?'}</div>
+                                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.65)' }}>{m.username || 'User'}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <p style={{ fontSize: 10, color: 'rgba(74,222,128,0.55)', margin: 0 }}>Ready to start Vybe!</p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* SOLO: animated background */}
+                <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', zIndex: 0, background: '#0d0d0d' }}>
+                  <div style={{ position: 'absolute', top: '-20%', right: '-20%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.05) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0, animation: 'lightDrift 8s ease-in-out infinite alternate' }} />
+                  <div style={{ position: 'absolute', bottom: '-20%', left: '-20%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.03) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0, animation: 'lightDrift2 10s ease-in-out infinite alternate' }} />
+                </div>
+
+                {/* Live video feed */}
+                <video ref={videoRefDesktop} autoPlay muted playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
+
+                {/* Idle state */}
+                {(!cameraOn || cameraErr) && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ zIndex: 10 }}>
+                    <motion.div className="relative flex items-center justify-center" style={{ marginBottom: 24 }}>
+                      <motion.div style={{ position: 'absolute', width: 96, height: 96, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.25)' }}
+                        animate={{ scale: [1, 1.18, 1], opacity: [0.6, 0.15, 0.6] }} transition={{ duration: 3, repeat: Infinity }} />
+                      <motion.div style={{ position: 'absolute', width: 72, height: 72, borderRadius: '50%', border: '1px solid rgba(0,212,255,0.18)' }}
+                        animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.08, 0.4] }} transition={{ duration: 3, repeat: Infinity, delay: 0.3 }} />
+                      <div style={{ width: 64, height: 64, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(13,13,24,0.8)', border: '1px solid rgba(0,212,255,0.2)', backdropFilter: 'blur(12px)' }}>
+                        {cameraErr ? <VideoOff size={24} style={{ color: 'rgba(0,212,255,0.4)' }} /> : <Camera size={24} style={{ color: 'rgba(0,212,255,0.5)' }} />}
+                      </div>
+                    </motion.div>
+                    {cameraErr && (
+                      <>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>Camera access needed</p>
+                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', marginBottom: 24, textAlign: 'center', maxWidth: 200, lineHeight: 1.45 }}>{cameraErrMsg || 'Allow camera access in browser settings'}</p>
+                      </>
+                    )}
+                    <motion.button onClick={enableCamera} whileHover={{ scale: 1.04, boxShadow: '0 0 24px rgba(0,212,255,0.3)' }} whileTap={{ scale: 0.96 }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', borderRadius: 99, background: 'rgba(13,13,24,0.75)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 0 0 1px rgba(0,212,255,0.06) inset' }}>
+                      {cameraErr ? <VideoOff size={14} /> : <Camera size={14} />}
+                      {cameraErr ? 'Try Again' : 'Enable Camera'}
+                    </motion.button>
+                  </div>
                 )}
 
-                <motion.button
-                  onClick={enableCamera}
-                  whileHover={{ scale: 1.04, boxShadow: '0 0 24px rgba(0,212,255,0.3)' }}
-                  whileTap={{ scale: 0.96 }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', borderRadius: 99,
-                    background: 'rgba(13,13,24,0.75)', backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(0,212,255,0.3)',
-                    color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                    boxShadow: '0 0 0 1px rgba(0,212,255,0.06) inset',
-                  }}>
-                  {cameraErr ? <VideoOff size={14} /> : <Camera size={14} />}
-                  {cameraErr ? 'Try Again' : 'Enable Camera'}
-                </motion.button>
-              </div>
-            )}
-
-            {/* Top-left camera controls (when live) */}
-            {cameraOn && !cameraErr && (
-              <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
-                <motion.button onClick={flipCamera} whileTap={{ scale: 0.9 }}
-                  style={{ width: 38, height: 38, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(10,10,15,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0,212,255,0.18)', cursor: 'pointer' }}>
-                  <Camera size={15} style={{ color: 'rgba(255,255,255,0.65)' }} />
-                </motion.button>
-              </div>
+                {/* Top-left camera controls (when live) */}
+                {cameraOn && !cameraErr && (
+                  <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
+                    <motion.button onClick={flipCamera} whileTap={{ scale: 0.9 }}
+                      style={{ width: 38, height: 38, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(10,10,15,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0,212,255,0.18)', cursor: 'pointer' }}>
+                      <Camera size={15} style={{ color: 'rgba(255,255,255,0.65)' }} />
+                    </motion.button>
+                  </div>
+                )}
+              </>
             )}
 
           </div>
