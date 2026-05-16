@@ -969,7 +969,7 @@ export default function MainPage() {
         <div className="flex-1 min-h-0" style={{ display: 'flex', alignItems: 'flex-start', overflow: 'hidden' }}>
 
           {/* ────────── LEFT: Controls ────────── */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '40px 52px 24px 72px' }}>
+          <div style={{ flex: 1, alignSelf: 'stretch', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '40px 52px 24px 72px' }}>
 
             <div>
             {/* Live badge */}
@@ -1184,7 +1184,7 @@ export default function MainPage() {
             height: 'calc(100% - 48px)', borderRadius: 20,
             margin: '24px 24px 24px 8px',
             background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)',
-            border: 'none', outline: 'none', boxShadow: 'none',
+            border: '1px solid rgba(255,255,255,0.06)', outline: 'none', boxShadow: 'none',
           }}>
             <style>{`
               @keyframes lightDrift {
