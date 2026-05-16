@@ -1364,11 +1364,22 @@ export default function MainPage() {
             background: '#0a0a0f',
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
+            <style>{`
+              @keyframes lightDrift {
+                0%   { transform: translate(0px, 0px) scale(1);     opacity: 0.6; }
+                33%  { transform: translate(-30px, 20px) scale(1.1); opacity: 1;   }
+                66%  { transform: translate(-10px, 40px) scale(0.95); opacity: 0.7; }
+                100% { transform: translate(-40px, 10px) scale(1.05); opacity: 0.8; }
+              }
+              @keyframes lightDrift2 {
+                0%   { transform: translate(0px, 0px) scale(1);      opacity: 0.5; }
+                50%  { transform: translate(30px, -20px) scale(1.2); opacity: 0.9; }
+                100% { transform: translate(10px, -40px) scale(0.9); opacity: 0.6; }
+              }
+            `}</style>
             <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', zIndex: 0, background: '#0d0d0d' }}>
-              {/* Light leak — top right */}
-              <div style={{ position: 'absolute', top: 0, right: 0, width: '60%', height: '60%', background: 'radial-gradient(ellipse at top right, rgba(255,255,255,0.04) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-              {/* Shadow — bottom left */}
-              <div style={{ position: 'absolute', bottom: 0, left: 0, width: '50%', height: '50%', background: 'radial-gradient(ellipse at bottom left, rgba(0,0,0,0.3) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+              <div style={{ position: 'absolute', top: '-20%', right: '-20%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.05) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0, animation: 'lightDrift 8s ease-in-out infinite alternate' }} />
+              <div style={{ position: 'absolute', bottom: '-20%', left: '-20%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.03) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0, animation: 'lightDrift2 10s ease-in-out infinite alternate' }} />
             </div>
 
             {/* Live video feed */}
