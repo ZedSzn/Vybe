@@ -1228,96 +1228,6 @@ export default function MainPage() {
               </div>
             </div>
 
-            {/* Desktop: Duo room invite panel */}
-            <AnimatePresence initial={false}>
-              {mode === 'squad' && (
-                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
-                  <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 16, paddingBottom: 20, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'visible' }}>
-                    {!duoDisplayCode ? (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0' }}>
-                        <Loader2 size={14} className="animate-spin" style={{ color: '#00D4FF' }} />
-                        <p style={{ fontSize: 13, color: 'rgba(200,210,255,0.6)', margin: 0 }}>Setting up room<WaitingDots /></p>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Users size={13} style={{ color: '#00D4FF' }} />
-                            <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', margin: 0 }}>Duo Room</p>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            {timeLeft != null && <span style={{ fontSize: 9, fontFamily: 'ui-monospace, monospace', color: 'rgba(160,160,180,0.5)' }}>Expires {fmtTime(timeLeft)}</span>}
-                            <button onClick={leaveSquad} style={{ width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer' }}><XIcon size={11} /></button>
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'center', padding: '4px 0' }}>
-                          <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(0,212,255,0.5)', marginBottom: 4 }}>Room Code</p>
-                          <p style={{ fontSize: 26, fontWeight: 900, letterSpacing: '0.18em', color: '#00D4FF', fontFamily: 'ui-monospace, monospace', textShadow: '0 0 20px rgba(0,212,255,0.4)', margin: 0 }}>{duoDisplayCode}</p>
-                        </div>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, fontSize: 10, fontFamily: 'ui-monospace, monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', userSelect: 'all', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(200,210,255,0.5)' }}>{inviteUrl}</div>
-                          <motion.button onClick={copyLink} whileTap={{ scale: 0.85 }} animate={copied ? { scale: [1, 1.15, 1] } : {}} transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                            style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, ...(copied ? { background: 'rgba(34,197,94,0.2)', color: '#4ade80' } : { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.7)' }) }}>
-                            <AnimatePresence mode="wait">
-                              {copied ? <motion.span key="ck" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check size={12} /></motion.span>
-                                      : <motion.span key="cp" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Copy size={12} /></motion.span>}
-                            </AnimatePresence>
-                          </motion.button>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 16 }}>
-                          <a href={shareUrls.whatsapp} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: '#25D366' }}>
-                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'white' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: 'white' }}>WhatsApp</span>
-                          </a>
-                          <motion.button onClick={copySnapDuo} whileTap={{ scale: 0.9 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, cursor: 'pointer', border: 'none', background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)' }}>
-                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'white' }}><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: 'white' }}>{snapCopied ? 'Copied!' : 'Instagram'}</span>
-                          </motion.button>
-                          <a href={shareUrls.twitter} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, background: '#000000', border: '1px solid rgba(255,255,255,0.12)' }}>
-                            <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'white' }}><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>Twitter</span>
-                          </a>
-                          <motion.button onClick={copyLink} whileTap={{ scale: 0.9 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 0', borderRadius: 10, cursor: 'pointer', border: 'none', ...(copied ? { background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' } : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }) }}>
-                            {copied ? <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'none', stroke: '#4ade80', strokeWidth: '2.5' }}><polyline points="20 6 9 17 4 12"/></svg> : <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: 'none', stroke: 'rgba(255,255,255,0.5)', strokeWidth: '2' }}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>}
-                            <span style={{ fontSize: 8, fontWeight: 700, color: copied ? '#4ade80' : 'rgba(255,255,255,0.5)' }}>{copied ? 'Copied!' : 'Copy'}</span>
-                          </motion.button>
-                        </div>
-                        <AnimatePresence mode="wait">
-                          {!squad ? (
-                            <motion.div key="setup-d" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                              <Loader2 size={12} className="animate-spin" style={{ color: '#00D4FF', flexShrink: 0 }} />
-                              <p style={{ fontSize: 12, color: 'rgba(200,210,255,0.6)', margin: 0 }}>Setting up room<WaitingDots /></p>
-                            </motion.div>
-                          ) : !squadReady ? (
-                            <motion.div key="waiting-d" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                              <Loader2 size={12} className="animate-spin" style={{ color: '#00D4FF', flexShrink: 0 }} />
-                              <p style={{ fontSize: 12, color: 'rgba(200,210,255,0.6)', margin: 0 }}>Waiting for friend to join<WaitingDots /></p>
-                            </motion.div>
-                          ) : (
-                            <motion.div key="ready-d" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)' }}>
-                              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', flexShrink: 0, boxShadow: '0 0 6px rgba(74,222,128,0.6)' }} />
-                              <div style={{ flex: 1 }}>
-                                <p style={{ fontSize: 12, fontWeight: 700, color: '#4ade80', margin: 0 }}>Friend connected!</p>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                                  {squad.members.map((m) => (
-                                    <div key={m.socketId} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                      <div style={{ width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, background: 'rgba(0,212,255,0.25)', color: '#00D4FF' }}>{m.username?.[0]?.toUpperCase() || '?'}</div>
-                                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)' }}>{m.username || 'User'}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                        {squadError && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, color: '#f87171', fontSize: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '8px 12px' }}><span>{squadError}</span></div>}
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Desktop: Private room invite panel */}
             <AnimatePresence initial={false}>
               {mode === 'private' && (
@@ -1385,11 +1295,11 @@ export default function MainPage() {
 
 
           {/* ────────── RIGHT: Camera panel ────────── */}
-          <div className="flex items-center" style={{ flex: '0 0 50%', padding: '32px 44px 32px 16px', background: '#0a0a0f', alignSelf: 'flex-start' }}>
+          <div className="flex items-center" style={{ flex: '0 0 50%', padding: '32px 44px 32px 16px', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', alignSelf: 'flex-start' }}>
           <div style={{
             position: 'relative', overflow: 'hidden',
             width: '100%', aspectRatio: '3/4', maxHeight: 'calc(100vh - 200px)', borderRadius: 28,
-            background: '#0a0a0f',
+            background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)',
             border: '1px solid rgba(255,255,255,0.06)',
           }}>
             <style>{`
@@ -1409,7 +1319,7 @@ export default function MainPage() {
             {mode === 'squad' ? (
               <>
                 {/* Shared animated background */}
-                <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: '#0d0d0d' }}>
+                <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                   <div style={{ position: 'absolute', top: '-20%', right: '-20%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.04) 0%, transparent 70%)', animation: 'lightDrift 8s ease-in-out infinite alternate' }} />
                   <div style={{ position: 'absolute', bottom: '-20%', left: '-20%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(0,212,255,0.03) 0%, transparent 70%)', animation: 'lightDrift2 10s ease-in-out infinite alternate' }} />
                 </div>
@@ -1419,7 +1329,7 @@ export default function MainPage() {
                   <video ref={videoRefDesktop} autoPlay muted playsInline
                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
                   {(!cameraOn || cameraErr) && (
-                    <div style={{ position: 'absolute', inset: 0, background: '#0d0d14', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                       <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Camera size={16} style={{ color: 'rgba(0,212,255,0.45)' }} />
                       </div>
@@ -1450,7 +1360,7 @@ export default function MainPage() {
                     {!squadReady ? (
                       <motion.div key="invite-panel"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#0a0a14' }}>
+                        style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                         {/* Ambient cyan glow */}
                         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
                         {/* Room code */}
@@ -1489,7 +1399,7 @@ export default function MainPage() {
                     ) : (
                       <motion.div key="friend-joined"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        style={{ position: 'absolute', inset: 0, background: '#0d0d14' }}>
+                        style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                         {(() => {
                           const partner = squad?.members?.find(m => m.socketId !== socket?.id)
                           const initial = partner?.username?.[0]?.toUpperCase() || '?'
@@ -1538,7 +1448,7 @@ export default function MainPage() {
             ) : (
               <>
                 {/* SOLO: animated background */}
-                <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', zIndex: 0, background: '#0d0d0d' }}>
+                <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', zIndex: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                   <div style={{ position: 'absolute', top: '-20%', right: '-20%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.05) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0, animation: 'lightDrift 8s ease-in-out infinite alternate' }} />
                   <div style={{ position: 'absolute', bottom: '-20%', left: '-20%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.03) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0, animation: 'lightDrift2 10s ease-in-out infinite alternate' }} />
                 </div>

@@ -1221,7 +1221,7 @@ export default function ChatPage() {
                 </div>
               </div>
               {/* BOTTOM RIGHT: Duo partner */}
-              <div className="relative overflow-hidden" style={{ background: '#0d0d18' }}>
+              <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                 {mateSocketIds[0] ? (
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
@@ -1276,7 +1276,7 @@ export default function ChatPage() {
           {isDuoMode && !is2v2 && opponentSocketIds.length > 0 && (
             <>
               <div className="absolute z-[4] inset-x-0" style={{ top: 'calc(50% - 0.5px)', height: 1, background: 'rgba(0,212,255,0.2)' }} />
-              <div className="absolute z-[2] flex overflow-hidden" style={{ top: '50%', left: 0, right: 0, bottom: 0, background: '#0d0d18' }}>
+              <div className="absolute z-[2] flex overflow-hidden" style={{ top: '50%', left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                 {/* Left: Your camera */}
                 <div className="relative flex-1 overflow-hidden">
                   <video
@@ -1288,7 +1288,7 @@ export default function ChatPage() {
                     }}
                     autoPlay muted playsInline className="w-full h-full object-cover"
                   />
-                  {!hasCamera && <div className="absolute inset-0 bg-[#0a0a14]" />}
+                  {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
                   <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
                     <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
@@ -1629,7 +1629,7 @@ export default function ChatPage() {
               style={{ flex: 1, display: 'grid', padding: 8, gap: 8, gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', minHeight: 0 }}
             >
               {/* TOP LEFT: Stranger 1 */}
-              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {status === 'matched' && (
                   <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
@@ -1661,7 +1661,7 @@ export default function ChatPage() {
               </div>
 
               {/* TOP RIGHT: Stranger 2 */}
-              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {status === 'matched' && (
                   <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
@@ -1676,9 +1676,9 @@ export default function ChatPage() {
               </div>
 
               {/* BOTTOM LEFT: Your camera */}
-              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-                {!hasCamera && <div className="absolute inset-0 bg-[#0a0a0f]" />}
+                {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
                 <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
                   <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
@@ -1697,7 +1697,7 @@ export default function ChatPage() {
               </div>
 
               {/* BOTTOM RIGHT: Duo partner camera */}
-              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 {mateSocketIds[0] ? (
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
@@ -1724,7 +1724,7 @@ export default function ChatPage() {
           <div className="flex-1 flex min-h-0" style={{ padding: 8, gap: 8 }}>
 
               {/* Stranger video */}
-              <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 {status === 'searching' ? (
                   <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 20, paddingBottom: 100 }}>
                     {/* Globe — fixed-size container so rings don't overflow into text */}
@@ -1855,11 +1855,11 @@ export default function ChatPage() {
 
               {/* Your video / Duo mode right panels — desktop only */}
               {isDuoMode ? (
-                <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   {/* TOP: Your camera — absolute top half */}
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '50%', overflow: 'hidden', borderRadius: '20px 20px 0 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                     <video ref={localVideoDesktopRef} autoPlay muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                    {!hasCamera && <div style={{ position: 'absolute', inset: 0, background: '#0a0a0f' }} />}
+                    {!hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
                     {videoOff && hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)' }} />}
                     <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
                       <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
@@ -1877,7 +1877,7 @@ export default function ChatPage() {
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
                   </div>
                   {/* BOTTOM: Duo partner camera — absolute bottom half */}
-                  <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, bottom: 0, overflow: 'hidden', borderRadius: '0 0 20px 20px', background: '#0d0d18' }}>
+                  <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, bottom: 0, overflow: 'hidden', borderRadius: '0 0 20px 20px', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                     {/* Always render video element so stream attaches immediately when available */}
                     {(() => {
                       const mateId = mateSocketIds[0] || persistentMateId
@@ -1918,10 +1918,10 @@ export default function ChatPage() {
                   </div>
                 </div>
               ) : (
-                <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: '#0d0d18', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
-                  {!hasCamera && <div className="absolute inset-0 bg-[#0a0a0f]" />}
+                  {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
 
                   {(!hasCamera || videoOff) && (
