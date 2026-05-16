@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import { Skeleton } from '../components/Skeleton'
+import ImageCropper from '../components/ImageCropper'
 import { CAMERA_BG_PRESETS } from '../utils/cameraBackgrounds'
 
 const COUNTRY_FLAGS = {
@@ -150,6 +151,8 @@ export default function ProfilePage() {
     cameraBackground: 'none', cameraBackgroundImage: '',
   })
 
+  const [cropSrc, setCropSrc] = useState(null) // image awaiting crop in the cropper modal
+
   const fileRef         = useRef(null)
   const bannerFileRef   = useRef(null)
   const cameraBgFileRef = useRef(null)
@@ -219,13 +222,15 @@ export default function ProfilePage() {
 
   const handleCameraBgChange = async (e) => {
     const file = e.target.files?.[0]
+    e.target.value = '' // allow re-picking the same file later
     if (!file) return
     if (!file.type.startsWith('image/')) {
       setSaveError('Please choose an image file'); setTimeout(() => setSaveError(''), 4000); return
     }
     try {
-      const dataUrl = await resizeImageFile(file, 1600, 0.85)
-      setEditForm(f => ({ ...f, cameraBackgroundImage: dataUrl, cameraBackground: 'custom' }))
+      // Downscale first, then hand to the cropper.
+      const dataUrl = await resizeImageFile(file, 1800, 0.92)
+      setCropSrc(dataUrl)
     } catch {
       setSaveError('Could not process that image. Try a different one.')
       setTimeout(() => setSaveError(''), 4000)
@@ -354,6 +359,17 @@ export default function ProfilePage() {
           style={{ background: 'rgba(239,68,68,0.12)', whiteSpace: 'nowrap' }}>
           {saveError}
         </div>
+      )}
+
+      {cropSrc && (
+        <ImageCropper
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onApply={(cropped) => {
+            setEditForm(f => ({ ...f, cameraBackgroundImage: cropped, cameraBackground: 'custom' }))
+            setCropSrc(null)
+          }}
+        />
       )}
 
       <div className="pt-24 pb-12 px-4 max-w-2xl mx-auto relative z-10">

@@ -138,6 +138,9 @@ export default function MainPage() {
   const { user }                              = useAuth()
   const { socket, isConnected, onlineCount } = useSocket()
   const bannerStyle = getBannerStyle(user)
+  const bannerImage = user?.bannerImage || null
+  // Custom image shown in the camera panel when the device has no webcam.
+  const camBgImage  = user?.cameraBackground === 'custom' ? (user?.cameraBackgroundImage || null) : null
   const navigate                             = useNavigate()
   const location                             = useLocation()
   const videoRef                             = useRef(null)   // mobile camera
@@ -153,6 +156,7 @@ export default function MainPage() {
   const [cameraOn,           setCameraOn]           = useState(false)
   const [cameraErr,          setCameraErr]          = useState(false)
   const [cameraErrMsg,       setCameraErrMsg]       = useState('')
+  const [noCameraDevice,     setNoCameraDevice]     = useState(false)
   const [facingMode,         setFacingMode]         = useState('user')
   const [permissionAsked,    setPermissionAsked]    = useState(false)
   const [faqOpen,         setFaqOpen]         = useState(null)
@@ -276,6 +280,14 @@ export default function MainPage() {
       }
     }
   }
+
+  // Detect whether the device has any webcam at all.
+  useEffect(() => {
+    if (!navigator.mediaDevices?.enumerateDevices) return
+    navigator.mediaDevices.enumerateDevices()
+      .then((devices) => setNoCameraDevice(!devices.some((d) => d.kind === 'videoinput')))
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     // Mobile browsers require a user gesture to access the camera — skip auto-attempt
@@ -494,6 +506,9 @@ export default function MainPage() {
             <div className="smoke-4" />
           </div>
           <video ref={videoRef} autoPlay muted playsInline className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
+          {noCameraDevice && camBgImage && (
+            <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ zIndex: 20 }} />
+          )}
           {!cameraOn || cameraErr ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-5 py-6"
               style={{ background: 'radial-gradient(ellipse at 40% 35%, rgba(0,212,255,0.18) 0%, rgba(8,12,20,1) 65%)' }}>
@@ -1291,13 +1306,16 @@ export default function MainPage() {
 
             {/* Your profile pill — always inside panel top-left */}
             <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: bannerStyle, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px' }}>
-                {user?.avatar
-                  ? <img src={user.avatar} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)' }} />
-                  : <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.25), rgba(124,58,237,0.25))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#00D4FF', border: '1.5px solid rgba(0,212,255,0.35)', flexShrink: 0 }}>{user?.username?.[0]?.toUpperCase() || 'Y'}</div>
-                }
-                <span style={{ color: 'white', fontWeight: 700, fontSize: 13 }}>{user?.username || 'You'}</span>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', boxShadow: '0 0 6px rgba(0,212,255,0.8)', flexShrink: 0 }} />
+              <div style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 8, background: bannerStyle, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px' }}>
+                {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
+                <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {user?.avatar
+                    ? <img src={user.avatar} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)' }} />
+                    : <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.25), rgba(124,58,237,0.25))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#00D4FF', border: '1.5px solid rgba(0,212,255,0.35)', flexShrink: 0 }}>{user?.username?.[0]?.toUpperCase() || 'Y'}</div>
+                  }
+                  <span style={{ color: 'white', fontWeight: 700, fontSize: 13 }}>{user?.username || 'You'}</span>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', boxShadow: '0 0 6px rgba(0,212,255,0.8)', flexShrink: 0 }} />
+                </div>
               </div>
             </div>
 
@@ -1313,6 +1331,9 @@ export default function MainPage() {
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '50%', overflow: 'hidden', borderRadius: '28px 28px 0 0', borderBottom: '1px solid rgba(0,212,255,0.18)', zIndex: 1 }}>
                   <video ref={videoRefDesktop} autoPlay muted playsInline
                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
+                  {noCameraDevice && camBgImage && (
+                    <img src={camBgImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 20 }} />
+                  )}
                   {(!cameraOn || cameraErr) && (
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                       {user?.avatar ? (
@@ -1451,6 +1472,10 @@ export default function MainPage() {
                 <video ref={videoRefDesktop} autoPlay muted playsInline
                   className="absolute inset-0 w-full h-full object-cover"
                   style={{ objectPosition: 'center top', opacity: cameraOn && !cameraErr ? 1 : 0, transition: 'opacity 0.5s ease' }} />
+
+                {noCameraDevice && camBgImage && (
+                  <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ zIndex: 20 }} />
+                )}
 
                 {/* Idle state */}
                 {(!cameraOn || cameraErr) && (
