@@ -262,11 +262,11 @@ export default function ChatPage() {
   const statusRef        = useRef(status)
 
   const SEARCH_TEXTS = [
-    'Finding your next Vybe…',
-    'Connecting you…',
-    'Almost there…',
-    'Looking for the perfect match…',
-    'Hang tight…',
+    'Finding your next Vybe',
+    'Connecting you',
+    'Almost there',
+    'Looking for the perfect match',
+    'Hang tight',
   ]
 
   const TIPS = [
