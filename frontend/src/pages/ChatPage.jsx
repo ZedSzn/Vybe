@@ -2064,10 +2064,11 @@ export default function ChatPage() {
                     </div>
                   )}
 
-                  {/* You label — top left, only when camera is live */}
-                  {hasCamera && !videoOff && (
-                    <div className="absolute" style={{ top: 16, left: 16, zIndex: 10 }}>
-                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                  {/* Your profile pill — top left, banner-styled, always shown */}
+                  <div className="absolute" style={{ top: 16, left: 16, zIndex: 10 }}>
+                    <div className="flex items-center" style={{ position: 'relative', overflow: 'hidden', background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                      {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
+                      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
                         {user?.avatar ? (
                           <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(0,212,255,0.4)' }} />
                         ) : user?.username ? (
@@ -2076,15 +2077,11 @@ export default function ChatPage() {
                             {user.username[0].toUpperCase()}
                           </div>
                         ) : null}
-                        <div className="flex flex-col" style={{ gap: 2 }}>
-                          <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
-                          {user?.country && (
-                            <span className="text-[11px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{user.country}</span>
-                          )}
-                        </div>
+                        <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
+                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
                       </div>
                     </div>
-                  )}
+                  </div>
 
                   {/* Chat overlay — inside right panel */}
                   <AnimatePresence>
