@@ -787,7 +787,7 @@ export default function MainPage() {
               </div>
               <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Try VIP Free for 7 Days</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginBottom: 12 }}>
-                {['Gender filter', 'Country filter', 'Priority matching', 'No ads'].map(f => (
+                {['Gender filter', 'Country filter', 'Priority matching'].map(f => (
                   <span key={f} style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ color: '#00D4FF', fontWeight: 700 }}>✓</span>{f}
                   </span>
@@ -1172,7 +1172,7 @@ export default function MainPage() {
                   </div>
                   <p style={{ fontSize: 17, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Try VIP Free for 7 Days</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6, flexWrap: 'wrap' }}>
-                    {['Gender filter', 'Country filter', 'Priority matching', 'No ads'].map(f => (
+                    {['Gender filter', 'Country filter', 'Priority matching'].map(f => (
                       <span key={f} style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ color: '#00D4FF', fontWeight: 700 }}>✓</span>{f}
                       </span>
