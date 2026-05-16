@@ -9,8 +9,8 @@ import { VybeCoin } from '../components/VybeCoin'
 import { Skeleton } from '../components/Skeleton'
 import EmptyStateIllustration from '../components/EmptyStateIllustration'
 import {
-  Gift, TrendingUp, TrendingDown, Heart, Flame, Gem, Crown, ThumbsUp,
-  Check, Loader2, ArrowRight, DollarSign, ShoppingCart, Users,
+  TrendingUp, TrendingDown,
+  Check, Loader2, DollarSign, ShoppingCart, Gift,
 } from 'lucide-react'
 
 const PACKAGES = [
@@ -19,14 +19,6 @@ const PACKAGES = [
   { id: 'coins_1200', coins: 1200, amountGbp: 11.99, label: '1,200 Coins', popular: true  },
   { id: 'coins_3000', coins: 3000, amountGbp: 24.99, label: '3,000 Coins', popular: false },
   { id: 'coins_7000', coins: 7000, amountGbp: 49.99, label: '7,000 Coins', popular: false },
-]
-
-const GIFTS_LIST = [
-  { id: 'like',    name: 'Like',    Icon: ThumbsUp, cost: 10,  color: '#00B8E0' },
-  { id: 'heart',   name: 'Heart',   Icon: Heart,    cost: 25,  color: '#f43f5e' },
-  { id: 'fire',    name: 'Fire',    Icon: Flame,    cost: 50,  color: '#f97316' },
-  { id: 'diamond', name: 'Diamond', Icon: Gem,      cost: 150, color: '#06b6d4' },
-  { id: 'crown',   name: 'Crown',   Icon: Crown,    cost: 300, color: '#00B8E0' },
 ]
 
 const TX_TYPE_LABELS = {
@@ -308,32 +300,6 @@ export default function WalletPage() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Gift options */}
-            <div className={cardCls} style={cardStyle}>
-              <h2 className="text-white font-bold text-base mb-1">Available Gifts</h2>
-              <p className="text-vybe-muted text-xs mb-4">Send these during any video chat. Coins are spent when you tap send.</p>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-5">
-                {GIFTS_LIST.map(g => (
-                  <div key={g.id} className="flex flex-col items-center text-center p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1.5" style={{ background: `${g.color}18`, border: `1px solid ${g.color}30` }}>
-                      <g.Icon size={20} style={{ color: g.color }} />
-                    </div>
-                    <p className="text-white text-xs font-bold mb-0.5">{g.name}</p>
-                    <span className="flex items-center gap-0.5 text-[10px] font-semibold text-cyan-300">
-                      <VybeCoin size={9} />{g.cost}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={() => navigate('/chat')}
-                className="w-full py-3 rounded-xl text-sm font-extrabold text-white flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', boxShadow: '0 0 20px rgba(0,212,255,0.2)' }}
-              >
-                Start a Chat <ArrowRight size={15} />
-              </button>
             </div>
 
             {/* Earnings info */}

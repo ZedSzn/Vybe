@@ -68,17 +68,6 @@ const PACKAGES = [
   },
 ]
 
-const EARN_WAYS = [
-  { icon: '🎁', label: 'Sign-up bonus',      amount: '+100',  note: 'One time' },
-  { icon: '📅', label: 'Daily login',         amount: '+10',   note: 'Per day' },
-  { icon: '🔥', label: '3-day streak',        amount: '+30',   note: 'Bonus' },
-  { icon: '💪', label: '7-day streak',        amount: '+100',  note: 'Bonus' },
-  { icon: '🏆', label: '30-day streak',       amount: '+500',  note: 'Bonus' },
-  { icon: '💬', label: 'Every 10 chats',      amount: '+5',    note: 'Repeatable' },
-  { icon: '👥', label: 'Refer a friend',      amount: '+50',   note: 'Per referral' },
-  { icon: '💰', label: 'Receive a tip',       amount: 'Varies', note: '70% of tip' },
-]
-
 const SPEND_WAYS = [
   { badge: null,    icon: '🔁', label: 'Replay last match',     cost: '20',    desc: 'Reconnect with your last partner' },
   { badge: 'spark',            label: 'Badge: Spark',           cost: '75',    desc: 'Common badge — profile & status flex' },
@@ -243,63 +232,34 @@ export default function CoinsPage() {
           <span>Secure payment via Stripe · No card details stored · Instant delivery</span>
         </div>
 
-        {/* Earn & Spend guide */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Earn */}
-          <motion.div
-            className="rounded-2xl p-6"
-            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-            initial={{ opacity: 0, x: -16 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.45 }}
-          >
-            <h2 className="text-lg font-black text-white mb-4">🎁 Ways to Earn Free Coins</h2>
-            <div className="space-y-2.5">
-              {EARN_WAYS.map(({ icon, label, amount, note }) => (
-                <div key={label} className="flex items-center justify-between py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-lg">{icon}</span>
-                    <div>
-                      <p className="text-sm font-semibold text-white">{label}</p>
-                      <p className="text-xs" style={{ color: '#888899' }}>{note}</p>
-                    </div>
+        {/* Spend guide */}
+        <motion.div
+          className="rounded-2xl p-6"
+          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45 }}
+        >
+          <h2 className="text-lg font-black text-white mb-4">✨ Ways to Spend Coins</h2>
+          <div className="space-y-2.5">
+            {SPEND_WAYS.map(({ badge, icon, label, cost, desc }) => (
+              <div key={label} className="flex items-center justify-between py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                <div className="flex items-center gap-2.5">
+                  {badge
+                    ? <div className="flex-shrink-0 w-8 h-8"><VybeBadge id={badge} size={32} /></div>
+                    : <span className="text-lg w-8 text-center">{icon}</span>
+                  }
+                  <div>
+                    <p className="text-sm font-semibold text-white">{label}</p>
+                    <p className="text-xs" style={{ color: '#888899' }}>{desc}</p>
                   </div>
-                  <span className="text-sm font-black" style={{ color: '#4ade80' }}>{amount}</span>
                 </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Spend */}
-          <motion.div
-            className="rounded-2xl p-6"
-            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-            initial={{ opacity: 0, x: 16 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.45 }}
-          >
-            <h2 className="text-lg font-black text-white mb-4">✨ Ways to Spend Coins</h2>
-            <div className="space-y-2.5">
-              {SPEND_WAYS.map(({ badge, icon, label, cost, desc }) => (
-                <div key={label} className="flex items-center justify-between py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                  <div className="flex items-center gap-2.5">
-                    {badge
-                      ? <div className="flex-shrink-0 w-8 h-8"><VybeBadge id={badge} size={32} /></div>
-                      : <span className="text-lg w-8 text-center">{icon}</span>
-                    }
-                    <div>
-                      <p className="text-sm font-semibold text-white">{label}</p>
-                      <p className="text-xs" style={{ color: '#888899' }}>{desc}</p>
-                    </div>
-                  </div>
-                  <span className="text-sm font-black flex items-center gap-1" style={{ color: '#00D4FF' }}><VybeCoin size={14} /> {cost}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
+                <span className="text-sm font-black flex items-center gap-1" style={{ color: '#00D4FF' }}><VybeCoin size={14} /> {cost}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
 
       <Footer />
