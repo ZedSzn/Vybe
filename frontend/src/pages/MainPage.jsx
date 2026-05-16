@@ -1367,14 +1367,16 @@ export default function MainPage() {
             <style>{`
               .camera-panel-bg {
                 position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: 0;
-                background-color: #0d0d0d;
-                background-image:
-                  linear-gradient(135deg, rgba(255,255,255,0.02) 25%, transparent 25%),
-                  linear-gradient(225deg, rgba(255,255,255,0.02) 25%, transparent 25%),
-                  linear-gradient(315deg, rgba(255,255,255,0.02) 25%, transparent 25%),
-                  linear-gradient(45deg,  rgba(255,255,255,0.02) 25%, transparent 25%);
-                background-size: 200px 200px;
-                background-position: 0 0, 100px 0, 100px -100px, 0px 100px;
+                background: #0d0d0d;
+              }
+              .camera-panel-bg::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='0,0 50,30 100,0 100,100 50,70 0,100' fill='rgba(255,255,255,0.015)' stroke='rgba(255,255,255,0.02)' stroke-width='0.5'/%3E%3C/svg%3E");
+                background-size: 100px 100px;
+                background-repeat: repeat;
+                opacity: 1;
               }
             `}</style>
             <div className="camera-panel-bg" />
