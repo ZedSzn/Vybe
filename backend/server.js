@@ -109,29 +109,47 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
             }
           }
         } else if (purchaseType === 'subscription') {
-          // Subscription checkout completed — activate plan
           const plan             = session.metadata?.plan;
+          const isTrial          = session.metadata?.isTrial === 'true';
           const stripeSubId      = session.subscription;
           const stripeCustomerId = session.customer;
           if (plan && stripeSubId) {
             const stripeSub = await stripe.subscriptions.retrieve(stripeSubId);
+            const isTrialing = stripeSub.status === 'trialing';
+            const trialEnd   = stripeSub.trial_end ? new Date(stripeSub.trial_end * 1000) : null;
             await Subscription.findOneAndUpdate(
               { userId },
               {
                 userId, stripeSubscriptionId: stripeSubId, stripeCustomerId,
-                plan, status: 'active',
+                plan, status: isTrialing ? 'trialing' : 'active',
                 currentPeriodEnd: new Date(stripeSub.current_period_end * 1000),
-                cancelAtPeriodEnd: false, updatedAt: new Date(),
+                cancelAtPeriodEnd: false,
+                isTrial: isTrial || isTrialing,
+                trialEnd: trialEnd,
+                updatedAt: new Date(),
               },
               { upsert: true, new: true },
             );
             await User.findByIdAndUpdate(userId, {
-              isPremium: true,
-              isVip:     plan === 'vip',
+              isPremium:    true,
+              isVip:        plan === 'vip',
               stripeCustomerId,
+              trialActive:  isTrialing,
+              trialUsed:    isTrial || isTrialing ? true : undefined,
             });
-            await createNotification(userId, 'system', '🎉 Subscription Active!',
-              `Your Vybe ${plan === 'vip' ? 'VIP' : 'Basic'} plan is now active.`);
+            if (isTrial || isTrialing) {
+              const u = await User.findById(userId).select('email username');
+              await createNotification(userId, 'system', '🎉 VIP Trial Started!',
+                'Your 7-day VIP trial is active. Enjoy gender filter, country filter and priority matching!');
+              await sendEmail({
+                to: u.email,
+                subject: '🎉 Your Vybe VIP trial has started!',
+                html: `<p>Hi ${u.username},</p><p>Welcome to your 7-day VIP trial! You now have access to gender filter, country filter, and priority matching.</p><p>If you don't cancel before day 7, you'll be charged £12.99/month automatically.</p><p>You can cancel anytime from your subscription page. Cancelling immediately removes VIP access.</p>`,
+              });
+            } else {
+              await createNotification(userId, 'system', '🎉 Subscription Active!',
+                `Your Vybe ${plan === 'vip' ? 'VIP' : 'Basic'} plan is now active.`);
+            }
           }
         } else {
           // Unban purchase — idempotency check
@@ -152,9 +170,10 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
       const stripeSub = event.data.object;
       const sub = await Subscription.findOne({ stripeSubscriptionId: stripeSub.id });
       if (sub) {
-        const newStatus = stripeSub.status === 'active' ? 'active'
-          : stripeSub.status === 'past_due' ? 'past_due'
-          : stripeSub.status === 'unpaid'   ? 'unpaid'
+        const newStatus = stripeSub.status === 'active'   ? 'active'
+          : stripeSub.status === 'trialing'  ? 'trialing'
+          : stripeSub.status === 'past_due'  ? 'past_due'
+          : stripeSub.status === 'unpaid'    ? 'unpaid'
           : 'cancelled';
         await Subscription.findByIdAndUpdate(sub._id, {
           status: newStatus,
@@ -162,28 +181,48 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
           cancelAtPeriodEnd: stripeSub.cancel_at_period_end,
           updatedAt: new Date(),
         });
-        if (newStatus !== 'active') {
-          await User.findByIdAndUpdate(sub.userId, { isPremium: false, isVip: false });
-        } else {
+        if (newStatus === 'active' || newStatus === 'trialing') {
           await User.findByIdAndUpdate(sub.userId, {
-            isPremium: true,
-            isVip:     sub.plan === 'vip',
+            isPremium:   true,
+            isVip:       sub.plan === 'vip',
+            trialActive: newStatus === 'trialing',
           });
+        } else {
+          await User.findByIdAndUpdate(sub.userId, { isPremium: false, isVip: false, trialActive: false });
         }
-        // Notify about cancellation schedule
-        if (stripeSub.cancel_at_period_end) {
-          await createNotification(sub.userId, 'system', '⚠️ Subscription Ending',
-            `Your subscription will cancel on ${new Date(stripeSub.current_period_end * 1000).toLocaleDateString()}.`);
-        }
+      }
+    } else if (event.type === 'customer.subscription.trial_will_end') {
+      // Fires 3 days before trial ends
+      const stripeSub = event.data.object;
+      const sub = await Subscription.findOne({ stripeSubscriptionId: stripeSub.id });
+      if (sub) {
+        const u = await User.findById(sub.userId).select('email username');
+        const trialEnd = new Date(stripeSub.trial_end * 1000);
+        await createNotification(sub.userId, 'system', '⏰ Trial Ending Soon',
+          `Your VIP trial ends on ${trialEnd.toLocaleDateString()}. Cancel now to avoid being charged £12.99.`);
+        await sendEmail({
+          to: u.email,
+          subject: '⏰ Your Vybe VIP trial ends in 3 days',
+          html: `<p>Hi ${u.username},</p><p>Your VIP trial ends on ${trialEnd.toLocaleDateString()}.</p><p>If you don't cancel, you'll be charged £12.99/month automatically.</p><p>Cancel anytime from your <a href="${process.env.CLIENT_URL || 'https://vybe.chat'}/subscription">subscription page</a>. Note: cancelling immediately removes VIP access.</p>`,
+        });
       }
     } else if (event.type === 'customer.subscription.deleted') {
       const stripeSub = event.data.object;
       const sub = await Subscription.findOne({ stripeSubscriptionId: stripeSub.id });
       if (sub) {
         await Subscription.findByIdAndUpdate(sub._id, { status: 'cancelled', updatedAt: new Date() });
-        await User.findByIdAndUpdate(sub.userId, { isPremium: false, isVip: false });
-        await createNotification(sub.userId, 'system', '❌ Subscription Cancelled',
-          'Your Vybe subscription has been cancelled. You can resubscribe anytime.');
+        await User.findByIdAndUpdate(sub.userId, { isPremium: false, isVip: false, trialActive: false });
+        const u = await User.findById(sub.userId).select('email username');
+        const isTrial = sub.isTrial;
+        await createNotification(sub.userId, 'system', isTrial ? '❌ Trial Cancelled' : '❌ Subscription Cancelled',
+          isTrial ? 'Your VIP trial has been cancelled. Your card will not be charged.' : 'Your Vybe subscription has been cancelled. You can resubscribe anytime.');
+        await sendEmail({
+          to: u.email,
+          subject: isTrial ? 'Your Vybe VIP trial has been cancelled' : 'Your Vybe subscription has been cancelled',
+          html: isTrial
+            ? `<p>Hi ${u.username},</p><p>Your VIP trial has been cancelled and your VIP access has been removed immediately. Your card will not be charged.</p>`
+            : `<p>Hi ${u.username},</p><p>Your Vybe subscription has been cancelled. You can resubscribe anytime at vybe.chat/subscription.</p>`,
+        });
       }
     } else if (event.type === 'invoice.payment_failed') {
       const invoice   = event.data.object;
@@ -198,15 +237,30 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
       const stripeSubId = invoice.subscription;
       if (stripeSubId) {
         const sub = await Subscription.findOne({ stripeSubscriptionId: stripeSubId });
-        if (sub && invoice.billing_reason === 'subscription_cycle') {
-          await Subscription.findByIdAndUpdate(sub._id, {
-            status: 'active',
-            currentPeriodEnd: new Date(invoice.period_end * 1000),
-            updatedAt: new Date(),
-          });
-          await User.findByIdAndUpdate(sub.userId, { isPremium: true, isVip: sub.plan === 'vip' });
-          await createNotification(sub.userId, 'system', '✅ Subscription Renewed',
-            `Your Vybe ${sub.plan === 'vip' ? 'VIP' : 'Basic'} plan has been renewed.`);
+        if (sub) {
+          const isFirstCharge = invoice.billing_reason === 'subscription_create' || invoice.billing_reason === 'subscription_cycle';
+          if (isFirstCharge) {
+            await Subscription.findByIdAndUpdate(sub._id, {
+              status: 'active',
+              currentPeriodEnd: new Date(invoice.period_end * 1000),
+              updatedAt: new Date(),
+            });
+            await User.findByIdAndUpdate(sub.userId, { isPremium: true, isVip: sub.plan === 'vip', trialActive: false });
+            const u = await User.findById(sub.userId).select('email username');
+            const label = sub.plan === 'vip' ? 'VIP' : 'Basic';
+            if (invoice.billing_reason === 'subscription_create' && sub.isTrial) {
+              await createNotification(sub.userId, 'system', '✅ VIP Trial Converted',
+                `Your trial has ended and you've been charged £12.99. Your VIP plan is now active.`);
+              await sendEmail({
+                to: u.email,
+                subject: '✅ Your Vybe VIP subscription is now active',
+                html: `<p>Hi ${u.username},</p><p>Your 7-day trial has ended and your VIP subscription is now active at £12.99/month.</p>`,
+              });
+            } else if (invoice.billing_reason === 'subscription_cycle') {
+              await createNotification(sub.userId, 'system', `✅ ${label} Plan Renewed`,
+                `Your Vybe ${label} plan has been renewed.`);
+            }
+          }
         }
       }
     }
@@ -334,6 +388,8 @@ const userSchema = new mongoose.Schema({
   tipsEarned:       { type: Number, default: 0 },
   boostedUntil:     { type: Date, default: null },
   stripeCustomerId: { type: String, default: null },
+  trialUsed:        { type: Boolean, default: false },
+  trialActive:      { type: Boolean, default: false },
   equippedBadges:   { type: [String], default: [] },
   borderColor:      { type: String, default: '' },
   animatedBorder:   { type: Boolean, default: false },
@@ -437,9 +493,11 @@ const subscriptionSchema = new mongoose.Schema({
   stripeSubscriptionId: { type: String, required: true, unique: true },
   stripeCustomerId:     { type: String, required: true },
   plan:                 { type: String, enum: ['basic', 'vip'], required: true },
-  status:               { type: String, enum: ['active', 'past_due', 'cancelled', 'unpaid', 'incomplete'], default: 'active' },
+  status:               { type: String, enum: ['active', 'trialing', 'past_due', 'cancelled', 'unpaid', 'incomplete'], default: 'active' },
   currentPeriodEnd:     { type: Date },
   cancelAtPeriodEnd:    { type: Boolean, default: false },
+  isTrial:              { type: Boolean, default: false },
+  trialEnd:             { type: Date },
   createdAt:            { type: Date, default: Date.now },
   updatedAt:            { type: Date, default: Date.now },
 });
@@ -2115,13 +2173,57 @@ const SUBSCRIPTION_PLANS = {
 // Get current subscription status
 app.get('/api/subscription/status', authMiddleware, async (req, res) => {
   try {
-    const sub = await Subscription.findOne({ userId: req.user._id });
-    const user = await User.findById(req.user._id).select('isPremium isVip stripeCustomerId');
+    const sub  = await Subscription.findOne({ userId: req.user._id });
+    const user = await User.findById(req.user._id).select('isPremium isVip stripeCustomerId trialActive trialUsed');
+    const trialDaysLeft = sub?.isTrial && sub?.trialEnd
+      ? Math.max(0, Math.ceil((new Date(sub.trialEnd) - Date.now()) / 86400000))
+      : null;
     res.json({
-      subscription: sub || null,
-      isPremium:    user?.isPremium || false,
-      isVip:        user?.isVip     || false,
+      subscription:   sub || null,
+      isPremium:      user?.isPremium   || false,
+      isVip:          user?.isVip       || false,
+      trialActive:    user?.trialActive || false,
+      trialUsed:      user?.trialUsed   || false,
+      trialDaysLeft,
     });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Start 7-day VIP trial
+app.post('/api/subscription/trial', authMiddleware, async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: 'Payments unavailable' });
+  try {
+    const user = await User.findById(req.user._id).select('email username stripeCustomerId trialUsed isPremium isVip');
+    if (user.trialUsed)         return res.status(400).json({ error: 'You have already used your free trial.' });
+    if (user.isVip || user.isPremium) return res.status(400).json({ error: 'You already have an active subscription.' });
+    const existing = await Subscription.findOne({ userId: req.user._id, status: { $in: ['active', 'trialing', 'past_due'] } });
+    if (existing)               return res.status(400).json({ error: 'You already have an active subscription.' });
+
+    const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+    const sessionParams = {
+      mode: 'subscription',
+      line_items: [{
+        price_data: {
+          currency: 'gbp',
+          recurring: { interval: 'month' },
+          product_data: {
+            name: 'Vybe VIP',
+            description: 'Gender filter, country filter, priority matching, no ads',
+          },
+          unit_amount: 1299,
+        },
+        quantity: 1,
+      }],
+      subscription_data: { trial_period_days: 7 },
+      metadata: { userId: String(user._id), purchaseType: 'subscription', plan: 'vip', isTrial: 'true' },
+      success_url: `${CLIENT_URL}/subscription?trial_success=true`,
+      cancel_url:  `${CLIENT_URL}/`,
+    };
+    if (user.stripeCustomerId) sessionParams.customer = user.stripeCustomerId;
+    else sessionParams.customer_email = user.email;
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
+    res.json({ url: session.url });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -2171,15 +2273,17 @@ app.post('/api/subscription/create', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Cancel subscription (at period end)
+// Cancel subscription — immediately revokes access
 app.post('/api/subscription/cancel', authMiddleware, async (req, res) => {
   if (!stripe) return res.status(503).json({ error: 'Payments unavailable' });
   try {
-    const sub = await Subscription.findOne({ userId: req.user._id, status: 'active' });
+    const sub = await Subscription.findOne({ userId: req.user._id, status: { $in: ['active', 'trialing', 'past_due'] } });
     if (!sub) return res.status(404).json({ error: 'No active subscription found' });
-    await stripe.subscriptions.update(sub.stripeSubscriptionId, { cancel_at_period_end: true });
-    await Subscription.findByIdAndUpdate(sub._id, { cancelAtPeriodEnd: true, updatedAt: new Date() });
-    res.json({ success: true, message: 'Subscription will cancel at end of billing period' });
+    await stripe.subscriptions.cancel(sub.stripeSubscriptionId);
+    // Webhook customer.subscription.deleted handles DB + User updates
+    res.json({ success: true, message: sub.isTrial
+      ? 'Trial cancelled. Your VIP access has been removed and your card will not be charged.'
+      : 'Your VIP access has been removed immediately.' });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

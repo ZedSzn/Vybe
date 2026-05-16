@@ -49,26 +49,33 @@ export default function SubscriptionPage() {
   const navigate                     = useNavigate()
   const [searchParams]               = useSearchParams()
 
-  // Seed from sessionStorage so the page renders immediately on repeat visits
   const _cached = (() => { try { const r = sessionStorage.getItem('vybe_sub'); return r ? JSON.parse(r) : null } catch { return null } })()
-  const [sub,        setSub]        = useState(_cached)
-  const [loading,    setLoading]    = useState(!_cached)
-  const [actionLoad, setActionLoad] = useState('')
-  const [error,      setError]      = useState('')
-  const [toast,      setToast]      = useState('')
+  const [sub,            setSub]           = useState(_cached)
+  const [trialDaysLeft,  setTrialDaysLeft] = useState(null)
+  const [loading,        setLoading]       = useState(!_cached)
+  const [actionLoad,     setActionLoad]    = useState('')
+  const [error,          setError]         = useState('')
+  const [toast,          setToast]         = useState('')
+  const [confirmCancel,  setConfirmCancel] = useState(false)
 
-  const success    = searchParams.get('success')
-  const cancelled  = searchParams.get('cancelled')
-  const successPlan = searchParams.get('plan')
+  const success      = searchParams.get('success')
+  const trialSuccess = searchParams.get('trial_success')
+  const cancelled    = searchParams.get('cancelled')
+  const successPlan  = searchParams.get('plan')
 
   useEffect(() => {
     if (authLoading) return
     if (!user) { navigate('/auth'); return }
-    // If we have cached data, refresh silently in background (no spinner)
     fetchStatus(_cached == null)
   }, [user, authLoading]) // eslint-disable-line
 
   useEffect(() => {
+    if (trialSuccess) {
+      setToast('🎉 VIP Trial started! Enjoy 7 days free — no charge today.')
+      try { sessionStorage.removeItem('vybe_sub') } catch {}
+      if (refreshUser) refreshUser()
+      navigate('/subscription', { replace: true })
+    }
     if (success) {
       setToast(`🎉 ${successPlan === 'vip' ? 'VIP' : 'Basic'} plan activated! Welcome aboard.`)
       try { sessionStorage.removeItem('vybe_sub') } catch {}
@@ -79,7 +86,7 @@ export default function SubscriptionPage() {
       setToast('Payment cancelled — no charge was made.')
       navigate('/subscription', { replace: true })
     }
-  }, [success, cancelled])
+  }, [success, trialSuccess, cancelled])
 
   const fetchStatus = async (showSpinner = true) => {
     if (showSpinner) setLoading(true)
@@ -89,9 +96,10 @@ export default function SubscriptionPage() {
       })
       const data = res.data.subscription
       setSub(data)
+      setTrialDaysLeft(res.data.trialDaysLeft ?? null)
       try { sessionStorage.setItem('vybe_sub', JSON.stringify(data)) } catch {}
     } catch {
-      // not subscribed or error — that's fine
+      // not subscribed or error — fine
     } finally {
       setLoading(false)
     }
@@ -116,9 +124,10 @@ export default function SubscriptionPage() {
   const handleCancel = async () => {
     setActionLoad('cancel'); setError('')
     try {
-      await axios.post(`/api/subscription/cancel`, {}, { headers: { Authorization: `Bearer ${token}` } })
-      setToast('Subscription will cancel at end of billing period.')
+      const res = await axios.post(`/api/subscription/cancel`, {}, { headers: { Authorization: `Bearer ${token}` } })
+      setToast(res.data.message || 'Your VIP access has been removed immediately.')
       try { sessionStorage.removeItem('vybe_sub') } catch {}
+      if (refreshUser) refreshUser()
       fetchStatus()
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to cancel. Try again.')
@@ -172,13 +181,18 @@ export default function SubscriptionPage() {
   }
 
   const isActive     = sub?.status === 'active'
+  const isTrial      = sub?.status === 'trialing'
+  const isSubscribed = isActive || isTrial
   const isPastDue    = sub?.status === 'past_due'
   const isCancelling = sub?.cancelAtPeriodEnd
-  const periodEnd    = sub?.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : ''
+  const periodEnd    = sub?.currentPeriodEnd
+    ? new Date(sub.currentPeriodEnd).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+    : ''
 
   return (
     <div className="min-h-screen font-space" style={{ background: '#07090f' }}>
       <style>{`.sub-scroll::-webkit-scrollbar { display: none; }`}</style>
+
       {/* Stripe redirect overlay */}
       <AnimatePresence>
         {(actionLoad === 'basic' || actionLoad === 'vip' || actionLoad === 'portal') && (
@@ -195,6 +209,56 @@ export default function SubscriptionPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Cancel trial confirmation modal */}
+      <AnimatePresence>
+        {confirmCancel && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={(e) => { if (e.target === e.currentTarget) setConfirmCancel(false) }}
+          >
+            <motion.div
+              className="w-full max-w-sm rounded-2xl p-6"
+              style={{ background: '#0d1020', border: '1px solid rgba(239,68,68,0.25)' }}
+              initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(239,68,68,0.12)' }}>
+                  <AlertCircle size={20} style={{ color: '#f87171' }} />
+                </div>
+                <h3 className="text-lg font-black text-white">Cancel Trial?</h3>
+              </div>
+              <p className="text-sm mb-6" style={{ color: '#9ca3af', lineHeight: 1.65 }}>
+                Cancelling will <span className="text-white font-bold">immediately remove your VIP benefits</span>.
+                Your card will not be charged. This cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmCancel(false)}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-opacity hover:opacity-80"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#e5e7eb' }}
+                >
+                  Keep Trial
+                </button>
+                <button
+                  onClick={() => { setConfirmCancel(false); handleCancel() }}
+                  disabled={actionLoad === 'cancel'}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-60 transition-opacity hover:opacity-80"
+                  style={{ background: 'rgba(239,68,68,0.14)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}
+                >
+                  {actionLoad === 'cancel' ? <Loader2 size={13} className="animate-spin" /> : null}
+                  Cancel Immediately
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '-5%', right: '15%', width: '600px', height: '600px', background: 'radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.06) 0%, transparent 65%)' }} />
@@ -222,7 +286,6 @@ export default function SubscriptionPage() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 pt-28 pb-24">
 
-        {/* Back button — always visible */}
         <button
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 text-sm mb-6 transition-colors"
@@ -250,12 +313,14 @@ export default function SubscriptionPage() {
             {/* Header */}
             <div className="text-center mb-12">
               <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-                {isActive ? 'Manage Membership' : 'Upgrade to Membership'}
+                {isTrial ? 'Your VIP Trial' : isActive ? 'Manage Membership' : 'Upgrade to Membership'}
               </h1>
               <p style={{ color: '#888899' }} className="text-base max-w-md mx-auto">
-                {isActive
-                  ? 'You\'re on a membership plan. Manage your billing below.'
-                  : 'Unlock gender and country filters.'}
+                {isTrial
+                  ? `${trialDaysLeft != null ? `${trialDaysLeft} days` : 'Time'} left in your free trial.`
+                  : isActive
+                    ? 'You\'re on a membership plan. Manage your billing below.'
+                    : 'Unlock gender and country filters.'}
               </p>
             </div>
 
@@ -268,48 +333,74 @@ export default function SubscriptionPage() {
             )}
 
             {/* Current plan status card */}
-            {(isActive || isPastDue) && (
+            {(isSubscribed || isPastDue) && (
               <div
                 className="mb-10 rounded-2xl p-6"
                 style={{
                   background: isPastDue
                     ? 'rgba(239,68,68,0.07)'
-                    : isCancelling ? 'rgba(0,212,255,0.07)' : 'rgba(0,212,255,0.07)',
+                    : isTrial
+                      ? 'rgba(251,191,36,0.05)'
+                      : 'rgba(0,212,255,0.07)',
                   border: isPastDue
                     ? '1px solid rgba(239,68,68,0.2)'
-                    : isCancelling ? '1px solid rgba(0,212,255,0.15)' : '1px solid rgba(0,212,255,0.2)',
+                    : isTrial
+                      ? '1px solid rgba(251,191,36,0.2)'
+                      : isCancelling ? '1px solid rgba(0,212,255,0.15)' : '1px solid rgba(0,212,255,0.2)',
                 }}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      {sub.plan === 'vip' ? <Crown size={18} className="text-cyan-400" /> : <Zap size={18} style={{ color: '#00D4FF' }} />}
-                      <span className="text-lg font-black text-white">
-                        {sub.plan === 'vip' ? 'VIP' : 'Basic'} Plan
-                      </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full font-bold"
-                        style={{
-                          background: isPastDue ? 'rgba(239,68,68,0.15)' : isCancelling ? 'rgba(0,212,255,0.12)' : 'rgba(74,222,128,0.15)',
-                          color: isPastDue ? '#f87171' : isCancelling ? '#00B8E0' : '#4ade80',
-                        }}>
-                        {isPastDue ? 'Past Due' : isCancelling ? 'Cancelling' : 'Active'}
-                      </span>
-                    </div>
-                    {isPastDue && (
-                      <p className="text-sm" style={{ color: '#f87171' }}>
-                        Payment failed — please update your payment method to keep your plan.
-                      </p>
-                    )}
-                    {isCancelling && periodEnd && (
-                      <p className="text-sm" style={{ color: '#00B8E0' }}>
-                        Access ends on {periodEnd}. Resume anytime before then.
-                      </p>
-                    )}
-                    {isActive && !isCancelling && periodEnd && (
-                      <p className="text-sm" style={{ color: '#888899' }}>
-                        <Calendar size={13} className="inline mr-1.5" />
-                        Next billing date: <span className="text-white font-semibold">{periodEnd}</span>
-                      </p>
+                    {isTrial ? (
+                      <>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Crown size={18} style={{ color: '#fbbf24' }} />
+                          <span className="text-lg font-black text-white">VIP Trial</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-bold"
+                            style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>
+                            {trialDaysLeft != null ? `${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} left` : 'Active'}
+                          </span>
+                        </div>
+                        {periodEnd && (
+                          <p className="text-sm" style={{ color: '#888899' }}>
+                            <Calendar size={13} className="inline mr-1.5" />
+                            Trial ends: <span className="text-white font-semibold">{periodEnd}</span>
+                            {' '}· £12.99/mo charged after unless cancelled.
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2 mb-2">
+                          {sub.plan === 'vip' ? <Crown size={18} className="text-cyan-400" /> : <Zap size={18} style={{ color: '#00D4FF' }} />}
+                          <span className="text-lg font-black text-white">
+                            {sub.plan === 'vip' ? 'VIP' : 'Basic'} Plan
+                          </span>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-bold"
+                            style={{
+                              background: isPastDue ? 'rgba(239,68,68,0.15)' : isCancelling ? 'rgba(0,212,255,0.12)' : 'rgba(74,222,128,0.15)',
+                              color: isPastDue ? '#f87171' : isCancelling ? '#00B8E0' : '#4ade80',
+                            }}>
+                            {isPastDue ? 'Past Due' : isCancelling ? 'Cancelling' : 'Active'}
+                          </span>
+                        </div>
+                        {isPastDue && (
+                          <p className="text-sm" style={{ color: '#f87171' }}>
+                            Payment failed — please update your payment method to keep your plan.
+                          </p>
+                        )}
+                        {isCancelling && periodEnd && (
+                          <p className="text-sm" style={{ color: '#00B8E0' }}>
+                            Access ends on {periodEnd}. Resume anytime before then.
+                          </p>
+                        )}
+                        {isActive && !isCancelling && periodEnd && (
+                          <p className="text-sm" style={{ color: '#888899' }}>
+                            <Calendar size={13} className="inline mr-1.5" />
+                            Next billing date: <span className="text-white font-semibold">{periodEnd}</span>
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
 
@@ -325,39 +416,54 @@ export default function SubscriptionPage() {
                         Update Payment
                       </button>
                     )}
-                    {isCancelling ? (
+
+                    {isTrial && (
                       <button
-                        onClick={handleResume}
-                        disabled={actionLoad === 'resume'}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-60"
-                        style={{ background: 'rgba(0,212,255,0.8)', border: '1px solid rgba(0,212,255,0.5)' }}
+                        onClick={() => setConfirmCancel(true)}
+                        disabled={actionLoad === 'cancel'}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
+                        style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}
                       >
-                        {actionLoad === 'resume' ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle size={13} />}
-                        Resume Subscription
+                        {actionLoad === 'cancel' ? <Loader2 size={13} className="animate-spin" /> : <X size={13} />}
+                        Cancel Trial
                       </button>
-                    ) : (
-                      <>
+                    )}
+
+                    {!isTrial && (
+                      isCancelling ? (
                         <button
-                          onClick={handlePortal}
-                          disabled={actionLoad === 'portal'}
-                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
-                          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#888899' }}
+                          onClick={handleResume}
+                          disabled={actionLoad === 'resume'}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-60"
+                          style={{ background: 'rgba(0,212,255,0.8)', border: '1px solid rgba(0,212,255,0.5)' }}
                         >
-                          {actionLoad === 'portal' ? <Loader2 size={13} className="animate-spin" /> : <CreditCard size={13} />}
-                          Billing Portal
+                          {actionLoad === 'resume' ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle size={13} />}
+                          Resume Subscription
                         </button>
-                        {!isPastDue && (
+                      ) : (
+                        <>
                           <button
-                            onClick={handleCancel}
-                            disabled={actionLoad === 'cancel'}
+                            onClick={handlePortal}
+                            disabled={actionLoad === 'portal'}
                             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
-                            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}
+                            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#888899' }}
                           >
-                            {actionLoad === 'cancel' ? <Loader2 size={13} className="animate-spin" /> : <X size={13} />}
-                            Cancel Plan
+                            {actionLoad === 'portal' ? <Loader2 size={13} className="animate-spin" /> : <CreditCard size={13} />}
+                            Billing Portal
                           </button>
-                        )}
-                      </>
+                          {!isPastDue && (
+                            <button
+                              onClick={handleCancel}
+                              disabled={actionLoad === 'cancel'}
+                              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
+                              style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}
+                            >
+                              {actionLoad === 'cancel' ? <Loader2 size={13} className="animate-spin" /> : <X size={13} />}
+                              Cancel Plan
+                            </button>
+                          )}
+                        </>
+                      )
                     )}
                   </div>
                 </div>
@@ -366,9 +472,9 @@ export default function SubscriptionPage() {
 
             {/* Plan cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-              {PLANS.map((plan, i) => {
-                const isCurrent  = isActive && sub?.plan === plan.id
-                const isOtherSub = isActive && sub?.plan !== plan.id
+              {PLANS.map((plan) => {
+                const isCurrent  = isSubscribed && sub?.plan === plan.id
+                const isOtherSub = isSubscribed && sub?.plan !== plan.id
 
                 return (
                   <div
@@ -390,12 +496,11 @@ export default function SubscriptionPage() {
                     )}
                     {isCurrent && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-black text-white"
-                        style={{ background: plan.color }}>
-                        CURRENT PLAN
+                        style={{ background: isTrial ? '#fbbf24' : plan.color, color: isTrial ? '#0a0a0f' : '#0a0a0f' }}>
+                        {isTrial ? 'TRIAL ACTIVE' : 'CURRENT PLAN'}
                       </div>
                     )}
 
-                    {/* Plan header */}
                     <div className="flex items-center gap-3 mb-5">
                       <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
                         style={{ background: `${plan.color}15`, border: `1px solid ${plan.color}30` }}>
@@ -410,7 +515,6 @@ export default function SubscriptionPage() {
                       </div>
                     </div>
 
-                    {/* Features */}
                     <ul className="space-y-2.5 mb-6 flex-1">
                       {plan.features.map(({ label, included }) => (
                         <li key={label} className="flex items-center gap-2.5 text-sm">
@@ -422,19 +526,22 @@ export default function SubscriptionPage() {
                       ))}
                     </ul>
 
-                    {/* CTA */}
                     {isCurrent ? (
                       <div className="w-full py-3 rounded-xl text-center text-sm font-bold"
-                        style={{ background: `${plan.color}15`, color: plan.color, border: `1px solid ${plan.color}30` }}>
-                        ✓ Your Current Plan
+                        style={{
+                          background: isTrial ? 'rgba(251,191,36,0.1)' : `${plan.color}15`,
+                          color: isTrial ? '#fbbf24' : plan.color,
+                          border: isTrial ? '1px solid rgba(251,191,36,0.25)' : `1px solid ${plan.color}30`,
+                        }}>
+                        {isTrial ? '✓ Trial Active' : '✓ Your Current Plan'}
                       </div>
                     ) : isOtherSub ? (
                       <motion.button
                         onClick={() => handleChangePlan(plan.id)}
-                        disabled={!!actionLoad}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-60 flex items-center justify-center gap-2"
+                        disabled={!!actionLoad || isTrial}
+                        whileHover={{ scale: isTrial ? 1 : 1.03 }}
+                        whileTap={{ scale: isTrial ? 1 : 0.97 }}
+                        className="w-full py-3 rounded-xl text-sm font-extrabold text-white disabled:opacity-40 flex items-center justify-center gap-2"
                         style={{ background: `${plan.color}22`, border: `1px solid ${plan.color}40`, color: plan.color }}
                       >
                         {actionLoad === 'change' ? <Loader2 size={14} className="animate-spin" /> : null}
@@ -463,8 +570,7 @@ export default function SubscriptionPage() {
               })}
             </div>
 
-            {/* Free plan note */}
-            {!isActive && (
+            {!isSubscribed && (
               <div className="text-center text-sm mb-10" style={{ color: '#888899' }}>
                 Free for everyone: unlimited chats, friend requests, coins &amp; gifts — no credit card required.
               </div>
@@ -483,28 +589,23 @@ export default function SubscriptionPage() {
                 <div className="text-center">VIP</div>
               </div>
               {[
-                { label: 'Gender filter',        basic: true,  vip: true  },
-                { label: 'Country filter',       basic: false, vip: true  },
-                { label: 'Basic badge on profile', basic: true, vip: false },
-                { label: 'VIP badge on profile', basic: false, vip: true  },
+                { label: 'Gender filter',          basic: true,  vip: true  },
+                { label: 'Country filter',         basic: false, vip: true  },
+                { label: 'Basic badge on profile', basic: true,  vip: false },
+                { label: 'VIP badge on profile',   basic: false, vip: true  },
               ].map(({ label, basic, vip }, i) => (
                 <div key={label} className="grid grid-cols-4 items-center px-5 py-3 text-sm"
                   style={{ borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent' }}>
                   <div className="col-span-2 text-gray-300" style={{ wordSpacing: '0.08em' }}>{label}</div>
                   <div className="flex justify-center">
-                    {basic
-                      ? <Check size={15} style={{ color: '#00D4FF' }} />
-                      : <X     size={13} style={{ color: '#374151' }} />}
+                    {basic ? <Check size={15} style={{ color: '#00D4FF' }} /> : <X size={13} style={{ color: '#374151' }} />}
                   </div>
                   <div className="flex justify-center">
-                    {vip
-                      ? <Check size={15} style={{ color: '#00D4FF' }} />
-                      : <X     size={13} style={{ color: '#374151' }} />}
+                    {vip ? <Check size={15} style={{ color: '#00D4FF' }} /> : <X size={13} style={{ color: '#374151' }} />}
                   </div>
                 </div>
               ))}
             </div>
-
             </div>
 
             {/* Security */}

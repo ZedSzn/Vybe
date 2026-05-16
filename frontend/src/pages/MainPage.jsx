@@ -774,6 +774,38 @@ export default function MainPage() {
 
         </div>
 
+        {/* Mobile VIP trial banner */}
+        {!user?.isVip && !user?.isPremium && !user?.trialUsed && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.35 }}
+            className="rounded-2xl p-4"
+            style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.18)', backdropFilter: 'blur(16px)' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded" style={{ color: '#00D4FF', background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)' }}>LIMITED OFFER</span>
+            </div>
+            <p className="text-[14px] font-black text-white mb-1" style={{ letterSpacing: '-0.01em' }}>Try VIP Free for 7 Days</p>
+            <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>Gender filter, country filter, priority matching — cancel anytime</p>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={async () => {
+                if (!user) { navigate('/auth'); return }
+                try {
+                  const { default: axios } = await import('axios')
+                  const token = localStorage.getItem('vybe_token')
+                  const res = await axios.post('/api/subscription/trial', {}, { headers: { Authorization: `Bearer ${token}` } })
+                  if (res.data.url) window.location.href = res.data.url
+                } catch (e) {
+                  alert(e?.response?.data?.error || 'Could not start trial. Try again.')
+                }
+              }}
+              className="w-full py-3 rounded-xl font-black text-sm"
+              style={{ background: 'linear-gradient(135deg, #00B8E0, #00D4FF)', color: '#000', border: 'none', cursor: 'pointer' }}>
+              Start Free Trial →
+            </motion.button>
+            <p className="text-[10px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.22)' }}>🔒 Secured by Stripe · £12.99/mo after trial</p>
+          </motion.div>
+        )}
+
         {/* Country dropdown portal — closes on scroll, anchored */}
         {showCountryDrop && createPortal(
           <AnimatePresence>
@@ -1110,6 +1142,47 @@ export default function MainPage() {
 
               </div>
             </div>
+
+            {/* ── VIP Trial banner — only for eligible free users ── */}
+            {!user?.isVip && !user?.isPremium && !user?.trialUsed && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}
+                style={{
+                  marginTop: 10, borderRadius: 14,
+                  background: 'rgba(0,212,255,0.04)',
+                  backdropFilter: 'blur(24px)',
+                  border: '1px solid rgba(0,212,255,0.18)',
+                  padding: '14px 16px',
+                  display: 'flex', alignItems: 'center', gap: 14,
+                }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#00D4FF', background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', borderRadius: 4, padding: '2px 7px' }}>LIMITED OFFER</span>
+                  </div>
+                  <p style={{ fontSize: 13, fontWeight: 800, color: 'white', margin: '0 0 3px', letterSpacing: '-0.01em' }}>Try VIP Free for 7 Days</p>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.45 }}>Gender filter, country filter, priority matching — cancel anytime</p>
+                </div>
+                <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+                  <motion.button
+                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                    onClick={async () => {
+                      if (!user) { navigate('/auth'); return }
+                      try {
+                        const { default: axios } = await import('axios')
+                        const token = localStorage.getItem('vybe_token')
+                        const res = await axios.post('/api/subscription/trial', {}, { headers: { Authorization: `Bearer ${token}` } })
+                        if (res.data.url) window.location.href = res.data.url
+                      } catch (e) {
+                        alert(e?.response?.data?.error || 'Could not start trial. Try again.')
+                      }
+                    }}
+                    style={{ padding: '8px 18px', borderRadius: 99, background: 'linear-gradient(135deg, #00B8E0, #00D4FF)', color: '#000', fontSize: 12, fontWeight: 800, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 0 16px rgba(0,212,255,0.3)' }}>
+                    Start Free Trial
+                  </motion.button>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', textAlign: 'center' }}>🔒 Secured by Stripe · £12.99/mo after</span>
+                </div>
+              </motion.div>
+            )}
 
           </div>
 
