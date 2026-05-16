@@ -1115,11 +1115,11 @@ export default function MainPage() {
 
 
           {/* ────────── RIGHT: Camera panel ────────── */}
-          <div style={{ flex: '0 0 50%', alignSelf: 'stretch', background: 'transparent' }}>
+          <div style={{ flex: '0 0 50%', alignSelf: 'stretch', background: 'transparent', height: '100%' }}>
           <div style={{
             position: 'relative', overflow: 'hidden',
-            height: 'calc(100% - 24px)', borderRadius: 20,
-            margin: '12px 12px 12px 8px',
+            height: 'calc(100% - 48px)', borderRadius: 20,
+            margin: '24px 24px 24px 8px',
             background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)',
             border: 'none', outline: 'none', boxShadow: 'none',
           }}>
@@ -1136,6 +1136,18 @@ export default function MainPage() {
                 100% { transform: translate(10px, -40px) scale(0.9); opacity: 0.6; }
               }
             `}</style>
+
+            {/* Your profile pill — always inside panel top-left */}
+            <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 50, padding: '3px 9px 3px 3px' }}>
+                {user?.avatar
+                  ? <img src={user.avatar} style={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'cover' }} />
+                  : <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,212,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#00D4FF' }}>{user?.username?.[0]?.toUpperCase() || 'Y'}</div>
+                }
+                <span style={{ color: 'white', fontWeight: 700, fontSize: 10 }}>{user?.username || 'You'}</span>
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block' }} />
+              </div>
+            </div>
 
             {mode === 'squad' ? (
               <>
@@ -1160,17 +1172,6 @@ export default function MainPage() {
                       </motion.button>
                     </div>
                   )}
-                  {/* You label */}
-                  <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 50, padding: '3px 9px 3px 3px' }}>
-                      {user?.avatar
-                        ? <img src={user.avatar} style={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'cover' }} />
-                        : <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,212,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#00D4FF' }}>{user?.username?.[0]?.toUpperCase() || 'Y'}</div>
-                      }
-                      <span style={{ color: 'white', fontWeight: 700, fontSize: 10 }}>{user?.username || 'You'}</span>
-                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block' }} />
-                    </div>
-                  </div>
                   {/* Bottom fade */}
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 100%)', pointerEvents: 'none' }} />
                 </div>
