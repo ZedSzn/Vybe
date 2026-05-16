@@ -1672,13 +1672,28 @@ export default function ChatPage() {
               {/* TOP LEFT: Stranger 1 */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                {!remoteStreams[opponentSocketIds[0]] && status === 'matched' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                    {partnerAvatar ? (
+                      <img src={partnerAvatar} style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06)' }} />
+                    ) : (
+                      <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, color: '#00D4FF' }}>
+                        {(partnerUsername || 'S')[0].toUpperCase()}
+                      </div>
+                    )}
+                    <div style={{ textAlign: 'center' }}>
+                      <p style={{ color: 'white', fontWeight: 700, fontSize: 14, marginBottom: 3, lineHeight: 1 }}>{partnerUsername || 'Stranger'}</p>
+                      {partnerCountry && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4, lineHeight: 1 }}>{partnerCountry}</p>}
+                    </div>
+                  </div>
+                )}
                 {status === 'matched' && (
                   <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
-                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
                       {partnerAvatar ? (
-                        <img src={partnerAvatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(255,255,255,0.2)' }} />
+                        <img src={partnerAvatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 28, height: 28, border: '1.5px solid rgba(255,255,255,0.2)' }} />
                       ) : (
-                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
                           {(partnerUsername || 'S')[0].toUpperCase()}
                         </div>
                       )}
@@ -1704,10 +1719,16 @@ export default function ChatPage() {
               {/* TOP RIGHT: Stranger 2 */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                {!remoteStreams[opponentSocketIds[1]] && status === 'matched' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                    <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, color: '#00D4FF' }}>S</div>
+                    <p style={{ color: 'white', fontWeight: 700, fontSize: 14, marginBottom: 3, lineHeight: 1 }}>Stranger</p>
+                  </div>
+                )}
                 {status === 'matched' && (
                   <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
-                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
-                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>S</div>
+                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>S</div>
                       <span className="text-white font-bold text-[11px] leading-none">Stranger</span>
                       <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
                     </div>
@@ -1721,12 +1742,27 @@ export default function ChatPage() {
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
                 {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
-                  <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                {(!hasCamera || videoOff) && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
                     {user?.avatar ? (
-                      <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(0,212,255,0.4)' }} />
+                      <img src={user.avatar} alt="" style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06)' }} />
+                    ) : (
+                      <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, color: '#00D4FF' }}>
+                        {user?.username?.[0]?.toUpperCase() || 'Y'}
+                      </div>
+                    )}
+                    <div style={{ textAlign: 'center' }}>
+                      <p style={{ color: 'white', fontWeight: 700, fontSize: 14, marginBottom: 3, lineHeight: 1 }}>{user?.username || 'You'}</p>
+                      {user?.country && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4, lineHeight: 1 }}>{user.country}</p>}
+                    </div>
+                  </div>
+                )}
+                <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                  <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 28, height: 28, border: '1.5px solid rgba(0,212,255,0.4)' }} />
                     ) : user?.username ? (
-                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
                         {user.username[0].toUpperCase()}
                       </div>
                     ) : null}
@@ -1743,8 +1779,8 @@ export default function ChatPage() {
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                     <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
-                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
-                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[9px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>D</div>
+                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>D</div>
                         <span className="text-white font-bold text-[11px] leading-none">Duo Partner</span>
                         <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
                       </div>
@@ -1931,11 +1967,11 @@ export default function ChatPage() {
                       </div>
                     )}
                     <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
                         {user?.avatar ? (
-                          <img src={user.avatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
+                          <img src={user.avatar} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
                         ) : user?.username ? (
-                          <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>
+                          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>
                             {user.username[0].toUpperCase()}
                           </div>
                         ) : null}
@@ -1974,8 +2010,8 @@ export default function ChatPage() {
                           )}
                           {/* Profile pill */}
                           <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '5px 10px 5px 5px', gap: 6 }}>
-                              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>D</div>
+                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
+                              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>D</div>
                               <span style={{ color: 'white', fontWeight: 700, fontSize: 11, lineHeight: 1 }}>Partner</span>
                               <span style={{ width: 5, height: 5, borderRadius: '50%', background: hasStream ? '#4ade80' : 'rgba(255,255,255,0.3)', display: 'inline-block', flexShrink: 0, transition: 'background 0.3s' }} />
                             </div>
