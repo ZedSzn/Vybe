@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Camera, Edit2, Save, X, ArrowLeft, Copy, Check, Loader2, Shield, Crown, Zap, Flame, Trophy, MessageCircle, Twitter, Star, BadgeCheck, Gem, Sparkles, Music2, Globe, Target, Gift, Clock } from 'lucide-react'
+import { Camera, Edit2, Save, X, ArrowLeft, Check, Loader2, Shield, Crown, Zap, Flame, Trophy, MessageCircle, Twitter, Star, BadgeCheck, Gem, Sparkles, Music2, Globe, Target, Gift, Clock } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -106,8 +106,6 @@ export default function ProfilePage() {
   const [editing,       setEditing]       = useState(false)
   const [saving,        setSaving]        = useState(false)
   const [saveError,     setSaveError]     = useState('')
-  const [copied,        setCopied]        = useState(false)
-  const [referral,      setReferral]      = useState(null)
   const [ownedBadgeIds, setOwnedBadgeIds] = useState([])
   const [editForm,      setEditForm]      = useState({
     bio: '', displayName: '', pronouns: '', gender: 'other', country: '',
@@ -142,7 +140,6 @@ export default function ProfilePage() {
             bannerGradient:     data.user.bannerGradient || '',
             bannerImage:        data.user.bannerImage || '',
           })
-          axios.get('/api/referral/info').then(r => setReferral(r.data)).catch(() => {})
           axios.get('/api/badges/mine').then(r => setOwnedBadgeIds(r.data.owned || [])).catch(() => {})
         } else {
           const { data } = await axios.get(`/api/user/${id}/profile`)
@@ -228,12 +225,6 @@ export default function ProfilePage() {
       setSaveError(err.response?.data?.error || 'Failed to save. Please try again.')
     }
     setSaving(false)
-  }
-
-  const copyReferral = () => {
-    navigator.clipboard?.writeText(referral?.referralLink || referral?.code || '')
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   const lastSeenText = (ts) => {
@@ -712,27 +703,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Referral (own profile only) */}
-            {isOwn && referral && (
-              <div className="rounded-2xl p-4" style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.14)' }}>
-                <p className="text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-2">Your Referral Code</p>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 text-sm font-black text-cyan-400 tracking-widest">{referral.code || referral.referralCode}</code>
-                  <button onClick={copyReferral}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-                    style={{
-                      background: copied ? 'rgba(74,222,128,0.15)' : 'rgba(0,212,255,0.1)',
-                      border: `1px solid ${copied ? 'rgba(74,222,128,0.3)' : 'rgba(0,212,255,0.25)'}`,
-                      color: copied ? '#4ade80' : '#00B8E0',
-                    }}>
-                    {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? 'Copied!' : 'Copy'}
-                  </button>
-                </div>
-                {referral.referralLink && (
-                  <p className="text-[11px] text-vybe-muted mt-1.5 truncate">{referral.referralLink}</p>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>
