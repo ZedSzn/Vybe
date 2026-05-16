@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Camera, Edit2, Save, X, ArrowLeft, Check, Loader2, Shield, Crown, Zap, Flame, Trophy, MessageCircle, Twitter, Star, BadgeCheck, Gem, Sparkles, Music2, Globe, Target, Gift, Clock } from 'lucide-react'
+import { Camera, Edit2, Save, X, ArrowLeft, Check, Loader2, Shield, Crown, Zap, Flame, Trophy, MessageCircle, Star, BadgeCheck, Gem, Sparkles, Music2, Globe, Target, Gift, Clock } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -89,11 +89,13 @@ function SysBadge({ icon: Icon, label, color }) {
   )
 }
 
-const TikTokIcon = ({ size = 14 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.17 8.17 0 0 0 4.78 1.52V6.76a4.84 4.84 0 0 1-1.01-.07z"/>
-  </svg>
-)
+const SOCIAL_PLATFORMS = [
+  { key: 'instagram', label: 'Instagram', color: '#ec4899', url: u => `https://instagram.com/${u}`,  domain: 'instagram.com' },
+  { key: 'tiktok',    label: 'TikTok',    color: '#e2e8f0', url: u => `https://tiktok.com/@${u}`,    domain: 'tiktok.com'    },
+  { key: 'twitter',   label: 'Twitter',   color: '#1da1f2', url: u => `https://twitter.com/${u}`,    domain: 'x.com'         },
+  { key: 'twitch',    label: 'Twitch',    color: '#9147ff', url: u => `https://twitch.tv/${u}`,      domain: 'twitch.tv'     },
+  { key: 'kick',      label: 'Kick',      color: '#53fc18', url: u => `https://kick.com/${u}`,       domain: 'kick.com'      },
+]
 
 export default function ProfilePage() {
   const { id }          = useParams()
@@ -109,7 +111,7 @@ export default function ProfilePage() {
   const [ownedBadgeIds, setOwnedBadgeIds] = useState([])
   const [editForm,      setEditForm]      = useState({
     bio: '', displayName: '', pronouns: '', gender: 'other', country: '',
-    interests: [], socialLinks: { instagram: '', tiktok: '', twitter: '' },
+    interests: [], socialLinks: { instagram: '', tiktok: '', twitter: '', twitch: '', kick: '' },
     privacyShowBio: true, privacyShowCountry: true,
     accentColor: '', bannerGradient: '', bannerImage: '',
   })
@@ -278,7 +280,7 @@ export default function ProfilePage() {
   const equippedBadges  = profile.equippedBadges || []
   const profileInterests = profile.interests || []
   const profileSocial   = profile.socialLinks || {}
-  const hasSocial       = profileSocial.instagram || profileSocial.tiktok || profileSocial.twitter
+  const hasSocial       = SOCIAL_PLATFORMS.some(p => profileSocial[p.key])
 
   const activeImage  = editing ? editForm.bannerImage : profile.bannerImage
   const preset       = BANNER_PRESETS.find(b => b.id === (editing ? editForm.bannerGradient : profile.bannerGradient)) || BANNER_PRESETS[0]
@@ -445,27 +447,18 @@ export default function ProfilePage() {
             {/* Social links */}
             {!editing && hasSocial && (
               <div className="flex flex-wrap items-center gap-2 mb-5">
-                {profileSocial.instagram && (
-                  <a href={`https://instagram.com/${profileSocial.instagram}`} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:opacity-80 transition-opacity"
-                    style={{ background: 'rgba(236,72,153,0.1)', border: '1px solid rgba(236,72,153,0.2)', color: '#ec4899' }}>
-                    IG @{profileSocial.instagram}
-                  </a>
-                )}
-                {profileSocial.tiktok && (
-                  <a href={`https://tiktok.com/@${profileSocial.tiktok}`} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:opacity-80 transition-opacity"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#e2e8f0' }}>
-                    <TikTokIcon size={11} /> @{profileSocial.tiktok}
-                  </a>
-                )}
-                {profileSocial.twitter && (
-                  <a href={`https://twitter.com/${profileSocial.twitter}`} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:opacity-80 transition-opacity"
-                    style={{ background: 'rgba(29,161,242,0.1)', border: '1px solid rgba(29,161,242,0.2)', color: '#1da1f2' }}>
-                    <Twitter size={11} /> @{profileSocial.twitter}
-                  </a>
-                )}
+                {SOCIAL_PLATFORMS.map(({ key, label, color, url, domain }) => {
+                  const handle = profileSocial[key]
+                  if (!handle) return null
+                  return (
+                    <a key={key} href={url(handle)} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:opacity-80 transition-opacity"
+                      style={{ background: `${color}18`, border: `1px solid ${color}30`, color }}>
+                      <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} alt={label} className="w-3.5 h-3.5 rounded-sm flex-shrink-0" />
+                      @{handle}
+                    </a>
+                  )
+                })}
               </div>
             )}
 
@@ -550,13 +543,11 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-2">Social Links</label>
                   <div className="space-y-2">
-                    {[
-                      { key: 'instagram', label: 'Instagram', color: '#ec4899' },
-                      { key: 'tiktok',    label: 'TikTok',    color: '#e2e8f0' },
-                      { key: 'twitter',   label: 'Twitter',   color: '#1da1f2' },
-                    ].map(({ key, label, color }) => (
+                    {SOCIAL_PLATFORMS.map(({ key, label, color, domain }) => (
                       <div key={key} className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold w-16 flex-shrink-0" style={{ color }}>{label}</span>
+                        <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${color}18`, border: `1px solid ${color}30` }}>
+                          <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} alt={label} className="w-3.5 h-3.5 rounded-sm" />
+                        </div>
                         <div className="flex-1 flex items-center bg-vybe-bg border border-vybe-border rounded-xl overflow-hidden focus-within:border-vybe-purple/60 transition-colors">
                           <span className="px-3 text-vybe-muted text-sm">@</span>
                           <input value={(editForm.socialLinks || {})[key] || ''}
