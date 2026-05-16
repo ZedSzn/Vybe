@@ -1683,7 +1683,7 @@ export default function ChatPage() {
           <div className="flex-1 flex min-h-0" style={{ padding: 8, gap: 8 }}>
 
               {/* Stranger video */}
-              <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="flex-1 min-h-0 min-w-0" style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 {status === 'searching' ? (
                   <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 20, paddingBottom: 100 }}>
                     {/* Globe — fixed-size container so rings don't overflow into text */}
@@ -1804,7 +1804,7 @@ export default function ChatPage() {
                 {/* Timer — shifted left for Skip button */}
                 {status === 'matched' && (
                   <div className="absolute z-10 px-2.5 py-1 rounded-full font-mono text-[11px] font-bold pointer-events-none"
-                    style={{ top: 16, right: 80, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+                    style={{ top: 16, right: 90, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
                     {fmt(elapsed)}
                   </div>
                 )}
@@ -1910,7 +1910,7 @@ export default function ChatPage() {
                   </div>
                 </div>
               ) : (
-                <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex-1 min-h-0 min-w-0" style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
                   {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
