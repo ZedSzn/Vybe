@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { getBannerStyle } from '../utils/bannerUtils'
-import { getCameraBgPreset } from '../utils/cameraBackgrounds'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -17,57 +16,6 @@ import { useAuth } from '../context/AuthContext'
 import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
 import { playTipSent, playClick } from '../utils/sounds'
-
-// ─── Virtual camera background (MediaPipe Selfie Segmentation) ───────────────
-const MEDIAPIPE_BASE = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747'
-
-function loadSelfieSegmentation() {
-  return new Promise((resolve, reject) => {
-    if (window.SelfieSegmentation) { resolve(window.SelfieSegmentation); return }
-    const s = document.createElement('script')
-    s.src = `${MEDIAPIPE_BASE}/selfie_segmentation.js`
-    s.crossOrigin = 'anonymous'
-    s.onload = () => window.SelfieSegmentation
-      ? resolve(window.SelfieSegmentation)
-      : reject(new Error('SelfieSegmentation global missing'))
-    s.onerror = () => reject(new Error('Failed to load segmentation script'))
-    document.head.appendChild(s)
-  })
-}
-
-// Draw an image cover-fitted (no distortion) into a w×h canvas region.
-function drawCover(ctx, img, w, h) {
-  const ir = img.width / img.height
-  const cr = w / h
-  let dw, dh, dx, dy
-  if (ir > cr) { dh = h; dw = h * ir; dx = (w - dw) / 2; dy = 0 }
-  else         { dw = w; dh = w / ir; dx = 0; dy = (h - dh) / 2 }
-  ctx.drawImage(img, dx, dy, dw, dh)
-}
-
-// Composite one segmentation result: keep the person, paint chosen background behind.
-function compositeFrame(ctx, canvas, results, preset, bgImg) {
-  const w = results.image.width
-  const h = results.image.height
-  if (!w || !h) return
-  if (canvas.width  !== w) canvas.width  = w
-  if (canvas.height !== h) canvas.height = h
-
-  ctx.save()
-  ctx.clearRect(0, 0, w, h)
-  ctx.drawImage(results.segmentationMask, 0, 0, w, h)
-  ctx.globalCompositeOperation = 'source-in'
-  ctx.drawImage(results.image, 0, 0, w, h)
-  ctx.globalCompositeOperation = 'destination-over'
-
-  if (preset.type === 'custom' && bgImg) {
-    drawCover(ctx, bgImg, w, h)
-  } else {
-    ctx.fillStyle = '#0d1020'
-    ctx.fillRect(0, 0, w, h)
-  }
-  ctx.restore()
-}
 
 // Uncontrolled input — reads DOM value directly so React re-renders never interfere
 function FloatingChat({ messages, messagesEndRef, onSend, status }) {
@@ -248,6 +196,8 @@ export default function ChatPage() {
   const { user }  = useAuth()
   const bannerStyle = getBannerStyle(user)
   const bannerImage = user?.bannerImage || null
+  // Custom image shown in place of the camera when no webcam is available.
+  const camBgImage  = user?.cameraBackground === 'custom' ? (user?.cameraBackgroundImage || null) : null
 
   const prefs = location.state || { mode: 'solo', filterGender: null, filterCountry: '' }
 
@@ -260,8 +210,6 @@ export default function ChatPage() {
   const [showChat,         setShowChat]         = useState(false)
   const [isMuted,          setIsMuted]          = useState(false)
   const [videoOff,         setVideoOff]         = useState(false)
-  const [cameraReady,      setCameraReady]      = useState(false)
-  const [vbgStatus,        setVbgStatus]        = useState('idle') // idle|loading|active|failed
   const [showReport,       setShowReport]       = useState(false)
   const [reportSent,       setReportSent]       = useState(false)
   const [elapsed,          setElapsed]          = useState(0)
@@ -362,15 +310,6 @@ export default function ChatPage() {
   const prefsRef        = useRef(prefs)
   const partnerSockRef  = useRef(null)
   const partnerUidRef   = useRef(null)
-
-  // Virtual camera background
-  const rawStreamRef    = useRef(null)   // untouched camera stream (segmentation source)
-  const segRef          = useRef(null)   // MediaPipe SelfieSegmentation instance
-  const segVideoRef     = useRef(null)   // hidden <video> fed with the raw stream
-  const segCanvasRef    = useRef(null)   // <canvas> the composited frames are drawn to
-  const segRafRef       = useRef(null)   // requestAnimationFrame id for the processing loop
-  const segBusyRef      = useRef(false)  // guards against overlapping seg.send() calls
-  const bgImgRef        = useRef(null)   // decoded custom background image
 
   useEffect(() => {
     // Always fetch fresh balance — localStorage can be stale
@@ -598,20 +537,15 @@ export default function ChatPage() {
       const camAvailable = !!(stream?.getVideoTracks().length)
       setHasCamera(camAvailable)
       if (stream) {
-        rawStreamRef.current = stream
-        // Separate stream object for what we display/send — lets the virtual
-        // background swap the video track without disturbing the raw camera
-        // that feeds the segmentation pipeline.
-        localStreamRef.current = new MediaStream(stream.getTracks())
+        localStreamRef.current = stream
         if (localVideoRef.current) {
-          localVideoRef.current.srcObject = localStreamRef.current
+          localVideoRef.current.srcObject = stream
           localVideoRef.current.play().catch(() => {})
         }
         if (localVideoDesktopRef.current) {
-          localVideoDesktopRef.current.srcObject = localStreamRef.current
+          localVideoDesktopRef.current.srcObject = stream
           localVideoDesktopRef.current.play().catch(() => {})
         }
-        if (mounted) setCameraReady(true)
       }
 
       // Progress past 'init' immediately — don't wait for socket to connect.
@@ -807,9 +741,6 @@ export default function ChatPage() {
     return () => {
       mounted = false
       destroyAllPeers()
-      if (segRafRef.current) cancelAnimationFrame(segRafRef.current)
-      try { segRef.current?.close() } catch { /* ignore */ }
-      rawStreamRef.current?.getTracks().forEach((t) => t.stop())
       localStreamRef.current?.getTracks().forEach((t) => t.stop())
       socketRef.current?.disconnect()
       clearInterval(timerRef.current)
@@ -817,151 +748,9 @@ export default function ChatPage() {
     }
   }, []) // eslint-disable-line
 
-  // ─── Virtual camera background ─────────────────────────────────────────────
-  // State-driven so it activates whenever the camera is ready AND the user's
-  // chosen background is known — independent of mount-time ordering.
-  useEffect(() => {
-    const preset = getCameraBgPreset(user?.cameraBackground || 'none')
-    if (!cameraReady || preset.id === 'none') { setVbgStatus('idle'); return }
-    if (!rawStreamRef.current?.getVideoTracks?.().length) return
-
-    let cancelled = false
-    let swapped   = false
-    setVbgStatus('loading')
-    console.log(`[Vybe] camera background: initializing (${preset.id})…`)
-
-    const watchdog = setTimeout(() => {
-      if (!cancelled && !swapped) {
-        console.warn('[Vybe] camera background: no rendered frame after 15s')
-        setVbgStatus('failed')
-      }
-    }, 15000)
-
-    const start = async () => {
-      try {
-        const SelfieSegmentation = await loadSelfieSegmentation()
-        if (cancelled) return
-        console.log('[Vybe] camera background: MediaPipe script loaded')
-
-        let bgImg = null
-        if (preset.type === 'custom' && user?.cameraBackgroundImage) {
-          bgImg = new Image()
-          bgImg.src = user.cameraBackgroundImage
-          await new Promise((res) => { bgImg.onload = res; bgImg.onerror = res })
-          if (cancelled) return
-        }
-        bgImgRef.current = bgImg
-
-        // Hidden but DOM-attached so the browser reliably decodes its frames.
-        const segVideo = document.createElement('video')
-        segVideo.muted = true
-        segVideo.playsInline = true
-        segVideo.autoplay = true
-        segVideo.style.cssText = 'position:fixed;width:2px;height:2px;opacity:0;pointer-events:none;top:0;left:0;z-index:-1'
-        segVideo.srcObject = rawStreamRef.current
-        document.body.appendChild(segVideo)
-        await segVideo.play().catch(() => {})
-        segVideoRef.current = segVideo
-
-        const settings = rawStreamRef.current.getVideoTracks()[0]?.getSettings?.() || {}
-        const canvas = document.createElement('canvas')
-        canvas.width  = settings.width  || 640
-        canvas.height = settings.height || 480
-        segCanvasRef.current = canvas
-        const ctx = canvas.getContext('2d')
-
-        // Swap the raw camera track for the composited canvas track — done on
-        // the first rendered frame so viewers never see a blank panel.
-        const swapInProcessedTrack = () => {
-          if (swapped || cancelled) return
-          swapped = true
-          const canvasStream = canvas.captureStream(30)
-          const canvasTrack  = canvasStream.getVideoTracks()[0]
-          if (!canvasTrack) return
-          const ls = localStreamRef.current
-          const rawVideoTrack = ls?.getVideoTracks()[0]
-          if (ls) {
-            ls.getVideoTracks().forEach((t) => ls.removeTrack(t))
-            ls.addTrack(canvasTrack)
-          }
-          Object.values(peersRef.current).forEach((peer) => {
-            try { peer.replaceTrack(rawVideoTrack, canvasTrack, ls) } catch { /* no sender yet */ }
-          })
-          if (localVideoRef.current)        localVideoRef.current.srcObject        = ls
-          if (localVideoDesktopRef.current) localVideoDesktopRef.current.srcObject = ls
-          setVbgStatus('active')
-          console.log('[Vybe] camera background: active')
-        }
-
-        const seg = new SelfieSegmentation({ locateFile: (f) => `${MEDIAPIPE_BASE}/${f}` })
-        seg.setOptions({ modelSelection: 1 })
-        seg.onResults((results) => {
-          if (cancelled || !segCanvasRef.current) return
-          compositeFrame(ctx, segCanvasRef.current, results, preset, bgImgRef.current)
-          swapInProcessedTrack()
-        })
-        segRef.current = seg
-
-        let sendFails = 0
-        const tick = async () => {
-          if (cancelled) return
-          const v = segVideoRef.current
-          if (v && v.readyState >= 2 && !segBusyRef.current) {
-            segBusyRef.current = true
-            try {
-              await seg.send({ image: v })
-            } catch (err) {
-              if (++sendFails === 1) console.warn('[Vybe] camera background: seg.send error —', err?.message || err)
-              if (sendFails > 60 && !swapped && !cancelled) setVbgStatus('failed')
-            }
-            segBusyRef.current = false
-          }
-          segRafRef.current = requestAnimationFrame(tick)
-        }
-        segRafRef.current = requestAnimationFrame(tick)
-      } catch (e) {
-        console.warn('[Vybe] Virtual background failed:', e?.message || e)
-        if (!cancelled) setVbgStatus('failed')
-      }
-    }
-
-    start()
-
-    return () => {
-      cancelled = true
-      clearTimeout(watchdog)
-      if (segRafRef.current) { cancelAnimationFrame(segRafRef.current); segRafRef.current = null }
-      try { segRef.current?.close() } catch { /* ignore */ }
-      try { segVideoRef.current?.remove() } catch { /* ignore */ }
-      segRef.current = null
-      segVideoRef.current = null
-      segCanvasRef.current = null
-    }
-  }, [cameraReady, user?.cameraBackground, user?.cameraBackgroundImage])
-
   const flipCamera = async () => {
     const newFacing = facingMode === 'user' ? 'environment' : 'user'
     setFacingMode(newFacing)
-    // With a virtual background active, the camera only feeds the segmentation
-    // pipeline — swap the track on the raw stream so the composited canvas
-    // stream (and the WebRTC senders reading it) stay untouched.
-    if (segRef.current && rawStreamRef.current) {
-      try {
-        const videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: newFacing, width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: false,
-        })
-        const newVideoTrack = videoStream.getVideoTracks()[0]
-        if (newVideoTrack) {
-          rawStreamRef.current.getVideoTracks().forEach((t) => { t.stop(); rawStreamRef.current.removeTrack(t) })
-          rawStreamRef.current.addTrack(newVideoTrack)
-          if (segVideoRef.current) segVideoRef.current.srcObject = rawStreamRef.current
-        }
-      } catch {
-        setFacingMode(facingMode)
-      }
-      return
-    }
     // Only stop video tracks — preserve the existing audio track so mute keeps working
     localStreamRef.current?.getVideoTracks().forEach((t) => t.stop())
     try {
@@ -1220,19 +1009,6 @@ export default function ChatPage() {
   return (
     <div className="chat-fullscreen bg-black font-space">
 
-      {/* Camera background — diagnostic badge (always shown for now) */}
-      <div style={{
-        position: 'fixed', top: 64, left: '50%', transform: 'translateX(-50%)', zIndex: 60,
-        padding: '5px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700,
-        backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-        background: vbgStatus === 'active' ? 'rgba(34,197,94,0.18)' : vbgStatus === 'failed' ? 'rgba(239,68,68,0.2)' : 'rgba(0,212,255,0.15)',
-        border: `1px solid ${vbgStatus === 'active' ? 'rgba(34,197,94,0.5)' : vbgStatus === 'failed' ? 'rgba(239,68,68,0.5)' : 'rgba(0,212,255,0.4)'}`,
-        color: vbgStatus === 'active' ? '#86efac' : vbgStatus === 'failed' ? '#fca5a5' : '#7dd3fc',
-        whiteSpace: 'nowrap',
-      }}>
-        BG:{user?.cameraBackground || 'none'} · img:{user?.cameraBackgroundImage ? 'yes' : 'no'} · cam:{cameraReady ? 'ready' : 'wait'} · {vbgStatus}
-      </div>
-
       {/* ═══════════════════════════════════════════════════════════════
           SHARED FIXED OVERLAYS — visible on both mobile and desktop
       ═══════════════════════════════════════════════════════════════ */}
@@ -1483,7 +1259,9 @@ export default function ChatPage() {
                   }}
                   autoPlay muted playsInline className="w-full h-full object-cover"
                 />
-                {!hasCamera && <div className="absolute inset-0 bg-[#0a0a14]" />}
+                {!hasCamera && (camBgImage
+                  ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  : <div className="absolute inset-0 bg-[#0a0a14]" />)}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
                 <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
                   <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
@@ -1559,9 +1337,11 @@ export default function ChatPage() {
                     }}
                     autoPlay muted playsInline className="w-full h-full object-cover"
                   />
-                  {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
+                  {!hasCamera && (camBgImage
+                  ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                  {(!hasCamera || videoOff) && (
+                  {((!hasCamera && !camBgImage) || videoOff) && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ zIndex: 5 }}>
                       {user?.avatar ? (
                         <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
@@ -1753,7 +1533,9 @@ export default function ChatPage() {
             }}
           >
             <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-            {!hasCamera && (
+            {!hasCamera && (camBgImage ? (
+              <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-[#0a0a14]">
                 {user?.avatar ? (
                   <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
@@ -1763,7 +1545,7 @@ export default function ChatPage() {
                   </div>
                 )}
               </div>
-            )}
+            ))}
             {videoOff && hasCamera && (
               <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-1.5">
                 {user?.avatar ? (
@@ -1969,9 +1751,11 @@ export default function ChatPage() {
               {/* BOTTOM LEFT: Your camera */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-                {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
+                {!hasCamera && (camBgImage
+                  ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                {(!hasCamera || videoOff) && (
+                {((!hasCamera && !camBgImage) || videoOff) && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
                     {user?.avatar ? (
                       <img src={user.avatar} alt="" style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06)' }} />
@@ -2184,9 +1968,11 @@ export default function ChatPage() {
                   {/* TOP: Your camera — absolute top half */}
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '50%', overflow: 'hidden', borderRadius: '20px 20px 0 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                     <video ref={localVideoDesktopRef} autoPlay muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                    {!hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
+                    {!hasCamera && (camBgImage
+                      ? <img src={camBgImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                     {videoOff && hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)' }} />}
-                    {(!hasCamera || videoOff) && (
+                    {((!hasCamera && !camBgImage) || videoOff) && (
                       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 5 }}>
                         {user?.avatar ? (
                           <img src={user.avatar} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 32px rgba(0,212,255,0.12)' }} />
@@ -2261,10 +2047,12 @@ export default function ChatPage() {
                 <div className="flex-1 min-h-0 min-w-0" style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
 
-                  {!hasCamera && <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
+                  {!hasCamera && (camBgImage
+                  ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
 
-                  {(!hasCamera || videoOff) && (
+                  {((!hasCamera && !camBgImage) || videoOff) && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
                       {user?.avatar ? (
                         <img src={user.avatar} alt="" style={{ width: 88, height: 88, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />

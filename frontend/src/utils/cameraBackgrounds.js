@@ -4,7 +4,3 @@ export const CAMERA_BG_PRESETS = [
   { id: 'none',   label: 'None',   icon: '🚫', type: 'none',   preview: 'rgba(255,255,255,0.04)' },
   { id: 'custom', label: 'Custom', icon: '🖼', type: 'custom', preview: 'rgba(0,212,255,0.12)' },
 ]
-
-export function getCameraBgPreset(id) {
-  return CAMERA_BG_PRESETS.find(p => p.id === id) || CAMERA_BG_PRESETS[0]
-}

@@ -695,7 +695,7 @@ export default function ProfilePage() {
                     </button>
                   </div>
                   <p className="text-[10px] text-vybe-muted mb-2.5 leading-relaxed">
-                    Replaces what's behind you on camera during chats. Your face stays — everything else becomes the scene you pick.
+                    Shown in your camera panel during chats when you don't have a webcam connected.
                   </p>
                   <input ref={cameraBgFileRef} type="file" accept="image/*" className="hidden" onChange={handleCameraBgChange} />
                   {editForm.cameraBackgroundImage && (
