@@ -778,31 +778,39 @@ export default function MainPage() {
         {!user?.isVip && !user?.isPremium && !user?.trialUsed && (
           <motion.div
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.35 }}
-            className="rounded-2xl p-4"
-            style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.18)', backdropFilter: 'blur(16px)' }}>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded" style={{ color: '#00D4FF', background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)' }}>LIMITED OFFER</span>
+            style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, background: 'linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(124,58,237,0.05) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', padding: '16px' }}>
+            {/* VIP watermark */}
+            <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 64, fontWeight: 900, color: 'rgba(255,255,255,0.03)', letterSpacing: -3, pointerEvents: 'none', zIndex: 0, userSelect: 'none', lineHeight: 1 }}>VIP</span>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ marginBottom: 8 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'white', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', borderRadius: 20, padding: '3px 10px', display: 'inline-block' }}>LIMITED OFFER</span>
+              </div>
+              <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Try VIP Free for 7 Days</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginBottom: 12 }}>
+                {['Gender filter', 'Country filter', 'Priority matching', 'No ads'].map(f => (
+                  <span key={f} style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ color: '#00D4FF', fontWeight: 700 }}>✓</span>{f}
+                  </span>
+                ))}
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={async () => {
+                  if (!user) { navigate('/auth'); return }
+                  try {
+                    const { default: axios } = await import('axios')
+                    const token = localStorage.getItem('vybe_token')
+                    const res = await axios.post('/api/subscription/trial', {}, { headers: { Authorization: `Bearer ${token}` } })
+                    if (res.data.url) window.location.href = res.data.url
+                  } catch (e) {
+                    alert(e?.response?.data?.error || 'Could not start trial. Try again.')
+                  }
+                }}
+                style={{ width: '100%', padding: '13px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
+                Start Free Trial →
+              </motion.button>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 8, marginBottom: 0 }}>🔒 Secured by Stripe · Cancel before day 7 to avoid £12.99/mo</p>
             </div>
-            <p className="text-[14px] font-black text-white mb-1" style={{ letterSpacing: '-0.01em' }}>Try VIP Free for 7 Days</p>
-            <p className="text-[11px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>Gender filter, country filter, priority matching — cancel anytime</p>
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={async () => {
-                if (!user) { navigate('/auth'); return }
-                try {
-                  const { default: axios } = await import('axios')
-                  const token = localStorage.getItem('vybe_token')
-                  const res = await axios.post('/api/subscription/trial', {}, { headers: { Authorization: `Bearer ${token}` } })
-                  if (res.data.url) window.location.href = res.data.url
-                } catch (e) {
-                  alert(e?.response?.data?.error || 'Could not start trial. Try again.')
-                }
-              }}
-              className="w-full py-3 rounded-xl font-black text-sm"
-              style={{ background: 'linear-gradient(135deg, #00B8E0, #00D4FF)', color: '#000', border: 'none', cursor: 'pointer' }}>
-              Start Free Trial →
-            </motion.button>
-            <p className="text-[10px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.22)' }}>🔒 Secured by Stripe · £12.99/mo after trial</p>
           </motion.div>
         )}
 
@@ -1148,21 +1156,32 @@ export default function MainPage() {
               <motion.div
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}
                 style={{
-                  marginTop: 10, borderRadius: 14,
-                  background: 'rgba(0,212,255,0.04)',
-                  backdropFilter: 'blur(24px)',
-                  border: '1px solid rgba(0,212,255,0.18)',
-                  padding: '14px 16px',
-                  display: 'flex', alignItems: 'center', gap: 14,
+                  marginTop: 10, borderRadius: 16, position: 'relative', overflow: 'hidden',
+                  background: 'linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(124,58,237,0.05) 100%)',
+                  backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(0,212,255,0.2)',
+                  padding: '16px 20px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
                 }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#00D4FF', background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', borderRadius: 4, padding: '2px 7px' }}>LIMITED OFFER</span>
+                {/* VIP watermark */}
+                <span style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 80, fontWeight: 900, color: 'rgba(255,255,255,0.03)', letterSpacing: -4, pointerEvents: 'none', zIndex: 0, userSelect: 'none', lineHeight: 1 }}>VIP</span>
+                {/* Left content */}
+                <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+                  <div style={{ marginBottom: 8 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'white', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', borderRadius: 20, padding: '3px 10px', display: 'inline-block' }}>LIMITED OFFER</span>
                   </div>
-                  <p style={{ fontSize: 13, fontWeight: 800, color: 'white', margin: '0 0 3px', letterSpacing: '-0.01em' }}>Try VIP Free for 7 Days</p>
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.45 }}>Gender filter, country filter, priority matching — cancel anytime</p>
+                  <p style={{ fontSize: 17, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Try VIP Free for 7 Days</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6, flexWrap: 'wrap' }}>
+                    {['Gender filter', 'Country filter', 'Priority matching', 'No ads'].map(f => (
+                      <span key={f} style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ color: '#00D4FF', fontWeight: 700 }}>✓</span>{f}
+                      </span>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0 }}>Card required. Cancel before day 7 to avoid £12.99/month charge.</p>
                 </div>
-                <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+                {/* Right CTA */}
+                <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, position: 'relative', zIndex: 1 }}>
                   <motion.button
                     whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
                     onClick={async () => {
@@ -1176,10 +1195,10 @@ export default function MainPage() {
                         alert(e?.response?.data?.error || 'Could not start trial. Try again.')
                       }
                     }}
-                    style={{ padding: '8px 18px', borderRadius: 99, background: 'linear-gradient(135deg, #00B8E0, #00D4FF)', color: '#000', fontSize: 12, fontWeight: 800, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 0 16px rgba(0,212,255,0.3)' }}>
+                    style={{ padding: '12px 24px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
                     Start Free Trial
                   </motion.button>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', textAlign: 'center' }}>🔒 Secured by Stripe · £12.99/mo after</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>🔒 Secured by Stripe</span>
                 </div>
               </motion.div>
             )}
