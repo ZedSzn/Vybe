@@ -2612,6 +2612,7 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
       partnerIsPremium: partnerData?.isPremium || false,
       partnerIsVip: partnerData?.isVip || false,
       partnerEmailVerified: partnerData?.emailVerified || false,
+      partnerCountry: partnerData?.country || null,
     });
   }
 }
