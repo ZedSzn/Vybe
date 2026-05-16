@@ -1064,59 +1064,70 @@ export default function MainPage() {
             </div>
 
             {/* ── Filters: Gender / Country / Mode ── */}
-            <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {[['Both', 'both'], ['Male', 'male'], ['Female', 'female']].map(([label, val]) => (
-                  <motion.button key={val}
-                    onClick={() => handleGender(val)}
-                    whileTap={{ scale: 0.94 }}
-                    style={{
-                      padding: '8px 16px', borderRadius: 50, fontSize: 12, fontWeight: 700, cursor: 'pointer', position: 'relative',
-                      ...(filterGender === val
-                        ? { background: '#00D4FF', color: '#0a0a0f', border: '1px solid transparent', boxShadow: '0 2px 10px rgba(0,212,255,0.35)' }
-                        : { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.6)' }),
-                    }}>
-                    {label}
-                    {val !== 'both' && !user?.isPremium && (
-                      <Lock size={7} style={{ position: 'absolute', top: 2, right: 3, opacity: 0.35 }} />
-                    )}
-                  </motion.button>
-                ))}
-              </div>
-              <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.1)', flexShrink: 0, margin: '0 2px' }} />
+            <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', padding: '4px 0' }}>
+              {/* Gender */}
+              {[['Both', 'both'], ['Male', 'male'], ['Female', 'female']].map(([label, val]) => (
+                <motion.button key={val}
+                  onClick={() => handleGender(val)}
+                  whileHover={filterGender !== val ? { background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)' } : {}}
+                  whileTap={{ scale: 0.94 }}
+                  style={{
+                    position: 'relative', borderRadius: 50, fontSize: 13, cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    ...(filterGender === val
+                      ? { background: '#00D4FF', color: '#000000', border: '1px solid #00D4FF', padding: '8px 18px', fontWeight: 700, boxShadow: '0 2px 12px rgba(0,212,255,0.35)' }
+                      : { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.7)', padding: '8px 18px', fontWeight: 500 }),
+                  }}>
+                  {label}
+                  {val !== 'both' && !user?.isPremium && (
+                    <Lock size={7} style={{ position: 'absolute', top: 2, right: 3, opacity: 0.35 }} />
+                  )}
+                </motion.button>
+              ))}
+
+              {/* Divider */}
+              <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.10)', flexShrink: 0, margin: '0 4px' }} />
+
+              {/* Country */}
               <motion.button
                 ref={countryBtnRef}
                 onClick={handleCountryClick}
+                whileHover={!filterCountry ? { background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)' } : {}}
                 whileTap={{ scale: 0.96 }}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 50,
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 50,
                   background: filterCountry ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.06)',
                   border: filterCountry ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.10)',
-                  color: filterCountry ? '#00D4FF' : 'rgba(255,255,255,0.6)',
-                  fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+                  color: filterCountry ? '#00D4FF' : 'rgba(255,255,255,0.7)',
+                  fontSize: 13, fontWeight: filterCountry ? 600 : 500, cursor: 'pointer', whiteSpace: 'nowrap',
+                  transition: 'all 0.2s ease',
                 }}>
                 {user?.isVip
-                  ? <Globe size={11} style={{ color: filterCountry ? '#00D4FF' : 'rgba(0,212,255,0.6)', flexShrink: 0 }} />
-                  : <Lock size={11} style={{ color: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />}
+                  ? <Globe size={12} style={{ color: filterCountry ? '#00D4FF' : 'rgba(255,255,255,0.4)', flexShrink: 0 }} />
+                  : <Lock size={12} style={{ color: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />}
                 {filterCountry || 'Any country'}
-                <ChevronDown size={9} style={{ color: filterCountry ? '#00D4FF' : 'rgba(255,255,255,0.3)', transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }} />
+                <ChevronDown size={10} style={{ color: filterCountry ? '#00D4FF' : 'rgba(255,255,255,0.35)', transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }} />
               </motion.button>
-              <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.1)', flexShrink: 0, margin: '0 2px' }} />
-              <div style={{ display: 'flex', gap: 4 }}>
-                {[['Solo', 'solo'], ['Duo', 'squad']].map(([label, val]) => (
-                  <motion.button key={val}
-                    onClick={() => handleModeClick(val)}
-                    whileTap={{ scale: 0.94 }}
-                    style={{
-                      padding: '8px 16px', borderRadius: 50, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                      ...(mode === val
-                        ? { background: '#00D4FF', color: '#0a0a0f', border: '1px solid transparent', boxShadow: '0 2px 10px rgba(0,212,255,0.35)' }
-                        : { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.6)' }),
-                    }}>
-                    {label}
-                  </motion.button>
-                ))}
-              </div>
+
+              {/* Divider */}
+              <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.10)', flexShrink: 0, margin: '0 4px' }} />
+
+              {/* Mode */}
+              {[['Solo', 'solo'], ['Duo', 'squad']].map(([label, val]) => (
+                <motion.button key={val}
+                  onClick={() => handleModeClick(val)}
+                  whileHover={mode !== val ? { background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)' } : {}}
+                  whileTap={{ scale: 0.94 }}
+                  style={{
+                    borderRadius: 50, fontSize: 13, cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    ...(mode === val
+                      ? { background: '#00D4FF', color: '#000000', border: '1px solid #00D4FF', padding: '8px 18px', fontWeight: 700, boxShadow: '0 2px 12px rgba(0,212,255,0.35)' }
+                      : { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.7)', padding: '8px 18px', fontWeight: 500 }),
+                  }}>
+                  {label}
+                </motion.button>
+              ))}
             </div>
 
             </div>
