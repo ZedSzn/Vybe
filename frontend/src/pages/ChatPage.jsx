@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -16,7 +16,7 @@ import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
 import { playTipSent, playClick } from '../utils/sounds'
 
-// Uncontrolled input â€” reads DOM value directly so React re-renders never interfere
+// Uncontrolled input — reads DOM value directly so React re-renders never interfere
 function FloatingChat({ messages, messagesEndRef, onSend, status }) {
   const inputRef = useRef(null)
 
@@ -182,11 +182,11 @@ const CHAT_COUNTRIES = [
 ]
 
 const REPORT_REASONS = [
-  { id: 'nudity',     label: 'ðŸ”ž Nudity / Sexual content' },
-  { id: 'harassment', label: 'ðŸ˜¤ Harassment or bullying' },
-  { id: 'underage',   label: 'ðŸ‘¶ Suspected underage user' },
-  { id: 'spam',       label: 'ðŸ¤– Spam or bot' },
-  { id: 'other',      label: 'ðŸ“‹ Other' },
+  { id: 'nudity',     label: '🔞 Nudity / Sexual content' },
+  { id: 'harassment', label: '😤 Harassment or bullying' },
+  { id: 'underage',   label: '👶 Suspected underage user' },
+  { id: 'spam',       label: '🤖 Spam or bot' },
+  { id: 'other',      label: '📋 Other' },
 ]
 
 export default function ChatPage() {
@@ -212,7 +212,7 @@ export default function ChatPage() {
   const [roomId,           setRoomId]           = useState(null)
   const [partnerSock,      setPartnerSock]      = useState(null)
   const [partnerUid,       setPartnerUid]       = useState(null)
-  const [remoteStreams,    setRemoteStreams]     = useState({})   // socketId â†’ MediaStream
+  const [remoteStreams,    setRemoteStreams]     = useState({})   // socketId → MediaStream
   const [squadMates,       setSquadMates]       = useState([])   // socket IDs of own squad (not opponents)
   const [persistentMateId, setPersistentMateId] = useState(null) // squad mate socket ID, persists through re-searches
   // Searching / loading UX
@@ -262,23 +262,23 @@ export default function ChatPage() {
   const statusRef        = useRef(status)
 
   const SEARCH_TEXTS = [
-    'Finding your next Vybeâ€¦',
-    'Connecting youâ€¦',
-    'Almost thereâ€¦',
-    'Looking for the perfect matchâ€¦',
-    'Hang tightâ€¦',
+    'Finding your next Vybe…',
+    'Connecting you…',
+    'Almost there…',
+    'Looking for the perfect match…',
+    'Hang tight…',
   ]
 
   const TIPS = [
-    'Tip: Users with a webcam get 3Ã— more matches',
-    'Tip: Say hi first â€” it breaks the ice instantly',
+    'Tip: Users with a webcam get 3× more matches',
+    'Tip: Say hi first — it breaks the ice instantly',
     'Tip: Upgrade to filter by gender or country',
     'Tip: VIP badge makes your profile stand out',
   ]
 
   const socketRef       = useRef(null)
-  const peersRef        = useRef({})           // socketId â†’ SimplePeer
-  const remoteVideoRefs = useRef({})           // socketId â†’ HTMLVideoElement
+  const peersRef        = useRef({})           // socketId → SimplePeer
+  const remoteVideoRefs = useRef({})           // socketId → HTMLVideoElement
   const squadMatesRef   = useRef([])           // persists through re-renders for use in callbacks
   const localStreamRef      = useRef(null)
   const localVideoRef       = useRef(null)   // mobile PiP
@@ -307,7 +307,7 @@ export default function ChatPage() {
   const partnerUidRef   = useRef(null)
 
   useEffect(() => {
-    // Always fetch fresh balance â€” localStorage can be stale
+    // Always fetch fresh balance — localStorage can be stale
     if (user) {
       axios.get('/api/coins').then(({ data }) => {
         setCoins(data.coins ?? 0)
@@ -324,7 +324,7 @@ export default function ChatPage() {
   useEffect(() => { statusRef.current = status }, [status])
   useEffect(() => { squadMatesRef.current = squadMates }, [squadMates])
 
-  // Sync remote streams â†’ video elements (stream objects don't trigger re-renders on srcObject change)
+  // Sync remote streams → video elements (stream objects don't trigger re-renders on srcObject change)
   useEffect(() => {
     for (const [sid, stream] of Object.entries(remoteStreams)) {
       const el = remoteVideoRefs.current[sid]
@@ -390,7 +390,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (!connectionLost) { clearTimeout(reconnectTimer.current); return }
     if (reconnectCount >= 3) {
-      // Give up â€” go find new match
+      // Give up — go find new match
       setConnectionLost(false)
       setReconnectCount(0)
       destroyAllPeers()
@@ -430,7 +430,7 @@ export default function ChatPage() {
     setGiftAnimations([])
   }
 
-  // Destroy only opponent peers â€” preserves squad mate peer/stream during re-searching
+  // Destroy only opponent peers — preserves squad mate peer/stream during re-searching
   const destroyOpponentPeers = () => {
     const mates = new Set(squadMatesRef.current)
     Object.entries(peersRef.current).forEach(([sid, p]) => {
@@ -523,7 +523,7 @@ export default function ChatPage() {
               // Third try: audio only
               stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
             } catch {
-              // No media at all â€” still allow text-only chat
+              // No media at all — still allow text-only chat
             }
           }
         }
@@ -543,9 +543,9 @@ export default function ChatPage() {
         }
       }
 
-      // Progress past 'init' immediately â€” don't wait for socket to connect.
+      // Progress past 'init' immediately — don't wait for socket to connect.
       // On Render free tier, the socket may take 50 s to wake; staying on
-      // "Starting cameraâ€¦" the whole time is confusing.
+      // "Starting camera…" the whole time is confusing.
       if (mounted) setStatus('searching')
 
       const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['websocket', 'polling'] })
@@ -580,7 +580,7 @@ export default function ChatPage() {
       socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername, partnerAvatar: pAvatar, partnerIsPremium: pIsPremium, partnerIsVip: pIsVip, partnerEmailVerified: pEmailVerified, partnerCountry: pCountry }) => {
         if (!mounted) return
 
-        // Destroy opponent peers only â€” preserve any existing squad mate peers
+        // Destroy opponent peers only — preserve any existing squad mate peers
         const existingMates = new Set(squadMatesRef.current)
         Object.entries(peersRef.current).forEach(([sid, p]) => {
           if (!existingMates.has(sid)) { try { p.destroy() } catch {}; delete peersRef.current[sid] }
@@ -704,7 +704,7 @@ export default function ChatPage() {
         if (!mounted) return
         if (newCoins     !== undefined) setCoins(newCoins)
         if (newCashable  !== undefined) setCashableCoins(newCashable)
-        setTipFeedback({ type: 'success', msg: `ðŸ’° ${from} tipped you ${yourShare} coins!` })
+        setTipFeedback({ type: 'success', msg: `💰 ${from} tipped you ${yourShare} coins!` })
         setTimeout(() => setTipFeedback(null), 4000)
       })
 
@@ -712,7 +712,7 @@ export default function ChatPage() {
         if (!mounted) return
         setCoins(newCoins)
         setShowTip(false)
-        setTipFeedback({ type: 'success', msg: `âœ… Tip sent to ${to}!` })
+        setTipFeedback({ type: 'success', msg: `✅ Tip sent to ${to}!` })
         setTipLoading(false)
         setTimeout(() => setTipFeedback(null), 3500)
         playTipSent()
@@ -746,7 +746,7 @@ export default function ChatPage() {
   const flipCamera = async () => {
     const newFacing = facingMode === 'user' ? 'environment' : 'user'
     setFacingMode(newFacing)
-    // Only stop video tracks â€” preserve the existing audio track so mute keeps working
+    // Only stop video tracks — preserve the existing audio track so mute keeps working
     localStreamRef.current?.getVideoTracks().forEach((t) => t.stop())
     try {
       const videoStream = await navigator.mediaDevices.getUserMedia({
@@ -871,7 +871,7 @@ export default function ChatPage() {
         setTipFeedback({ type: 'error', msg: 'Boost already active!' })
       } else {
         setBoostActive(true)
-        setTipFeedback({ type: 'success', msg: 'âš¡ Boost active! You\'re at the top of the queue for 1 hour.' })
+        setTipFeedback({ type: 'success', msg: '⚡ Boost active! You\'re at the top of the queue for 1 hour.' })
         setTimeout(() => setBoostActive(false), 60 * 60 * 1000)
       }
     } catch (err) {
@@ -956,7 +956,7 @@ export default function ChatPage() {
     return `${hours}h ${mins}m`
   }
 
-  // â”€â”€ Banned screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Banned screen ──────────────────────────────────────────────────────────
   if (status === 'banned') {
     const isPermanent = banType === 'permanent'
     const timeLeft    = formatBanExpiry()
@@ -984,9 +984,9 @@ export default function ChatPage() {
             className="w-full max-w-xs py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-500 text-white font-black text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mb-3"
           >
             {unbanLoading ? (
-              <><Loader2 size={15} className="animate-spin" /> Processingâ€¦</>
+              <><Loader2 size={15} className="animate-spin" /> Processing…</>
             ) : (
-              <>Remove Ban for Â£4.99</>
+              <>Remove Ban for £4.99</>
             )}
           </button>
         )}
@@ -1004,11 +1004,11 @@ export default function ChatPage() {
   return (
     <div className="chat-fullscreen bg-black font-space">
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-          SHARED FIXED OVERLAYS â€” visible on both mobile and desktop
-      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ═══════════════════════════════════════════════════════════════
+          SHARED FIXED OVERLAYS — visible on both mobile and desktop
+      ═══════════════════════════════════════════════════════════════ */}
 
-        {/* â”€â”€ Fixed overlays â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Fixed overlays ───────────────────────────────────────── */}
 
         {/* Connection lost */}
         <AnimatePresence>
@@ -1019,7 +1019,7 @@ export default function ChatPage() {
               <div className="text-center max-w-xs">
                 <Loader2 size={44} className="text-cyan-400 animate-spin mx-auto mb-5" />
                 <h2 className="text-xl font-black text-white mb-2">{reconnectCount < 3 ? 'Connection lost' : 'Could not reconnect'}</h2>
-                <p className="text-vybe-muted text-sm">{reconnectCount < 3 ? `Reconnectingâ€¦ (${reconnectCount + 1}/3)` : 'Finding you a new matchâ€¦'}</p>
+                <p className="text-vybe-muted text-sm">{reconnectCount < 3 ? `Reconnecting… (${reconnectCount + 1}/3)` : 'Finding you a new match…'}</p>
               </div>
             </motion.div>
           )}
@@ -1064,7 +1064,7 @@ export default function ChatPage() {
                 </div>
                 <div className="animate-match-fade text-center">
                   <p className="text-white font-black text-lg tracking-tight leading-none">Match Found!</p>
-                  <p className="text-cyan-400/70 text-xs font-medium mt-1">Connecting you nowâ€¦</p>
+                  <p className="text-cyan-400/70 text-xs font-medium mt-1">Connecting you now…</p>
                 </div>
               </div>
             </motion.div>
@@ -1093,7 +1093,7 @@ export default function ChatPage() {
                 className="w-full max-w-sm p-5"
                 style={{ background: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 20 }}>
                 <div className="flex items-center justify-between mb-4">
-                  <div><h3 className="text-white font-black text-sm flex items-center gap-1.5">Send a Tip <VybeCoin size={15} /></h3><p className="text-white/40 text-xs mt-0.5">30% goes to Vybe Â· Min 10 coins</p></div>
+                  <div><h3 className="text-white font-black text-sm flex items-center gap-1.5">Send a Tip <VybeCoin size={15} /></h3><p className="text-white/40 text-xs mt-0.5">30% goes to Vybe · Min 10 coins</p></div>
                   <button onClick={() => setShowTip(false)} className="text-white/40 hover:text-white"><X size={15} /></button>
                 </div>
                 {/* Coin balance breakdown */}
@@ -1126,40 +1126,40 @@ export default function ChatPage() {
                     onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
                   />
                 </div>
-                {tipAmount && parseInt(tipAmount) >= 10 && parseInt(tipAmount) <= coins && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins Â· Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
+                {tipAmount && parseInt(tipAmount) >= 10 && parseInt(tipAmount) <= coins && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
                 {tipAmount && parseInt(tipAmount) > coins && <p className="text-red-400 text-xs mb-3 text-center">You only have {coins} spendable coins</p>}
                 <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins}
                   className="w-full py-3 rounded-xl text-sm font-extrabold disabled:opacity-50"
                   style={{ background: '#00D4FF', color: '#000', boxShadow: '0 0 20px rgba(0,212,255,0.35)' }}>
-                  {tipLoading ? 'Sendingâ€¦' : `Send ${tipAmount||0} coins`}
+                  {tipLoading ? 'Sending…' : `Send ${tipAmount||0} coins`}
                 </button>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* â”€â”€ Init overlay (camera starting) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── Init overlay (camera starting) ───────────────────────── */}
         <AnimatePresence>
           {status === 'init' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 z-20 flex flex-col items-center justify-center"
               style={{ background: '#0a0a0f' }}>
               <Loader2 size={36} className="text-cyan-400 animate-spin mb-4" />
-              <p className="text-white/60 font-medium text-sm">Starting cameraâ€¦</p>
+              <p className="text-white/60 font-medium text-sm">Starting camera…</p>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* â”€â”€ No one available overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── No one available overlay ──────────────────────────────── */}
         <AnimatePresence>
           {status === 'searching' && searchElapsed >= 30 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 z-20 flex flex-col items-center justify-center px-6"
               style={{ background: '#0a0a0f' }}>
               <div className="text-center max-w-sm">
-                <div className="text-5xl mb-5">ðŸ˜´</div>
+                <div className="text-5xl mb-5">😴</div>
                 <h2 className="text-2xl font-black text-white mb-3">No one available right now</h2>
-                <p className="text-vybe-muted text-sm mb-4">Check back soon â€” Vybe gets busiest on evenings and weekends!</p>
+                <p className="text-vybe-muted text-sm mb-4">Check back soon — Vybe gets busiest on evenings and weekends!</p>
                 <div className="space-y-3">
                   <button onClick={() => { setSearchElapsed(0); findMatch(socketRef.current) }} className="w-full py-3.5 rounded-xl btn-purple text-white font-black text-sm">Try Again</button>
                   <button onClick={handleEnd} className="w-full py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-sm transition-colors">Back to Home</button>
@@ -1171,13 +1171,13 @@ export default function ChatPage() {
 
 
 
-        {/* â”€â”€ MOBILE: Fullscreen immersive camera â”€â”€ */}
+        {/* ── MOBILE: Fullscreen immersive camera ── */}
         <div ref={pipContainerRef} className="lg:hidden fixed inset-0 z-[1] bg-black overflow-hidden">
 
           {/* Fullscreen background: stranger video OR searching state */}
           {status === 'searching' ? (
             <div className="absolute inset-0 bg-[#0a0a0f] flex flex-col items-center justify-center px-6" style={{ gap: 20 }}>
-              {/* Globe â€” fixed container so rings stay within bounds */}
+              {/* Globe — fixed container so rings stay within bounds */}
               <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 240, height: 240 }}>
                 <motion.div className="absolute rounded-full" style={{ width: 232, height: 232, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
                 <motion.div className="absolute rounded-full" style={{ width: 210, height: 210, border: '1px solid rgba(0,212,255,0.4)' }} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
@@ -1223,7 +1223,7 @@ export default function ChatPage() {
               ) : null}
             </div>
           ) : is2v2 ? (
-            /* 2V2 MOBILE: Full-screen 2Ã—2 grid */
+            /* 2V2 MOBILE: Full-screen 2×2 grid */
             <div className="absolute inset-0" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
               {/* TOP LEFT: Stranger 1 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)', borderRight: '1px solid rgba(0,212,255,0.2)' }}>
@@ -1293,13 +1293,13 @@ export default function ChatPage() {
           ) : (
             /* SOLO MODE: Fullscreen stranger */
             <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute inset-0">
-              {/* Primary opponent â€” always fullscreen */}
+              {/* Primary opponent — always fullscreen */}
               <video
                 ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }}
                 autoPlay playsInline
                 className="w-full h-full object-cover"
               />
-              {/* Secondary opponent PiP â€” only when 2 opponents */}
+              {/* Secondary opponent PiP — only when 2 opponents */}
               {opponentSocketIds.length > 1 && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.85 }}
@@ -1314,7 +1314,7 @@ export default function ChatPage() {
             </motion.div>
           )}
 
-          {/* DUO MODE: Bottom half â€” your camera (left) + duo partner (right) â€” 3-panel only */}
+          {/* DUO MODE: Bottom half — your camera (left) + duo partner (right) — 3-panel only */}
           {isDuoMode && !is2v2 && opponentSocketIds.length > 0 && (
             <>
               <div className="absolute z-[4] inset-x-0" style={{ top: 'calc(50% - 0.5px)', height: 1, background: 'rgba(0,212,255,0.2)' }} />
@@ -1378,7 +1378,7 @@ export default function ChatPage() {
           {/* Bottom gradient overlay */}
           <div className="absolute inset-x-0 bottom-0 h-52 pointer-events-none z-[3]" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }} />
 
-          {/* Partner info â€” top left */}
+          {/* Partner info — top left */}
           <AnimatePresence>
             {status === 'matched' && (
               <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}
@@ -1412,7 +1412,7 @@ export default function ChatPage() {
             )}
           </AnimatePresence>
 
-          {/* Timer â€” shifted left for Skip button */}
+          {/* Timer — shifted left for Skip button */}
           {status === 'matched' && (
             <div className="absolute z-[6] px-2.5 py-1.5 rounded-xl font-mono text-[11px] font-bold"
               style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 80, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
@@ -1420,7 +1420,7 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* Mobile Skip â€” top right */}
+          {/* Mobile Skip — top right */}
           <motion.button
             onClick={status === 'matched' ? handleSkip : undefined}
             whileTap={status === 'matched' ? { scale: 0.92 } : {}}
@@ -1428,7 +1428,7 @@ export default function ChatPage() {
             Skip
           </motion.button>
 
-          {/* Mobile Coins â€” top left, below partner pill */}
+          {/* Mobile Coins — top left, below partner pill */}
           {user && status === 'matched' && (
             <motion.button
               onClick={() => setShowTip(true)}
@@ -1439,17 +1439,17 @@ export default function ChatPage() {
             </motion.button>
           )}
 
-          {/* Mobile Report â€” bottom left */}
+          {/* Mobile Report — bottom left */}
           {status === 'matched' && (
             <motion.button
               onClick={() => !reportSent && setShowReport(true)}
               whileTap={!reportSent ? { scale: 0.92 } : {}}
               style={{ position: 'absolute', bottom: 'max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, zIndex: 6, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '7px 16px', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, cursor: reportSent ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {reportSent ? 'âœ“ Reported' : <><Flag size={12} />Report</>}
+              {reportSent ? '✓ Reported' : <><Flag size={12} />Report</>}
             </motion.button>
           )}
 
-          {/* Mobile Chat â€” bottom right */}
+          {/* Mobile Chat — bottom right */}
           <div style={{ position: 'absolute', bottom: 'max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px))', right: 12, zIndex: 6 }}>
             <motion.button
               onClick={toggleChat}
@@ -1481,7 +1481,7 @@ export default function ChatPage() {
             ))}
           </AnimatePresence>
 
-          {/* Draggable PiP self-view â€” solo mode only */}
+          {/* Draggable PiP self-view — solo mode only */}
           {!isDuoMode && (
           <motion.div
             drag
@@ -1552,7 +1552,7 @@ export default function ChatPage() {
                 <span className="text-white/75 font-semibold text-[9px]">{user ? user.username : 'You'}</span>
               </div>
             </div>
-            {/* Camera controls â€” only shown when expanded */}
+            {/* Camera controls — only shown when expanded */}
             {selfViewExpanded && (
               <div className="absolute top-1.5 right-1.5 flex gap-1">
                 {hasCamera && (
@@ -1569,7 +1569,7 @@ export default function ChatPage() {
           </motion.div>
           )}
 
-          {/* â”€â”€ DUO MODE: squad-mate floating PiP â€” hidden in duo mode (partner shown in bottom panel) â”€â”€ */}
+          {/* ── DUO MODE: squad-mate floating PiP — hidden in duo mode (partner shown in bottom panel) ── */}
           {!isDuoMode && (
           <AnimatePresence>
             {isDuoMode && mateSocketIds[0] && (
@@ -1631,7 +1631,7 @@ export default function ChatPage() {
           </AnimatePresence>
           )}
 
-          {/* â”€â”€ DUO MODE badge â€” top center â”€â”€ */}
+          {/* ── DUO MODE badge — top center ── */}
           <AnimatePresence>
             {isDuoMode && status === 'matched' && (
               <motion.div
@@ -1653,14 +1653,14 @@ export default function ChatPage() {
         </div>
 
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        {/* ══════════════════════════════════════════════════════════
             DESKTOP LAYOUT
-        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        ══════════════════════════════════════════════════════════ */}
         <div className="hidden lg:block" style={{ width: '100%', background: '#0a0a0f' }}>
           <Navbar onPremiumClick={() => {}} />
           <div className="flex" style={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 64, overflow: 'hidden' }}>
           {is2v2 ? (
-            /* â”€â”€ 2V2: 2Ã—2 CSS Grid â”€â”€ */
+            /* ── 2V2: 2×2 CSS Grid ── */
             <motion.div
               key="2v2-grid"
               initial={{ opacity: 0 }}
@@ -1792,7 +1792,7 @@ export default function ChatPage() {
                     <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.18)' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,212,255,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
-                    <p className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.22)' }}>Duo partner connectingâ€¦</p>
+                    <p className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.22)' }}>Duo partner connecting…</p>
                   </div>
                 )}
               </div>
@@ -1804,7 +1804,7 @@ export default function ChatPage() {
               <div className="flex-1 min-h-0 min-w-0" style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 {status === 'searching' ? (
                   <div className="w-full h-full flex flex-col items-center justify-center px-4 relative overflow-hidden" style={{ gap: 20, paddingBottom: 100 }}>
-                    {/* Globe â€” fixed-size container so rings don't overflow into text */}
+                    {/* Globe — fixed-size container so rings don't overflow into text */}
                     <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 280, height: 280 }}>
                       <motion.div className="absolute rounded-full" style={{ width: 272, height: 272, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
                       <motion.div className="absolute rounded-full" style={{ width: 248, height: 248, border: '1px solid rgba(0,212,255,0.4)' }} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
@@ -1884,7 +1884,7 @@ export default function ChatPage() {
                   ))}
                 </AnimatePresence>
 
-                {/* Partner identity overlay â€” top left */}
+                {/* Partner identity overlay — top left */}
                 <AnimatePresence>
                   {status === 'matched' && (
                     <motion.div
@@ -1933,7 +1933,7 @@ export default function ChatPage() {
                   )}
                 </AnimatePresence>
 
-                {/* Timer â€” top right */}
+                {/* Timer — top right */}
                 {status === 'matched' && (
                   <div className="absolute z-10 px-2.5 py-1 rounded-full font-mono text-[11px] font-bold pointer-events-none"
                     style={{ top: 16, right: 16, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
@@ -1946,10 +1946,10 @@ export default function ChatPage() {
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 80, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
               </div>
 
-              {/* Your video / Duo mode right panels â€” desktop only */}
+              {/* Your video / Duo mode right panels — desktop only */}
               {isDuoMode ? (
                 <div className="relative flex-1 overflow-hidden min-h-0 min-w-0" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  {/* TOP: Your camera â€” absolute top half */}
+                  {/* TOP: Your camera — absolute top half */}
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '50%', overflow: 'hidden', borderRadius: '20px 20px 0 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                     <video ref={localVideoDesktopRef} autoPlay muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                     {!hasCamera && <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />}
@@ -1981,7 +1981,7 @@ export default function ChatPage() {
                     </div>
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
                   </div>
-                  {/* BOTTOM: Duo partner camera â€” absolute bottom half */}
+                  {/* BOTTOM: Duo partner camera — absolute bottom half */}
                   <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, bottom: 0, overflow: 'hidden', borderRadius: '0 0 20px 20px', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                     {/* Always render video element so stream attaches immediately when available */}
                     {(() => {
@@ -2005,7 +2005,7 @@ export default function ChatPage() {
                               <div style={{ position: 'relative', zIndex: 1, width: 44, height: 44, borderRadius: '50%', background: 'rgba(0,212,255,0.1)', border: '1.5px solid rgba(0,212,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 900, color: '#00D4FF' }}>
                                 D
                               </div>
-                              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', margin: 0, position: 'relative', zIndex: 1 }}>Partner connectingâ€¦</p>
+                              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', margin: 0, position: 'relative', zIndex: 1 }}>Partner connecting…</p>
                             </div>
                           )}
                           {/* Profile pill */}
@@ -2045,7 +2045,7 @@ export default function ChatPage() {
                     </div>
                   )}
 
-                  {/* You label â€” top left, only when camera is live */}
+                  {/* You label — top left, only when camera is live */}
                   {hasCamera && !videoOff && (
                     <div className="absolute" style={{ top: 16, left: 16, zIndex: 10 }}>
                       <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
@@ -2067,7 +2067,7 @@ export default function ChatPage() {
                     </div>
                   )}
 
-                  {/* Chat overlay â€” inside right panel */}
+                  {/* Chat overlay — inside right panel */}
                   <AnimatePresence>
                     {showChat && status === 'matched' && (
                       <motion.div
@@ -2224,7 +2224,7 @@ export default function ChatPage() {
         </div>
 
 
-        {/* â”€â”€ Mobile chat floating overlay â”€â”€ */}
+        {/* ── Mobile chat floating overlay ── */}
         <AnimatePresence>
           {showChat && status === 'matched' && (
             <motion.div
@@ -2253,7 +2253,7 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* â”€â”€ Report modal â”€â”€ */}
+        {/* ── Report modal ── */}
         <AnimatePresence>
           {showReport && (
             <>
@@ -2262,7 +2262,7 @@ export default function ChatPage() {
                 className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[50] w-[min(320px,90vw)] bg-vybe-bg2 border border-vybe-border rounded-2xl p-5 shadow-purple">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/25 flex items-center justify-center flex-shrink-0"><Shield size={16} className="text-red-400" /></div>
-                  <div><h3 className="font-black text-white text-sm">Report User</h3><p className="text-vybe-muted text-[11px]">Select a reason â€” you will not be identified</p></div>
+                  <div><h3 className="font-black text-white text-sm">Report User</h3><p className="text-vybe-muted text-[11px]">Select a reason — you will not be identified</p></div>
                 </div>
                 <div className="space-y-1.5">
                   {REPORT_REASONS.map((r) => (
