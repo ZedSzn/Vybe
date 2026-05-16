@@ -367,7 +367,6 @@ const userSchema = new mongoose.Schema({
   referralCount: { type: Number, default: 0 }, // friends who signed up
   // Activity
   totalChats:    { type: Number, default: 0 },
-  chatsForCoins: { type: Number, default: 0 }, // resets every 10
   loginStreak:   { type: Number, default: 0 },
   longestStreak: { type: Number, default: 0 },
   lastLoginDate: { type: Date, default: null },
@@ -2852,14 +2851,7 @@ io.on('connection', (socket) => {
     const userData = onlineUsers.get(socketId);
     if (!userData?.userId) return;
     try {
-      const user = await User.findByIdAndUpdate(userData.userId,
-        { $inc: { totalChats: 1, chatsForCoins: 1 } },
-        { new: true }
-      ).select('chatsForCoins totalChats');
-      if (user && user.chatsForCoins % 10 === 0) {
-        await addCoins(userData.userId, 5, `Completed ${user.totalChats} chats`, 'chat_reward');
-        await User.findByIdAndUpdate(userData.userId, { chatsForCoins: 0 });
-      }
+      await User.findByIdAndUpdate(userData.userId, { $inc: { totalChats: 1 } });
     } catch {}
   }
 
