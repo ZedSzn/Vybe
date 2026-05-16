@@ -2092,6 +2092,20 @@ export default function ChatPage() {
                 style={{ height: 40, padding: '0 28px', borderRadius: 50, background: status === 'matched' ? '#00D4FF' : 'rgba(0,212,255,0.1)', color: status === 'matched' ? '#0a0a0f' : 'rgba(0,212,255,0.3)', fontSize: 14, fontWeight: 700, border: 'none', cursor: status === 'matched' ? 'pointer' : 'default', boxShadow: status === 'matched' ? '0 0 24px rgba(0,212,255,0.4)' : 'none', transition: 'all 150ms ease', flexShrink: 0 }}>
                 Skip
               </motion.button>
+
+              {/* Cancel & Leave */}
+              <motion.button
+                onClick={() => {
+                  destroyAllPeers()
+                  socketRef.current?.emit('skip')
+                  socketRef.current?.disconnect()
+                  navigate('/')
+                }}
+                whileHover={{ background: 'rgba(255,50,50,0.25)', border: '1px solid rgba(255,50,50,0.5)' }}
+                whileTap={{ scale: 0.93 }}
+                style={{ height: 40, padding: '0 20px', borderRadius: 50, background: 'rgba(255,50,50,0.15)', border: '1px solid rgba(255,50,50,0.3)', color: '#FF4444', fontSize: 13, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', transition: 'all 150ms ease', flexShrink: 0 }}>
+                Leave
+              </motion.button>
             </div>
 
             {/* Far right: Chat */}
