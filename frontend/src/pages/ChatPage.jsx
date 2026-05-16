@@ -1801,20 +1801,20 @@ export default function ChatPage() {
                   )}
                 </AnimatePresence>
 
-                {/* Timer — shifted left for Skip button */}
+                {/* Timer — top right */}
                 {status === 'matched' && (
                   <div className="absolute z-10 px-2.5 py-1 rounded-full font-mono text-[11px] font-bold pointer-events-none"
-                    style={{ top: 16, right: 90, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+                    style={{ top: 16, right: 16, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
                     {fmt(elapsed)}
                   </div>
                 )}
 
-                {/* Skip — top right */}
+                {/* Skip — below timer */}
                 <motion.button
                   onClick={status === 'matched' ? handleSkip : undefined}
                   whileHover={{ background: 'rgba(255,255,255,0.14)' }}
                   whileTap={status === 'matched' ? { scale: 0.93 } : {}}
-                  style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 50, padding: '8px 20px', color: 'white', fontWeight: 700, fontSize: 14, cursor: status === 'matched' ? 'pointer' : 'default', opacity: status === 'matched' ? 1 : 0.35, transition: 'all 150ms ease' }}>
+                  style={{ position: 'absolute', top: 56, right: 16, zIndex: 10, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 50, padding: '8px 20px', color: 'white', fontWeight: 700, fontSize: 14, cursor: status === 'matched' ? 'pointer' : 'default', opacity: status === 'matched' ? 1 : 0.35, transition: 'all 150ms ease' }}>
                   Skip
                 </motion.button>
 
@@ -1824,7 +1824,7 @@ export default function ChatPage() {
                     onClick={() => setShowTip(true)}
                     whileHover={{ background: 'rgba(255,255,255,0.10)' }}
                     whileTap={{ scale: 0.93 }}
-                    style={{ position: 'absolute', top: 56, left: 16, zIndex: 10, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', transition: 'background 150ms ease' }}>
+                    style={{ position: 'absolute', top: 70, left: 16, zIndex: 10, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', transition: 'background 150ms ease' }}>
                     <VybeCoin size={14} />
                     <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>{coins.toLocaleString()}</span>
                   </motion.button>
