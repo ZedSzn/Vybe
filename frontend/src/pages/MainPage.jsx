@@ -1237,13 +1237,13 @@ export default function MainPage() {
 
             {/* Your profile pill — always inside panel top-left */}
             <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 50, padding: '3px 9px 3px 3px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 14px 5px 5px' }}>
                 {user?.avatar
-                  ? <img src={user.avatar} style={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'cover' }} />
-                  : <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,212,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#00D4FF' }}>{user?.username?.[0]?.toUpperCase() || 'Y'}</div>
+                  ? <img src={user.avatar} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)' }} />
+                  : <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.25), rgba(124,58,237,0.25))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#00D4FF', border: '1.5px solid rgba(0,212,255,0.35)', flexShrink: 0 }}>{user?.username?.[0]?.toUpperCase() || 'Y'}</div>
                 }
-                <span style={{ color: 'white', fontWeight: 700, fontSize: 10 }}>{user?.username || 'You'}</span>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block' }} />
+                <span style={{ color: 'white', fontWeight: 700, fontSize: 13 }}>{user?.username || 'You'}</span>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', boxShadow: '0 0 6px rgba(0,212,255,0.8)', flexShrink: 0 }} />
               </div>
             </div>
 
