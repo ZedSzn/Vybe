@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { getBannerStyle } from '../utils/bannerUtils'
 import ProfilePill from '../components/ProfilePill'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
@@ -195,8 +194,6 @@ export default function ChatPage() {
   const navigate  = useNavigate()
   const location  = useLocation()
   const { user }  = useAuth()
-  const bannerStyle = getBannerStyle(user)
-  const bannerImage = user?.bannerImage || null
   // Custom image shown in place of the camera when no webcam is available.
   const camBgImage  = user?.cameraBackground === 'custom' ? (user?.cameraBackgroundImage || null) : null
 
@@ -1776,8 +1773,6 @@ export default function ChatPage() {
                     isOnline
                     isVerified={!!user?.emailVerified}
                     friendStatus="self"
-                    bannerStyle={bannerStyle}
-                    bannerImage={bannerImage}
                   />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
@@ -1958,8 +1953,6 @@ export default function ChatPage() {
                         isOnline
                         isVerified={!!user?.emailVerified}
                         friendStatus="self"
-                        bannerStyle={bannerStyle}
-                        bannerImage={bannerImage}
                       />
                     </div>
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
@@ -1991,13 +1984,14 @@ export default function ChatPage() {
                               <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', margin: 0, position: 'relative', zIndex: 1 }}>Partner connecting…</p>
                             </div>
                           )}
-                          {/* Profile pill */}
+                          {/* Duo partner pill */}
                           <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>D</div>
-                              <span style={{ color: 'white', fontWeight: 700, fontSize: 11, lineHeight: 1 }}>Partner</span>
-                              <span style={{ width: 5, height: 5, borderRadius: '50%', background: hasStream ? '#4ade80' : 'rgba(255,255,255,0.3)', display: 'inline-block', flexShrink: 0, transition: 'background 0.3s' }} />
-                            </div>
+                            <ProfilePill
+                              username="Partner"
+                              isOnline={hasStream}
+                              isVerified={false}
+                              friendStatus="self"
+                            />
                           </div>
                           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
                         </>
@@ -2037,8 +2031,6 @@ export default function ChatPage() {
                       isOnline
                       isVerified={!!user?.emailVerified}
                       friendStatus="self"
-                      bannerStyle={bannerStyle}
-                      bannerImage={bannerImage}
                     />
                   </div>
 

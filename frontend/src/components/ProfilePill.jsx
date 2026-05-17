@@ -1,5 +1,5 @@
 /**
- * ProfilePill — compact identity chip for the Vybe app (overlay size).
+ * ProfilePill — compact glass identity chip for the Vybe app (overlay size).
  *
  * <ProfilePill
  *   username="ZZ_NZ"
@@ -14,20 +14,18 @@
  *   username     : string
  *   avatarUrl    : string  (optional — falls back to gradient initials)
  *   isOnline     : boolean
- *   isVerified   : boolean
+ *   isVerified   : boolean (badge renders ONLY when this is true)
  *   isVip        : boolean (optional — shows a crown badge)
  *   country      : string  (optional — shown under the username)
  *   friendStatus : 'none' | 'pending' | 'friends' | 'self'
- *                  ('self' = the current user's own pill — hides the + button)
+ *                  ('self' = no + button — used for your own pill and your duo partner)
  *   onAddFriend  : () => void   (parent owns the friendStatus state)
- *   bannerStyle  : string  (optional — CSS background; used as the pill background
- *                           instead of the default glass style, e.g. the user's banner)
- *   bannerImage  : string  (optional — image layered over bannerStyle)
  */
 
 const ACCENT  = '#00D4FF'
 const PURPLE  = '#7C3AED'
 const PAGE_BG = '#0a0a0f'
+const ONLINE  = '#22c55e'
 
 function VerifiedBadge() {
   return (
@@ -50,7 +48,7 @@ function VipBadge() {
 const FRIEND_BTN = {
   none:    { background: ACCENT,                color: PAGE_BG,   glyph: '+' },
   pending: { background: '#1e1e2e',             color: '#555',    glyph: '✓' },
-  friends: { background: 'rgba(34,197,94,0.2)', color: '#22c55e', glyph: '✓' },
+  friends: { background: 'rgba(34,197,94,0.2)', color: ONLINE,    glyph: '✓' },
 }
 
 export default function ProfilePill({
@@ -62,29 +60,25 @@ export default function ProfilePill({
   country = '',
   friendStatus = 'none',
   onAddFriend,
-  bannerStyle,
-  bannerImage,
 }) {
   const initials   = (username.trim() || '?').slice(0, 2).toUpperCase()
   const showButton = friendStatus !== 'self'
   const locked     = friendStatus === 'pending' || friendStatus === 'friends'
   const btn        = FRIEND_BTN[friendStatus] || FRIEND_BTN.none
-  const useBanner  = !!bannerStyle
 
-  const container = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 6,
-    padding: '4px 8px 4px 4px',
-    borderRadius: 50,
-    fontFamily: "'Sora', system-ui, sans-serif",
-    ...(useBanner
-      ? { position: 'relative', overflow: 'hidden', background: bannerStyle, border: '1px solid rgba(255,255,255,0.18)' }
-      : { background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(0,212,255,0.3)' }),
-  }
-
-  const content = (
-    <>
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '4px 8px 4px 4px',
+        borderRadius: 50,
+        background: 'rgba(255,255,255,0.07)',
+        border: '1px solid rgba(0,212,255,0.3)',
+        fontFamily: "'Sora', system-ui, sans-serif",
+      }}
+    >
       {/* Avatar + online dot */}
       <div style={{ position: 'relative', width: 24, height: 24, flexShrink: 0 }}>
         {avatarUrl ? (
@@ -112,7 +106,7 @@ export default function ProfilePill({
             style={{
               position: 'absolute', right: -1, bottom: -1,
               width: 7, height: 7, borderRadius: '50%',
-              background: '#22c55e', border: `1.5px solid ${PAGE_BG}`,
+              background: ONLINE, border: `1.5px solid ${PAGE_BG}`,
             }}
           />
         )}
@@ -130,7 +124,7 @@ export default function ProfilePill({
         )}
       </div>
 
-      {/* Verified badge */}
+      {/* Verified badge — only when isVerified === true */}
       {isVerified && <VerifiedBadge />}
 
       {/* VIP badge */}
@@ -157,17 +151,6 @@ export default function ProfilePill({
           {btn.glyph}
         </button>
       )}
-    </>
-  )
-
-  return (
-    <div style={container}>
-      {useBanner && bannerImage && (
-        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
-      )}
-      {useBanner
-        ? <div style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: 6 }}>{content}</div>
-        : content}
     </div>
   )
 }

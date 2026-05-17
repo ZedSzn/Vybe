@@ -1,5 +1,4 @@
 ﻿import { useState, useEffect, useLayoutEffect, useRef } from 'react'
-import { getBannerStyle } from '../utils/bannerUtils'
 import ProfilePill from '../components/ProfilePill'
 import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -138,8 +137,6 @@ const GRID_USERS = [
 export default function MainPage() {
   const { user }                              = useAuth()
   const { socket, isConnected, onlineCount } = useSocket()
-  const bannerStyle = getBannerStyle(user)
-  const bannerImage = user?.bannerImage || null
   // Custom image shown in the camera panel when the device has no webcam.
   const camBgImage  = user?.cameraBackground === 'custom' ? (user?.cameraBackgroundImage || null) : null
   const navigate                             = useNavigate()
@@ -1322,8 +1319,6 @@ export default function MainPage() {
                 isOnline
                 isVerified={!!user?.emailVerified}
                 friendStatus="self"
-                bannerStyle={bannerStyle}
-                bannerImage={bannerImage}
               />
             </div>
 
