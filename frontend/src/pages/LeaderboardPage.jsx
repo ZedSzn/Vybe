@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react'
 import axios from 'axios'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import VybeCoin from '../components/VybeCoin'
 
 const SORA = "'Sora', system-ui, sans-serif"
 
@@ -164,7 +165,7 @@ function PodiumCard({ entry, place, coinsOf }) {
               <p style={{ color: p.rankColor, fontWeight: 700, fontSize: 10, marginTop: 2 }}>{entry.gifterRank}</p>
             )}
             <p style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: p.coin, fontWeight: 800, fontSize: p.coinSize, marginTop: 6 }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: p.coin }} />
+              <VybeCoin size={p.coinSize + 1} />
               {coinsOf(entry).toLocaleString()}
             </p>
             {place === 1 && (
@@ -294,7 +295,7 @@ export default function LeaderboardPage() {
                       </div>
                     </div>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#f59e0b', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b' }} />
+                      <VybeCoin size={14} />
                       {coinsOf(u).toLocaleString()}
                     </span>
                   </motion.div>
