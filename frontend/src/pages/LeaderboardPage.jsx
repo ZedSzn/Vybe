@@ -128,11 +128,7 @@ export default function LeaderboardPage() {
   const top3 = leaders.slice(0, 3)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#070712', fontFamily: SORA, display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {/* Hero radial glow */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 440, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse at 50% 30%, rgba(124,58,237,0.18) 0%, rgba(0,212,255,0.08) 40%, transparent 70%)' }} />
-
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: SORA, display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <Navbar />
       <div className="relative z-10 max-w-2xl mx-auto px-4 pt-28 pb-24" style={{ flex: 1, width: '100%' }}>
 
