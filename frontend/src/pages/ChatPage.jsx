@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { getBannerStyle } from '../utils/bannerUtils'
+import ProfilePill from '../components/ProfilePill'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -1769,20 +1770,15 @@ export default function ChatPage() {
                   </div>
                 )}
                 <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
-                  <div className="flex items-center" style={{ position: 'relative', overflow: 'hidden', background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                    {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
-                    <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {user?.avatar ? (
-                      <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(0,212,255,0.4)' }} />
-                    ) : user?.username ? (
-                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
-                        {user.username[0].toUpperCase()}
-                      </div>
-                    ) : null}
-                    <span className="text-white font-bold text-[11px] leading-none">{user ? user.username : 'You'}</span>
-                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
-                  </div>
-                  </div>
+                  <ProfilePill
+                    username={user ? user.username : 'You'}
+                    avatarUrl={user?.avatar}
+                    isOnline
+                    isVerified={!!user?.emailVerified}
+                    friendStatus="self"
+                    bannerStyle={bannerStyle}
+                    bannerImage={bannerImage}
+                  />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
               </div>
@@ -1982,20 +1978,15 @@ export default function ChatPage() {
                       </div>
                     )}
                     <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
-                      <div style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                        {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
-                        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-                          {user?.avatar ? (
-                            <img src={user.avatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)', flexShrink: 0 }} />
-                          ) : user?.username ? (
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900, fontSize: 9, flexShrink: 0 }}>
-                              {user.username[0].toUpperCase()}
-                            </div>
-                          ) : null}
-                          <span style={{ color: 'white', fontWeight: 700, fontSize: 11, lineHeight: 1 }}>{user ? user.username : 'You'}</span>
-                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
-                        </div>
-                      </div>
+                      <ProfilePill
+                        username={user ? user.username : 'You'}
+                        avatarUrl={user?.avatar}
+                        isOnline
+                        isVerified={!!user?.emailVerified}
+                        friendStatus="self"
+                        bannerStyle={bannerStyle}
+                        bannerImage={bannerImage}
+                      />
                     </div>
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
                   </div>
@@ -2066,21 +2057,15 @@ export default function ChatPage() {
 
                   {/* Your profile pill — top left, banner-styled, always shown */}
                   <div className="absolute" style={{ top: 16, left: 16, zIndex: 10 }}>
-                    <div className="flex items-center" style={{ position: 'relative', overflow: 'hidden', background: bannerStyle, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                      {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
-                      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        {user?.avatar ? (
-                          <img src={user.avatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(0,212,255,0.4)' }} />
-                        ) : user?.username ? (
-                          <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
-                            style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
-                            {user.username[0].toUpperCase()}
-                          </div>
-                        ) : null}
-                        <span className="text-white font-bold text-[13px] leading-none">{user ? user.username : 'You'}</span>
-                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', flexShrink: 0 }} />
-                      </div>
-                    </div>
+                    <ProfilePill
+                      username={user ? user.username : 'You'}
+                      avatarUrl={user?.avatar}
+                      isOnline
+                      isVerified={!!user?.emailVerified}
+                      friendStatus="self"
+                      bannerStyle={bannerStyle}
+                      bannerImage={bannerImage}
+                    />
                   </div>
 
                   {/* Chat overlay — inside right panel */}

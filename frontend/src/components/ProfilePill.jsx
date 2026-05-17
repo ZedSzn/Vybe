@@ -17,8 +17,10 @@
  *   isOnline     : boolean
  *   isVerified   : boolean
  *   pillStyle    : 'glass' | 'minimal' | 'gradient' | 'outline' | 'compact'
- *   friendStatus : 'none' | 'pending' | 'friends'
+ *   friendStatus : 'none' | 'pending' | 'friends' | 'self'  ('self' hides the + button)
  *   onAddFriend  : () => void   (parent owns the state)
+ *   bannerStyle  : string (optional — CSS background; overrides pillStyle's background)
+ *   bannerImage  : string (optional — image layered over bannerStyle)
  */
 
 const ACCENT  = '#00D4FF'
@@ -85,6 +87,8 @@ export default function ProfilePill({
   pillStyle = 'glass',
   friendStatus = 'none',
   onAddFriend,
+  bannerStyle,
+  bannerImage,
 }) {
   const compact = pillStyle === 'compact'
   const AVATAR  = compact ? 26 : 32
@@ -93,9 +97,10 @@ export default function ProfilePill({
   const DOT     = compact ? 7  : 9
   const GAP     = compact ? 7  : 9
 
-  const pill     = PILL_STYLES[pillStyle] || PILL_STYLES.glass
-  const initials = (username.trim() || '?').slice(0, 2).toUpperCase()
-  const locked   = friendStatus === 'pending' || friendStatus === 'friends'
+  const initials   = (username.trim() || '?').slice(0, 2).toUpperCase()
+  const locked     = friendStatus === 'pending' || friendStatus === 'friends'
+  const showButton = friendStatus !== 'self'
+  const useBanner  = !!bannerStyle
 
   // Friend-request button visual state
   let btnVisual
@@ -107,18 +112,20 @@ export default function ProfilePill({
     btnVisual = ADD_BTN_STYLES[pillStyle] || ADD_BTN_STYLES.glass
   }
 
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: GAP,
-        padding: compact ? '4px 10px 4px 4px' : '6px 14px 6px 6px',
-        borderRadius: 999,
-        fontFamily: "'Sora', system-ui, sans-serif",
-        ...pill,
-      }}
-    >
+  const container = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: GAP,
+    padding: compact ? '4px 10px 4px 4px' : '6px 14px 6px 6px',
+    borderRadius: 999,
+    fontFamily: "'Sora', system-ui, sans-serif",
+    ...(useBanner
+      ? { position: 'relative', overflow: 'hidden', background: bannerStyle, border: '1px solid rgba(255,255,255,0.18)' }
+      : (PILL_STYLES[pillStyle] || PILL_STYLES.glass)),
+  }
+
+  const content = (
+    <>
       {/* Avatar + online dot */}
       <div style={{ position: 'relative', flexShrink: 0, width: AVATAR, height: AVATAR }}>
         {avatarUrl ? (
@@ -162,24 +169,37 @@ export default function ProfilePill({
       {isVerified && <VerifiedBadge size={compact ? 13 : 16} />}
 
       {/* Friend-request button */}
-      <button
-        type="button"
-        onClick={locked ? undefined : onAddFriend}
-        disabled={locked}
-        aria-label={friendStatus === 'friends' ? 'Friends' : friendStatus === 'pending' ? 'Friend request pending' : 'Add friend'}
-        className={`transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 ${
-          locked ? 'cursor-default' : 'cursor-pointer hover:scale-110 active:scale-90'
-        }`}
-        style={{
-          width: BTN, height: BTN, borderRadius: '50%',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: compact ? 5 : 7,
-          flexShrink: 0,
-          ...btnVisual,
-        }}
-      >
-        {friendStatus === 'none' ? <PlusGlyph /> : <CheckGlyph />}
-      </button>
+      {showButton && (
+        <button
+          type="button"
+          onClick={locked ? undefined : onAddFriend}
+          disabled={locked}
+          aria-label={friendStatus === 'friends' ? 'Friends' : friendStatus === 'pending' ? 'Friend request pending' : 'Add friend'}
+          className={`transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 ${
+            locked ? 'cursor-default' : 'cursor-pointer hover:scale-110 active:scale-90'
+          }`}
+          style={{
+            width: BTN, height: BTN, borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: compact ? 5 : 7,
+            flexShrink: 0,
+            ...btnVisual,
+          }}
+        >
+          {friendStatus === 'none' ? <PlusGlyph /> : <CheckGlyph />}
+        </button>
+      )}
+    </>
+  )
+
+  return (
+    <div style={container}>
+      {useBanner && bannerImage && (
+        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+      )}
+      {useBanner
+        ? <div style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: GAP }}>{content}</div>
+        : content}
     </div>
   )
 }

@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { getBannerStyle } from '../utils/bannerUtils'
+import ProfilePill from '../components/ProfilePill'
 import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -1315,17 +1316,15 @@ export default function MainPage() {
 
             {/* Your profile pill — always inside panel top-left */}
             <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 20 }}>
-              <div style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 8, background: bannerStyle, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '6px 12px 6px 6px' }}>
-                {bannerImage && <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />}
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {user?.avatar
-                    ? <img src={user.avatar} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.4)' }} />
-                    : <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.25), rgba(124,58,237,0.25))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#00D4FF', border: '1.5px solid rgba(0,212,255,0.35)', flexShrink: 0 }}>{user?.username?.[0]?.toUpperCase() || 'Y'}</div>
-                  }
-                  <span style={{ color: 'white', fontWeight: 700, fontSize: 13 }}>{user?.username || 'You'}</span>
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#00D4FF', display: 'inline-block', boxShadow: '0 0 6px rgba(0,212,255,0.8)', flexShrink: 0 }} />
-                </div>
-              </div>
+              <ProfilePill
+                username={user?.username || 'You'}
+                avatarUrl={user?.avatar}
+                isOnline
+                isVerified={!!user?.emailVerified}
+                friendStatus="self"
+                bannerStyle={bannerStyle}
+                bannerImage={bannerImage}
+              />
             </div>
 
             {mode === 'squad' ? (
