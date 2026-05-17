@@ -371,6 +371,11 @@ const userSchema = new mongoose.Schema({
   loginStreak:   { type: Number, default: 0 },
   longestStreak: { type: Number, default: 0 },
   lastLoginDate: { type: Date, default: null },
+  // Gifting
+  giftCollection:    { type: [String], default: [] }, // unlocked gift ids
+  totalCoinsGifted:  { type: Number, default: 0 },
+  weeklyCoinsGifted: { type: Number, default: 0 },
+  gifterRank:        { type: String, default: 'Newcomer' },
   // Social
   blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   // Coin history (capped at 200 entries)
@@ -1750,7 +1755,7 @@ app.get('/api/user/me', authMiddleware, async (req, res) => {
 
 app.get('/api/user/:id/profile', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient bannerImage cameraBackground');
+    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient bannerImage cameraBackground giftCollection totalCoinsGifted gifterRank');
     if (!user) return res.status(404).json({ error: 'User not found' });
     const friendCount = await Friendship.countDocuments({ $or: [{ requester: user._id }, { recipient: user._id }], status: 'accepted' });
     const isOnline    = [...onlineUsers.values()].some((s) => String(s.userId) === String(user._id));
@@ -1770,6 +1775,9 @@ app.get('/api/user/:id/profile', async (req, res) => {
       bannerGradient: user.bannerGradient || '',
       bannerImage: user.bannerImage || '',
       cameraBackground: user.cameraBackground || 'none',
+      giftCollection: user.giftCollection || [],
+      totalCoinsGifted: user.totalCoinsGifted || 0,
+      gifterRank: user.gifterRank || 'Newcomer',
     }});
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -1840,6 +1848,15 @@ const GIFTS = {
   'mega-vybe':      { name: 'Mega Vybe',      coins: 500,  tier: 'Popular' },
   'ultra-vybe':     { name: 'Ultra Vybe',     coins: 1000, tier: 'Premium' },
   'legendary-vybe': { name: 'Legendary Vybe', coins: 5000, tier: 'Premium' },
+};
+
+const getGifterRank = (total) => {
+  if (total >= 10000) return 'Vybe Legend';
+  if (total >= 5000)  return 'Vybe Elite';
+  if (total >= 1000)  return 'Vybe Ultra';
+  if (total >= 500)   return 'Vybe Pro';
+  if (total >= 100)   return 'Vybe Gifter';
+  return 'Newcomer';
 };
 
 const BADGE_DEFS = [
@@ -2016,8 +2033,9 @@ app.post('/api/user/send-gift', authMiddleware, async (req, res) => {
     if (!Number.isFinite(amount) || amount < 10 || amount > 100000) {
       return res.status(400).json({ error: 'Invalid coin amount' });
     }
-    const gift = GIFTS[giftId] || GIFTS['vybe'];
-    const sender = await User.findById(req.user._id).select('coins username');
+    const resolvedGiftId = GIFTS[giftId] ? giftId : 'vybe';
+    const gift = GIFTS[resolvedGiftId];
+    const sender = await User.findById(req.user._id).select('coins username totalCoinsGifted');
     if (!sender) return res.status(404).json({ error: 'User not found' });
     if (sender.coins < amount) return res.status(400).json({ error: 'Not enough coins' });
 
@@ -2026,9 +2044,13 @@ app.post('/api/user/send-gift', authMiddleware, async (req, res) => {
     const recipientUserId = recipientData?.userId;
     if (!recipientUserId) return res.status(400).json({ error: 'Recipient is not available' });
 
-    // Deduct from the sender's spendable balance
+    // Deduct from the sender's spendable balance; unlock the gift, bump
+    // gifting totals, and recompute the gifter rank.
+    const newTotalGifted = (sender.totalCoinsGifted || 0) + amount;
     await User.findByIdAndUpdate(req.user._id, {
-      $inc: { coins: -amount },
+      $inc: { coins: -amount, totalCoinsGifted: amount, weeklyCoinsGifted: amount },
+      $addToSet: { giftCollection: resolvedGiftId },
+      $set: { gifterRank: getGifterRank(newTotalGifted) },
       $push: { coinHistory: { $each: [{ amount: -amount, reason: `Sent ${gift.name}`, type: 'gift', timestamp: new Date() }], $slice: -200 } },
     });
     // Add to the recipient's cashable balance
@@ -2053,6 +2075,42 @@ app.post('/api/user/send-gift', authMiddleware, async (req, res) => {
     res.json({ success: true, coins: updated.coins });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+// ─── Weekly Gifter Leaderboard ────────────────────────────────────────────────
+app.get('/api/leaderboard/gifters', async (req, res) => {
+  try {
+    const users = await User.find({ weeklyCoinsGifted: { $gt: 0 } })
+      .sort({ weeklyCoinsGifted: -1 })
+      .limit(50)
+      .select('username avatar weeklyCoinsGifted giftCollection gifterRank');
+    res.json({ leaders: users.map((u) => ({
+      username:          u.username,
+      avatarUrl:         u.avatar || '',
+      weeklyCoinsGifted: u.weeklyCoinsGifted || 0,
+      giftCollection:    u.giftCollection || [],
+      gifterRank:        u.gifterRank || 'Newcomer',
+    })) });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Reset weeklyCoinsGifted every Monday 00:00 UTC. An hourly week-key check
+// keeps this correct across server restarts (unlike an in-memory cron tick).
+function mondayWeekKey() {
+  const now = new Date();
+  const daysSinceMonday = (now.getUTCDay() + 6) % 7; // 0=Sun..6=Sat → days since Mon
+  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - daysSinceMonday));
+  return monday.toISOString().slice(0, 10);
+}
+let lastGifterWeek = mondayWeekKey();
+setInterval(async () => {
+  const wk = mondayWeekKey();
+  if (wk === lastGifterWeek) return;
+  lastGifterWeek = wk;
+  try {
+    await User.updateMany({ weeklyCoinsGifted: { $gt: 0 } }, { $set: { weeklyCoinsGifted: 0 } });
+    console.log('🔄 Weekly gifter leaderboard reset');
+  } catch (e) { console.error('Weekly gifter reset failed:', e.message); }
+}, 60 * 60 * 1000);
 
 // ─── Profile Boost (free) ─────────────────────────────────────────────────────
 app.post('/api/coins/boost', authMiddleware, async (req, res) => {

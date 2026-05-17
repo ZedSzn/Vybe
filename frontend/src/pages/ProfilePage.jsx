@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import { Skeleton } from '../components/Skeleton'
 import ImageCropper from '../components/ImageCropper'
+import { GiftIcon, GIFTS } from '../components/GiftIcon'
 import { CAMERA_BG_PRESETS } from '../utils/cameraBackgrounds'
 
 const COUNTRY_FLAGS = {
@@ -339,6 +340,8 @@ export default function ProfilePage() {
 
   const joinDate        = profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''
   const equippedBadges  = profile.equippedBadges || []
+  const giftUnlocked    = profile.giftCollection || []
+  const giftUnlockedCount = giftUnlocked.length
   const profileInterests = profile.interests || []
   const profileSocial   = profile.socialLinks || {}
   const hasSocial       = SOCIAL_PLATFORMS.some(p => profileSocial[p.key])
@@ -469,6 +472,17 @@ export default function ProfilePage() {
                 ) : null}
               </p>
             </div>
+
+            {/* Gifter rank badge */}
+            {(profile.totalCoinsGifted || 0) > 0 && (
+              <div className="flex items-center flex-wrap gap-2 mb-2.5">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 50, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', fontSize: 11, fontWeight: 700 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', flexShrink: 0 }} />
+                  {profile.gifterRank || 'Newcomer'}
+                </span>
+                <span className="text-vybe-muted text-xs">{(profile.totalCoinsGifted || 0).toLocaleString()} coins gifted total</span>
+              </div>
+            )}
 
             {/* System badges */}
             <div className="flex flex-wrap gap-2 mb-2">
@@ -781,6 +795,47 @@ export default function ProfilePage() {
                   <p className="text-vybe-muted text-[10px]">{label}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Gift Collection */}
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-0.5">
+                <h3 className="text-sm font-black text-white">Gift Collection</h3>
+                <span className="text-sm font-black" style={{ color: '#00D4FF' }}>{giftUnlockedCount} / 6</span>
+              </div>
+              <p className="text-vybe-muted text-xs mb-3">Unlock by sending gifts to others</p>
+              <div style={{ height: 8, borderRadius: 50, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${(giftUnlockedCount / 6) * 100}%`, background: 'linear-gradient(90deg, #7C3AED, #00D4FF)', borderRadius: 50, transition: 'width 0.5s ease' }} />
+              </div>
+              <p className="text-[11px] mt-2" style={{ color: giftUnlockedCount >= 6 ? '#f59e0b' : '#888899' }}>
+                {giftUnlockedCount >= 6
+                  ? "Collection complete! You're a Vybe Legend 🎉"
+                  : `${6 - giftUnlockedCount} more to complete the full set`}
+              </p>
+              <div className="flex gap-2 mt-3">
+                {GIFTS.map((g) => {
+                  const isUnlocked = giftUnlocked.includes(g.id)
+                  return (
+                    <div key={g.id}
+                      title={isUnlocked ? g.name : `Send ${g.name} to unlock`}
+                      style={{
+                        width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: isUnlocked ? '#0a0a1a' : '#0d0d0d',
+                        border: `1.5px solid ${isUnlocked ? g.color : '#1a1a1a'}`,
+                        filter: isUnlocked ? 'none' : 'grayscale(1)',
+                        opacity: isUnlocked ? 1 : 0.35,
+                      }}>
+                      <GiftIcon id={g.id} size={28} />
+                    </div>
+                  )
+                })}
+              </div>
+              <button onClick={() => navigate('/leaderboard')}
+                className="mt-3 text-xs font-bold transition-colors"
+                style={{ color: '#00D4FF' }}>
+                Top Gifters leaderboard →
+              </button>
             </div>
 
             {/* Badge collection (own profile) */}

@@ -48,6 +48,7 @@ const ForgotPasswordPage   = lazy(() => import('./pages/ForgotPasswordPage'))
 const ResetPasswordPage    = lazy(() => import('./pages/ResetPasswordPage'))
 const ProfilePage          = lazy(() => import('./pages/ProfilePage'))
 const ProfilePillDemo      = lazy(() => import('./pages/ProfilePillDemo'))
+const LeaderboardPage      = lazy(() => import('./pages/LeaderboardPage'))
 const SettingsPage         = lazy(() => import('./pages/SettingsPage'))
 const WalletPage           = lazy(() => import('./pages/WalletPage'))
 const CoinsPage            = lazy(() => import('./pages/CoinsPage'))
@@ -286,6 +287,7 @@ function AppRoutes() {
           <Route path="/profile/:id"                element={<ProfilePage />} />
           <Route path="/profile" element={<OwnProfileRedirect />} />
           <Route path="/pill-demo"                  element={<ProfilePillDemo />} />
+          <Route path="/leaderboard"                element={<LeaderboardPage />} />
           <Route path="/settings"                   element={<SettingsPage />} />
           <Route path="/wallet"                     element={<WalletPage />} />
           <Route path="/coins"                      element={<CoinsPage />} />
