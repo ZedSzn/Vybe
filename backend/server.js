@@ -2282,6 +2282,10 @@ const SUBSCRIPTION_PLANS = {
   vip:   { name: 'Vybe VIP',   amount: 1299, gbp: 12.99 },
 };
 
+// Checkout perk copy — shared so the trial and subscribe pages always match.
+const VIP_PERKS   = 'Gender filter, country filter & VIP badge';
+const BASIC_PERKS = 'Gender filter';
+
 // Get current subscription status
 app.get('/api/subscription/status', authMiddleware, async (req, res) => {
   try {
@@ -2320,7 +2324,7 @@ app.post('/api/subscription/trial', authMiddleware, async (req, res) => {
           recurring: { interval: 'month' },
           product_data: {
             name: 'Vybe VIP',
-            description: 'Everything in Basic + country filter, VIP badge',
+            description: VIP_PERKS,
           },
           unit_amount: 1299,
         },
@@ -2362,9 +2366,7 @@ app.post('/api/subscription/create', authMiddleware, async (req, res) => {
           recurring: { interval: 'month' },
           product_data: {
             name: planInfo.name,
-            description: plan === 'basic'
-              ? 'Gender filter'
-              : 'Everything in Basic + country filter, VIP badge',
+            description: plan === 'basic' ? BASIC_PERKS : VIP_PERKS,
           },
           unit_amount: planInfo.amount,
         },
