@@ -1044,6 +1044,29 @@ app.get('/api/unban/verify', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Free ban appeal — emails the support inbox with the user's message.
+app.post('/api/unban/appeal', authMiddleware, async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message || !message.trim()) return res.status(400).json({ error: 'Please write a message.' });
+    if (message.length > 2000) return res.status(400).json({ error: 'Message too long (max 2000 chars).' });
+    const user = await User.findById(req.user._id).select('username email banReason banType');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const to = process.env.ADMIN_EMAIL;
+    if (to) {
+      const safeMessage = escapeHtml(message).replace(/\n/g, '<br>');
+      await sendEmail({
+        to,
+        subject: `[Vybe Ban Appeal] ${escapeHtml(user.username || 'user')}`,
+        html: `<p><strong>Ban appeal from:</strong> ${escapeHtml(user.username || '')} &lt;${escapeHtml(user.email || '')}&gt;</p>`
+            + `<p style="color:#aaa;font-size:12px;">Ban type: ${escapeHtml(user.banType || '—')} · Reason: ${escapeHtml(user.banReason || '—')}</p>`
+            + `<p>${safeMessage}</p>`,
+      });
+    }
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: 'Failed to send appeal. Please try again.' }); }
+});
+
 // ─── Friend Routes ─────────────────────────────────────────────────────────────
 app.post('/api/friends/request', authMiddleware, async (req, res) => {
   try {

@@ -147,14 +147,22 @@ function BanModal({ info, onDismiss }) {
   const [unbanLoading, setUnbanLoading] = useState(false)
   const [unbanError, setUnbanError] = useState('')
   const [showAppeal, setShowAppeal] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [appealText, setAppealText] = useState('')
+  const [appealSending, setAppealSending] = useState(false)
+  const [appealSent, setAppealSent] = useState(false)
+  const [appealError, setAppealError] = useState('')
 
-  const copyEmail = async () => {
+  const submitAppeal = async () => {
+    if (!appealText.trim()) { setAppealError('Please write a message.'); return }
+    setAppealSending(true)
+    setAppealError('')
     try {
-      await navigator.clipboard.writeText('support@vybelivechat.com')
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch { /* clipboard unavailable — the address is shown for manual copy */ }
+      await axios.post('/api/unban/appeal', { message: appealText })
+      setAppealSent(true)
+    } catch (e) {
+      setAppealError(e.response?.data?.error || 'Could not send — try again.')
+    }
+    setAppealSending(false)
   }
 
   const handleUnban = async () => {
@@ -169,11 +177,6 @@ function BanModal({ info, onDismiss }) {
     }
     setUnbanLoading(false)
   }
-
-  const appealHref = 'mailto:support@vybelivechat.com'
-    + '?subject=' + encodeURIComponent('Ban appeal')
-    + '&body=' + encodeURIComponent(
-        `I'd like to appeal my ban.\n\nReason given: ${info.reason || '—'}\n\nWhy I think this was a mistake:\n`)
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
@@ -217,19 +220,31 @@ function BanModal({ info, onDismiss }) {
           <button onClick={() => setShowAppeal(true)} className="block w-full text-cyan-400 text-xs font-semibold mb-4 hover:underline">
             Think this was a mistake? Appeal for free
           </button>
+        ) : appealSent ? (
+          <div className="mb-4 rounded-xl p-3" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)' }}>
+            <p className="text-emerald-400 text-xs font-semibold">Appeal sent ✓</p>
+            <p className="text-white/50 text-[11px] mt-1 leading-relaxed">We've received it and will review your account. You'll hear back by email.</p>
+          </div>
         ) : (
           <div className="mb-4 rounded-xl p-3 text-left" style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)' }}>
             <p className="text-white/70 text-[11px] leading-relaxed mb-2">
-              Email us your username and why you think this was a mistake — we review every appeal.
+              Tell us why you think this was a mistake — it goes straight to our team.
             </p>
-            <div className="flex items-center gap-2">
-              <span className="flex-1 text-cyan-400 text-xs font-semibold truncate">support@vybelivechat.com</span>
-              <button onClick={copyEmail} className="px-2.5 py-1 rounded-lg text-[11px] font-bold flex-shrink-0"
-                style={{ background: 'rgba(0,212,255,0.15)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}>
-                {copied ? 'Copied' : 'Copy'}
-              </button>
-            </div>
-            <a href={appealHref} className="block mt-2 text-white/35 text-[10px] hover:underline">or open your email app</a>
+            <textarea
+              value={appealText}
+              onChange={(e) => setAppealText(e.target.value)}
+              maxLength={2000}
+              rows={3}
+              placeholder="Your message…"
+              className="w-full rounded-lg p-2 text-white text-xs resize-none mb-2"
+              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', outline: 'none' }}
+            />
+            {appealError && <p className="text-red-400 text-[11px] mb-2">{appealError}</p>}
+            <button onClick={submitAppeal} disabled={appealSending}
+              className="w-full py-2 rounded-lg text-xs font-bold disabled:opacity-50"
+              style={{ background: 'rgba(0,212,255,0.15)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}>
+              {appealSending ? 'Sending…' : 'Send appeal'}
+            </button>
           </div>
         )}
 
