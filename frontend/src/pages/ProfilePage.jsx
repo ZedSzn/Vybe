@@ -5,6 +5,7 @@ import { Camera, Edit2, Save, X, ArrowLeft, Check, Loader2, Crown, Zap, Flame, T
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import VybeCoin from '../components/VybeCoin'
 import { Skeleton } from '../components/Skeleton'
 import ImageCropper from '../components/ImageCropper'
 import { GiftIcon, GIFTS } from '../components/GiftIcon'
@@ -483,19 +484,14 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            {/* Gifter rank badge */}
-            {(profile.totalCoinsGifted || 0) > 0 && (
-              <div className="flex items-center flex-wrap gap-2 mb-2.5">
+            {/* Status badges — gifter rank + system badges in one row */}
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              {(profile.totalCoinsGifted || 0) > 0 && (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 50, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', fontSize: 12, fontWeight: 700 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', flexShrink: 0 }} />
+                  <VybeCoin size={13} />
                   {profile.gifterRank || 'Newcomer'}
                 </span>
-                <span className="text-vybe-muted text-xs">{(profile.totalCoinsGifted || 0).toLocaleString()} coins gifted total</span>
-              </div>
-            )}
-
-            {/* System badges */}
-            <div className="flex flex-wrap gap-2 mb-2">
+              )}
               {profile.isPremium && !profile.isVip && <SysBadge icon={Zap}           label="Basic"                              color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
               {profile.isVip                         && <SysBadge icon={Crown}         label="VIP"                                color="border-yellow-500/30 text-cyan-400 bg-cyan-500/10" />}
               {profile.emailVerified                 && <SysBadge icon={VerifiedSeal}  label="Verified"                           color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
@@ -792,12 +788,13 @@ export default function ProfilePage() {
             )}
 
             {/* Stats grid */}
-            <div className="grid grid-cols-4 gap-2 mb-5">
+            <div className="grid grid-cols-5 gap-2 mb-5">
               {[
                 { label: 'Chats',     value: profile.totalChats || 0,                                      Icon: MessageCircle },
                 { label: 'Streak',    value: `${profile.loginStreak || 0}d`,                               Icon: Flame         },
                 { label: 'Countries', value: profile.countriesCount || profile.uniqueCountries || 0,       Icon: Globe         },
                 { label: 'Gifts',     value: profile.giftsReceived || 0,                                   Icon: Gift          },
+                { label: 'Gifted',    value: (profile.totalCoinsGifted || 0).toLocaleString(),             Icon: VybeCoin      },
               ].map(({ label, value, Icon }) => (
                 <div key={label} className="bg-vybe-card border border-vybe-border rounded-2xl p-2.5 text-center">
                   <div className="flex justify-center mb-1"><Icon size={14} className="text-vybe-purple-light opacity-70" /></div>
