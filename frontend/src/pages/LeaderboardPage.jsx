@@ -13,17 +13,6 @@ const SORA = "'Sora', system-ui, sans-serif"
 // Gift catalog order — ids must match the user's giftCollection values.
 const GIFT_ORDER = GIFTS.map((g) => g.id)
 
-// Tinted wrapper styles per gift colour family.
-const TINT = {
-  cyan:   { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.4)' },
-  purple: { background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.5)' },
-  gold:   { background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.5)' },
-}
-
-// Each gift's wrapper tint, derived from its catalog colour.
-const COLOR_TINT = { '#00D4FF': 'cyan', '#7C3AED': 'purple', '#f59e0b': 'gold' }
-const GIFT_TINT = Object.fromEntries(GIFTS.map((g) => [g.id, COLOR_TINT[g.color] || 'cyan']))
-
 // Per-place podium styling.
 const PODIUM = {
   1: { minH: 200, avatar: 58, border: '#f59e0b', bg: '#12100a', ring: '#f59e0b',
@@ -48,25 +37,13 @@ function rankColor(rank) {
   return '#444'
 }
 
-// A single gift icon in its tinted wrapper.
-function GiftBadge({ id, wrap, svg }) {
-  const tint = GIFT_TINT[id]
-  if (!tint) return null
-  return (
-    <div style={{ width: wrap, height: wrap, borderRadius: 5, flexShrink: 0,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', ...TINT[tint] }}>
-      <GiftIcon id={id} size={svg} />
-    </div>
-  )
-}
-
-// Row of unlocked gift badges.
-function GiftRow({ collection, wrap, svg }) {
+// Row of unlocked gift icons — bare, no wrapper.
+function GiftRow({ collection, size }) {
   const ids = GIFT_ORDER.filter((id) => (collection || []).includes(id))
   if (ids.length === 0) return null
   return (
     <div style={{ display: 'flex', gap: 3 }}>
-      {ids.map((id) => <GiftBadge key={id} id={id} wrap={wrap} svg={svg} />)}
+      {ids.map((id) => <GiftIcon key={id} id={id} size={size} />)}
     </div>
   )
 }
@@ -129,7 +106,7 @@ function PodiumCard({ entry, place, coinsOf }) {
             </p>
             {place === 1 && (
               <div style={{ marginTop: 'auto', paddingTop: 10 }}>
-                <GiftRow collection={entry.giftCollection} wrap={24} svg={18} />
+                <GiftRow collection={entry.giftCollection} size={22} />
               </div>
             )}
           </>
@@ -250,7 +227,7 @@ export default function LeaderboardPage() {
                         <p style={{ color: rankColor(u.gifterRank), fontSize: 10, fontWeight: 700, lineHeight: 1.3 }}>{u.gifterRank}</p>
                       )}
                       <div style={{ marginTop: 3 }}>
-                        <GiftRow collection={u.giftCollection} wrap={20} svg={15} />
+                        <GiftRow collection={u.giftCollection} size={18} />
                       </div>
                     </div>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#f59e0b', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>
