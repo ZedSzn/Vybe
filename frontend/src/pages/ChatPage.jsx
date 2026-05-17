@@ -1379,14 +1379,18 @@ export default function ChatPage() {
                 {(() => {
                   const sel = GIFTS.find((g) => g.id === selectedGiftId)
                   const amt = sel ? sel.coins : (parseInt(customAmount, 10) || 0)
-                  const ok  = amt >= 10 && amt <= coins && !giftSending
+                  const hasAmount = amt >= 10
+                  const broke   = hasAmount && amt > coins
+                  const enabled = hasAmount && !giftSending
                   return (
-                    <button type="button" onClick={sendGift} disabled={!ok}
-                      style={{ width: '100%', padding: '12px 0', borderRadius: 50, background: '#00D4FF', color: '#0a0a0f', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', system-ui, sans-serif", border: 'none', cursor: ok ? 'pointer' : 'not-allowed', opacity: ok ? 1 : 0.4 }}>
+                    <button type="button" disabled={!enabled}
+                      onClick={() => { if (!enabled) return; if (broke) { setShowGift(false); navigate('/coins') } else sendGift() }}
+                      style={{ width: '100%', padding: '12px 0', borderRadius: 50, background: broke ? '#7C3AED' : '#00D4FF', color: broke ? '#fff' : '#0a0a0f', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', system-ui, sans-serif", border: 'none', cursor: enabled ? 'pointer' : 'not-allowed', opacity: enabled ? 1 : 0.4 }}>
                       {giftSending ? 'Sending…'
+                        : !hasAmount ? 'Select a gift'
+                        : broke ? `Get coins to send · ${amt.toLocaleString()}`
                         : sel ? `Send ${sel.name} · ${sel.coins.toLocaleString()} coins`
-                        : amt >= 10 ? `Send ${amt.toLocaleString()} coins`
-                        : 'Select a gift'}
+                        : `Send ${amt.toLocaleString()} coins`}
                     </button>
                   )
                 })()}
