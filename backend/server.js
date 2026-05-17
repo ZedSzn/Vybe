@@ -140,11 +140,11 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
             if (isTrial || isTrialing) {
               const u = await User.findById(userId).select('email username');
               await createNotification(userId, 'system', '🎉 VIP Trial Started!',
-                'Your 7-day VIP trial is active. Enjoy gender filter, country filter and priority matching!');
+                'Your 7-day VIP trial is active. Enjoy gender filter, country filter and your VIP badge!');
               await sendEmail({
                 to: u.email,
                 subject: '🎉 Your Vybe VIP trial has started!',
-                html: `<p>Hi ${u.username},</p><p>Welcome to your 7-day VIP trial! You now have access to gender filter, country filter, and priority matching.</p><p>If you don't cancel before day 7, you'll be charged £12.99/month automatically.</p><p>You can cancel anytime from your subscription page. Cancelling immediately removes VIP access.</p>`,
+                html: `<p>Hi ${u.username},</p><p>Welcome to your 7-day VIP trial! You now have access to gender filter, country filter, and your VIP badge.</p><p>If you don't cancel before day 7, you'll be charged £12.99/month automatically.</p><p>You can cancel anytime from your subscription page. Cancelling immediately removes VIP access.</p>`,
               });
             } else {
               await createNotification(userId, 'system', '🎉 Subscription Active!',
