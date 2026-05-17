@@ -2284,7 +2284,7 @@ const SUBSCRIPTION_PLANS = {
 
 // Checkout perk copy — shared so the trial and subscribe pages always match.
 const VIP_PERKS   = 'Gender filter, country filter & VIP badge';
-const BASIC_PERKS = 'Gender filter';
+const BASIC_PERKS = 'Gender filter & Basic badge';
 
 // Get current subscription status
 app.get('/api/subscription/status', authMiddleware, async (req, res) => {
