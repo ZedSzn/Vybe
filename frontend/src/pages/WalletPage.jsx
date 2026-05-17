@@ -153,9 +153,12 @@ export default function WalletPage() {
     const amount = parseInt(cashoutAmount, 10)
     if (!amount || amount < 1000) { setErrorMsg('Minimum cash out is 1,000 earnings coins'); return }
     if (amount > earnings) { setErrorMsg(`You only have ${earnings.toLocaleString()} earnings coins`); return }
+    if (!paypalEmail) { setErrorMsg('Enter your PayPal email above'); return }
     setCashoutLoading(true)
     setErrorMsg('')
     try {
+      // Save the PayPal email first so the user never has to click Save separately.
+      await axios.put('/api/user/paypal-email', { paypalEmail })
       await axios.post('/api/cashout/request', { coinsAmount: amount })
       setSuccessMsg(`Cash out request submitted for ${amount.toLocaleString()} coins (£${((amount / 1000) * 4.20).toFixed(2)})`)
       setCashoutAmount('')
@@ -502,7 +505,7 @@ export default function WalletPage() {
                     className="w-full py-3 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-50"
                     style={{ background: 'linear-gradient(135deg,#00D4FF,#00B8E0)', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}
                   >
-                    {cashoutLoading ? 'Submitting…' : 'Request Cash Out'}
+                    {cashoutLoading ? 'Submitting…' : 'Save & Request Cash Out'}
                   </button>
                   <p className="text-vybe-muted text-xs text-center">Reviewed and processed within 3–5 business days.</p>
                 </div>
