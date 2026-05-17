@@ -1057,7 +1057,7 @@ export default function MainPage() {
                 style={{ background: '#00D4FF' }}
                 animate={{ opacity: [1, 0.3, 1], scale: [1, 1.3, 1] }}
                 transition={{ duration: 2.4, repeat: Infinity }} />
-              <span style={{ fontFamily: "'Sora', system-ui, sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.5)' }}>
+              <span style={{ fontFamily: "'Sora', system-ui, sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', color: '#00D4FF' }}>
                 LIVE &middot; RANDOM &middot; REAL
               </span>
             </motion.div>
