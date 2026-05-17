@@ -101,9 +101,9 @@ export default function LeaderboardPage() {
   const meName = user?.username
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: SORA }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: SORA, display: 'flex', flexDirection: 'column' }}>
       <Navbar />
-      <div className="relative z-10 max-w-2xl mx-auto px-4 pt-28 pb-24">
+      <div className="relative z-10 max-w-2xl mx-auto px-4 pt-28 pb-24" style={{ flex: 1, width: '100%' }}>
 
         {/* Hero */}
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
