@@ -1,12 +1,11 @@
 /**
- * ProfilePill — compact user identity chip for the Vybe app.
+ * ProfilePill — compact glass identity chip for the Vybe app (overlay size).
  *
  * <ProfilePill
  *   username="ZZ_NZ"
  *   avatarUrl="/avatars/zz.jpg"
  *   isOnline={true}
  *   isVerified={true}
- *   pillStyle="glass"
  *   friendStatus="none"
  *   onAddFriend={() => sendFriendRequest(userId)}
  * />
@@ -16,67 +15,32 @@
  *   avatarUrl    : string (optional — falls back to gradient initials)
  *   isOnline     : boolean
  *   isVerified   : boolean
- *   pillStyle    : 'glass' | 'minimal' | 'gradient' | 'outline' | 'compact'
- *   friendStatus : 'none' | 'pending' | 'friends' | 'self'  ('self' hides the + button)
- *   onAddFriend  : () => void   (parent owns the state)
- *   bannerStyle  : string (optional — CSS background; overrides pillStyle's background)
- *   bannerImage  : string (optional — image layered over bannerStyle)
+ *   friendStatus : 'none' | 'pending' | 'friends' | 'self'
+ *                  ('self' = the current user's own pill — hides the + button)
+ *   onAddFriend  : () => void   (parent owns the friendStatus state)
+ *
+ * On the chat page, place inside the camera-panel wrapper:
+ *   <div style={{ position: 'absolute', top: 10, left: 10 }}><ProfilePill .../></div>
  */
 
 const ACCENT  = '#00D4FF'
 const PURPLE  = '#7C3AED'
 const PAGE_BG = '#0a0a0f'
 
-// 12-point sunburst outline for the verified badge.
-function sunburstPath(cx, cy, outer, inner, points) {
-  const step = Math.PI / points
-  let d = ''
-  for (let i = 0; i < points * 2; i++) {
-    const r = i % 2 === 0 ? outer : inner
-    const a = i * step - Math.PI / 2
-    d += `${i === 0 ? 'M' : 'L'}${(cx + r * Math.cos(a)).toFixed(2)} ${(cy + r * Math.sin(a)).toFixed(2)}`
-  }
-  return `${d}Z`
-}
-const STAR_PATH = sunburstPath(8, 8, 8, 5.7, 12)
-
-function VerifiedBadge({ size }) {
+function VerifiedBadge() {
   return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" role="img" aria-label="Verified" style={{ flexShrink: 0 }}>
-      <path d={STAR_PATH} fill={ACCENT} />
-      <path d="M5.05 8.15 L6.95 10 L11 5.6" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="12" height="12" viewBox="0 0 40 40" fill="none" role="img" aria-label="Verified" style={{ flexShrink: 0 }}>
+      <path d="M20 2L24.1 7.2L30.6 5.4L31.4 12.1L37.6 14.9L34.8 21L37.6 27.1L31.4 29.9L30.6 36.6L24.1 34.8L20 40L15.9 34.8L9.4 36.6L8.6 29.9L2.4 27.1L5.2 21L2.4 14.9L8.6 12.1L9.4 5.4L15.9 7.2Z" fill={ACCENT} />
+      <path d="M13 21l5 5 10-10" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-const PlusGlyph = () => (
-  <svg width="100%" height="100%" viewBox="0 0 14 14" fill="none">
-    <path d="M7 2.6 V11.4 M2.6 7 H11.4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-)
-
-const CheckGlyph = () => (
-  <svg width="100%" height="100%" viewBox="0 0 14 14" fill="none">
-    <path d="M3 7.4 L5.9 10.3 L11 4.2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-)
-
-// pillStyle → container treatment
-const PILL_STYLES = {
-  glass:    { background: 'rgba(255,255,255,0.05)',                       border: '1px solid rgba(0,212,255,0.25)',   backdropFilter: 'blur(12px)' },
-  minimal:  { background: '#0d0d18',                                      border: '1px solid #1e1e2e' },
-  gradient: { background: `linear-gradient(135deg, ${PURPLE}, ${ACCENT})`, border: '1px solid rgba(124,58,237,0.4)' },
-  outline:  { background: 'transparent',                                  border: `1.5px solid ${ACCENT}` },
-  compact:  { background: 'rgba(255,255,255,0.05)',                       border: '1px solid rgba(0,212,255,0.25)',   backdropFilter: 'blur(12px)' },
-}
-
-// "+" button look per style, used only when a request can be sent (friendStatus === 'none').
-const ADD_BTN_STYLES = {
-  glass:    { background: ACCENT,                                          color: PAGE_BG, border: 'none' },
-  minimal:  { background: 'transparent',                                   color: ACCENT,  border: `1.5px solid ${ACCENT}` },
-  gradient: { background: `linear-gradient(135deg, ${PURPLE}, ${ACCENT})`,  color: '#fff',  border: 'none' },
-  outline:  { background: ACCENT,                                          color: PAGE_BG, border: 'none' },
-  compact:  { background: ACCENT,                                          color: PAGE_BG, border: 'none' },
+// friendStatus → friend-request button look
+const FRIEND_BTN = {
+  none:    { background: ACCENT,                color: PAGE_BG,   glyph: '+' },
+  pending: { background: '#1e1e2e',             color: '#555',    glyph: '✓' },
+  friends: { background: 'rgba(34,197,94,0.2)', color: '#22c55e', glyph: '✓' },
 }
 
 export default function ProfilePill({
@@ -84,63 +48,42 @@ export default function ProfilePill({
   avatarUrl,
   isOnline = false,
   isVerified = false,
-  pillStyle = 'glass',
   friendStatus = 'none',
   onAddFriend,
-  bannerStyle,
-  bannerImage,
 }) {
-  const compact = pillStyle === 'compact'
-  const AVATAR  = compact ? 26 : 32
-  const TEXT    = compact ? 12 : 14
-  const BTN     = compact ? 22 : 28
-  const DOT     = compact ? 7  : 9
-  const GAP     = compact ? 7  : 9
-
   const initials   = (username.trim() || '?').slice(0, 2).toUpperCase()
-  const locked     = friendStatus === 'pending' || friendStatus === 'friends'
   const showButton = friendStatus !== 'self'
-  const useBanner  = !!bannerStyle
+  const locked     = friendStatus === 'pending' || friendStatus === 'friends'
+  const btn        = FRIEND_BTN[friendStatus] || FRIEND_BTN.none
 
-  // Friend-request button visual state
-  let btnVisual
-  if (friendStatus === 'friends') {
-    btnVisual = { background: 'rgba(34,197,94,0.18)', border: '1px solid rgba(34,197,94,0.45)', color: '#4ade80' }
-  } else if (friendStatus === 'pending') {
-    btnVisual = { background: '#1e1e2e', border: '1px solid #2a2a3a', color: '#7a7a8c' }
-  } else {
-    btnVisual = ADD_BTN_STYLES[pillStyle] || ADD_BTN_STYLES.glass
-  }
-
-  const container = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: GAP,
-    padding: compact ? '4px 10px 4px 4px' : '6px 14px 6px 6px',
-    borderRadius: 999,
-    fontFamily: "'Sora', system-ui, sans-serif",
-    ...(useBanner
-      ? { position: 'relative', overflow: 'hidden', background: bannerStyle, border: '1px solid rgba(255,255,255,0.18)' }
-      : (PILL_STYLES[pillStyle] || PILL_STYLES.glass)),
-  }
-
-  const content = (
-    <>
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '4px 8px 4px 4px',
+        borderRadius: 50,
+        background: 'rgba(255,255,255,0.07)',
+        border: '1px solid rgba(0,212,255,0.3)',
+        fontFamily: "'Sora', system-ui, sans-serif",
+      }}
+    >
       {/* Avatar + online dot */}
-      <div style={{ position: 'relative', flexShrink: 0, width: AVATAR, height: AVATAR }}>
+      <div style={{ position: 'relative', width: 24, height: 24, flexShrink: 0 }}>
         {avatarUrl ? (
           <img
             src={avatarUrl}
             alt={username}
-            style={{ width: AVATAR, height: AVATAR, borderRadius: '50%', objectFit: 'cover', display: 'block', border: '2px solid rgba(255,255,255,0.1)' }}
+            style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', display: 'block' }}
           />
         ) : (
           <div
             style={{
-              width: AVATAR, height: AVATAR, borderRadius: '50%',
+              width: 24, height: 24, borderRadius: '50%',
               background: `linear-gradient(135deg, ${PURPLE}, ${ACCENT})`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontWeight: 700, fontSize: compact ? 10 : 12, letterSpacing: '-0.02em',
+              color: '#fff', fontWeight: 700, fontSize: 9, letterSpacing: '-0.02em',
             }}
           >
             {initials}
@@ -152,21 +95,20 @@ export default function ProfilePill({
             aria-label="Online"
             style={{
               position: 'absolute', right: -1, bottom: -1,
-              width: DOT, height: DOT, borderRadius: '50%',
-              background: '#22c55e', border: `2px solid ${PAGE_BG}`,
-              boxShadow: '0 0 6px rgba(34,197,94,0.8)',
+              width: 7, height: 7, borderRadius: '50%',
+              background: '#22c55e', border: `1.5px solid ${PAGE_BG}`,
             }}
           />
         )}
       </div>
 
       {/* Username */}
-      <span style={{ color: '#fff', fontWeight: 700, fontSize: TEXT, lineHeight: 1, whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
+      <span style={{ color: '#fff', fontWeight: 700, fontSize: 11, lineHeight: 1, whiteSpace: 'nowrap' }}>
         {username || 'User'}
       </span>
 
       {/* Verified badge */}
-      {isVerified && <VerifiedBadge size={compact ? 13 : 16} />}
+      {isVerified && <VerifiedBadge />}
 
       {/* Friend-request button */}
       {showButton && (
@@ -179,27 +121,16 @@ export default function ProfilePill({
             locked ? 'cursor-default' : 'cursor-pointer hover:scale-110 active:scale-90'
           }`}
           style={{
-            width: BTN, height: BTN, borderRadius: '50%',
+            width: 20, height: 20, borderRadius: '50%', border: 'none',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: compact ? 5 : 7,
-            flexShrink: 0,
-            ...btnVisual,
+            fontSize: 16, fontWeight: 700, lineHeight: 1, flexShrink: 0,
+            background: btn.background, color: btn.color,
+            pointerEvents: locked ? 'none' : 'auto',
           }}
         >
-          {friendStatus === 'none' ? <PlusGlyph /> : <CheckGlyph />}
+          {btn.glyph}
         </button>
       )}
-    </>
-  )
-
-  return (
-    <div style={container}>
-      {useBanner && bannerImage && (
-        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
-      )}
-      {useBanner
-        ? <div style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: GAP }}>{content}</div>
-        : content}
     </div>
   )
 }
