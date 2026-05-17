@@ -1114,13 +1114,16 @@ app.get('/api/admin-secure/appeals', adminSecureMiddleware, async (req, res) => 
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Admin: mark an appeal resolved
+// Admin: resolve an appeal — optionally send the user a reply in-app
 app.post('/api/admin-secure/appeals/:id/resolve', adminSecureMiddleware, async (req, res) => {
   try {
     const { note = '' } = req.body;
     const appeal = await BanAppeal.findByIdAndUpdate(req.params.id,
       { status: 'resolved', adminNote: note, resolvedAt: new Date() }, { new: true });
     if (!appeal) return res.status(404).json({ error: 'Not found' });
+    if (note && note.trim()) {
+      await createNotification(appeal.userId, 'system', '📩 Response to your appeal', note.trim());
+    }
     res.json({ success: true, appeal });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

@@ -1162,12 +1162,13 @@ export default function AdminDashboard() {
                     }`}>{a.status}</span>
                     {a.status === 'pending' && (
                       <>
-                        <input value={noteMap[a._id] || ''} onChange={(e) => setNoteMap(m => ({ ...m, [a._id]: e.target.value }))}
-                          placeholder="Note (optional)…"
-                          className="w-full px-3 py-2 bg-vybe-card2 border border-vybe-border rounded-lg text-white text-xs placeholder-vybe-muted focus:border-vybe-purple focus:outline-none" />
+                        <textarea value={noteMap[a._id] || ''} onChange={(e) => setNoteMap(m => ({ ...m, [a._id]: e.target.value }))}
+                          placeholder="Reply to the user (optional) — they'll get it as a notification"
+                          rows={2}
+                          className="w-full px-3 py-2 bg-vybe-card2 border border-vybe-border rounded-lg text-white text-xs placeholder-vybe-muted focus:border-vybe-purple focus:outline-none resize-none" />
                         <button onClick={() => resolve(a._id)}
                           className="px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/25 transition-all">
-                          Mark resolved
+                          {(noteMap[a._id] || '').trim() ? 'Send reply & resolve' : 'Mark resolved'}
                         </button>
                       </>
                     )}
