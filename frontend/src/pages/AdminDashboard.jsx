@@ -1096,6 +1096,91 @@ export default function AdminDashboard() {
     )
   }
 
+  // ── Section: Ban Appeals ──────────────────────────────────────────────────
+  const AppealsSection = () => {
+    const [filter,  setFilter]  = useState('pending')
+    const [appeals, setAppeals] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [noteMap, setNoteMap] = useState({})
+
+    const fetchAppeals = useCallback(async (f = filter) => {
+      setLoading(true)
+      try {
+        const { data } = await axios.get(`/api/admin-secure/appeals?status=${f}`, ah(token))
+        setAppeals(data.appeals || [])
+      } catch { showToast('Failed to load appeals', 'error') }
+      finally { setLoading(false) }
+    }, [filter]) // eslint-disable-line
+
+    useEffect(() => { fetchAppeals() }, []) // eslint-disable-line
+
+    const resolve = async (id) => {
+      try {
+        await axios.post(`/api/admin-secure/appeals/${id}/resolve`, { note: noteMap[id] || '' }, ah(token))
+        showToast('Appeal marked resolved')
+        fetchAppeals(filter)
+      } catch (e) { showToast(e.response?.data?.error || 'Failed', 'error') }
+    }
+
+    return (
+      <div>
+        <div className="flex gap-1 bg-vybe-card2 p-1 rounded-xl w-fit mb-5">
+          {[['pending','Pending'],['resolved','Resolved'],['all','All']].map(([f, label]) => (
+            <button key={f} onClick={() => { setFilter(f); fetchAppeals(f) }}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {loading ? <Spinner /> : appeals.length === 0 ? (
+          <div className="text-center py-20 text-vybe-muted"><MessageSquare size={36} className="mx-auto mb-3 opacity-30" /><p className="text-sm">No appeals</p></div>
+        ) : (
+          <div className="space-y-3">
+            {appeals.map((a) => (
+              <div key={a._id} className="bg-vybe-card border border-vybe-border rounded-xl p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <p className="text-white font-bold text-sm">{a.username || a.userId?.username || '—'}</p>
+                      <span className="text-vybe-muted text-xs">{a.email || a.userId?.email}</span>
+                      {a.userId && !a.userId.isBanned && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-400/25 font-bold">UNBANNED</span>
+                      )}
+                    </div>
+                    <p className="text-vybe-muted text-[11px] mb-2">
+                      Ban: <span className="text-white">{a.banType || '—'}</span> · {a.banReason || '—'}
+                    </p>
+                    <p className="text-white/80 text-xs bg-vybe-card2 rounded-lg px-3 py-2 whitespace-pre-wrap">{a.message}</p>
+                    <p className="text-vybe-muted text-[11px] mt-2">{new Date(a.createdAt).toLocaleString()}</p>
+                    {a.adminNote && <p className="text-white/40 text-xs mt-1">Note: {a.adminNote}</p>}
+                  </div>
+                  <div className="flex flex-col gap-2 flex-shrink-0 w-full sm:w-52">
+                    <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border capitalize text-center ${
+                      a.status === 'pending' ? 'bg-cyan-500/15 text-cyan-400 border-yellow-500/25'
+                      : 'bg-vybe-card2 text-vybe-muted border-vybe-border'
+                    }`}>{a.status}</span>
+                    {a.status === 'pending' && (
+                      <>
+                        <input value={noteMap[a._id] || ''} onChange={(e) => setNoteMap(m => ({ ...m, [a._id]: e.target.value }))}
+                          placeholder="Note (optional)…"
+                          className="w-full px-3 py-2 bg-vybe-card2 border border-vybe-border rounded-lg text-white text-xs placeholder-vybe-muted focus:border-vybe-purple focus:outline-none" />
+                        <button onClick={() => resolve(a._id)}
+                          className="px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/25 transition-all">
+                          Mark resolved
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   // ─── Nav items ─────────────────────────────────────────────────────────────
   const NAV = [
     { id: 'overview', label: 'Overview',  icon: TrendingUp },
@@ -1104,6 +1189,7 @@ export default function AdminDashboard() {
     { id: 'reports',  label: 'Reports',   icon: Flag },
     { id: 'friends',  label: 'Friends',   icon: Heart },
     { id: 'cashouts', label: 'Cash Outs', icon: DollarSign },
+    { id: 'appeals',  label: 'Appeals',   icon: MessageSquare },
     { id: 'revenue',  label: 'Revenue',   icon: TrendingUp },
     { id: 'settings', label: 'Settings',  icon: Settings },
     { id: 'logs',     label: 'Logs',      icon: Activity },
@@ -1196,6 +1282,7 @@ export default function AdminDashboard() {
           {section === 'reports'  && <ReportsSection />}
           {section === 'friends'  && <FriendsSection />}
           {section === 'cashouts' && <CashOutSection />}
+          {section === 'appeals'  && <AppealsSection />}
           {section === 'revenue'  && <RevenueSection />}
           {section === 'settings' && <SettingsSection />}
           {section === 'logs'     && <LogsSection />}

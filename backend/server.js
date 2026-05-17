@@ -428,6 +428,19 @@ const unbanPurchaseSchema = new mongoose.Schema({
   completedAt:     { type: Date },
 });
 
+const banAppealSchema = new mongoose.Schema({
+  userId:     { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  username:   { type: String },
+  email:      { type: String },
+  message:    { type: String, required: true },
+  banReason:  { type: String },
+  banType:    { type: String },
+  status:     { type: String, enum: ['pending', 'resolved'], default: 'pending' },
+  adminNote:  { type: String, default: '' },
+  createdAt:  { type: Date, default: Date.now },
+  resolvedAt: { type: Date },
+});
+
 const adminLogSchema = new mongoose.Schema({
   action:          { type: String, required: true },
   targetUserId:    { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
@@ -519,6 +532,7 @@ userBadgeSchema.index({ userId: 1, badgeId: 1 }, { unique: true });
 const User            = mongoose.model('User',            userSchema);
 const Report          = mongoose.model('Report',          reportSchema);
 const UnbanPurchase   = mongoose.model('UnbanPurchase',   unbanPurchaseSchema);
+const BanAppeal       = mongoose.model('BanAppeal',       banAppealSchema);
 const AdminLog        = mongoose.model('AdminLog',        adminLogSchema);
 const Friendship      = mongoose.model('Friendship',      friendshipSchema);
 const AppSettings     = mongoose.model('AppSettings',     appSettingsSchema);
@@ -1044,14 +1058,22 @@ app.get('/api/unban/verify', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Free ban appeal — emails the support inbox with the user's message.
+// Free ban appeal — stores a record and emails the support inbox.
 app.post('/api/unban/appeal', authMiddleware, async (req, res) => {
   try {
     const { message } = req.body;
     if (!message || !message.trim()) return res.status(400).json({ error: 'Please write a message.' });
     if (message.length > 2000) return res.status(400).json({ error: 'Message too long (max 2000 chars).' });
+    const existing = await BanAppeal.findOne({ userId: req.user._id, status: 'pending' });
+    if (existing) return res.status(400).json({ error: 'You already have an appeal under review.' });
     const user = await User.findById(req.user._id).select('username email banReason banType');
     if (!user) return res.status(404).json({ error: 'User not found' });
+
+    await BanAppeal.create({
+      userId: user._id, username: user.username, email: user.email,
+      message: message.trim(), banReason: user.banReason, banType: user.banType,
+    });
+
     const to = process.env.ADMIN_EMAIL;
     if (to) {
       const safeMessage = escapeHtml(message).replace(/\n/g, '<br>');
@@ -1065,6 +1087,37 @@ app.post('/api/unban/appeal', authMiddleware, async (req, res) => {
     }
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Failed to send appeal. Please try again.' }); }
+});
+
+// Whether the logged-in user already has an appeal awaiting review.
+app.get('/api/unban/appeal-status', authMiddleware, async (req, res) => {
+  try {
+    const pending = await BanAppeal.exists({ userId: req.user._id, status: 'pending' });
+    res.json({ pending: !!pending });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Admin: list ban appeals
+app.get('/api/admin-secure/appeals', adminSecureMiddleware, async (req, res) => {
+  try {
+    const { status = 'pending' } = req.query;
+    const filter = status === 'all' ? {} : { status };
+    const appeals = await BanAppeal.find(filter)
+      .populate('userId', 'username email isBanned banType')
+      .sort({ createdAt: -1 }).limit(100);
+    res.json({ appeals });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Admin: mark an appeal resolved
+app.post('/api/admin-secure/appeals/:id/resolve', adminSecureMiddleware, async (req, res) => {
+  try {
+    const { note = '' } = req.body;
+    const appeal = await BanAppeal.findByIdAndUpdate(req.params.id,
+      { status: 'resolved', adminNote: note, resolvedAt: new Date() }, { new: true });
+    if (!appeal) return res.status(404).json({ error: 'Not found' });
+    res.json({ success: true, appeal });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ─── Friend Routes ─────────────────────────────────────────────────────────────
@@ -1421,6 +1474,9 @@ app.post('/api/admin-secure/users/:id/unban', adminSecureMiddleware, async (req,
       $push: { banHistory: { action: 'unban', unbannedBy: 'admin', note, timestamp: new Date() } },
     }, { new: true }).select('-password');
     if (!user) return res.status(404).json({ error: 'User not found' });
+    await BanAppeal.updateMany(
+      { userId: user._id, status: 'pending' },
+      { status: 'resolved', resolvedAt: new Date(), adminNote: 'Auto-resolved — user unbanned' });
     await logAdminAction('unban', user._id, user.username, note || 'Manually unbanned by admin');
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }

@@ -150,7 +150,15 @@ function BanModal({ info, onDismiss }) {
   const [appealText, setAppealText] = useState('')
   const [appealSending, setAppealSending] = useState(false)
   const [appealSent, setAppealSent] = useState(false)
+  const [appealPending, setAppealPending] = useState(false)
   const [appealError, setAppealError] = useState('')
+
+  // On open, check whether this user already has an appeal under review.
+  useEffect(() => {
+    axios.get('/api/unban/appeal-status')
+      .then(({ data }) => setAppealPending(!!data.pending))
+      .catch(() => {})
+  }, [])
 
   const submitAppeal = async () => {
     if (!appealText.trim()) { setAppealError('Please write a message.'); return }
@@ -216,15 +224,15 @@ function BanModal({ info, onDismiss }) {
         {unbanError && <p className="text-red-400 text-xs mb-3">{unbanError}</p>}
 
         {/* Free appeal */}
-        {!showAppeal ? (
+        {(appealPending || appealSent) ? (
+          <div className="mb-4 rounded-xl p-3" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)' }}>
+            <p className="text-emerald-400 text-xs font-semibold">Appeal submitted — under review</p>
+            <p className="text-white/50 text-[11px] mt-1 leading-relaxed">Our team is reviewing your account. You'll hear back by email.</p>
+          </div>
+        ) : !showAppeal ? (
           <button onClick={() => setShowAppeal(true)} className="block w-full text-cyan-400 text-xs font-semibold mb-4 hover:underline">
             Think this was a mistake? Appeal for free
           </button>
-        ) : appealSent ? (
-          <div className="mb-4 rounded-xl p-3" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)' }}>
-            <p className="text-emerald-400 text-xs font-semibold">Appeal sent ✓</p>
-            <p className="text-white/50 text-[11px] mt-1 leading-relaxed">We've received it and will review your account. You'll hear back by email.</p>
-          </div>
         ) : (
           <div className="mb-4 rounded-xl p-3 text-left" style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)' }}>
             <p className="text-white/70 text-[11px] leading-relaxed mb-2">
