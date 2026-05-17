@@ -104,6 +104,28 @@ function VerifiedSeal({ size = 14 }) {
   )
 }
 
+// Custom Owner badge — gold filled crown, shown only for the Vybe owner.
+function OwnerBadge() {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      padding: '6px 12px', borderRadius: 50,
+      background: 'linear-gradient(135deg, rgba(245,158,11,0.22), rgba(245,158,11,0.06))',
+      border: '1px solid rgba(245,158,11,0.5)',
+      color: '#f59e0b', fontSize: 12, lineHeight: '16px', fontWeight: 700,
+      boxShadow: '0 0 12px rgba(245,158,11,0.2)',
+    }}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+        <path d="M2.5 8 L7 12 L12 3.5 L17 12 L21.5 8 L19.3 20 L4.7 20 Z" fill="#f59e0b" />
+        <circle cx="2.5" cy="8" r="1.9" fill="#fbbf24" />
+        <circle cx="21.5" cy="8" r="1.9" fill="#fbbf24" />
+        <circle cx="12" cy="3.5" r="2.1" fill="#fbbf24" />
+      </svg>
+      Owner
+    </span>
+  )
+}
+
 const SOCIAL_PLATFORMS = [
   { key: 'instagram', label: 'Instagram', color: '#ec4899', url: u => `https://instagram.com/${u}`,  domain: 'instagram.com' },
   { key: 'tiktok',    label: 'TikTok',    color: '#e2e8f0', url: u => `https://tiktok.com/@${u}`,    domain: 'tiktok.com'    },
@@ -456,6 +478,7 @@ export default function ProfilePage() {
 
             {/* Status badges — gifter rank + system badges in one row */}
             <div className="flex flex-wrap items-center gap-2 mb-2">
+              {profile.isOwner && <OwnerBadge />}
               {(profile.totalCoinsGifted || 0) > 0 && (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 50, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', fontSize: 12, lineHeight: '16px', fontWeight: 700 }}>
                   <VybeCoin size={11} />

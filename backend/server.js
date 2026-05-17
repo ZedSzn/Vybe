@@ -610,6 +610,7 @@ const serializeUser = (user, extra = {}) => ({
   isPremium:     user.isPremium,
   isVip:         user.isVip,
   isAdmin:       user.isAdmin || user.email === process.env.ADMIN_EMAIL,
+  isOwner:       user.email === process.env.ADMIN_EMAIL,
   isBanned:      user.isBanned,
   banReason:     user.banReason,
   banType:       user.banType,
@@ -1838,7 +1839,7 @@ app.get('/api/user/me', authMiddleware, async (req, res) => {
 
 app.get('/api/user/:id/profile', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats giftsReceived countriesChattedWith isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient bannerImage cameraBackground giftCollection totalCoinsGifted gifterRank');
+    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats giftsReceived countriesChattedWith isPremium isVip emailVerified email privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient bannerImage cameraBackground giftCollection totalCoinsGifted gifterRank');
     if (!user) return res.status(404).json({ error: 'User not found' });
     const friendCount = await Friendship.countDocuments({ $or: [{ requester: user._id }, { recipient: user._id }], status: 'accepted' });
     const isOnline    = [...onlineUsers.values()].some((s) => String(s.userId) === String(user._id));
@@ -1854,6 +1855,7 @@ app.get('/api/user/:id/profile', async (req, res) => {
       countriesCount: (user.countriesChattedWith || []).length,
       isPremium: user.isPremium, isVip: user.isVip,
       emailVerified: user.emailVerified, friendCount, isOnline,
+      isOwner: user.email === process.env.ADMIN_EMAIL,
       equippedBadges: user.equippedBadges || [],
       borderColor: user.borderColor || '',
       animatedBorder: user.animatedBorder || false,
