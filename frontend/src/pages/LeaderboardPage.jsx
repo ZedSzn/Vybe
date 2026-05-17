@@ -17,6 +17,8 @@ const DOT_COLOR   = { 1: '#f59e0b', 2: '#00D4FF', 3: '#7C3AED' }
 const BADGE_BG    = { 1: 'rgba(245,158,11,0.2)', 2: 'rgba(170,170,170,0.15)', 3: 'rgba(205,127,50,0.15)' }
 // Podium avatar sizes.
 const AVATAR_SIZE = { 1: 62, 2: 52, 3: 46 }
+// Podium card heights — steps up toward 1st place.
+const CARD_MINH   = { 1: 180, 2: 150, 3: 130 }
 
 // Gifter-rank label → colour.
 function rankColor(rank) {
@@ -35,14 +37,76 @@ function Avatar({ url, name, size, ring }) {
   )
 }
 
-// Small gold "Weekly Rankings" pill.
+// Gold "Weekly Rankings" pill.
 function GoldBadge() {
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 13px', borderRadius: 50,
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '6px 16px', borderRadius: 50,
       background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)',
-      color: '#f59e0b', fontSize: 10, fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase' }}>
-      <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#f59e0b' }} />
+      color: '#f59e0b', fontSize: 12, fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase' }}>
+      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }} />
       Weekly Rankings
+    </div>
+  )
+}
+
+// One podium card. `entry` may be null → renders an empty placeholder slot.
+function PodiumCard({ entry, place, coinsOf }) {
+  const c = PLACE_COLOR[place]
+  const first = place === 1
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ height: 26, marginBottom: 4, fontSize: 22, lineHeight: 1 }}>{first ? '👑' : ''}</div>
+      <div style={{ position: 'relative', width: '100%', minHeight: CARD_MINH[place], background: '#0d0d1a', borderRadius: 16,
+        border: `1.5px solid ${entry ? c : '#1a1a2e'}`, padding: '28px 8px 16px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        boxShadow: first && entry ? '0 0 26px rgba(245,158,11,0.14)' : 'none' }}>
+        {/* Rank number badge */}
+        <div style={{ position: 'absolute', top: 8, left: 8, width: 20, height: 20, borderRadius: 7,
+          background: BADGE_BG[place], color: c, fontWeight: 800, fontSize: 11,
+          display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {place}
+        </div>
+        {entry ? (
+          <>
+            <Avatar url={entry.avatarUrl} name={entry.username} size={AVATAR_SIZE[place]} ring={c} />
+            <p style={{ color: '#fff', fontWeight: 800, fontSize: 12, marginTop: 8, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {entry.username}
+            </p>
+            <p style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: DOT_COLOR[place], fontWeight: 800, fontSize: 13, marginTop: 5 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: DOT_COLOR[place] }} />
+              {coinsOf(entry).toLocaleString()}
+            </p>
+          </>
+        ) : (
+          <span style={{ color: '#333', fontWeight: 800, fontSize: 26 }}>—</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// "How it works" explainer card.
+function HowItWorks() {
+  const steps = [
+    { icon: '💬', title: 'Start a video chat', sub: 'Match with someone new' },
+    { icon: '🎁', title: 'Send coins as gifts', sub: 'Pick from six gift tiers' },
+    { icon: '🏆', title: 'Climb the rankings',  sub: 'More coins, higher rank' },
+  ]
+  return (
+    <div style={{ marginTop: 20, background: '#0d0d18', border: '1px solid #1a1a2e', borderRadius: 16, padding: 20 }}>
+      <h3 style={{ color: '#fff', fontWeight: 700, fontSize: 13, marginBottom: 14 }}>How to climb the leaderboard</h3>
+      <div style={{ display: 'flex', gap: 10 }}>
+        {steps.map((s) => (
+          <div key={s.title} style={{ flex: 1, textAlign: 'center' }}>
+            <div style={{ fontSize: 22, lineHeight: 1, marginBottom: 7 }}>{s.icon}</div>
+            <p style={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>{s.title}</p>
+            <p style={{ color: '#444', fontWeight: 600, fontSize: 11, marginTop: 2, lineHeight: 1.35 }}>{s.sub}</p>
+          </div>
+        ))}
+      </div>
+      <p style={{ color: '#333', fontSize: 10, fontWeight: 600, textAlign: 'center', marginTop: 16 }}>
+        Rankings reset every Monday at midnight
+      </p>
     </div>
   )
 }
@@ -116,38 +180,15 @@ export default function LeaderboardPage() {
           </div>
         ) : (
           <>
-            {/* Top 3 podium */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8, marginBottom: 26 }}>
-              {[[top3[1], 2], [top3[0], 1], [top3[2], 3]].map(([e, place]) => {
-                if (!e) return <div key={place} style={{ flex: place === 1 ? 1.2 : 1 }} />
-                const c = PLACE_COLOR[place]
-                const first = place === 1
-                return (
-                  <div key={place} style={{ flex: first ? 1.2 : 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    {first && <div style={{ fontSize: 22, lineHeight: 1, marginBottom: 4 }}>👑</div>}
-                    <div style={{ position: 'relative', width: '100%', background: '#0d0d1a', borderRadius: 16,
-                      border: `1.5px solid ${c}`, padding: first ? '28px 8px 16px' : '20px 8px 14px',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center',
-                      boxShadow: first ? '0 0 26px rgba(245,158,11,0.14)' : 'none' }}>
-                      {/* Rank number badge */}
-                      <div style={{ position: 'absolute', top: 8, left: 8, width: 20, height: 20, borderRadius: 7,
-                        background: BADGE_BG[place], color: c, fontWeight: 800, fontSize: 11,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {place}
-                      </div>
-                      <Avatar url={e.avatarUrl} name={e.username} size={AVATAR_SIZE[place]} ring={c} />
-                      <p style={{ color: '#fff', fontWeight: 800, fontSize: 12, marginTop: 8, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {e.username}
-                      </p>
-                      <p style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: DOT_COLOR[place], fontWeight: 800, fontSize: 13, marginTop: 5 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: DOT_COLOR[place] }} />
-                        {coinsOf(e).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                )
-              })}
+            {/* Top 3 podium — 2nd, 1st, 3rd; all slots always render */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 10 }}>
+              <PodiumCard entry={top3[1] || null} place={2} coinsOf={coinsOf} />
+              <PodiumCard entry={top3[0] || null} place={1} coinsOf={coinsOf} />
+              <PodiumCard entry={top3[2] || null} place={3} coinsOf={coinsOf} />
             </div>
+
+            {/* Divider */}
+            <div style={{ borderTop: '1px solid #111122', margin: '1.5rem 0' }} />
 
             {/* All rankings */}
             <p style={{ color: '#2a2a3e', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
@@ -166,9 +207,10 @@ export default function LeaderboardPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: Math.min(i * 0.025, 0.4), duration: 0.3 }}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14,
-                      background: isMe ? 'rgba(0,212,255,0.04)' : '#0d0d1a',
-                      border: `1px solid ${isMe ? 'rgba(0,212,255,0.35)' : '#1a1a2e'}`,
+                      display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 14,
+                      background: isMe ? 'rgba(0,212,255,0.07)' : '#0d0d1a',
+                      border: `${isMe ? '2px' : '1px'} solid ${isMe ? '#00D4FF' : '#1a1a2e'}`,
+                      borderBottom: '1px solid #1a1a2e',
                     }}
                   >
                     <span style={{ width: 22, textAlign: 'center', fontWeight: 800, fontSize: 14, color: numColor, flexShrink: 0 }}>{rank}</span>
@@ -176,14 +218,14 @@ export default function LeaderboardPage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                         <span style={{ color: '#fff', fontWeight: 700, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.username}</span>
-                        {isMe && <span style={{ color: '#00D4FF', fontSize: 9, fontWeight: 700, flexShrink: 0 }}>(you)</span>}
+                        {isMe && <span style={{ color: '#00D4FF', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>(you)</span>}
                       </div>
                       {u.gifterRank && u.gifterRank !== 'Newcomer' && (
-                        <p style={{ color: rankColor(u.gifterRank), fontSize: 10, fontWeight: 700, lineHeight: 1.3 }}>{u.gifterRank}</p>
+                        <p style={{ color: rankColor(u.gifterRank), fontSize: 11, fontWeight: 700, lineHeight: 1.3 }}>{u.gifterRank}</p>
                       )}
                       {unlocked.length > 0 && (
                         <div style={{ display: 'flex', gap: 1, marginTop: 2 }}>
-                          {unlocked.map((g) => <GiftIcon key={g.id} id={g.id} size={13} />)}
+                          {unlocked.map((g) => <GiftIcon key={g.id} id={g.id} size={16} />)}
                         </div>
                       )}
                     </div>
@@ -195,6 +237,8 @@ export default function LeaderboardPage() {
                 )
               })}
             </div>
+
+            <HowItWorks />
           </>
         )}
       </div>
