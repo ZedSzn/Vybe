@@ -1931,7 +1931,7 @@ app.put('/api/user/border', authMiddleware, async (req, res) => {
 app.put('/api/user/cosmetics', authMiddleware, async (req, res) => {
   try {
     const { accentColor, bannerGradient, cameraBackground } = req.body;
-    const ACCENT_COLORS = ['#7c3aed','#1b62f5','#ec4899','#f59e0b','#10b981','#06b6d4',''];
+    const ACCENT_COLORS = ['#00D4FF','#ec4899','#f59e0b','#4ade80','#a78bfa','#06b6d4',''];
     const BANNER_GRADIENTS = ['default','sunset','ocean','forest','ember','aurora','midnight','rose',''];
     const CAMERA_BACKGROUNDS = ['none','custom'];
     const update = {};
