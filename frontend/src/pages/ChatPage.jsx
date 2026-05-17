@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'f
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
   MessageSquare, X, ChevronRight, Shield, ShieldCheck, Loader2, Ban, UserX, UserPlus, Camera, Crown, Zap, Edit2,
-  ChevronDown, Lock, Globe,
+  ChevronDown, Lock, Globe, Gift,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -190,6 +190,36 @@ const REPORT_REASONS = [
   { id: 'other',      label: '📋 Other' },
 ]
 
+// Gift catalog — must mirror the backend GIFTS map (icons included).
+const GIFTS = [
+  { id: 'spark', name: 'Spark',         icon: '✨', cost: 75  },
+  { id: 'star',  name: 'Shooting Star', icon: '🌠', cost: 120 },
+  { id: 'flame', name: 'Flame',         icon: '🔥', cost: 250 },
+  { id: 'orb',   name: 'Lightning Orb', icon: '🔮', cost: 480 },
+  { id: 'crown', name: 'Cosmic Crown',  icon: '👑', cost: 950 },
+]
+
+// Floating gift-icon animation, rendered over a camera panel.
+function GiftFx({ anims }) {
+  return (
+    <AnimatePresence>
+      {anims.map(({ id, icon }) => (
+        <motion.div
+          key={id}
+          className="absolute z-30 pointer-events-none select-none"
+          style={{ left: '50%', bottom: 70, fontSize: 52, translateX: '-50%' }}
+          initial={{ y: 0, opacity: 1, scale: 0.4 }}
+          animate={{ y: -300, opacity: 0, scale: 1.5 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {icon}
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  )
+}
+
 export default function ChatPage() {
   const navigate  = useNavigate()
   const location  = useLocation()
@@ -250,7 +280,11 @@ export default function ChatPage() {
   const [selfViewExpanded, setSelfViewExpanded] = useState(true)
   const [duoPipExpanded,   setDuoPipExpanded]   = useState(false)
   const [tipIdx,           setTipIdx]           = useState(0)
-  const [giftAnimations,   setGiftAnimations]   = useState([])   // [{id, emoji}]
+  const [giftAnimations,   setGiftAnimations]   = useState([])   // [{ id, icon, target: 'stranger'|'partner' }]
+  const [showGift,         setShowGift]         = useState(false) // gift modal open
+  const [giftStep,         setGiftStep]         = useState('gifts') // 'recipient' | 'gifts'
+  const [giftRecipient,    setGiftRecipient]    = useState(null) // 'stranger' | 'partner'
+  const [giftSending,      setGiftSending]      = useState(false)
   const [partnerCountry,   setPartnerCountry]   = useState(null)
   const [chatFilterGender,  setChatFilterGender]  = useState(prefs.filterGender === 'male' || prefs.filterGender === 'female' ? prefs.filterGender : 'both')
   const [chatFilterCountry, setChatFilterCountry] = useState(prefs.filterCountry || '')
@@ -721,6 +755,20 @@ export default function ChatPage() {
         playTipSent()
       })
 
+      // Gift broadcast — every participant in the room sees the animation
+      socket.on('gift_sent', ({ recipientSocketId, senderId, giftIcon, senderName, giftName }) => {
+        if (!mounted) return
+        const target = squadMatesRef.current.includes(recipientSocketId) ? 'partner' : 'stranger'
+        const id = Date.now() + Math.random()
+        setGiftAnimations((prev) => [...prev, { id, icon: giftIcon, target }])
+        setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2600)
+        // Toast for everyone except the sender (who already knows)
+        if (senderName && String(senderId) !== String(user?.id)) {
+          setTipFeedback({ type: 'success', msg: `${giftIcon} ${senderName} sent a ${giftName}` })
+          setTimeout(() => setTipFeedback(null), 3500)
+        }
+      })
+
       socket.on('tip-error', ({ message }) => {
         if (!mounted) return
         setTipFeedback({ type: 'error', msg: message })
@@ -802,14 +850,47 @@ export default function ChatPage() {
     setChatCountrySearch('')
   }
 
-  const sendReaction = (emoji) => {
+  // Open the gift flow — duo mode picks a recipient first, solo goes straight to gifts.
+  const openGiftFlow = () => {
     if (status !== 'matched') return
-    const id = Date.now() + Math.random()
-    setGiftAnimations((prev) => [...prev, { id, emoji }])
-    setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2400)
-    if (user && partnerSockRef.current && coins >= 5) {
-      socketRef.current?.emit('send-tip', { amount: 5, recipientSocketId: partnerSockRef.current })
+    if (isDuoMode) {
+      setGiftRecipient(null)
+      setGiftStep('recipient')
+    } else {
+      setGiftRecipient('stranger')
+      setGiftStep('gifts')
     }
+    setShowGift(true)
+  }
+
+  const sendGift = async (gift) => {
+    if (giftSending) return
+    const recipientSocketId = giftRecipient === 'partner'
+      ? (mateSocketIds[0] || persistentMateId)
+      : (opponentSocketIds[0] || partnerSock)
+    if (!recipientSocketId) {
+      setTipFeedback({ type: 'error', msg: 'No one to gift right now' })
+      setTimeout(() => setTipFeedback(null), 3000)
+      return
+    }
+    if (coins < gift.cost) {
+      setTipFeedback({ type: 'error', msg: `Not enough coins for ${gift.name}` })
+      setTimeout(() => setTipFeedback(null), 3000)
+      return
+    }
+    setGiftSending(true)
+    try {
+      const { data } = await axios.post('/api/user/send-gift', {
+        giftId: gift.id, recipientSocketId, room: roomId,
+      })
+      if (data?.coins !== undefined) setCoins(data.coins)
+      setShowGift(false)
+      playTipSent()
+    } catch (err) {
+      setTipFeedback({ type: 'error', msg: err.response?.data?.error || 'Gift failed' })
+      setTimeout(() => setTipFeedback(null), 3500)
+    }
+    setGiftSending(false)
   }
 
   const handleEnd = () => {
@@ -1141,6 +1222,71 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
+        {/* Gift modal — recipient picker (duo) then gift catalog */}
+        <AnimatePresence>
+          {showGift && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-end justify-center px-4"
+              style={{ background: 'rgba(0,0,0,0.7)', paddingBottom: 80 }} onClick={() => setShowGift(false)}>
+              <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm"
+                style={{ background: 'rgba(13,13,24,0.95)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 16, padding: 16, fontFamily: "'Sora', system-ui, sans-serif" }}>
+
+                {giftStep === 'recipient' ? (
+                  <>
+                    <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
+                      <p style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>Who do you want to gift?</p>
+                      <button onClick={() => setShowGift(false)} className="text-white/40 hover:text-white"><X size={15} /></button>
+                    </div>
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <button type="button" onClick={() => setGiftRecipient('stranger')}
+                        style={{ flex: 1, padding: 5, borderRadius: 14, background: 'transparent', border: giftRecipient === 'stranger' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
+                        <ProfilePill username={partnerUsername || 'Stranger'} avatarUrl={partnerAvatar} isOnline isVerified={!!partnerEmailVerified} friendStatus="self" />
+                      </button>
+                      <button type="button" onClick={() => setGiftRecipient('partner')}
+                        style={{ flex: 1, padding: 5, borderRadius: 14, background: 'transparent', border: giftRecipient === 'partner' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
+                        <ProfilePill username="Partner" isOnline friendStatus="self" />
+                      </button>
+                    </div>
+                    {giftRecipient && (
+                      <motion.button type="button" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                        onClick={() => setGiftStep('gifts')}
+                        style={{ width: '100%', marginTop: 14, padding: '11px 0', borderRadius: 50, background: '#00D4FF', color: '#0a0a0f', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer' }}>
+                        Send Gift
+                      </motion.button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
+                      <p style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>
+                        {isDuoMode ? `Gift the ${giftRecipient === 'partner' ? 'Partner' : 'Stranger'}` : 'Send a gift'}
+                      </p>
+                      <button onClick={() => isDuoMode ? setGiftStep('recipient') : setShowGift(false)} className="text-white/40 hover:text-white">
+                        <X size={15} />
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {GIFTS.map((g) => {
+                        const afford = coins >= g.cost
+                        return (
+                          <button key={g.id} type="button" onClick={() => afford && !giftSending && sendGift(g)} disabled={!afford || giftSending}
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,212,255,0.15)', cursor: afford && !giftSending ? 'pointer' : 'not-allowed', opacity: afford ? 1 : 0.45, width: '100%' }}>
+                            <span style={{ fontSize: 26 }}>{g.icon}</span>
+                            <span style={{ color: '#fff', fontWeight: 700, fontSize: 13, flex: 1, textAlign: 'left' }}>{g.name}</span>
+                            <span style={{ color: '#00D4FF', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}><VybeCoin size={11} />{g.cost}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <p className="text-white/35 text-center" style={{ fontSize: 11, marginTop: 12 }}>Your balance: {coins.toLocaleString()} coins</p>
+                  </>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* ── Init overlay (camera starting) ───────────────────────── */}
         <AnimatePresence>
           {status === 'init' && (
@@ -1446,6 +1592,17 @@ export default function ChatPage() {
             </motion.button>
           )}
 
+          {/* Mobile Gift — top left, below coins */}
+          {user && status === 'matched' && (
+            <motion.button
+              onClick={openGiftFlow}
+              whileTap={{ scale: 0.92 }}
+              style={{ position: 'absolute', top: 'max(94px, env(safe-area-inset-top, 0px) + 92px)', left: 12, zIndex: 6, background: 'rgba(0,212,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.28)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <Gift size={13} style={{ color: '#00D4FF' }} />
+              <span style={{ color: '#00D4FF', fontSize: 11, fontWeight: 700 }}>Gift</span>
+            </motion.button>
+          )}
+
           {/* Mobile Report — bottom left */}
           {status === 'matched' && (
             <motion.button
@@ -1472,21 +1629,7 @@ export default function ChatPage() {
 
 
           {/* Mobile gift animations */}
-          <AnimatePresence>
-            {giftAnimations.map(({ id, emoji }) => (
-              <motion.div
-                key={id}
-                className="absolute z-[7] pointer-events-none select-none"
-                style={{ left: '50%', bottom: 120, fontSize: 44, translateX: '-50%' }}
-                initial={{ y: 0, opacity: 1, scale: 0.5 }}
-                animate={{ y: -280, opacity: 0, scale: 1.3 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {emoji}
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          <GiftFx anims={giftAnimations} />
 
           {/* Draggable PiP self-view — solo mode only */}
           {!isDuoMode && (
@@ -1872,22 +2015,8 @@ export default function ChatPage() {
                   </motion.div>
                 )}
 
-                {/* Gift floating animations */}
-                <AnimatePresence>
-                  {giftAnimations.map(({ id, emoji }) => (
-                    <motion.div
-                      key={id}
-                      className="absolute z-20 pointer-events-none select-none"
-                      style={{ left: '50%', bottom: 80, fontSize: 48, translateX: '-50%' }}
-                      initial={{ y: 0, opacity: 1, scale: 0.5 }}
-                      animate={{ y: -320, opacity: 0, scale: 1.4 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                      {emoji}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                {/* Gift floating animations — over the stranger panel */}
+                <GiftFx anims={giftAnimations.filter((a) => a.target === 'stranger')} />
 
                 {/* Partner identity overlay — top left */}
                 <AnimatePresence>
@@ -1997,6 +2126,8 @@ export default function ChatPage() {
                         </>
                       )
                     })()}
+                    {/* Gift floating animations — over the duo partner panel */}
+                    <GiftFx anims={giftAnimations.filter((a) => a.target === 'partner')} />
                   </div>
                 </div>
               ) : (
@@ -2130,6 +2261,15 @@ export default function ChatPage() {
                 style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', borderRadius: 50, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', cursor: 'pointer', transition: 'background 150ms ease', flexShrink: 0 }}>
                 <VybeCoin size={14} style={{ color: '#00D4FF' }} />
                 <span style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>{coins.toLocaleString()}</span>
+              </motion.button>
+
+              {/* Send Gift */}
+              <motion.button
+                onClick={openGiftFlow}
+                whileHover={status === 'matched' ? { background: 'rgba(0,212,255,0.18)' } : {}}
+                whileTap={status === 'matched' ? { scale: 0.93 } : {}}
+                style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', borderRadius: 50, background: 'rgba(0,212,255,0.1)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(0,212,255,0.25)', color: '#00D4FF', fontSize: 13, fontWeight: 700, cursor: status === 'matched' ? 'pointer' : 'default', opacity: status === 'matched' ? 1 : 0.4, transition: 'background 150ms ease', flexShrink: 0 }}>
+                <Gift size={14} /> Gift
               </motion.button>
 
               {/* Gender */}

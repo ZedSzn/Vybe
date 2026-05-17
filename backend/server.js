@@ -1834,11 +1834,11 @@ app.post('/api/user/watch-ad', authMiddleware, async (req, res) => {
 });
 
 const GIFTS = {
-  spark:  { name: 'Spark',         cost: 75,  rarity: 'common',    label: 'Common'    },
-  star:   { name: 'Shooting Star', cost: 120, rarity: 'common',    label: 'Common'    },
-  flame:  { name: 'Flame',         cost: 250, rarity: 'rare',      label: 'Rare'      },
-  orb:    { name: 'Lightning Orb', cost: 480, rarity: 'epic',      label: 'Epic'      },
-  crown:  { name: 'Cosmic Crown',  cost: 950, rarity: 'legendary', label: 'Legendary' },
+  spark:  { name: 'Spark',         cost: 75,  rarity: 'common',    label: 'Common',    icon: '✨' },
+  star:   { name: 'Shooting Star', cost: 120, rarity: 'common',    label: 'Common',    icon: '🌠' },
+  flame:  { name: 'Flame',         cost: 250, rarity: 'rare',      label: 'Rare',      icon: '🔥' },
+  orb:    { name: 'Lightning Orb', cost: 480, rarity: 'epic',      label: 'Epic',      icon: '🔮' },
+  crown:  { name: 'Cosmic Crown',  cost: 950, rarity: 'legendary', label: 'Legendary', icon: '👑' },
 };
 
 const BADGE_DEFS = [
@@ -2010,7 +2010,7 @@ app.post('/api/contact', async (req, res) => {
 });
 app.post('/api/user/send-gift', authMiddleware, async (req, res) => {
   try {
-    const { giftId, recipientSocketId } = req.body;
+    const { giftId, recipientSocketId, room } = req.body;
     const gift = GIFTS[giftId];
     if (!gift) return res.status(400).json({ error: 'Invalid gift' });
     const sender = await User.findById(req.user._id).select('coins username');
@@ -2020,18 +2020,21 @@ app.post('/api/user/send-gift', authMiddleware, async (req, res) => {
       $push: { coinHistory: { $each: [{ amount: -gift.cost, reason: `Sent gift: ${gift.name}`, type: 'gift', timestamp: new Date() }], $slice: -200 } },
     });
     const recipientData = onlineUsers.get(recipientSocketId);
-    const payload = { gift: gift.name, rarity: gift.rarity, giftId, from: sender.username };
-    // Notify recipient
-    io.to(recipientSocketId).emit('gift-received', payload);
-    // Award notification to recipient if logged in
+    const payload = {
+      giftId,
+      recipientSocketId,
+      senderId:   String(req.user._id),
+      senderName: sender.username,
+      giftName:   gift.name,
+      giftIcon:   gift.icon,
+    };
+    // Broadcast to the whole room so every participant sees the animation;
+    // fall back to the recipient's socket if no room was supplied.
+    if (room) io.to(room).emit('gift_sent', payload);
+    else      io.to(recipientSocketId).emit('gift_sent', payload);
+    // Notification for the recipient if they're a logged-in user
     if (recipientData?.userId) {
-      await createNotification(recipientData.userId, 'coin_reward', `${gift.emoji} Gift received!`, `${sender.username} sent you a ${gift.name}`);
-    }
-    // Emit to sender's socket too so both screens show the animation
-    for (const [socketId, data] of onlineUsers.entries()) {
-      if (String(data.userId) === String(req.user._id)) {
-        io.to(socketId).emit('gift-sent', payload);
-      }
+      await createNotification(recipientData.userId, 'coin_reward', `${gift.icon} Gift received!`, `${sender.username} sent you a ${gift.name}`);
     }
     const updated = await User.findById(req.user._id).select('coins');
     res.json({ success: true, coins: updated.coins });
