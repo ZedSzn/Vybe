@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { getBannerStyle } from '../utils/bannerUtils'
 import ProfilePill from '../components/ProfilePill'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
@@ -194,6 +195,8 @@ export default function ChatPage() {
   const navigate  = useNavigate()
   const location  = useLocation()
   const { user }  = useAuth()
+  const bannerStyle = getBannerStyle(user)
+  const bannerImage = user?.bannerImage || null
   // Custom image shown in place of the camera when no webcam is available.
   const camBgImage  = user?.cameraBackground === 'custom' ? (user?.cameraBackgroundImage || null) : null
 
@@ -1773,6 +1776,8 @@ export default function ChatPage() {
                     isOnline
                     isVerified={!!user?.emailVerified}
                     friendStatus="self"
+                    bannerStyle={bannerStyle}
+                    bannerImage={bannerImage}
                   />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
@@ -1953,6 +1958,8 @@ export default function ChatPage() {
                         isOnline
                         isVerified={!!user?.emailVerified}
                         friendStatus="self"
+                        bannerStyle={bannerStyle}
+                        bannerImage={bannerImage}
                       />
                     </div>
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
@@ -2030,6 +2037,8 @@ export default function ChatPage() {
                       isOnline
                       isVerified={!!user?.emailVerified}
                       friendStatus="self"
+                      bannerStyle={bannerStyle}
+                      bannerImage={bannerImage}
                     />
                   </div>
 

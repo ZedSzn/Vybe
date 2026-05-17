@@ -1,5 +1,5 @@
 /**
- * ProfilePill — compact glass identity chip for the Vybe app (overlay size).
+ * ProfilePill — compact identity chip for the Vybe app (overlay size).
  *
  * <ProfilePill
  *   username="ZZ_NZ"
@@ -20,9 +20,9 @@
  *   friendStatus : 'none' | 'pending' | 'friends' | 'self'
  *                  ('self' = the current user's own pill — hides the + button)
  *   onAddFriend  : () => void   (parent owns the friendStatus state)
- *
- * On the chat page, place inside the camera-panel wrapper:
- *   <div style={{ position: 'absolute', top: 10, left: 10 }}><ProfilePill .../></div>
+ *   bannerStyle  : string  (optional — CSS background; used as the pill background
+ *                           instead of the default glass style, e.g. the user's banner)
+ *   bannerImage  : string  (optional — image layered over bannerStyle)
  */
 
 const ACCENT  = '#00D4FF'
@@ -62,25 +62,29 @@ export default function ProfilePill({
   country = '',
   friendStatus = 'none',
   onAddFriend,
+  bannerStyle,
+  bannerImage,
 }) {
   const initials   = (username.trim() || '?').slice(0, 2).toUpperCase()
   const showButton = friendStatus !== 'self'
   const locked     = friendStatus === 'pending' || friendStatus === 'friends'
   const btn        = FRIEND_BTN[friendStatus] || FRIEND_BTN.none
+  const useBanner  = !!bannerStyle
 
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '4px 8px 4px 4px',
-        borderRadius: 50,
-        background: 'rgba(255,255,255,0.07)',
-        border: '1px solid rgba(0,212,255,0.3)',
-        fontFamily: "'Sora', system-ui, sans-serif",
-      }}
-    >
+  const container = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '4px 8px 4px 4px',
+    borderRadius: 50,
+    fontFamily: "'Sora', system-ui, sans-serif",
+    ...(useBanner
+      ? { position: 'relative', overflow: 'hidden', background: bannerStyle, border: '1px solid rgba(255,255,255,0.18)' }
+      : { background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(0,212,255,0.3)' }),
+  }
+
+  const content = (
+    <>
       {/* Avatar + online dot */}
       <div style={{ position: 'relative', width: 24, height: 24, flexShrink: 0 }}>
         {avatarUrl ? (
@@ -120,7 +124,7 @@ export default function ProfilePill({
           {username || 'User'}
         </span>
         {country && (
-          <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600, fontSize: 9, lineHeight: 1, whiteSpace: 'nowrap' }}>
+          <span style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 600, fontSize: 9, lineHeight: 1, whiteSpace: 'nowrap' }}>
             {country}
           </span>
         )}
@@ -153,6 +157,17 @@ export default function ProfilePill({
           {btn.glyph}
         </button>
       )}
+    </>
+  )
+
+  return (
+    <div style={container}>
+      {useBanner && bannerImage && (
+        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+      )}
+      {useBanner
+        ? <div style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: 6 }}>{content}</div>
+        : content}
     </div>
   )
 }
