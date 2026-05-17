@@ -486,7 +486,7 @@ export default function ProfilePage() {
             {/* Gifter rank badge */}
             {(profile.totalCoinsGifted || 0) > 0 && (
               <div className="flex items-center flex-wrap gap-2 mb-2.5">
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 50, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', fontSize: 11, fontWeight: 700 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 50, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', fontSize: 12, fontWeight: 700 }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', flexShrink: 0 }} />
                   {profile.gifterRank || 'Newcomer'}
                 </span>
