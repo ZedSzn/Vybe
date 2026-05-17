@@ -481,11 +481,11 @@ export default function MainPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
-            style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)' }}
+            className="inline-flex items-center gap-2"
+            style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 20, padding: '6px 14px' }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
-            <span className="text-[10px] font-black tracking-[0.14em] uppercase" style={{ color: '#00B8E0' }}>Live · Random · Real</span>
+            <span className="text-[10px] tracking-[0.14em] uppercase" style={{ color: '#00B8E0', fontFamily: "'Sora', system-ui, sans-serif", fontWeight: 700 }}>Live · Random · Real</span>
           </motion.div>
         </div>
 
