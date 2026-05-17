@@ -376,7 +376,7 @@ export default function EarnPage() {
         >
           <Star size={24} style={{ color: '#00D4FF', margin: '0 auto 10px' }} />
           <p style={{ color: 'white', fontWeight: 900, fontSize: 18, marginBottom: 6 }}>1,000 coins ≈ £4.20</p>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>You keep <span style={{ color: 'white', fontWeight: 700 }}>70%</span> of every gift. No caps. Cash out any time you hit 1,000 coins (≈ £4.20).</p>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>You keep <span style={{ color: 'white', fontWeight: 700 }}>70%</span> of every gift after a flat <span style={{ color: 'white', fontWeight: 700 }}>30% platform fee</span>. No caps. Cash out any time you hit 1,000 coins (≈ £4.20).</p>
         </motion.div>
 
         {/* Comparison table */}
