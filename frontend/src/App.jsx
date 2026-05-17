@@ -132,16 +132,70 @@ function WarningModal({ message, onDismiss }) {
 
 function BanModal({ info, onDismiss }) {
   const expires = info.banExpiresAt ? new Date(info.banExpiresAt).toLocaleString() : null
+  const isPermanent = info.banType === 'permanent'
+  const [unbanLoading, setUnbanLoading] = useState(false)
+  const [unbanError, setUnbanError] = useState('')
+
+  const handleUnban = async () => {
+    setUnbanLoading(true)
+    setUnbanError('')
+    try {
+      const { data } = await axios.post('/api/unban/create-session')
+      if (data.url) { window.location.href = data.url; return }
+      setUnbanError('Could not start checkout — try again.')
+    } catch (e) {
+      setUnbanError(e.response?.data?.error || 'Could not start checkout — try again.')
+    }
+    setUnbanLoading(false)
+  }
+
+  const appealHref = 'mailto:support@vybelivechat.com'
+    + '?subject=' + encodeURIComponent('Ban appeal')
+    + '&body=' + encodeURIComponent(
+        `I'd like to appeal my ban.\n\nReason given: ${info.reason || '—'}\n\nWhy I think this was a mistake:\n`)
+
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
       <div className="w-full max-w-sm rounded-2xl p-6 text-center" style={{ background: 'rgba(10,0,0,0.98)', border: '1px solid rgba(239,68,68,0.4)', boxShadow: '0 0 60px rgba(239,68,68,0.2)' }}>
         <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)' }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
         </div>
-        <p className="text-red-400 text-xs font-black uppercase tracking-widest mb-2">Account Suspended</p>
-        <p className="text-white text-sm leading-relaxed mb-2">{info.reason}</p>
-        {expires && <p className="text-red-400/60 text-xs mb-5">Expires: {expires}</p>}
-        {!expires && info.banType === 'permanent' && <p className="text-red-400/60 text-xs mb-5">This ban is permanent.</p>}
+        <p className="text-red-400 text-xs font-black uppercase tracking-widest mb-3">Account Suspended</p>
+
+        {/* Reason */}
+        <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">Reason</p>
+        <p className="text-white text-sm leading-relaxed mb-3">{info.reason}</p>
+
+        {/* Timing */}
+        {isPermanent ? (
+          <p className="text-red-400/70 text-xs mb-5">This ban is <span className="font-bold">permanent</span>.</p>
+        ) : expires ? (
+          <p className="text-red-400/70 text-xs mb-5">Your ban lifts automatically on<br /><span className="text-white font-semibold">{expires}</span></p>
+        ) : (
+          <p className="text-red-400/70 text-xs mb-5">Your ban will lift after the suspension period.</p>
+        )}
+
+        {/* Optional paid unban — not available for permanent bans */}
+        {!isPermanent && (
+          <>
+            <button onClick={handleUnban} disabled={unbanLoading}
+              className="w-full py-3 rounded-xl font-black text-sm mb-1.5 disabled:opacity-50 transition-all"
+              style={{ background: '#00D4FF', color: '#0a0a0f' }}>
+              {unbanLoading ? 'Starting…' : 'Remove ban now — £4.99'}
+            </button>
+            <p className="text-white/30 text-[10px] leading-relaxed mb-3">
+              Optional. Restores your account instantly — or wait out the ban above for free.
+            </p>
+          </>
+        )}
+
+        {unbanError && <p className="text-red-400 text-xs mb-3">{unbanError}</p>}
+
+        {/* Free appeal */}
+        <a href={appealHref} className="block text-cyan-400 text-xs font-semibold mb-4 hover:underline">
+          Think this was a mistake? Appeal for free
+        </a>
+
         <button onClick={onDismiss} className="w-full py-3 rounded-xl text-white font-black text-sm" style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)' }}>OK</button>
       </div>
     </div>
