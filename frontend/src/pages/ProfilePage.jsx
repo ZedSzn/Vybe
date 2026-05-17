@@ -821,7 +821,7 @@ export default function ProfilePage() {
                       style={{
                         width: 44, height: 44, borderRadius: 12, flexShrink: 0,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: isUnlocked ? '#0a0a1a' : '#0d0d0d',
+                        background: '#0a0a1a',
                         border: `1.5px solid ${isUnlocked ? g.color : '#1a1a1a'}`,
                         filter: isUnlocked ? 'none' : 'grayscale(1)',
                         opacity: isUnlocked ? 1 : 0.35,

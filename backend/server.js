@@ -2076,17 +2076,20 @@ app.post('/api/user/send-gift', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ─── Weekly Gifter Leaderboard ────────────────────────────────────────────────
+// ─── Gifter Leaderboard ───────────────────────────────────────────────────────
 app.get('/api/leaderboard/gifters', async (req, res) => {
   try {
-    const users = await User.find({ weeklyCoinsGifted: { $gt: 0 } })
-      .sort({ weeklyCoinsGifted: -1 })
+    const allTime   = req.query.period === 'alltime';
+    const sortField = allTime ? 'totalCoinsGifted' : 'weeklyCoinsGifted';
+    const users = await User.find({ [sortField]: { $gt: 0 } })
+      .sort({ [sortField]: -1 })
       .limit(50)
-      .select('username avatar weeklyCoinsGifted giftCollection gifterRank');
+      .select('username avatar weeklyCoinsGifted totalCoinsGifted giftCollection gifterRank');
     res.json({ leaders: users.map((u) => ({
       username:          u.username,
       avatarUrl:         u.avatar || '',
       weeklyCoinsGifted: u.weeklyCoinsGifted || 0,
+      totalCoinsGifted:  u.totalCoinsGifted || 0,
       giftCollection:    u.giftCollection || [],
       gifterRank:        u.gifterRank || 'Newcomer',
     })) });
