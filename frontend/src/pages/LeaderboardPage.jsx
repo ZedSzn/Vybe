@@ -53,7 +53,6 @@ export default function LeaderboardPage() {
   const meName = user?.username
 
   useEffect(() => {
-    setLoading(true)
     axios.get(`/api/leaderboard/gifters?period=${period}`)
       .then(({ data }) => setLeaders(data.leaders || []))
       .catch(() => setLeaders([]))
