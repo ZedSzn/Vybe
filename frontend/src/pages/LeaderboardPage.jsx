@@ -6,11 +6,12 @@ import axios from 'axios'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import VybeCoin from '../components/VybeCoin'
+import { GiftIcon, GIFTS } from '../components/GiftIcon'
 
 const SORA = "'Sora', system-ui, sans-serif"
 
 // Gift catalog order — ids must match the user's giftCollection values.
-const GIFT_ORDER = ['small-vybe', 'vybe', 'big-vybe', 'mega-vybe', 'ultra-vybe', 'legendary-vybe']
+const GIFT_ORDER = GIFTS.map((g) => g.id)
 
 // Tinted wrapper styles per gift colour family.
 const TINT = {
@@ -19,51 +20,9 @@ const TINT = {
   gold:   { background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.5)' },
 }
 
-// Stroke-only gift box SVGs — thick strokes for visibility at small sizes.
-const GIFT_SVG = {
-  'small-vybe': { tint: 'cyan', svg: (
-    <>
-      <rect x="10" y="22" width="28" height="20" rx="2" fill="none" stroke="#00D4FF" strokeWidth="4" />
-      <rect x="8" y="18" width="32" height="6" rx="1.5" fill="none" stroke="#00D4FF" strokeWidth="4" />
-      <line x1="24" y1="18" x2="24" y2="42" stroke="#00D4FF" strokeWidth="4" />
-    </>
-  ) },
-  'vybe': { tint: 'purple', svg: (
-    <>
-      <rect x="9" y="22" width="30" height="21" rx="2" fill="none" stroke="#a78bfa" strokeWidth="4" />
-      <rect x="7" y="17" width="34" height="7" rx="1.5" fill="none" stroke="#a78bfa" strokeWidth="4" />
-      <line x1="24" y1="17" x2="24" y2="43" stroke="#a78bfa" strokeWidth="4" />
-    </>
-  ) },
-  'big-vybe': { tint: 'cyan', svg: (
-    <>
-      <rect x="8" y="21" width="32" height="22" rx="2" fill="none" stroke="#00D4FF" strokeWidth="4" />
-      <rect x="6" y="16" width="36" height="7" rx="1.5" fill="none" stroke="#00D4FF" strokeWidth="4" />
-      <line x1="24" y1="16" x2="24" y2="43" stroke="#a78bfa" strokeWidth="4" />
-    </>
-  ) },
-  'mega-vybe': { tint: 'purple', svg: (
-    <>
-      <rect x="7" y="20" width="34" height="23" rx="2.5" fill="none" stroke="#a78bfa" strokeWidth="4" />
-      <rect x="5" y="15" width="38" height="7" rx="2" fill="none" stroke="#a78bfa" strokeWidth="4" />
-      <line x1="24" y1="15" x2="24" y2="43" stroke="#00D4FF" strokeWidth="4" />
-    </>
-  ) },
-  'ultra-vybe': { tint: 'gold', svg: (
-    <>
-      <rect x="6" y="19" width="36" height="24" rx="3" fill="none" stroke="#f59e0b" strokeWidth="4" />
-      <rect x="4" y="14" width="40" height="7" rx="2" fill="none" stroke="#f59e0b" strokeWidth="4" />
-      <line x1="24" y1="14" x2="24" y2="43" stroke="#f59e0b" strokeWidth="4" />
-    </>
-  ) },
-  'legendary-vybe': { tint: 'gold', svg: (
-    <>
-      <rect x="5" y="18" width="38" height="25" rx="3" fill="none" stroke="#f59e0b" strokeWidth="4" />
-      <rect x="3" y="13" width="42" height="7" rx="2" fill="none" stroke="#f59e0b" strokeWidth="4" />
-      <line x1="24" y1="13" x2="24" y2="43" stroke="#f59e0b" strokeWidth="4" />
-    </>
-  ) },
-}
+// Each gift's wrapper tint, derived from its catalog colour.
+const COLOR_TINT = { '#00D4FF': 'cyan', '#7C3AED': 'purple', '#f59e0b': 'gold' }
+const GIFT_TINT = Object.fromEntries(GIFTS.map((g) => [g.id, COLOR_TINT[g.color] || 'cyan']))
 
 // Per-place podium styling.
 const PODIUM = {
@@ -91,12 +50,12 @@ function rankColor(rank) {
 
 // A single gift icon in its tinted wrapper.
 function GiftBadge({ id, wrap, svg }) {
-  const def = GIFT_SVG[id]
-  if (!def) return null
+  const tint = GIFT_TINT[id]
+  if (!tint) return null
   return (
     <div style={{ width: wrap, height: wrap, borderRadius: 5, flexShrink: 0,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', ...TINT[def.tint] }}>
-      <svg width={svg} height={svg} viewBox="0 0 48 48" fill="none">{def.svg}</svg>
+      display: 'flex', alignItems: 'center', justifyContent: 'center', ...TINT[tint] }}>
+      <GiftIcon id={id} size={svg} />
     </div>
   )
 }
@@ -170,7 +129,7 @@ function PodiumCard({ entry, place, coinsOf }) {
             </p>
             {place === 1 && (
               <div style={{ marginTop: 'auto', paddingTop: 10 }}>
-                <GiftRow collection={entry.giftCollection} wrap={24} svg={14} />
+                <GiftRow collection={entry.giftCollection} wrap={24} svg={18} />
               </div>
             )}
           </>
@@ -291,7 +250,7 @@ export default function LeaderboardPage() {
                         <p style={{ color: rankColor(u.gifterRank), fontSize: 10, fontWeight: 700, lineHeight: 1.3 }}>{u.gifterRank}</p>
                       )}
                       <div style={{ marginTop: 3 }}>
-                        <GiftRow collection={u.giftCollection} wrap={20} svg={12} />
+                        <GiftRow collection={u.giftCollection} wrap={20} svg={15} />
                       </div>
                     </div>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#f59e0b', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>
