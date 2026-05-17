@@ -2255,7 +2255,7 @@ app.post('/api/admin-secure/cashout/:id/approve', adminSecureMiddleware, async (
     ).populate('userId', '_id username email');
     if (!request) return res.status(404).json({ error: 'Not found' });
     await createNotification(request.userId._id, 'coin_reward', '✅ Cash out approved!',
-      `Your cash out of £${request.gbpAmount.toFixed(2)} was approved and will be sent to ${request.paypalEmail}`);
+      `Your cash out of £${request.gbpAmount.toFixed(2)} was approved and will be sent to ${request.paypalEmail}.${note ? ` Note: ${note}` : ''}`);
     res.json({ success: true, request });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
