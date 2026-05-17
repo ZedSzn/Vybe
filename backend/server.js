@@ -2814,6 +2814,21 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
 io.on('connection', (socket) => {
   console.log(`🔌 ${socket.id}`);
 
+  // User dismissed their warning modal — mark all their warnings read
+  // so they don't reappear on the next login.
+  socket.on('warnings-seen', async () => {
+    try {
+      const userId = onlineUsers.get(socket.id)?.userId;
+      if (!userId || !dbConnected) return;
+      const u = await User.findById(userId).select('warnings');
+      if (u?.warnings?.length) {
+        await User.updateOne({ _id: userId }, {
+          $set: { warnings: u.warnings.map((w) => ({ _id: w._id, message: w.message, issuedAt: w.issuedAt, read: true })) },
+        });
+      }
+    } catch {}
+  });
+
   socket.on('register', async (data) => {
     let boostedUntil = null;
     // Verify JWT token if provided — prevents identity spoofing

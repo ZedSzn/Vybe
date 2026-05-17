@@ -14,6 +14,7 @@ function pingBackend() {
 export function SocketProvider({ children }) {
   const { user, refreshUser } = useAuth()
   const [socket, setSocket] = useState(null)
+  const socketRef = useRef(null)
   const [isConnected, setIsConnected] = useState(false)
   const [onlineCount, setOnlineCount] = useState(0)
   const [pendingWarnings, setPendingWarnings] = useState([])
@@ -82,15 +83,20 @@ export function SocketProvider({ children }) {
       refreshUser()
     })
 
+    socketRef.current = s
     setSocket(s)
 
     return () => {
       s.disconnect()
+      socketRef.current = null
       setSocket(null)
     }
   }, [user?.id]) // eslint-disable-line — only reconnect on identity change
 
-  const dismissWarning      = useCallback(() => setPendingWarnings(prev => prev.slice(1)), [])
+  const dismissWarning      = useCallback(() => {
+    socketRef.current?.emit('warnings-seen')
+    setPendingWarnings(prev => prev.slice(1))
+  }, [])
   const dismissAnnouncement = useCallback(() => setPendingAnnouncements(prev => prev.slice(1)), [])
   const clearBanned         = useCallback(() => setBannedInfo(null), [])
 
