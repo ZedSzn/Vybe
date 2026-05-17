@@ -488,7 +488,7 @@ export default function ProfilePage() {
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {(profile.totalCoinsGifted || 0) > 0 && (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 50, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', fontSize: 12, fontWeight: 700 }}>
-                  <VybeCoin size={13} />
+                  <VybeCoin size={11} />
                   {profile.gifterRank || 'Newcomer'}
                 </span>
               )}
