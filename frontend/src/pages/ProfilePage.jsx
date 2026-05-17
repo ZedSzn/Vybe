@@ -86,33 +86,6 @@ const ACCENT_COLORS = [
   { hex: '#06b6d4', name: 'Teal'   },
 ]
 
-const BADGE_DEFS = [
-  { id: 'star',         name: 'Rising Star',    icon: '⭐', cost: 200,  desc: 'For those making their mark on Vybe',       rarity: 'common'    },
-  { id: 'verified',     name: 'Verified Viber', icon: '✅', cost: 500,  desc: 'Gold checkmark — trusted community member', rarity: 'rare'      },
-  { id: 'hot',          name: 'Hot',            icon: '🔥', cost: 300,  desc: "You're trending on Vybe",                   rarity: 'common'    },
-  { id: 'royalty',      name: 'Royalty',        icon: '👑', cost: 1000, desc: 'The most prestigious badge on Vybe',        rarity: 'legendary' },
-  { id: 'diamond',      name: 'Diamond Member', icon: '💎', cost: 800,  desc: 'Diamond tier — top 1% of Vybe',            rarity: 'epic'      },
-  { id: 'rainbow',      name: 'Rainbow',        icon: '🌈', cost: 400,  desc: 'Colorful, vibrant and unmissable',          rarity: 'rare'      },
-  { id: 'entertainer',  name: 'Entertainer',    icon: '🎭', cost: 350,  desc: 'For charismatic and entertaining chatters', rarity: 'uncommon'  },
-  { id: 'globetrotter', name: 'Globetrotter',   icon: '🌍', cost: 450,  desc: 'Chatted with people from many countries',   rarity: 'rare'      },
-  { id: 'flash',        name: 'Flash',          icon: '⚡', cost: 250,  desc: 'Fast connector — always in the action',     rarity: 'uncommon'  },
-  { id: 'sharp',        name: 'Sharp',          icon: '🎯', cost: 300,  desc: 'Precision and focus — a premium badge',     rarity: 'common'    },
-]
-
-const RARITY_STYLE = {
-  common:    { label: 'Common',    color: '#888899', bg: 'rgba(156,163,175,0.1)',  border: 'rgba(156,163,175,0.25)'  },
-  uncommon:  { label: 'Uncommon',  color: '#4ade80', bg: 'rgba(74,222,128,0.1)',   border: 'rgba(74,222,128,0.25)'   },
-  rare:      { label: 'Rare',      color: '#00B8E0', bg: 'rgba(0,184,224,0.1)',    border: 'rgba(0,184,224,0.25)'    },
-  epic:      { label: 'Epic',      color: '#c084fc', bg: 'rgba(192,132,252,0.1)',  border: 'rgba(192,132,252,0.25)'  },
-  legendary: { label: 'Legendary', color: '#00B8E0', bg: 'rgba(0,184,224,0.12)',  border: 'rgba(0,184,224,0.35)'    },
-}
-
-const BADGE_ICONS = {
-  star: Star, verified: BadgeCheck, hot: Flame, royalty: Crown,
-  diamond: Gem, rainbow: Sparkles, entertainer: Music2,
-  globetrotter: Globe, flash: Zap, sharp: Target,
-}
-
 function SysBadge({ icon: Icon, label, color }) {
   return (
     <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold ${color}`}>
@@ -154,7 +127,6 @@ export default function ProfilePage() {
   const [editing,       setEditing]       = useState(false)
   const [saving,        setSaving]        = useState(false)
   const [saveError,     setSaveError]     = useState('')
-  const [ownedBadgeIds, setOwnedBadgeIds] = useState([])
   const [editForm,      setEditForm]      = useState({
     bio: '', displayName: '', pronouns: '', gender: 'other', country: '',
     interests: [], socialLinks: { instagram: '', tiktok: '', twitter: '', twitch: '', kick: '' },
@@ -194,7 +166,6 @@ export default function ProfilePage() {
             cameraBackground:      data.user.cameraBackground || 'none',
             cameraBackgroundImage: data.user.cameraBackgroundImage || '',
           })
-          axios.get('/api/badges/mine').then(r => setOwnedBadgeIds(r.data.owned || [])).catch(() => {})
         } else {
           const { data } = await axios.get(`/api/user/${id}/profile`)
           setProfile(data.user)
@@ -350,7 +321,6 @@ export default function ProfilePage() {
   )
 
   const joinDate        = profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''
-  const equippedBadges  = profile.equippedBadges || []
   const giftUnlocked    = profile.giftCollection || []
   const giftUnlockedCount = giftUnlocked.length
   const profileInterests = profile.interests || []
@@ -499,22 +469,6 @@ export default function ProfilePage() {
               {(profile.longestStreak ?? 0) >= 30    && <SysBadge icon={Trophy}        label="Veteran"                            color="border-yellow-500/30 text-cyan-300 bg-cyan-500/10" />}
               {(profile.totalChats ?? 0) >= 100      && <SysBadge icon={MessageCircle} label="Chatter"                            color="border-cyan-400/30 text-cyan-400 bg-cyan-500/10" />}
             </div>
-
-            {/* Equipped custom badges */}
-            {equippedBadges.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                {equippedBadges.map(bid => {
-                  const def = BADGE_DEFS.find(b => b.id === bid); if (!def) return null
-                  const rs = RARITY_STYLE[def.rarity]; const Ic = BADGE_ICONS[def.id]
-                  return (
-                    <span key={bid} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
-                      style={{ background: rs.bg, border: `1px solid ${rs.border}`, color: rs.color }}>
-                      {Ic && <Ic size={11} />}{def.name}
-                    </span>
-                  )
-                })}
-              </div>
-            )}
 
             {/* Bio */}
             {!editing && profile.bio && (
@@ -845,39 +799,6 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            {/* Badge collection (own profile) */}
-            {isOwn && ownedBadgeIds.length > 0 && (
-              <div className="mb-5">
-                <h3 className="text-sm font-black text-white mb-3 flex items-center gap-2">
-                  <Sparkles size={14} className="text-cyan-400" /> Badge Collection
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {BADGE_DEFS.filter(b => ownedBadgeIds.includes(b.id)).map(def => {
-                    const rs = RARITY_STYLE[def.rarity]; const Ic = BADGE_ICONS[def.id]
-                    const equipped = equippedBadges.includes(def.id)
-                    return (
-                      <div key={def.id} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
-                        style={{ background: rs.bg, border: `1px solid ${rs.border}` }}>
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ background: `${rs.color}20`, border: `1px solid ${rs.border}` }}>
-                          {Ic ? <Ic size={16} style={{ color: rs.color }} /> : <span className="text-base">{def.icon}</span>}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold truncate" style={{ color: rs.color }}>{def.name}</p>
-                          <p className="text-[10px] text-vybe-muted">{rs.label}</p>
-                        </div>
-                        {equipped && (
-                          <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
-                            style={{ background: 'rgba(0,212,255,0.15)', color: '#00B8E0', border: '1px solid rgba(0,212,255,0.25)' }}>
-                            ON
-                          </span>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
 
           </div>
         </div>
