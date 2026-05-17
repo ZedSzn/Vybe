@@ -66,7 +66,6 @@ export default function WalletPage() {
   const [referralInfo, setReferralInfo]   = useState(null)
   const [cashouts, setCashouts]           = useState([])
   const [paypalEmail, setPaypalEmail]     = useState('')
-  const [paypalSaving, setPaypalSaving]   = useState(false)
   const [cashoutAmount, setCashoutAmount] = useState('')
   const [cashoutLoading, setCashoutLoading] = useState(false)
   const [buyLoading, setBuyLoading]       = useState(null)
@@ -136,17 +135,6 @@ export default function WalletPage() {
       setErrorMsg(e.response?.data?.error || 'Payment unavailable. Configure Stripe in the backend .env.')
       setBuyLoading(null)
     }
-  }
-
-  const handleSavePaypal = async () => {
-    if (!paypalEmail) return
-    setPaypalSaving(true)
-    setErrorMsg('')
-    try {
-      await axios.put('/api/user/paypal-email', { paypalEmail })
-      setSuccessMsg('PayPal email saved!')
-    } catch (e) { setErrorMsg(e.response?.data?.error || 'Failed to save') }
-    setPaypalSaving(false)
   }
 
   const handleCashout = async () => {
@@ -457,23 +445,13 @@ export default function WalletPage() {
 
               <div className="mb-4">
                 <label className="text-white/60 text-xs font-semibold block mb-2">Your PayPal Email</label>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    value={paypalEmail}
-                    onChange={(e) => setPaypalEmail(e.target.value)}
-                    placeholder="your@paypal.com"
-                    className={`${inputCls} flex-1`}
-                  />
-                  <button
-                    onClick={handleSavePaypal}
-                    disabled={paypalSaving || !paypalEmail}
-                    className="px-4 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-50 transition-all"
-                    style={{ background: 'rgba(0,212,255,0.2)', border: '1px solid rgba(0,212,255,0.3)' }}
-                  >
-                    {paypalSaving ? '…' : 'Save'}
-                  </button>
-                </div>
+                <input
+                  type="email"
+                  value={paypalEmail}
+                  onChange={(e) => setPaypalEmail(e.target.value)}
+                  placeholder="your@paypal.com"
+                  className={`${inputCls} w-full`}
+                />
               </div>
 
               {canCashout ? (
