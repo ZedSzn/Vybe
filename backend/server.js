@@ -2081,18 +2081,39 @@ app.get('/api/leaderboard/gifters', async (req, res) => {
   try {
     const allTime   = req.query.period === 'alltime';
     const sortField = allTime ? 'totalCoinsGifted' : 'weeklyCoinsGifted';
+    const fields    = 'username avatar weeklyCoinsGifted totalCoinsGifted giftCollection gifterRank';
+
+    // Optional auth — logged-in viewer is identified so their own row is flagged.
+    let meId = null;
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      try { meId = String(jwt.verify(token, process.env.JWT_SECRET || 'vybe_secret').id); } catch {}
+    }
+
     const users = await User.find({ [sortField]: { $gt: 0 } })
       .sort({ [sortField]: -1 })
       .limit(50)
-      .select('username avatar weeklyCoinsGifted totalCoinsGifted giftCollection gifterRank');
-    res.json({ leaders: users.map((u) => ({
+      .select(fields);
+
+    const shape = (u, isMe) => ({
       username:          u.username,
       avatarUrl:         u.avatar || '',
       weeklyCoinsGifted: u.weeklyCoinsGifted || 0,
       totalCoinsGifted:  u.totalCoinsGifted || 0,
       giftCollection:    u.giftCollection || [],
       gifterRank:        u.gifterRank || 'Newcomer',
-    })) });
+      isMe,
+    });
+
+    const leaders = users.map((u) => shape(u, meId && String(u._id) === meId));
+
+    // Always include the viewer's own entry, even if outside the top 50.
+    if (meId && !users.some((u) => String(u._id) === meId)) {
+      const me = await User.findById(meId).select(fields);
+      if (me && (me[sortField] || 0) > 0) leaders.push(shape(me, true));
+    }
+
+    res.json({ leaders });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
