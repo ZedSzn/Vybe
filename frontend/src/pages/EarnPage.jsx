@@ -41,7 +41,7 @@ const COMPARE_ROWS = [
 const FAQS = [
   {
     q: 'How much is each coin worth?',
-    a: 'Every 1,000 Vybe Coins = approximately £4.20 at cashout. You keep 70% of all gift value — the remaining 30% covers platform fees.',
+    a: 'Every 1,000 Vybe Coins = £4.20 when you cash out. That is your rate after a 30% platform fee — no caps and no other deductions.',
   },
   {
     q: 'When can I cash out?',
