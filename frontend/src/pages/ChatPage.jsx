@@ -1898,42 +1898,16 @@ export default function ChatPage() {
                       exit={{ opacity: 0, y: -4, scale: 0.97 }}
                       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                       className="absolute flex items-center gap-2" style={{ top: 16, left: 16, zIndex: 10 }}>
-                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                        {partnerAvatar ? (
-                          <img src={partnerAvatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(255,255,255,0.2)' }} />
-                        ) : (
-                          <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]"
-                            style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
-                            {(partnerUsername || 'S')[0].toUpperCase()}
-                          </div>
-                        )}
-                        <div className="flex flex-col" style={{ gap: 2 }}>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-white font-bold text-[13px] leading-none">
-                              {partnerUsername || 'Stranger'}
-                            </span>
-                            {partnerEmailVerified && <ShieldCheck size={11} style={{ color: '#00B8E0', flexShrink: 0 }} title="Verified" />}
-                            {partnerIsVip && (
-                              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(124,58,237,0.3))', color: '#e0f0ff', border: '1px solid rgba(0,212,255,0.3)' }}>
-                                <Crown size={7} /> VIP
-                              </span>
-                            )}
-                          </div>
-                          {partnerCountry && (
-                            <span className="text-[11px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{partnerCountry}</span>
-                          )}
-                        </div>
-                        {user && partnerUid && !friendReqSent && (
-                          <button onClick={handleAddFriend} disabled={friendReqLoad} title="Add friend" className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95" style={{ background: 'rgba(0,212,255,0.2)', border: '1px solid rgba(0,212,255,0.35)', color: '#00D4FF', flexShrink: 0 }}>
-                            {friendReqLoad ? <Loader2 size={9} className="animate-spin" /> : <UserPlus size={9} />}
-                          </button>
-                        )}
-                        {user && partnerUid && friendReqSent && (
-                          <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(74,222,128,0.2)', border: '1px solid rgba(74,222,128,0.35)', color: '#4ade80', flexShrink: 0 }}>
-                            <UserPlus size={9} />
-                          </span>
-                        )}
-                      </div>
+                      <ProfilePill
+                        username={partnerUsername || 'Stranger'}
+                        avatarUrl={partnerAvatar}
+                        isOnline
+                        isVerified={!!partnerEmailVerified}
+                        isVip={!!partnerIsVip}
+                        country={partnerCountry}
+                        friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
+                        onAddFriend={handleAddFriend}
+                      />
                     </motion.div>
                   )}
                 </AnimatePresence>

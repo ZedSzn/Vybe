@@ -12,9 +12,11 @@
  *
  * Props:
  *   username     : string
- *   avatarUrl    : string (optional — falls back to gradient initials)
+ *   avatarUrl    : string  (optional — falls back to gradient initials)
  *   isOnline     : boolean
  *   isVerified   : boolean
+ *   isVip        : boolean (optional — shows a crown badge)
+ *   country      : string  (optional — shown under the username)
  *   friendStatus : 'none' | 'pending' | 'friends' | 'self'
  *                  ('self' = the current user's own pill — hides the + button)
  *   onAddFriend  : () => void   (parent owns the friendStatus state)
@@ -36,6 +38,14 @@ function VerifiedBadge() {
   )
 }
 
+function VipBadge() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" role="img" aria-label="VIP" style={{ flexShrink: 0 }}>
+      <path d="M2 8.5 L6.5 12 L12 4.5 L17.5 12 L22 8.5 L20 19.5 L4 19.5 Z" fill={ACCENT} />
+    </svg>
+  )
+}
+
 // friendStatus → friend-request button look
 const FRIEND_BTN = {
   none:    { background: ACCENT,                color: PAGE_BG,   glyph: '+' },
@@ -48,6 +58,8 @@ export default function ProfilePill({
   avatarUrl,
   isOnline = false,
   isVerified = false,
+  isVip = false,
+  country = '',
   friendStatus = 'none',
   onAddFriend,
 }) {
@@ -102,13 +114,23 @@ export default function ProfilePill({
         )}
       </div>
 
-      {/* Username */}
-      <span style={{ color: '#fff', fontWeight: 700, fontSize: 11, lineHeight: 1, whiteSpace: 'nowrap' }}>
-        {username || 'User'}
-      </span>
+      {/* Username (+ country) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+        <span style={{ color: '#fff', fontWeight: 700, fontSize: 11, lineHeight: 1, whiteSpace: 'nowrap' }}>
+          {username || 'User'}
+        </span>
+        {country && (
+          <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600, fontSize: 9, lineHeight: 1, whiteSpace: 'nowrap' }}>
+            {country}
+          </span>
+        )}
+      </div>
 
       {/* Verified badge */}
       {isVerified && <VerifiedBadge />}
+
+      {/* VIP badge */}
+      {isVip && <VipBadge />}
 
       {/* Friend-request button */}
       {showButton && (
