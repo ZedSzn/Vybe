@@ -286,7 +286,7 @@ export default function SubscriptionPage() {
       <div className="relative z-10 max-w-4xl mx-auto px-4 pt-28 pb-24">
 
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           className="inline-flex items-center gap-2 text-sm mb-6 transition-colors"
           style={{ color: '#888899' }}
         >
