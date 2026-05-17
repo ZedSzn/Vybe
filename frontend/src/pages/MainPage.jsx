@@ -1050,8 +1050,8 @@ export default function MainPage() {
             <div>
             {/* Live badge */}
             <motion.div
-              className="inline-flex items-center gap-2.5 mb-8"
-              style={{ width: 'fit-content', padding: '7px 16px', borderRadius: 999, background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)' }}>
+              className="inline-flex items-center gap-2 mb-8"
+              style={{ width: 'fit-content', padding: '6px 14px', borderRadius: 20, background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)' }}>
               <motion.span
                 className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                 style={{ background: '#00D4FF' }}
