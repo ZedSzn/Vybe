@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Camera, Edit2, Save, X, ArrowLeft, Check, Loader2, Shield, Crown, Zap, Flame, Trophy, MessageCircle, Star, BadgeCheck, Gem, Sparkles, Music2, Globe, Target, Gift, Clock } from 'lucide-react'
+import { Camera, Edit2, Save, X, ArrowLeft, Check, Loader2, Crown, Zap, Flame, Trophy, MessageCircle, Star, BadgeCheck, Gem, Sparkles, Music2, Globe, Target, Gift, Clock } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -117,6 +117,16 @@ function SysBadge({ icon: Icon, label, color }) {
     <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold ${color}`}>
       {Icon && <Icon size={11} />}{label}
     </div>
+  )
+}
+
+// Verified seal — same icon as the profile pill (scalloped badge + tick).
+function VerifiedSeal({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-label="Verified" style={{ flexShrink: 0 }}>
+      <path d="M20 2L24.1 7.2L30.6 5.4L31.4 12.1L37.6 14.9L34.8 21L37.6 27.1L31.4 29.9L30.6 36.6L24.1 34.8L20 40L15.9 34.8L9.4 36.6L8.6 29.9L2.4 27.1L5.2 21L2.4 14.9L8.6 12.1L9.4 5.4L15.9 7.2Z" fill="currentColor" />
+      <path d="M13 21l5 5 10-10" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 
@@ -453,7 +463,7 @@ export default function ProfilePage() {
                 <span className={profile.displayName ? 'text-base font-semibold text-white/50' : 'text-2xl font-black text-white'}>
                   {profile.displayName ? `@${profile.username}` : profile.username}
                 </span>
-                {profile.emailVerified && <Shield size={15} className="text-cyan-400" title="Verified" />}
+                {profile.emailVerified && <span title="Verified" className="text-cyan-400 inline-flex"><VerifiedSeal size={15} /></span>}
                 {profile.pronouns && (
                   <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold"
                     style={{ background: 'rgba(255,255,255,0.06)', color: '#888899', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -488,7 +498,7 @@ export default function ProfilePage() {
             <div className="flex flex-wrap gap-2 mb-2">
               {profile.isPremium && !profile.isVip && <SysBadge icon={Zap}           label="Basic"                              color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
               {profile.isVip                         && <SysBadge icon={Crown}         label="VIP"                                color="border-yellow-500/30 text-cyan-400 bg-cyan-500/10" />}
-              {profile.emailVerified                 && <SysBadge icon={Shield}        label="Verified"                           color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
+              {profile.emailVerified                 && <SysBadge icon={VerifiedSeal}  label="Verified"                           color="border-cyan-400/30 text-cyan-400 bg-cyan-400/10" />}
               {(profile.loginStreak ?? 0) >= 7       && <SysBadge icon={Flame}         label={`${profile.loginStreak}d Streak`}   color="border-orange-500/30 text-orange-400 bg-orange-500/10" />}
               {(profile.longestStreak ?? 0) >= 30    && <SysBadge icon={Trophy}        label="Veteran"                            color="border-yellow-500/30 text-cyan-300 bg-cyan-500/10" />}
               {(profile.totalChats ?? 0) >= 100      && <SysBadge icon={MessageCircle} label="Chatter"                            color="border-cyan-400/30 text-cyan-400 bg-cyan-500/10" />}
