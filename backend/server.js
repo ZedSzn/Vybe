@@ -2320,7 +2320,7 @@ app.post('/api/subscription/trial', authMiddleware, async (req, res) => {
           recurring: { interval: 'month' },
           product_data: {
             name: 'Vybe VIP',
-            description: 'Gender filter, country filter, priority matching, no ads',
+            description: 'Gender filter, country filter, VIP badge',
           },
           unit_amount: 1299,
         },
