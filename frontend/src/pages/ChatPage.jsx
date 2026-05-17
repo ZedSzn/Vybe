@@ -190,30 +190,102 @@ const REPORT_REASONS = [
   { id: 'other',      label: '📋 Other' },
 ]
 
-// Gift catalog — must mirror the backend GIFTS map (icons included).
+// Coin-gift catalog — mirrors the backend GIFTS map.
 const GIFTS = [
-  { id: 'spark', name: 'Spark',         icon: '✨', cost: 75  },
-  { id: 'star',  name: 'Shooting Star', icon: '🌠', cost: 120 },
-  { id: 'flame', name: 'Flame',         icon: '🔥', cost: 250 },
-  { id: 'orb',   name: 'Lightning Orb', icon: '🔮', cost: 480 },
-  { id: 'crown', name: 'Cosmic Crown',  icon: '👑', cost: 950 },
+  { id: 'small-vybe',     name: 'Small Vybe',     subtitle: 'Show some love',       coins: 50,   tier: 'Starter' },
+  { id: 'vybe',           name: 'Vybe',           subtitle: 'Solid support',        coins: 100,  tier: 'Starter' },
+  { id: 'big-vybe',       name: 'Big Vybe',       subtitle: 'Making an impression', coins: 250,  tier: 'Popular' },
+  { id: 'mega-vybe',      name: 'Mega Vybe',      subtitle: 'Top tier energy',      coins: 500,  tier: 'Popular' },
+  { id: 'ultra-vybe',     name: 'Ultra Vybe',     subtitle: "You're the real one",  coins: 1000, tier: 'Premium' },
+  { id: 'legendary-vybe', name: 'Legendary Vybe', subtitle: 'Absolute legend',      coins: 5000, tier: 'Premium' },
 ]
+const GIFT_TIERS = ['Starter', 'Popular', 'Premium']
 
-// Floating gift-icon animation, rendered over a camera panel.
+// Custom SVG gift-box icon for each gift.
+function GiftIcon({ id, size = 28 }) {
+  const p = { width: size, height: size, viewBox: '0 0 48 48', fill: 'none' }
+  switch (id) {
+    case 'small-vybe': return (
+      <svg {...p}>
+        <rect x="10" y="22" width="28" height="20" rx="2" fill="#001a2e" stroke="#00D4FF" strokeWidth="1.2" />
+        <rect x="8" y="18" width="32" height="6" rx="1.5" fill="#001a2e" stroke="#00D4FF" strokeWidth="1.2" />
+        <line x1="24" y1="18" x2="24" y2="42" stroke="#00D4FF" strokeWidth="1.2" />
+        <path d="M24 18 C24 18 20 14 17 15 C14 16 15 20 18 19 C21 18 24 18 24 18Z" fill="none" stroke="#00D4FF" strokeWidth="1" strokeLinecap="round" />
+        <path d="M24 18 C24 18 28 14 31 15 C34 16 33 20 30 19 C27 18 24 18 24 18Z" fill="none" stroke="#00D4FF" strokeWidth="1" strokeLinecap="round" />
+      </svg>
+    )
+    case 'vybe': return (
+      <svg {...p}>
+        <rect x="9" y="22" width="30" height="21" rx="2" fill="#0d0022" stroke="#7C3AED" strokeWidth="1.2" />
+        <rect x="7" y="17" width="34" height="7" rx="1.5" fill="#0d0022" stroke="#7C3AED" strokeWidth="1.2" />
+        <line x1="24" y1="17" x2="24" y2="43" stroke="#7C3AED" strokeWidth="1.2" />
+        <path d="M24 17 C24 17 19 12 16 13 C13 14 14 19 17 18 C20 17 24 17 24 17Z" fill="rgba(124,58,237,0.2)" stroke="#7C3AED" strokeWidth="1" strokeLinecap="round" />
+        <path d="M24 17 C24 17 29 12 32 13 C35 14 34 19 31 18 C28 17 24 17 24 17Z" fill="rgba(124,58,237,0.2)" stroke="#7C3AED" strokeWidth="1" strokeLinecap="round" />
+      </svg>
+    )
+    case 'big-vybe': return (
+      <svg {...p}>
+        <rect x="8" y="21" width="32" height="22" rx="2" fill="#001a2e" stroke="#00D4FF" strokeWidth="1.3" />
+        <rect x="6" y="16" width="36" height="7" rx="1.5" fill="#001a2e" stroke="#00D4FF" strokeWidth="1.3" />
+        <line x1="24" y1="16" x2="24" y2="43" stroke="#7C3AED" strokeWidth="1.5" />
+        <path d="M24 16 C24 16 18 10 15 11 C11 12 12 18 16 17 C20 16 24 16 24 16Z" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" strokeWidth="1.1" strokeLinecap="round" />
+        <path d="M24 16 C24 16 30 10 33 11 C37 12 36 18 32 17 C28 16 24 16 24 16Z" fill="rgba(0,212,255,0.15)" stroke="#00D4FF" strokeWidth="1.1" strokeLinecap="round" />
+      </svg>
+    )
+    case 'mega-vybe': return (
+      <svg {...p}>
+        <rect x="7" y="20" width="34" height="23" rx="2.5" fill="#0d0022" stroke="#7C3AED" strokeWidth="1.4" />
+        <rect x="5" y="15" width="38" height="7" rx="2" fill="#0d0022" stroke="#7C3AED" strokeWidth="1.4" />
+        <line x1="24" y1="15" x2="24" y2="43" stroke="#00D4FF" strokeWidth="1.5" />
+        <path d="M24 15 C24 15 17 8 13 9 C9 10 10 17 15 16 C19 15 24 15 24 15Z" fill="rgba(124,58,237,0.25)" stroke="#7C3AED" strokeWidth="1.2" />
+        <path d="M24 15 C24 15 31 8 35 9 C39 10 38 17 33 16 C29 15 24 15 24 15Z" fill="rgba(124,58,237,0.25)" stroke="#7C3AED" strokeWidth="1.2" />
+        <circle cx="24" cy="31" r="3" fill="none" stroke="#00D4FF" strokeWidth="1" />
+        <circle cx="24" cy="31" r="1.2" fill="#7C3AED" />
+      </svg>
+    )
+    case 'ultra-vybe': return (
+      <svg {...p}>
+        <rect x="6" y="19" width="36" height="24" rx="3" fill="#1a1000" stroke="#f59e0b" strokeWidth="1.5" />
+        <rect x="4" y="14" width="40" height="7" rx="2" fill="#1a1000" stroke="#f59e0b" strokeWidth="1.5" />
+        <line x1="24" y1="14" x2="24" y2="43" stroke="#f59e0b" strokeWidth="1.5" />
+        <path d="M24 14 C24 14 16 6 12 7 C7 8 8 16 13 15 C18 14 24 14 24 14Z" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" strokeWidth="1.3" />
+        <path d="M24 14 C24 14 32 6 36 7 C41 8 40 16 35 15 C30 14 24 14 24 14Z" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" strokeWidth="1.3" />
+        <circle cx="24" cy="30" r="3.5" fill="none" stroke="#f59e0b" strokeWidth="1.2" />
+        <circle cx="24" cy="30" r="1.5" fill="#f59e0b" />
+      </svg>
+    )
+    case 'legendary-vybe': return (
+      <svg {...p}>
+        <rect x="5" y="18" width="38" height="25" rx="3" fill="#1a1000" stroke="#f59e0b" strokeWidth="1.8" />
+        <rect x="3" y="13" width="42" height="7" rx="2" fill="#1a1000" stroke="#f59e0b" strokeWidth="1.8" />
+        <line x1="24" y1="13" x2="24" y2="43" stroke="#f59e0b" strokeWidth="2" />
+        <path d="M24 13 C24 13 15 4 10 5 C5 6 6 15 12 14 C17 13 24 13 24 13Z" fill="rgba(245,158,11,0.3)" stroke="#f59e0b" strokeWidth="1.5" />
+        <path d="M24 13 C24 13 33 4 38 5 C43 6 42 15 36 14 C31 13 24 13 24 13Z" fill="rgba(245,158,11,0.3)" stroke="#f59e0b" strokeWidth="1.5" />
+        <circle cx="24" cy="29" r="4" fill="none" stroke="#00D4FF" strokeWidth="1.2" />
+        <circle cx="24" cy="29" r="2" fill="#f59e0b" />
+        <circle cx="24" cy="29" r="0.8" fill="#fff" />
+        <path d="M8 3 L9.5 7 M40 3 L38.5 7 M3 9 L6 10.5 M45 9 L42 10.5" stroke="#f59e0b" strokeWidth="1" strokeLinecap="round" opacity="0.8" />
+      </svg>
+    )
+    default: return null
+  }
+}
+
+// Floating gift animation — fades in at the bottom, drifts up, fades out at the top.
 function GiftFx({ anims }) {
   return (
     <AnimatePresence>
-      {anims.map(({ id, icon }) => (
+      {anims.map(({ id, giftId }) => (
         <motion.div
           key={id}
           className="absolute z-30 pointer-events-none select-none"
-          style={{ left: '50%', bottom: 70, fontSize: 52, translateX: '-50%' }}
-          initial={{ y: 0, opacity: 1, scale: 0.4 }}
-          animate={{ y: -300, opacity: 0, scale: 1.5 }}
+          style={{ left: '50%', bottom: 60, translateX: '-50%' }}
+          initial={{ y: 0, opacity: 0, scale: 0.6 }}
+          animate={{ y: -280, opacity: [0, 1, 1, 0], scale: 1.25 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 2, ease: 'easeOut', opacity: { duration: 2, times: [0, 0.15, 0.7, 1] } }}
         >
-          {icon}
+          <GiftIcon id={giftId} size={76} />
         </motion.div>
       ))}
     </AnimatePresence>
@@ -280,10 +352,11 @@ export default function ChatPage() {
   const [selfViewExpanded, setSelfViewExpanded] = useState(true)
   const [duoPipExpanded,   setDuoPipExpanded]   = useState(false)
   const [tipIdx,           setTipIdx]           = useState(0)
-  const [giftAnimations,   setGiftAnimations]   = useState([])   // [{ id, icon, target: 'stranger'|'partner' }]
-  const [showGift,         setShowGift]         = useState(false) // gift modal open
-  const [giftStep,         setGiftStep]         = useState('gifts') // 'recipient' | 'gifts'
-  const [giftRecipient,    setGiftRecipient]    = useState(null) // 'stranger' | 'partner'
+  const [giftAnimations,   setGiftAnimations]   = useState([])   // [{ id, giftId, target: 'stranger'|'partner' }]
+  const [showGift,         setShowGift]         = useState(false) // "Send Coins" modal open
+  const [giftRecipient,    setGiftRecipient]    = useState('stranger') // 'stranger' | 'partner'
+  const [selectedGiftId,   setSelectedGiftId]   = useState(null)
+  const [customAmount,     setCustomAmount]     = useState('')
   const [giftSending,      setGiftSending]      = useState(false)
   const [partnerCountry,   setPartnerCountry]   = useState(null)
   const [chatFilterGender,  setChatFilterGender]  = useState(prefs.filterGender === 'male' || prefs.filterGender === 'female' ? prefs.filterGender : 'both')
@@ -756,16 +829,20 @@ export default function ChatPage() {
       })
 
       // Gift broadcast — every participant in the room sees the animation
-      socket.on('gift_sent', ({ recipientSocketId, senderId, giftIcon, senderName, giftName }) => {
+      socket.on('gift_received', ({ giftId, giftName, coins: giftCoins, senderId, senderUsername, recipientSocketId }) => {
         if (!mounted) return
         const target = squadMatesRef.current.includes(recipientSocketId) ? 'partner' : 'stranger'
         const id = Date.now() + Math.random()
-        setGiftAnimations((prev) => [...prev, { id, icon: giftIcon, target }])
-        setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2600)
+        setGiftAnimations((prev) => [...prev, { id, giftId, target }])
+        setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2400)
+        // Credit my cashable balance if I'm the recipient
+        if (recipientSocketId === socketRef.current?.id && giftCoins) {
+          setCashableCoins((c) => c + giftCoins)
+        }
         // Toast for everyone except the sender (who already knows)
-        if (senderName && String(senderId) !== String(user?.id)) {
-          setTipFeedback({ type: 'success', msg: `${giftIcon} ${senderName} sent a ${giftName}` })
-          setTimeout(() => setTipFeedback(null), 3500)
+        if (senderUsername && String(senderId) !== String(user?.id)) {
+          setTipFeedback({ type: 'success', msg: `🎁 ${senderUsername} sent ${giftName} · ${giftCoins} coins` })
+          setTimeout(() => setTipFeedback(null), 3800)
         }
       })
 
@@ -850,38 +927,41 @@ export default function ChatPage() {
     setChatCountrySearch('')
   }
 
-  // Open the gift flow — duo mode picks a recipient first, solo goes straight to gifts.
+  // Open the "Send Coins" modal (recipient defaults to the stranger).
   const openGiftFlow = () => {
     if (status !== 'matched') return
-    if (isDuoMode) {
-      setGiftRecipient(null)
-      setGiftStep('recipient')
-    } else {
-      setGiftRecipient('stranger')
-      setGiftStep('gifts')
-    }
+    setGiftRecipient('stranger')
+    setSelectedGiftId(null)
+    setCustomAmount('')
     setShowGift(true)
   }
 
-  const sendGift = async (gift) => {
+  const sendGift = async () => {
     if (giftSending) return
+    const sel = GIFTS.find((g) => g.id === selectedGiftId)
+    const amount = sel ? sel.coins : (parseInt(customAmount, 10) || 0)
+    if (amount < 10) {
+      setTipFeedback({ type: 'error', msg: 'Pick a gift or enter at least 10 coins' })
+      setTimeout(() => setTipFeedback(null), 3000); return
+    }
+    if (amount > coins) {
+      setTipFeedback({ type: 'error', msg: 'Not enough coins' })
+      setTimeout(() => setTipFeedback(null), 3000); return
+    }
     const recipientSocketId = giftRecipient === 'partner'
       ? (mateSocketIds[0] || persistentMateId)
       : (opponentSocketIds[0] || partnerSock)
     if (!recipientSocketId) {
       setTipFeedback({ type: 'error', msg: 'No one to gift right now' })
-      setTimeout(() => setTipFeedback(null), 3000)
-      return
-    }
-    if (coins < gift.cost) {
-      setTipFeedback({ type: 'error', msg: `Not enough coins for ${gift.name}` })
-      setTimeout(() => setTipFeedback(null), 3000)
-      return
+      setTimeout(() => setTipFeedback(null), 3000); return
     }
     setGiftSending(true)
     try {
       const { data } = await axios.post('/api/user/send-gift', {
-        giftId: gift.id, recipientSocketId, room: roomId,
+        recipientId: recipientSocketId,
+        giftId: sel ? sel.id : 'vybe',
+        coins: amount,
+        room: roomId,
       })
       if (data?.coins !== undefined) setCoins(data.coins)
       setShowGift(false)
@@ -1222,7 +1302,7 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* Gift modal — recipient picker (duo) then gift catalog */}
+        {/* Send Coins modal */}
         <AnimatePresence>
           {showGift && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -1230,58 +1310,86 @@ export default function ChatPage() {
               style={{ background: 'rgba(0,0,0,0.7)', paddingBottom: 80 }} onClick={() => setShowGift(false)}>
               <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-sm"
-                style={{ background: 'rgba(13,13,24,0.95)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 16, padding: 16, fontFamily: "'Sora', system-ui, sans-serif" }}>
+                style={{ background: 'rgba(13,13,24,0.95)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 16, padding: 16, fontFamily: "'Sora', system-ui, sans-serif", maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
 
-                {giftStep === 'recipient' ? (
-                  <>
-                    <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
-                      <p style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>Who do you want to gift?</p>
-                      <button onClick={() => setShowGift(false)} className="text-white/40 hover:text-white"><X size={15} /></button>
-                    </div>
-                    <div style={{ display: 'flex', gap: 12 }}>
-                      <button type="button" onClick={() => setGiftRecipient('stranger')}
-                        style={{ flex: 1, padding: 5, borderRadius: 14, background: 'transparent', border: giftRecipient === 'stranger' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
-                        <ProfilePill username={partnerUsername || 'Stranger'} avatarUrl={partnerAvatar} isOnline isVerified={!!partnerEmailVerified} friendStatus="self" />
-                      </button>
-                      <button type="button" onClick={() => setGiftRecipient('partner')}
-                        style={{ flex: 1, padding: 5, borderRadius: 14, background: 'transparent', border: giftRecipient === 'partner' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
-                        <ProfilePill username="Partner" isOnline friendStatus="self" />
-                      </button>
-                    </div>
-                    {giftRecipient && (
-                      <motion.button type="button" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                        onClick={() => setGiftStep('gifts')}
-                        style={{ width: '100%', marginTop: 14, padding: '11px 0', borderRadius: 50, background: '#00D4FF', color: '#0a0a0f', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer' }}>
-                        Send Gift
-                      </motion.button>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
-                      <p style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>
-                        {isDuoMode ? `Gift the ${giftRecipient === 'partner' ? 'Partner' : 'Stranger'}` : 'Send a gift'}
-                      </p>
-                      <button onClick={() => isDuoMode ? setGiftStep('recipient') : setShowGift(false)} className="text-white/40 hover:text-white">
-                        <X size={15} />
-                      </button>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {GIFTS.map((g) => {
-                        const afford = coins >= g.cost
-                        return (
-                          <button key={g.id} type="button" onClick={() => afford && !giftSending && sendGift(g)} disabled={!afford || giftSending}
-                            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,212,255,0.15)', cursor: afford && !giftSending ? 'pointer' : 'not-allowed', opacity: afford ? 1 : 0.45, width: '100%' }}>
-                            <span style={{ fontSize: 26 }}>{g.icon}</span>
-                            <span style={{ color: '#fff', fontWeight: 700, fontSize: 13, flex: 1, textAlign: 'left' }}>{g.name}</span>
-                            <span style={{ color: '#00D4FF', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 3 }}><VybeCoin size={11} />{g.cost}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                    <p className="text-white/35 text-center" style={{ fontSize: 11, marginTop: 12 }}>Your balance: {coins.toLocaleString()} coins</p>
-                  </>
+                {/* Header */}
+                <div className="flex items-start justify-between" style={{ marginBottom: 12 }}>
+                  <div>
+                    <p style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>Send Coins</p>
+                    <p style={{ color: '#888899', fontWeight: 400, fontSize: 11, marginTop: 2 }}>Coins added to their cashable balance</p>
+                  </div>
+                  <button onClick={() => setShowGift(false)} className="text-white/40 hover:text-white"><X size={16} /></button>
+                </div>
+
+                {/* Recipient picker — duo only */}
+                {isDuoMode && (
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                    <button type="button" onClick={() => setGiftRecipient('stranger')}
+                      style={{ flex: 1, padding: 4, borderRadius: 12, background: 'transparent', border: giftRecipient === 'stranger' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
+                      <ProfilePill username={partnerUsername || 'Stranger'} avatarUrl={partnerAvatar} isOnline isVerified={!!partnerEmailVerified} friendStatus="self" />
+                    </button>
+                    <button type="button" onClick={() => setGiftRecipient('partner')}
+                      style={{ flex: 1, padding: 4, borderRadius: 12, background: 'transparent', border: giftRecipient === 'partner' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
+                      <ProfilePill username="Partner" isOnline friendStatus="self" />
+                    </button>
+                  </div>
                 )}
+
+                {/* Gift list — grouped by tier */}
+                <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                  {GIFT_TIERS.map((tier) => (
+                    <div key={tier}>
+                      <p style={{ color: '#666677', fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '8px 0 6px' }}>{tier}</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {GIFTS.filter((g) => g.tier === tier).map((g) => {
+                          const selected = selectedGiftId === g.id
+                          return (
+                            <button key={g.id} type="button"
+                              onClick={() => { setSelectedGiftId(g.id); setCustomAmount('') }}
+                              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 12, background: selected ? 'rgba(0,212,255,0.1)' : 'rgba(255,255,255,0.03)', border: selected ? '1px solid #00D4FF' : '1px solid rgba(255,255,255,0.07)', cursor: 'pointer', width: '100%', textAlign: 'left' }}>
+                              <div style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0f', border: '1px solid #1a1a2e', borderRadius: 10 }}>
+                                <GiftIcon id={g.id} size={28} />
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <p style={{ color: '#fff', fontWeight: 700, fontSize: 13, lineHeight: 1.25 }}>{g.name}</p>
+                                <p style={{ color: '#888899', fontWeight: 400, fontSize: 10.5, lineHeight: 1.25 }}>{g.subtitle}</p>
+                              </div>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '4px 9px', borderRadius: 50, background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', color: '#00D4FF', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                                <VybeCoin size={10} />{g.coins.toLocaleString()}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Custom amount */}
+                <input
+                  type="number" inputMode="numeric" min="10" value={customAmount} placeholder="Custom amount"
+                  onChange={(e) => { setCustomAmount(e.target.value); setSelectedGiftId(null) }}
+                  style={{ width: '100%', marginTop: 10, background: 'rgba(255,255,255,0.05)', border: customAmount ? '1px solid #00D4FF' : '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#fff', outline: 'none', fontFamily: "'Sora', system-ui, sans-serif" }}
+                />
+
+                {/* Balance + send */}
+                <p style={{ color: '#888899', fontSize: 11, textAlign: 'center', margin: '10px 0 8px' }}>
+                  Your balance: {coins.toLocaleString()} coins
+                </p>
+                {(() => {
+                  const sel = GIFTS.find((g) => g.id === selectedGiftId)
+                  const amt = sel ? sel.coins : (parseInt(customAmount, 10) || 0)
+                  const ok  = amt >= 10 && amt <= coins && !giftSending
+                  return (
+                    <button type="button" onClick={sendGift} disabled={!ok}
+                      style={{ width: '100%', padding: '12px 0', borderRadius: 50, background: '#00D4FF', color: '#0a0a0f', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', system-ui, sans-serif", border: 'none', cursor: ok ? 'pointer' : 'not-allowed', opacity: ok ? 1 : 0.4 }}>
+                      {giftSending ? 'Sending…'
+                        : sel ? `Send ${sel.name} · ${sel.coins.toLocaleString()} coins`
+                        : amt >= 10 ? `Send ${amt.toLocaleString()} coins`
+                        : 'Select a gift'}
+                    </button>
+                  )
+                })()}
               </motion.div>
             </motion.div>
           )}
