@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LogOut, Bell, User, Settings, ChevronDown, Trash2, Wallet, Users, Crown, Zap, UserPlus, Medal, AlertTriangle, Megaphone, DollarSign, Flame, Trophy } from 'lucide-react'
+import { LogOut, Bell, User, Settings, ChevronDown, Trash2, Wallet, Users, Crown, Zap, UserPlus, Medal, AlertTriangle, Megaphone, DollarSign, Flame } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useSocket } from '../context/SocketContext'
 import { useLang } from '../context/LangContext' // t() still used for auth button labels
@@ -10,11 +10,12 @@ import { VybeCoin } from './VybeCoin'
 import EmptyStateIllustration from './EmptyStateIllustration'
 
 const NAV_LINK_DEFS = [
-  { key: 'nav_home',      path: '/' },
-  { key: 'nav_community', path: '/guidelines' },
-  { key: 'nav_safety',    path: '/terms' },
-  { key: 'nav_premium',   path: '/subscription' },
-  { key: 'nav_faq',       faq: true },
+  { key: 'nav_home',        path: '/' },
+  { key: 'nav_community',   path: '/guidelines' },
+  { key: 'nav_leaderboard', path: '/leaderboard', label: 'Leaderboard' },
+  { key: 'nav_safety',      path: '/terms' },
+  { key: 'nav_premium',     path: '/subscription' },
+  { key: 'nav_faq',         faq: true },
 ]
 
 
@@ -172,7 +173,7 @@ export default function Navbar({ onPremiumClick }) {
                 active ? 'text-white' : 'text-gray-400 hover:text-white'
               }`}
             >
-              {t(link.key)}
+              {link.label || t(link.key)}
             </motion.button>
           )
         })}
@@ -379,7 +380,6 @@ export default function Navbar({ onPremiumClick }) {
                       </span>
                     ) : null },
                     { to: '/wallet', icon: <Wallet size={13} />, label: t('wallet'), extra: null },
-                    { to: '/leaderboard', icon: <Trophy size={13} />, label: 'Leaderboard', extra: null },
                     { to: '/settings', icon: <Settings size={13} />, label: t('settings'), extra: null },
                   ].map((item, i) => (
                     <motion.div
