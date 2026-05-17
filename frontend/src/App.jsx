@@ -115,7 +115,17 @@ function MaintenancePage({ message }) {
 const ADMIN_PATHS = ['/admin-vybe-2024', '/admin-vybe-2024/dashboard']
 
 // ─── Global overlays ──────────────────────────────────────────────────────────
+// Lock background page scroll while a full-screen modal is open.
+function useScrollLock() {
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+}
+
 function WarningModal({ message, onDismiss }) {
+  useScrollLock()
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)' }}>
       <div className="w-full max-w-sm rounded-2xl p-6 text-center" style={{ background: 'rgba(20,10,10,0.98)', border: '1px solid rgba(239,68,68,0.35)', boxShadow: '0 0 48px rgba(239,68,68,0.18)' }}>
@@ -131,10 +141,21 @@ function WarningModal({ message, onDismiss }) {
 }
 
 function BanModal({ info, onDismiss }) {
+  useScrollLock()
   const expires = info.banExpiresAt ? new Date(info.banExpiresAt).toLocaleString() : null
   const isPermanent = info.banType === 'permanent'
   const [unbanLoading, setUnbanLoading] = useState(false)
   const [unbanError, setUnbanError] = useState('')
+  const [showAppeal, setShowAppeal] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText('support@vybelivechat.com')
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch { /* clipboard unavailable — the address is shown for manual copy */ }
+  }
 
   const handleUnban = async () => {
     setUnbanLoading(true)
@@ -192,9 +213,25 @@ function BanModal({ info, onDismiss }) {
         {unbanError && <p className="text-red-400 text-xs mb-3">{unbanError}</p>}
 
         {/* Free appeal */}
-        <a href={appealHref} className="block text-cyan-400 text-xs font-semibold mb-4 hover:underline">
-          Think this was a mistake? Appeal for free
-        </a>
+        {!showAppeal ? (
+          <button onClick={() => setShowAppeal(true)} className="block w-full text-cyan-400 text-xs font-semibold mb-4 hover:underline">
+            Think this was a mistake? Appeal for free
+          </button>
+        ) : (
+          <div className="mb-4 rounded-xl p-3 text-left" style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)' }}>
+            <p className="text-white/70 text-[11px] leading-relaxed mb-2">
+              Email us your username and why you think this was a mistake — we review every appeal.
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="flex-1 text-cyan-400 text-xs font-semibold truncate">support@vybelivechat.com</span>
+              <button onClick={copyEmail} className="px-2.5 py-1 rounded-lg text-[11px] font-bold flex-shrink-0"
+                style={{ background: 'rgba(0,212,255,0.15)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}>
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+            <a href={appealHref} className="block mt-2 text-white/35 text-[10px] hover:underline">or open your email app</a>
+          </div>
+        )}
 
         <button onClick={onDismiss} className="w-full py-3 rounded-xl text-white font-black text-sm" style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)' }}>OK</button>
       </div>
