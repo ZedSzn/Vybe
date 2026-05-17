@@ -1833,7 +1833,7 @@ app.get('/api/user/me', authMiddleware, async (req, res) => {
     const [friendCount] = await Promise.all([
       Friendship.countDocuments({ $or: [{ requester: user._id }, { recipient: user._id }], status: 'accepted' }),
     ]);
-    res.json({ user: { ...user.toObject(), id: user._id, friendCount, isOnline: true } });
+    res.json({ user: { ...user.toObject(), id: user._id, friendCount, isOnline: true, isOwner: user.email === process.env.ADMIN_EMAIL } });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
