@@ -369,6 +369,8 @@ const userSchema = new mongoose.Schema({
   // Activity
   totalChats:    { type: Number, default: 0 },
   loginStreak:   { type: Number, default: 0 },
+  giftsReceived:        { type: Number, default: 0 },
+  countriesChattedWith: { type: [String], default: [] },
   longestStreak: { type: Number, default: 0 },
   lastLoginDate: { type: Date, default: null },
   // Gifting
@@ -621,6 +623,8 @@ const serializeUser = (user, extra = {}) => ({
   totalChats:    user.totalChats || 0,
   loginStreak:   user.loginStreak || 0,
   longestStreak: user.longestStreak || 0,
+  giftsReceived:  user.giftsReceived || 0,
+  countriesCount: (user.countriesChattedWith || []).length,
   gender:         user.gender         || 'other',
   country:        user.country        || '',
   createdAt:      user.createdAt,
@@ -1834,7 +1838,7 @@ app.get('/api/user/me', authMiddleware, async (req, res) => {
 
 app.get('/api/user/:id/profile', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient bannerImage cameraBackground giftCollection totalCoinsGifted gifterRank');
+    const user = await User.findById(req.params.id).select('username avatar bio gender country createdAt loginStreak longestStreak totalChats giftsReceived countriesChattedWith isPremium isVip emailVerified privacyShowCountry privacyShowBio equippedBadges borderColor animatedBorder accentColor bannerGradient bannerImage cameraBackground giftCollection totalCoinsGifted gifterRank');
     if (!user) return res.status(404).json({ error: 'User not found' });
     const friendCount = await Friendship.countDocuments({ $or: [{ requester: user._id }, { recipient: user._id }], status: 'accepted' });
     const isOnline    = [...onlineUsers.values()].some((s) => String(s.userId) === String(user._id));
@@ -1845,7 +1849,10 @@ app.get('/api/user/:id/profile', async (req, res) => {
       country: user.privacyShowCountry ? (user.country || '') : '',
       gender: user.gender, createdAt: user.createdAt,
       loginStreak: user.loginStreak, longestStreak: user.longestStreak,
-      totalChats: user.totalChats, isPremium: user.isPremium, isVip: user.isVip,
+      totalChats: user.totalChats,
+      giftsReceived: user.giftsReceived || 0,
+      countriesCount: (user.countriesChattedWith || []).length,
+      isPremium: user.isPremium, isVip: user.isVip,
       emailVerified: user.emailVerified, friendCount, isOnline,
       equippedBadges: user.equippedBadges || [],
       borderColor: user.borderColor || '',
@@ -2134,7 +2141,7 @@ app.post('/api/user/send-gift', authMiddleware, async (req, res) => {
     });
     // Add to the recipient's cashable balance
     await User.findByIdAndUpdate(recipientUserId, {
-      $inc: { cashableCoins: amount },
+      $inc: { cashableCoins: amount, giftsReceived: 1 },
       $push: { coinHistory: { $each: [{ amount, reason: `Received ${gift.name} from ${sender.username}`, type: 'gift', timestamp: new Date() }], $slice: -200 } },
     });
 
@@ -3042,11 +3049,16 @@ io.on('connection', (socket) => {
   socket.on('webrtc-ice-candidate', ({ candidate, to }) => io.to(to).emit('webrtc-ice-candidate',  { candidate, from: socket.id }));
   socket.on('chat-message', ({ message, room }) => socket.to(room).emit('chat-message', { message, from: socket.id, timestamp: Date.now() }));
 
-  async function recordChatCompletion(socketId) {
+  async function recordChatCompletion(socketId, partnerSocketId) {
     const userData = onlineUsers.get(socketId);
     if (!userData?.userId) return;
+    const update = { $inc: { totalChats: 1 } };
+    const partnerCountry = partnerSocketId ? onlineUsers.get(partnerSocketId)?.country : '';
+    if (partnerCountry && partnerCountry !== userData.country) {
+      update.$addToSet = { countriesChattedWith: partnerCountry };
+    }
     try {
-      await User.findByIdAndUpdate(userData.userId, { $inc: { totalChats: 1 } });
+      await User.findByIdAndUpdate(userData.userId, update);
     } catch {}
   }
 
@@ -3067,10 +3079,10 @@ io.on('connection', (socket) => {
     const mySquadMates = liveSquadPairs.get(socket.id) || [];
     if (partners?.length) {
       storeLastMatch(socket.id, partners);
-      recordChatCompletion(socket.id);
+      recordChatCompletion(socket.id, partners[0]);
       partners.forEach((p) => {
         storeLastMatch(p, [socket.id]);
-        recordChatCompletion(p);
+        recordChatCompletion(p, socket.id);
         if (mySquadMates.includes(p)) {
           // Squad mate: tell them to requeue together (not that a stranger skipped them)
           io.to(p).emit('duo-requeue');
@@ -3089,10 +3101,10 @@ io.on('connection', (socket) => {
     const mySquadMates = liveSquadPairs.get(socket.id) || [];
     if (partners?.length) {
       storeLastMatch(socket.id, partners);
-      recordChatCompletion(socket.id);
+      recordChatCompletion(socket.id, partners[0]);
       partners.forEach((p) => {
         storeLastMatch(p, [socket.id]);
-        recordChatCompletion(p);
+        recordChatCompletion(p, socket.id);
         if (mySquadMates.includes(p)) {
           // Squad mate: tell them their partner ended (they'll go home)
           io.to(p).emit('duo-partner-ended');
