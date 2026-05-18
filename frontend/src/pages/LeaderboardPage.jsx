@@ -120,13 +120,23 @@ function PodiumCard({ entry, place, coinsOf }) {
 
 export default function LeaderboardPage() {
   const navigate = useNavigate()
-  const [leaders, setLeaders] = useState([])
-  const [loading, setLoading] = useState(true)
   const [period,  setPeriod]  = useState('weekly')
+  const [leaders, setLeaders] = useState(() => {
+    // Seed from cache so the leaderboard shows instantly — no loading flash.
+    try { const c = localStorage.getItem('vybe_lb_' + period); if (c) return JSON.parse(c) } catch {}
+    return []
+  })
+  const [loading, setLoading] = useState(() => {
+    try { return !localStorage.getItem('vybe_lb_' + period) } catch { return true }
+  })
 
   useEffect(() => {
     axios.get(`/api/leaderboard/gifters?period=${period}`)
-      .then(({ data }) => setLeaders(data.leaders || []))
+      .then(({ data }) => {
+        const list = data.leaders || []
+        setLeaders(list)
+        try { localStorage.setItem('vybe_lb_' + period, JSON.stringify(list)) } catch {}
+      })
       .catch(() => setLeaders([]))
       .finally(() => setLoading(false))
   }, [period])
