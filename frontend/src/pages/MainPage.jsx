@@ -1289,9 +1289,9 @@ export default function MainPage() {
             {(user?.isVip || user?.isPremium || user?.trialUsed) && (
               <div style={{ marginTop: 18, display: 'flex', gap: 12 }}>
                 {[
-                  { icon: Shield, title: 'Moderated 24/7', desc: 'AI + human safety review on every call' },
-                  { icon: Video,  title: 'Instant matches', desc: 'New person to meet in under 2 seconds' },
-                  { icon: Globe,  title: 'Global community', desc: 'Real people from 190+ countries' },
+                  { icon: Shield, title: 'Safe by design', desc: 'Human moderators review every report' },
+                  { icon: Video,  title: 'Never stuck',    desc: "Don't vibe? Skip and re-match in seconds" },
+                  { icon: Globe,  title: 'Worldwide',      desc: 'Meet genuine people from across the globe' },
                 ].map(({ icon: Icon, title, desc }, i) => (
                   <motion.div
                     key={title}
