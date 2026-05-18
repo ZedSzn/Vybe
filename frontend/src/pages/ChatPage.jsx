@@ -291,7 +291,7 @@ function GiftFx({ anims }) {
 export default function ChatPage() {
   const navigate  = useNavigate()
   const location  = useLocation()
-  const { user }  = useAuth()
+  const { user, updateUser } = useAuth()
   // Custom image shown in place of the camera when no webcam is available.
   const camBgImage  = user?.cameraBackground === 'custom' ? (user?.cameraBackgroundImage || null) : null
 
@@ -420,6 +420,12 @@ export default function ChatPage() {
       })
     }
   }, []) // eslint-disable-line
+
+  // Keep the global user balance in sync so the navbar reflects spends
+  // (gifts, boosts) the instant they happen — not only after leaving the page.
+  useEffect(() => {
+    if (user && user.coins !== coins) updateUser({ ...user, coins })
+  }, [coins]) // eslint-disable-line
 
   useEffect(() => { prefsRef.current  = prefs   }, [prefs])
   useEffect(() => { partnerSockRef.current = partnerSock }, [partnerSock])
