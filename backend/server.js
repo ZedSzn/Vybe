@@ -2826,10 +2826,27 @@ function findSoloMatch(socketId, prefs) {
   return null;
 }
 
-function findSquadMatch(squadId) {
+// Members ({ gender, country }) behind a queue entry — works for solo & squad.
+function entryMembers(e) {
+  return (e.socketIds || [e.socketId]).map((sid) => onlineUsers.get(sid) || {});
+}
+
+// True when each side's gender/country filter is satisfied by the other side.
+// Every member of the opponent must match my filter, and vice-versa.
+function groupMatches(myFG, myFC, myMembers, c) {
+  const theirMembers = entryMembers(c);
+  if (myFG && !theirMembers.every((m) => (m.gender  || 'other') === myFG)) return false;
+  if (myFC && !theirMembers.every((m) => (m.country || '')      === myFC)) return false;
+  if (c.filterGender  && !myMembers.every((m) => (m.gender  || 'other') === c.filterGender))  return false;
+  if (c.filterCountry && !myMembers.every((m) => (m.country || '')      === c.filterCountry)) return false;
+  return true;
+}
+
+function findSquadMatch(squadId, myFG, myFC, myMembers) {
   for (let i = 0; i < waitingQueue.length; i++) {
     const c = waitingQueue[i];
     if (c.squadId && c.squadId === squadId) continue;
+    if (!groupMatches(myFG, myFC, myMembers, c)) continue;
     waitingQueue.splice(i, 1);
     return c;
   }
@@ -3017,9 +3034,10 @@ io.on('connection', (socket) => {
   socket.on('find-match', async (prefs) => {
     const me = onlineUsers.get(socket.id);
     let myBlockedIds = [];
+    let canFilter = false; // gender/country filters are a members-only perk
     if (me?.userId && dbConnected) {
       try {
-        const u = await User.findById(me.userId).select('isBanned banReason banType banExpiresAt blockedUsers');
+        const u = await User.findById(me.userId).select('isBanned banReason banType banExpiresAt blockedUsers isVip isPremium');
         if (u?.isBanned) {
           if (u.banType !== 'permanent' && u.banExpiresAt && u.banExpiresAt < new Date()) {
             await User.findByIdAndUpdate(me.userId, { isBanned: false, banReason: '', banType: null, banExpiresAt: null, bannedAt: null });
@@ -3029,8 +3047,12 @@ io.on('connection', (socket) => {
           }
         }
         myBlockedIds = (u?.blockedUsers || []).map(String);
+        canFilter = !!(u?.isVip || u?.isPremium);
       } catch {}
     }
+    // Gender/country filters are a members-only perk — strip them for
+    // everyone else so the perk can't be used by bypassing the locked UI.
+    if (!canFilter) { prefs.filterGender = null; prefs.filterCountry = ''; }
     // Attach block list to onlineUsers entry for use in findSoloMatch
     if (me) onlineUsers.set(socket.id, { ...me, blockedIds: myBlockedIds });
 
@@ -3057,7 +3079,8 @@ io.on('connection', (socket) => {
           io.to(sid).emit('squad-peer-ready', { mates });
         }
       }
-      const opponent = findSquadMatch(prefs.squadId);
+      const myMembers = mySocketIds.map((sid) => onlineUsers.get(sid) || {});
+      const opponent = findSquadMatch(prefs.squadId, prefs.filterGender || null, prefs.filterCountry || '', myMembers);
       if (opponent) {
         const opponentSocketIds = opponent.socketIds || [opponent.socketId];
         const allSocketIds = [...mySocketIds, ...opponentSocketIds];
