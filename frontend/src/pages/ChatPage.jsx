@@ -1525,23 +1525,12 @@ export default function ChatPage() {
             Skip
           </motion.button>
 
-          {/* Mobile Coins — top left, below partner pill */}
+          {/* Mobile Gift — top left, below partner pill */}
           {user && status === 'matched' && (
             <motion.button
               onClick={openGiftFlow}
               whileTap={{ scale: 0.92 }}
-              style={{ position: 'absolute', top: 'max(52px, env(safe-area-inset-top, 0px) + 50px)', left: 12, zIndex: 6, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-              <VybeCoin size={13} />
-              <span style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>{coins.toLocaleString()}</span>
-            </motion.button>
-          )}
-
-          {/* Mobile Gift — top left, below coins */}
-          {user && status === 'matched' && (
-            <motion.button
-              onClick={openGiftFlow}
-              whileTap={{ scale: 0.92 }}
-              style={{ position: 'absolute', top: 'max(94px, env(safe-area-inset-top, 0px) + 92px)', left: 12, zIndex: 6, background: 'rgba(0,212,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.28)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              style={{ position: 'absolute', top: 'max(52px, env(safe-area-inset-top, 0px) + 50px)', left: 12, zIndex: 6, background: 'rgba(0,212,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.28)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
               <Gift size={13} style={{ color: '#00D4FF' }} />
               <span style={{ color: '#00D4FF', fontSize: 11, fontWeight: 700 }}>Gift</span>
             </motion.button>
@@ -2197,15 +2186,6 @@ export default function ChatPage() {
 
             {/* Center: Coins | Gender | Country | Skip */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {/* Coin balance — tap to open gifts */}
-              <motion.button
-                onClick={openGiftFlow}
-                whileHover={{ background: 'rgba(255,255,255,0.10)' }}
-                whileTap={{ scale: 0.93 }}
-                style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', borderRadius: 50, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', cursor: 'pointer', transition: 'background 150ms ease', flexShrink: 0 }}>
-                <VybeCoin size={14} style={{ color: '#00D4FF' }} />
-                <span style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>{coins.toLocaleString()}</span>
-              </motion.button>
 
               {/* Send Gift */}
               <motion.button
