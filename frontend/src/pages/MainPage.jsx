@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+﻿import { useState, useEffect, useLayoutEffect, useRef, Fragment } from 'react'
 import ProfilePill from '../components/ProfilePill'
 import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -1285,41 +1285,46 @@ export default function MainPage() {
               </motion.div>
             )}
 
-            {/* ── Trust cards — fill the space for users past the trial offer ── */}
+            {/* ── Trust panel — mirrors the filter bar above, fills the space past the trial offer ── */}
             {(user?.isVip || user?.isPremium || user?.trialUsed) && (
-              <div style={{ marginTop: 18, display: 'flex', gap: 12 }}>
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                style={{
+                  marginTop: 14, borderRadius: 16, display: 'flex', alignItems: 'stretch', overflow: 'hidden',
+                  background: 'linear-gradient(135deg, rgba(0,212,255,0.04) 0%, rgba(10,10,28,0.9) 50%, rgba(124,58,237,0.04) 100%)',
+                  border: '1px solid rgba(0,212,255,0.14)',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)',
+                  backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                }}>
                 {[
-                  { icon: Shield, title: 'Safe by design', desc: 'Human moderators review every report' },
-                  { icon: Video,  title: 'Never stuck',    desc: "Don't vibe? Skip and re-match in seconds" },
-                  { icon: Globe,  title: 'Worldwide',      desc: 'Meet genuine people from across the globe' },
+                  { icon: Shield, title: 'Safe by design', desc: 'Every report reviewed by a human' },
+                  { icon: Video,  title: 'Never stuck',    desc: 'Skip and re-match in seconds' },
+                  { icon: Globe,  title: 'Worldwide',      desc: 'Real people across the globe' },
                 ].map(({ icon: Icon, title, desc }, i) => (
-                  <motion.div
-                    key={title}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.18 + i * 0.07, duration: 0.4 }}
-                    whileHover={{ y: -4 }}
-                    style={{
-                      flex: 1, borderRadius: 16, padding: '18px 16px',
-                      background: 'linear-gradient(160deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-                      border: '1px solid rgba(255,255,255,0.07)',
-                      boxShadow: '0 8px 26px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04)',
-                      transition: 'border-color 0.2s ease',
-                    }}>
-                    <div style={{
-                      width: 40, height: 40, borderRadius: 12, marginBottom: 13,
-                      background: 'linear-gradient(135deg, rgba(0,212,255,0.16), rgba(0,212,255,0.06))',
-                      border: '1px solid rgba(0,212,255,0.25)',
-                      boxShadow: '0 0 16px rgba(0,212,255,0.12)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <Icon size={19} style={{ color: '#00D4FF' }} />
+                  <Fragment key={title}>
+                    {i > 0 && (
+                      <div style={{ width: 1, background: 'linear-gradient(to bottom, transparent, rgba(0,212,255,0.15), transparent)', flexShrink: 0 }} />
+                    )}
+                    <div style={{ flex: 1, padding: '16px 15px', display: 'flex', flexDirection: 'column', gap: 11 }}>
+                      <div style={{
+                        width: 38, height: 38, borderRadius: 11,
+                        background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,212,255,0.05))',
+                        border: '1px solid rgba(0,212,255,0.3)',
+                        boxShadow: '0 0 16px rgba(0,212,255,0.16), inset 0 1px 0 rgba(255,255,255,0.08)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <Icon size={17} style={{ color: '#00D4FF' }} />
+                      </div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: 'white', margin: '0 0 3px', letterSpacing: '-0.01em' }}>{title}</p>
+                        <p style={{ fontSize: 11.5, lineHeight: 1.45, color: 'rgba(255,255,255,0.48)', margin: 0 }}>{desc}</p>
+                      </div>
                     </div>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 4px', letterSpacing: '-0.01em' }}>{title}</p>
-                    <p style={{ fontSize: 12, lineHeight: 1.5, color: 'rgba(255,255,255,0.42)', margin: 0 }}>{desc}</p>
-                  </motion.div>
+                  </Fragment>
                 ))}
-              </div>
+              </motion.div>
             )}
 
           </div>
