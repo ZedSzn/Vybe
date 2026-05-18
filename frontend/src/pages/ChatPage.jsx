@@ -258,10 +258,7 @@ export default function ChatPage() {
   const [friendReqLoad,  setFriendReqLoad]    = useState(false)
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
-  const [showTip,        setShowTip]          = useState(false)
-  const [tipAmount,      setTipAmount]        = useState('50')
-  const [tipLoading,     setTipLoading]       = useState(false)
-  const [tipFeedback,    setTipFeedback]      = useState(null) // {type:'success'|'error', msg}
+  const [tipFeedback,    setTipFeedback]      = useState(null) // shared feedback toast (gift events etc.)
   const [boostLoading,   setBoostLoading]     = useState(false)
   const [boostActive,    setBoostActive]      = useState(false)
   const [skipQueueLoading, setSkipQueueLoading] = useState(false)
@@ -738,16 +735,6 @@ export default function ChatPage() {
         setTimeout(() => setTipFeedback(null), 4000)
       })
 
-      socket.on('tip-sent', ({ to, coins: newCoins }) => {
-        if (!mounted) return
-        setCoins(newCoins)
-        setShowTip(false)
-        setTipFeedback({ type: 'success', msg: `✅ Tip sent to ${to}!` })
-        setTipLoading(false)
-        setTimeout(() => setTipFeedback(null), 3500)
-        playTipSent()
-      })
-
       // Gift broadcast — every participant in the room sees the animation
       socket.on('gift_received', ({ giftId, giftName, coins: giftCoins, senderId, senderUsername, recipientSocketId }) => {
         if (!mounted) return
@@ -766,12 +753,6 @@ export default function ChatPage() {
         }
       })
 
-      socket.on('tip-error', ({ message }) => {
-        if (!mounted) return
-        setTipFeedback({ type: 'error', msg: message })
-        setTipLoading(false)
-        setTimeout(() => setTipFeedback(null), 3500)
-      })
 
       socket.on('coin-update', ({ coins: newCoins }) => {
         if (!mounted) return
@@ -936,15 +917,6 @@ export default function ChatPage() {
       setTimeout(() => setTipFeedback(null), 3000)
     }
     setFriendReqLoad(false)
-  }
-
-  const handleSendTip = () => {
-    const amount = parseInt(tipAmount, 10)
-    if (!amount || amount < 10) { setTipFeedback({ type: 'error', msg: 'Minimum tip is 10 coins' }); return }
-    if (amount > coins) { setTipFeedback({ type: 'error', msg: `Not enough spendable coins. You have ${coins} coins.` }); return }
-    if (!partnerSockRef.current) { setTipFeedback({ type: 'error', msg: 'No partner to tip' }); return }
-    setTipLoading(true)
-    socketRef.current?.emit('send-tip', { amount, recipientSocketId: partnerSockRef.current })
   }
 
   const handleBoost = async () => {
@@ -1163,61 +1135,6 @@ export default function ChatPage() {
               className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-semibold backdrop-blur-sm whitespace-nowrap"
               style={{ background: tipFeedback.type === 'success' ? 'rgba(0,212,255,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${tipFeedback.type === 'success' ? 'rgba(0,212,255,0.3)' : 'rgba(239,68,68,0.3)'}`, color: tipFeedback.type === 'success' ? '#4ade80' : '#f87171' }}>
               {tipFeedback.msg}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Tip modal */}
-        <AnimatePresence>
-          {showTip && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-end justify-center px-4"
-              style={{ background: 'rgba(0,0,0,0.75)', paddingBottom: '80px' }} onClick={() => setShowTip(false)}>
-              <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm p-5"
-                style={{ background: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 20 }}>
-                <div className="flex items-center justify-between mb-4">
-                  <div><h3 className="text-white font-black text-sm flex items-center gap-1.5">Send a Tip <VybeCoin size={15} /></h3><p className="text-white/40 text-xs mt-0.5">30% goes to Vybe · Min 10 coins</p></div>
-                  <button onClick={() => setShowTip(false)} className="text-white/40 hover:text-white"><X size={15} /></button>
-                </div>
-                {/* Coin balance breakdown */}
-                <div className="flex gap-2 mb-4">
-                  <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(0,184,224,0.08)', border: '1px solid rgba(0,212,255,0.15)' }}>
-                    <p className="text-cyan-300 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {coins.toLocaleString()}</p>
-                    <p className="text-white/40 text-[10px] mt-0.5">Spendable</p>
-                  </div>
-                  {cashableCoins > 0 && (
-                    <div className="flex-1 rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)' }}>
-                      <p className="text-cyan-400 font-black text-sm flex items-center gap-1 justify-center"><VybeCoin size={13}/> {cashableCoins.toLocaleString()}</p>
-                      <p className="text-white/40 text-[10px] mt-0.5">Earned (cashable)</p>
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2 mb-3">{[10,50,100,250].map((v) => {
-                  const canAfford = v <= coins
-                  const isSelected = tipAmount === String(v)
-                  return (
-                    <button key={v} onClick={() => canAfford && setTipAmount(String(v))} disabled={!canAfford}
-                      style={{ background: isSelected ? '#00D4FF' : canAfford ? 'rgba(0,212,255,0.1)' : 'rgba(255,255,255,0.04)', border: isSelected ? '1px solid #00D4FF' : canAfford ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.08)', borderRadius: 8, color: isSelected ? '#000' : canAfford ? '#00D4FF' : 'rgba(255,255,255,0.25)', cursor: canAfford ? 'pointer' : 'not-allowed', flex: 1, padding: '8px 0', fontSize: 12, fontWeight: 700 }}>
-                      {v}
-                    </button>
-                  )
-                })}</div>
-                <div className="flex gap-2 mb-3">
-                  <input type="number" value={tipAmount} onChange={(e) => setTipAmount(e.target.value)} placeholder="Custom amount" min="10" max={coins}
-                    style={{ flex: 1, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '10px 16px', fontSize: 16, color: '#ffffff', outline: 'none' }}
-                    onFocus={(e) => e.target.style.borderColor = 'rgba(0,212,255,0.5)'}
-                    onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
-                  />
-                </div>
-                {tipAmount && parseInt(tipAmount) >= 10 && parseInt(tipAmount) <= coins && <p className="text-white/40 text-xs mb-3 text-center">Partner receives {Math.floor(parseInt(tipAmount)*0.70)} coins · Vybe keeps {Math.ceil(parseInt(tipAmount)*0.30)}</p>}
-                {tipAmount && parseInt(tipAmount) > coins && <p className="text-red-400 text-xs mb-3 text-center">You only have {coins} spendable coins</p>}
-                <button onClick={handleSendTip} disabled={tipLoading||!tipAmount||parseInt(tipAmount)<10||parseInt(tipAmount)>coins}
-                  className="w-full py-3 rounded-xl text-sm font-extrabold disabled:opacity-50"
-                  style={{ background: '#00D4FF', color: '#000', boxShadow: '0 0 20px rgba(0,212,255,0.35)' }}>
-                  {tipLoading ? 'Sending…' : `Send ${tipAmount||0} coins`}
-                </button>
-              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1588,11 +1505,6 @@ export default function ChatPage() {
                     </span>
                   )}
                 </div>
-                {user && status === 'matched' && (
-                  <button onClick={() => setShowTip(true)} className="flex items-center justify-center w-7 h-7 rounded-xl active:scale-90" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <VybeCoin size={14} />
-                  </button>
-                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -1615,13 +1527,11 @@ export default function ChatPage() {
 
           {/* Mobile Coins — top left, below partner pill */}
           {user && status === 'matched' && (
-            <motion.button
-              onClick={() => setShowTip(true)}
-              whileTap={{ scale: 0.92 }}
-              style={{ position: 'absolute', top: 'max(52px, env(safe-area-inset-top, 0px) + 50px)', left: 12, zIndex: 6, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <div
+              style={{ position: 'absolute', top: 'max(52px, env(safe-area-inset-top, 0px) + 50px)', left: 12, zIndex: 6, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <VybeCoin size={13} />
               <span style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>{coins.toLocaleString()}</span>
-            </motion.button>
+            </div>
           )}
 
           {/* Mobile Gift — top left, below coins */}
@@ -2285,15 +2195,12 @@ export default function ChatPage() {
 
             {/* Center: Coins | Gender | Country | Skip */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {/* Spend Coins */}
-              <motion.button
-                onClick={() => setShowTip(true)}
-                whileHover={{ background: 'rgba(255,255,255,0.10)' }}
-                whileTap={{ scale: 0.93 }}
-                style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', borderRadius: 50, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', cursor: 'pointer', transition: 'background 150ms ease', flexShrink: 0 }}>
+              {/* Coin balance */}
+              <div
+                style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', borderRadius: 50, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)', flexShrink: 0 }}>
                 <VybeCoin size={14} style={{ color: '#00D4FF' }} />
                 <span style={{ color: 'white', fontSize: 13, fontWeight: 700 }}>{coins.toLocaleString()}</span>
-              </motion.button>
+              </div>
 
               {/* Send Gift */}
               <motion.button
