@@ -224,3 +224,35 @@ export function playGiftImpact(level = 0) {
   const sparkle = [1568, 2093, 2637, 3136, 2349]
   sparkle.forEach((f, i) => tone(f, t + 0.05 + i * 0.045, 0.11, 0.05 + lvl * 0.008, 'triangle'))
 }
+
+// Big full-screen gift blast — a deep impact, a rising power sweep, a sparkle
+// cascade and (from the mid tiers) a triumphant chord.
+export function playGiftBlast(level = 0) {
+  const c = ctx()
+  if (!c) return
+  const t   = c.currentTime
+  const lvl = Math.max(0, Math.min(5, Math.round(level)))
+  boom(t, 0.3 + lvl * 0.03)
+  // Rising power sweep
+  try {
+    const osc = c.createOscillator()
+    const env = c.createGain()
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(120, t)
+    osc.frequency.exponentialRampToValueAtTime(900 + lvl * 130, t + 0.45)
+    env.gain.setValueAtTime(0.0001, t)
+    env.gain.linearRampToValueAtTime(0.055 + lvl * 0.006, t + 0.18)
+    env.gain.exponentialRampToValueAtTime(0.0001, t + 0.5)
+    osc.connect(env); env.connect(c.destination)
+    osc.start(t); osc.stop(t + 0.52)
+  } catch {}
+  // Sparkle cascade
+  const sparkle = [1318, 1760, 2093, 2637, 3136, 2349, 1760]
+  sparkle.forEach((f, i) => tone(f, t + 0.22 + i * 0.05, 0.12, 0.05 + lvl * 0.007, 'triangle'))
+  // Triumphant chord from the mid tiers up
+  if (lvl >= 3) {
+    const chord = [392, 523.25, 659.25, 783.99]
+    chord.forEach((f, i) => tone(f, t + 0.1 + i * 0.04, 0.7, 0.05 + lvl * 0.006, 'triangle'))
+  }
+  if (lvl >= 5) boom(t + 0.5, 0.28)
+}

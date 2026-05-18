@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import ProfilePill from '../components/ProfilePill'
 import { GiftIcon, GIFTS, GIFT_TIERS } from '../components/GiftIcon'
-import GiftToss from '../components/GiftToss'
+import GiftBlast from '../components/GiftBlast'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -1065,8 +1065,8 @@ export default function ChatPage() {
 
         {/* ── Fixed overlays ───────────────────────────────────────── */}
 
-        {/* Gift toss — flies the gift to the recipient's panel, both layouts */}
-        <GiftToss anims={giftAnimations} />
+        {/* Gift blast — full-screen takeover, both layouts */}
+        <GiftBlast anims={giftAnimations} />
 
         {/* Connection lost */}
         <AnimatePresence>
