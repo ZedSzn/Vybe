@@ -908,6 +908,26 @@ app.post('/api/auth/reset-password', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Change password while signed in — verifies the current password first
+app.post('/api/auth/change-password', authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both current and new password are required' });
+    if (newPassword.length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters' });
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!await bcrypt.compare(currentPassword, user.password)) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+    if (await bcrypt.compare(newPassword, user.password)) {
+      return res.status(400).json({ error: 'New password must be different from your current one' });
+    }
+    await User.findByIdAndUpdate(user._id, { password: await bcrypt.hash(newPassword, 10) });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.post('/api/auth/login', authLimiter, async (req, res) => {
   if (!dbConnected) return res.status(503).json({ error: 'Database not connected. Check MONGODB_URI in your .env file.' });
   try {

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Loader2, Trash2, UserX, Download, AlertTriangle, Check, Mail,
-  ShieldCheck, Ban, UserCog, Gift, ArrowDownToLine,
+  ShieldCheck, Ban, UserCog, Gift, ArrowDownToLine, KeyRound,
 } from 'lucide-react'
 import EmptyStateIllustration from '../components/EmptyStateIllustration'
 import VybeCoin from '../components/VybeCoin'
@@ -392,6 +392,59 @@ function EmailVerificationSection({ user }) {
   )
 }
 
+// ─── Change Password Section ──────────────────────────────────────────────────
+function ChangePasswordSection() {
+  const [current, setCurrent] = useState('')
+  const [next,    setNext]    = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [saving,  setSaving]  = useState(false)
+  const [done,    setDone]    = useState(false)
+  const [err,     setErr]     = useState('')
+
+  const submit = async () => {
+    setErr('')
+    if (next.length < 6)  { setErr('New password must be at least 6 characters'); return }
+    if (next !== confirm) { setErr('New passwords do not match'); return }
+    setSaving(true)
+    try {
+      await axios.post('/api/auth/change-password', { currentPassword: current, newPassword: next })
+      setDone(true)
+      setCurrent(''); setNext(''); setConfirm('')
+    } catch (e) {
+      setErr(e.response?.data?.error || 'Failed to change password.')
+    }
+    setSaving(false)
+  }
+
+  const inputCls   = 'w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none'
+  const inputStyle = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }
+
+  return (
+    <div className="rounded-2xl p-5" style={PANEL}>
+      <h3 className="text-sm font-black text-white mb-1 flex items-center gap-2"><KeyRound size={14} /> Change Password</h3>
+      <p className="text-xs mb-4" style={{ color: MUTED }}>Update the password you use to sign in.</p>
+      {done ? (
+        <p className="text-sm flex items-center gap-2" style={{ color: '#00D4FF' }}><Check size={14} /> Password updated.</p>
+      ) : (
+        <div className="space-y-3">
+          <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)}
+            placeholder="Current password" autoComplete="current-password" className={inputCls} style={inputStyle} />
+          <input type="password" value={next} onChange={(e) => setNext(e.target.value)}
+            placeholder="New password" autoComplete="new-password" className={inputCls} style={inputStyle} />
+          <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)}
+            placeholder="Confirm new password" autoComplete="new-password" className={inputCls} style={inputStyle} />
+          {err && <p className="text-red-400 text-xs">{err}</p>}
+          <motion.button onClick={submit} disabled={saving || !current || !next || !confirm} whileTap={{ scale: 0.97 }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
+            style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.28)', color: '#00D4FF' }}>
+            {saving ? <><Loader2 size={13} className="animate-spin" /> Updating…</> : <><KeyRound size={13} /> Update Password</>}
+          </motion.button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Account Tab ──────────────────────────────────────────────────────────────
 function AccountTab({ logout, navigate }) {
   const { user } = useAuth()
@@ -429,6 +482,9 @@ function AccountTab({ logout, navigate }) {
     <div className="space-y-4">
       {/* Email verification */}
       <EmailVerificationSection user={user} />
+
+      {/* Change password */}
+      <ChangePasswordSection />
 
       {/* Data export */}
       <div className="rounded-2xl p-5" style={PANEL}>
