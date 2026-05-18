@@ -1222,10 +1222,10 @@ export default function ChatPage() {
                   return (
                     <button type="button" disabled={!enabled}
                       onClick={() => { if (!enabled) return; if (broke) { setShowGift(false); navigate('/coins') } else sendGift() }}
-                      style={{ width: '100%', padding: '12px 0', borderRadius: 50, background: broke ? '#7C3AED' : '#00D4FF', color: broke ? '#fff' : '#0a0a0f', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', system-ui, sans-serif", border: 'none', cursor: enabled ? 'pointer' : 'not-allowed', opacity: enabled ? 1 : 0.4 }}>
+                      style={{ width: '100%', padding: '12px 0', borderRadius: 50, background: '#00D4FF', color: '#0a0a0f', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', system-ui, sans-serif", border: 'none', cursor: enabled ? 'pointer' : 'not-allowed', opacity: enabled ? 1 : 0.4 }}>
                       {giftSending ? 'Sending…'
                         : !hasAmount ? 'Select a gift'
-                        : broke ? `Get coins to send · ${amt.toLocaleString()}`
+                        : broke ? `Buy coins to send · ${amt.toLocaleString()}`
                         : sel ? `Send ${sel.name} · ${sel.coins.toLocaleString()} coins`
                         : `Send ${amt.toLocaleString()} coins`}
                     </button>
