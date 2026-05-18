@@ -1045,7 +1045,8 @@ export default function MainPage() {
         <div className="flex-1 min-h-0" style={{ display: 'flex', alignItems: 'flex-start', overflow: 'hidden' }}>
 
           {/* ────────── LEFT: Controls ────────── */}
-          <div style={{ flex: 1, alignSelf: 'stretch', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '40px 52px 24px 72px' }}>
+          {/* Top-align when the trial banner fills the lower half; otherwise center so there's no void */}
+          <div style={{ flex: 1, alignSelf: 'stretch', display: 'flex', flexDirection: 'column', justifyContent: (!user?.isVip && !user?.isPremium && !user?.trialUsed) ? 'flex-start' : 'center', padding: '40px 52px 24px 72px' }}>
 
             <div>
             {/* Live badge */}
