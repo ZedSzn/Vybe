@@ -20,6 +20,58 @@ import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
 import { playClick } from '../utils/sounds'
 
+// Glowing "X Gifted" chip — shown next to a person's pill once you've gifted them.
+// Remount it (key={amount}) to replay the pop animation on each new gift.
+function GiftChip({ amount }) {
+  return (
+    <motion.div
+      initial={{ scale: 0.6, opacity: 0 }}
+      animate={{
+        scale: [0.6, 1.18, 1],
+        opacity: 1,
+        boxShadow: [
+          '0 0 8px rgba(0,212,255,0.38), 0 0 18px rgba(0,212,255,0.22)',
+          '0 0 16px rgba(0,212,255,0.7), 0 0 34px rgba(0,212,255,0.42)',
+          '0 0 8px rgba(0,212,255,0.38), 0 0 18px rgba(0,212,255,0.22)',
+        ],
+      }}
+      transition={{
+        scale:     { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
+        opacity:   { duration: 0.3 },
+        boxShadow: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
+      }}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        padding: '4px 12px 4px 4px', borderRadius: 50,
+        background: 'rgba(6,10,22,0.9)',
+        border: '1px solid rgba(0,212,255,0.6)',
+        fontFamily: "'Sora', system-ui, sans-serif",
+        flexShrink: 0,
+      }}
+    >
+      <div style={{
+        width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+        background: 'rgba(0,212,255,0.07)',
+        border: '1px solid rgba(0,212,255,0.55)',
+        boxShadow: '0 0 6px rgba(0,212,255,0.45), inset 0 0 5px rgba(0,212,255,0.16)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Gift size={13} style={{ color: '#00D4FF', filter: 'drop-shadow(0 0 2px rgba(0,212,255,0.9))' }} />
+      </div>
+      <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4, whiteSpace: 'nowrap' }}>
+        <span style={{
+          color: '#00D4FF', fontSize: 12, fontWeight: 800,
+          fontVariantNumeric: 'tabular-nums', letterSpacing: '0.01em',
+          textShadow: '0 0 6px rgba(0,212,255,0.6)',
+        }}>
+          {amount.toLocaleString()}
+        </span>
+        <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: 600 }}>Gifted</span>
+      </span>
+    </motion.div>
+  )
+}
+
 // Uncontrolled input — reads DOM value directly so React re-renders never interfere
 function FloatingChat({ messages, messagesEndRef, onSend, status }) {
   const inputRef = useRef(null)
@@ -252,7 +304,7 @@ export default function ChatPage() {
   const [duoPipExpanded,   setDuoPipExpanded]   = useState(false)
   const [tipIdx,           setTipIdx]           = useState(0)
   const [giftAnimations,   setGiftAnimations]   = useState([])   // [{ id, giftId, target: 'stranger'|'partner' }]
-  const [giftedToPartner,  setGiftedToPartner]  = useState(0)    // coins gifted to the partner this chat
+  const [giftedBySocket,   setGiftedBySocket]   = useState({})   // socketId -> coins I've gifted them this chat
   const [showGift,         setShowGift]         = useState(false) // "Send Coins" modal open
   const [giftRecipient,    setGiftRecipient]    = useState('stranger') // 'stranger' | 'partner'
   const [selectedGiftId,   setSelectedGiftId]   = useState(null)
@@ -622,7 +674,7 @@ export default function ChatPage() {
         setPartnerEmailVerified(pEmailVerified || false)
         setPartnerCountry(pCountry || null)
         setGiftAnimations([])
-        setGiftedToPartner(0)
+        setGiftedBySocket({})
         setFriendReqSent(false)
         setMatchFlash(true)
         clearTimeout(matchFlashTimer.current)
@@ -744,9 +796,10 @@ export default function ChatPage() {
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
           setCashableCoins((c) => c + giftCoins)
         }
-        // Tally coins gifted to the partner this chat — drives the gift chip
-        if (recipientSocketId === partnerSockRef.current && giftCoins) {
-          setGiftedToPartner((p) => p + giftCoins)
+        // Tally coins I've gifted to each person this chat — drives the gift chip.
+        // Keyed by recipient socket so duo partner + both strangers each get their own chip.
+        if (recipientSocketId && giftCoins && String(senderId) === String(user?.id)) {
+          setGiftedBySocket((m) => ({ ...m, [recipientSocketId]: (m[recipientSocketId] || 0) + giftCoins }))
         }
         // Toast for everyone except the sender (who already knows)
         if (senderUsername && String(senderId) !== String(user?.id)) {
@@ -1515,6 +1568,9 @@ export default function ChatPage() {
                     </span>
                   )}
                 </div>
+                {giftedBySocket[partnerSock] > 0 && (
+                  <GiftChip key={giftedBySocket[partnerSock]} amount={giftedBySocket[partnerSock]} />
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -1779,7 +1835,7 @@ export default function ChatPage() {
                   </div>
                 )}
                 {status === 'matched' && (
-                  <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                  <div className="absolute flex items-center gap-2" style={{ top: 12, left: 12, zIndex: 10 }}>
                     <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
                       {partnerAvatar ? (
                         <img src={partnerAvatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(255,255,255,0.2)' }} />
@@ -1797,6 +1853,9 @@ export default function ChatPage() {
                         {partnerCountry && <span className="text-[9px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{partnerCountry}</span>}
                       </div>
                     </div>
+                    {giftedBySocket[opponentSocketIds[0]] > 0 && (
+                      <GiftChip key={giftedBySocket[opponentSocketIds[0]]} amount={giftedBySocket[opponentSocketIds[0]]} />
+                    )}
                   </div>
                 )}
                 {status === 'matched' && (
@@ -1817,12 +1876,15 @@ export default function ChatPage() {
                   </div>
                 )}
                 {status === 'matched' && (
-                  <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                  <div className="absolute flex items-center gap-2" style={{ top: 12, left: 12, zIndex: 10 }}>
                     <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
                       <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>S</div>
                       <span className="text-white font-bold text-[11px] leading-none">Stranger</span>
                       <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
                     </div>
+                    {giftedBySocket[opponentSocketIds[1]] > 0 && (
+                      <GiftChip key={giftedBySocket[opponentSocketIds[1]]} amount={giftedBySocket[opponentSocketIds[1]]} />
+                    )}
                   </div>
                 )}
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
@@ -1869,12 +1931,15 @@ export default function ChatPage() {
                 {mateSocketIds[0] ? (
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                    <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                    <div className="absolute flex items-center gap-2" style={{ top: 12, left: 12, zIndex: 10 }}>
                       <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
                         <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>D</div>
                         <span className="text-white font-bold text-[11px] leading-none">Duo Partner</span>
                         <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
                       </div>
+                      {giftedBySocket[mateSocketIds[0]] > 0 && (
+                        <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} />
+                      )}
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
                   </>
@@ -1977,54 +2042,8 @@ export default function ChatPage() {
                         friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
                         onAddFriend={handleAddFriend}
                       />
-                      {giftedToPartner > 0 && (
-                        <motion.div
-                          key={giftedToPartner}
-                          initial={{ scale: 0.6, opacity: 0 }}
-                          animate={{
-                            scale: [0.6, 1.18, 1],
-                            opacity: 1,
-                            boxShadow: [
-                              '0 0 8px rgba(0,212,255,0.38), 0 0 18px rgba(0,212,255,0.22)',
-                              '0 0 16px rgba(0,212,255,0.7), 0 0 34px rgba(0,212,255,0.42)',
-                              '0 0 8px rgba(0,212,255,0.38), 0 0 18px rgba(0,212,255,0.22)',
-                            ],
-                          }}
-                          transition={{
-                            scale:     { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
-                            opacity:   { duration: 0.3 },
-                            boxShadow: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
-                          }}
-                          style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 6,
-                            padding: '4px 12px 4px 4px', borderRadius: 50,
-                            background: 'rgba(6,10,22,0.9)',
-                            border: '1px solid rgba(0,212,255,0.6)',
-                            fontFamily: "'Sora', system-ui, sans-serif",
-                          }}
-                        >
-                          {/* glowing icon circle — matches the profile pill avatar size */}
-                          <div style={{
-                            width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-                            background: 'rgba(0,212,255,0.07)',
-                            border: '1px solid rgba(0,212,255,0.55)',
-                            boxShadow: '0 0 6px rgba(0,212,255,0.45), inset 0 0 5px rgba(0,212,255,0.16)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          }}>
-                            <Gift size={13} style={{ color: '#00D4FF', filter: 'drop-shadow(0 0 2px rgba(0,212,255,0.9))' }} />
-                          </div>
-                          {/* count */}
-                          <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4, whiteSpace: 'nowrap' }}>
-                            <span style={{
-                              color: '#00D4FF', fontSize: 12, fontWeight: 800,
-                              fontVariantNumeric: 'tabular-nums', letterSpacing: '0.01em',
-                              textShadow: '0 0 6px rgba(0,212,255,0.6)',
-                            }}>
-                              {giftedToPartner.toLocaleString()}
-                            </span>
-                            <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: 600 }}>Gifted</span>
-                          </span>
-                        </motion.div>
+                      {giftedBySocket[partnerSock] > 0 && (
+                        <GiftChip key={giftedBySocket[partnerSock]} amount={giftedBySocket[partnerSock]} />
                       )}
                     </motion.div>
                   )}
