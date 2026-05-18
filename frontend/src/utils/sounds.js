@@ -192,3 +192,35 @@ export function playGiftFireworks(level = 0) {
     crackle(t + 1.5, 1.1, 0.09)
   }
 }
+
+// Whoosh — the gift being thrown across the screen toward the partner.
+export function playGiftThrow() {
+  const c = ctx()
+  if (!c) return
+  try {
+    const t = c.currentTime
+    const src = c.createBufferSource()
+    src.buffer = noiseBuffer(c)
+    const bp = c.createBiquadFilter()
+    bp.type = 'bandpass'; bp.Q.value = 1.3
+    bp.frequency.setValueAtTime(380, t)
+    bp.frequency.exponentialRampToValueAtTime(2600, t + 0.5)
+    const env = c.createGain()
+    env.gain.setValueAtTime(0.0001, t)
+    env.gain.linearRampToValueAtTime(0.1, t + 0.14)
+    env.gain.exponentialRampToValueAtTime(0.0001, t + 0.56)
+    src.connect(bp); bp.connect(env); env.connect(c.destination)
+    src.start(t); src.stop(t + 0.6)
+  } catch {}
+}
+
+// Impact — the gift landing on the partner: a thud + a sparkle, scaled by tier.
+export function playGiftImpact(level = 0) {
+  const c = ctx()
+  if (!c) return
+  const t   = c.currentTime
+  const lvl = Math.max(0, Math.min(5, Math.round(level)))
+  boom(t, 0.22 + lvl * 0.025)
+  const sparkle = [1568, 2093, 2637, 3136, 2349]
+  sparkle.forEach((f, i) => tone(f, t + 0.05 + i * 0.045, 0.11, 0.05 + lvl * 0.008, 'triangle'))
+}

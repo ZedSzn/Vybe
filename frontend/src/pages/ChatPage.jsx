@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import ProfilePill from '../components/ProfilePill'
 import { GiftIcon, GIFTS, GIFT_TIERS } from '../components/GiftIcon'
-import GiftFireworks from '../components/GiftFireworks'
+import GiftToss from '../components/GiftToss'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -726,10 +726,18 @@ export default function ChatPage() {
       // Gift broadcast — every participant in the room sees the animation
       socket.on('gift_received', ({ giftId, giftName, coins: giftCoins, senderId, senderUsername, recipientSocketId }) => {
         if (!mounted) return
-        const target = squadMatesRef.current.includes(recipientSocketId) ? 'partner' : 'stranger'
         const id = Date.now() + Math.random()
-        setGiftAnimations((prev) => [...prev, { id, giftId, target, coins: giftCoins }])
-        setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2700)
+        // Capture the recipient's video panel so the gift can fly to it.
+        let target = null
+        const el = remoteVideoRefs.current[recipientSocketId]
+        if (el) {
+          const r = el.getBoundingClientRect()
+          if (r.width > 4 && r.height > 4) {
+            target = { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width, h: r.height }
+          }
+        }
+        setGiftAnimations((prev) => [...prev, { id, giftId, coins: giftCoins, target }])
+        setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2900)
         // Credit my cashable balance if I'm the recipient
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
           setCashableCoins((c) => c + giftCoins)
@@ -1057,8 +1065,8 @@ export default function ChatPage() {
 
         {/* ── Fixed overlays ───────────────────────────────────────── */}
 
-        {/* Gift fireworks — full-screen celebration, both layouts */}
-        <GiftFireworks anims={giftAnimations} />
+        {/* Gift toss — flies the gift to the recipient's panel, both layouts */}
+        <GiftToss anims={giftAnimations} />
 
         {/* Connection lost */}
         <AnimatePresence>
