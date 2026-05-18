@@ -1045,7 +1045,8 @@ export default function MainPage() {
         <div className="flex-1 min-h-0" style={{ display: 'flex', alignItems: 'flex-start', overflow: 'hidden' }}>
 
           {/* ────────── LEFT: Controls ────────── */}
-          <div style={{ flex: 1, alignSelf: 'stretch', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '40px 52px 24px 72px' }}>
+          {/* Top-align when the trial banner fills the lower half; otherwise center so there's no void */}
+          <div style={{ flex: 1, alignSelf: 'stretch', display: 'flex', flexDirection: 'column', justifyContent: (!user?.isVip && !user?.isPremium && !user?.trialUsed) ? 'flex-start' : 'center', padding: '40px 52px 24px 72px' }}>
 
             <div>
             {/* Live badge */}
@@ -1282,29 +1283,6 @@ export default function MainPage() {
                   </motion.button>
                   <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>🔒 Secured by Stripe</span>
                 </div>
-              </motion.div>
-            )}
-
-            {/* ── Trust strip — fills the space for users past the trial offer ── */}
-            {(user?.isVip || user?.isPremium || user?.trialUsed) && (
-              <motion.div
-                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}
-                style={{
-                  marginTop: 16, borderRadius: 14,
-                  background: 'rgba(255,255,255,0.025)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
-                  padding: '14px 22px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-                }}>
-                {['Moderated 24/7', 'No sign-up needed', 'Free to start'].map(label => (
-                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <Check size={12} strokeWidth={3} style={{ color: '#00D4FF' }} />
-                    </span>
-                    <span style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,0.62)', whiteSpace: 'nowrap' }}>{label}</span>
-                  </div>
-                ))}
               </motion.div>
             )}
 
