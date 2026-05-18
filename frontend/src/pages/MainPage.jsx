@@ -1045,8 +1045,7 @@ export default function MainPage() {
         <div className="flex-1 min-h-0" style={{ display: 'flex', alignItems: 'flex-start', overflow: 'hidden' }}>
 
           {/* ────────── LEFT: Controls ────────── */}
-          {/* Top-align when the trial banner fills the lower half; otherwise center so there's no void */}
-          <div style={{ flex: 1, alignSelf: 'stretch', display: 'flex', flexDirection: 'column', justifyContent: (!user?.isVip && !user?.isPremium && !user?.trialUsed) ? 'flex-start' : 'center', padding: '40px 52px 24px 72px' }}>
+          <div style={{ flex: 1, alignSelf: 'stretch', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '40px 52px 24px 72px' }}>
 
             <div>
             {/* Live badge */}
@@ -1284,6 +1283,43 @@ export default function MainPage() {
                   <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>🔒 Secured by Stripe</span>
                 </div>
               </motion.div>
+            )}
+
+            {/* ── Trust cards — fill the space for users past the trial offer ── */}
+            {(user?.isVip || user?.isPremium || user?.trialUsed) && (
+              <div style={{ marginTop: 18, display: 'flex', gap: 12 }}>
+                {[
+                  { icon: Shield, title: 'Moderated 24/7', desc: 'AI + human safety review on every call' },
+                  { icon: Video,  title: 'Instant matches', desc: 'New person to meet in under 2 seconds' },
+                  { icon: Globe,  title: 'Global community', desc: 'Real people from 190+ countries' },
+                ].map(({ icon: Icon, title, desc }, i) => (
+                  <motion.div
+                    key={title}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.18 + i * 0.07, duration: 0.4 }}
+                    whileHover={{ y: -4 }}
+                    style={{
+                      flex: 1, borderRadius: 16, padding: '18px 16px',
+                      background: 'linear-gradient(160deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+                      border: '1px solid rgba(255,255,255,0.07)',
+                      boxShadow: '0 8px 26px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04)',
+                      transition: 'border-color 0.2s ease',
+                    }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 12, marginBottom: 13,
+                      background: 'linear-gradient(135deg, rgba(0,212,255,0.16), rgba(0,212,255,0.06))',
+                      border: '1px solid rgba(0,212,255,0.25)',
+                      boxShadow: '0 0 16px rgba(0,212,255,0.12)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Icon size={19} style={{ color: '#00D4FF' }} />
+                    </div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 4px', letterSpacing: '-0.01em' }}>{title}</p>
+                    <p style={{ fontSize: 12, lineHeight: 1.5, color: 'rgba(255,255,255,0.42)', margin: 0 }}>{desc}</p>
+                  </motion.div>
+                ))}
+              </div>
             )}
 
           </div>
