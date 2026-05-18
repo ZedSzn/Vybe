@@ -3050,9 +3050,6 @@ io.on('connection', (socket) => {
         canFilter = !!(u?.isVip || u?.isPremium);
       } catch {}
     }
-    // Gender/country filters are a members-only perk — strip them for
-    // everyone else so the perk can't be used by bypassing the locked UI.
-    if (!canFilter) { prefs.filterGender = null; prefs.filterCountry = ''; }
     // Attach block list to onlineUsers entry for use in findSoloMatch
     if (me) onlineUsers.set(socket.id, { ...me, blockedIds: myBlockedIds });
 
@@ -3066,10 +3063,17 @@ io.on('connection', (socket) => {
       const squad = squads.get(prefs.squadId);
       if (!squad) { socket.emit('squad-error', { message: 'Squad expired or not found.' }); return; }
       const buf = squadMatchBuf.get(prefs.squadId) || [];
-      if (!buf.includes(socket.id)) buf.push(socket.id);
+      if (!buf.some((b) => b.socketId === socket.id)) {
+        buf.push({ socketId: socket.id, fg: prefs.filterGender || null, fc: prefs.filterCountry || '', canFilter });
+      }
       squadMatchBuf.set(prefs.squadId, buf);
       if (buf.length < squad.members.length) { socket.emit('waiting'); return; }
-      const mySocketIds = [...buf];
+      const mySocketIds = buf.map((b) => b.socketId);
+      // Filters are a members-only perk — the squad can filter if ANY member
+      // has a membership; the values come from a filtering member.
+      const filterSrc = buf.find((b) => b.canFilter && (b.fg || b.fc));
+      const squadFG = filterSrc ? filterSrc.fg : null;
+      const squadFC = filterSrc ? filterSrc.fc : '';
       squadMatchBuf.delete(prefs.squadId);
       // Tell squad members about each other so they can pre-connect via WebRTC while searching
       for (const sid of mySocketIds) {
@@ -3080,7 +3084,7 @@ io.on('connection', (socket) => {
         }
       }
       const myMembers = mySocketIds.map((sid) => onlineUsers.get(sid) || {});
-      const opponent = findSquadMatch(prefs.squadId, prefs.filterGender || null, prefs.filterCountry || '', myMembers);
+      const opponent = findSquadMatch(prefs.squadId, squadFG, squadFC, myMembers);
       if (opponent) {
         const opponentSocketIds = opponent.socketIds || [opponent.socketId];
         const allSocketIds = [...mySocketIds, ...opponentSocketIds];
@@ -3090,12 +3094,14 @@ io.on('connection', (socket) => {
       } else {
         const existing = waitingQueue.findIndex(e => e.squadId === prefs.squadId);
         if (existing !== -1) waitingQueue.splice(existing, 1);
-        waitingQueue.push({ type: 'squad', socketIds: mySocketIds, squadId: prefs.squadId, mode: 'squad', filterGender: prefs.filterGender || null, filterCountry: prefs.filterCountry || '' });
+        waitingQueue.push({ type: 'squad', socketIds: mySocketIds, squadId: prefs.squadId, mode: 'squad', filterGender: squadFG, filterCountry: squadFC });
         for (const sid of mySocketIds) io.to(sid).emit('waiting');
       }
       return;
     }
 
+    // Solo: gender/country filters are a members-only perk.
+    if (!canFilter) { prefs.filterGender = null; prefs.filterCountry = ''; }
     const match = findSoloMatch(socket.id, prefs);
     if (match) {
       const room = `room_${Date.now()}_${Math.random().toString(36).slice(2)}`;
