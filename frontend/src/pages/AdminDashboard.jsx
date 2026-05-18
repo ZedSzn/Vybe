@@ -282,14 +282,28 @@ export default function AdminDashboard() {
   const [profileId,   setProfileId]      = useState(null)
   const toastTimer                       = useRef(null)
 
+  // Admin JWT expires after 2h — a present-but-expired token must be treated
+  // as logged out, otherwise every request silently fails to load.
+  const isTokenExpired = (t) => {
+    try {
+      const { exp } = JSON.parse(atob(t.split('.')[1]))
+      return !exp || exp * 1000 <= Date.now()
+    } catch { return true }
+  }
+
   // ── Auth check + inactivity timer ────────────────────────────────────────
   useEffect(() => {
-    if (!token) { navigate('/admin-vybe-2024', { replace: true }); return }
+    if (!token || isTokenExpired(token)) {
+      localStorage.removeItem('vybe_admin_token')
+      localStorage.removeItem('vybe_admin_activity')
+      navigate('/admin-vybe-2024', { replace: true })
+      return
+    }
 
     const updateActivity = () => localStorage.setItem('vybe_admin_activity', Date.now().toString())
     const checkActivity  = setInterval(() => {
       const last = parseInt(localStorage.getItem('vybe_admin_activity') || '0', 10)
-      if (last && Date.now() - last > 2 * 60 * 60 * 1000) handleLogout()
+      if ((last && Date.now() - last > 2 * 60 * 60 * 1000) || isTokenExpired(token)) handleLogout()
     }, 60000)
 
     window.addEventListener('click',   updateActivity)
