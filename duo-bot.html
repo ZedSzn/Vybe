@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vybe Duo Bot</title>
+  <script src="http://localhost:3001/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #07070f;
+      color: #e0e0f0;
+      padding: 28px;
+      min-height: 100vh;
+    }
+    h2 { color: #00D4FF; font-size: 22px; margin-bottom: 6px; letter-spacing: -0.02em; }
+    .subtitle { color: rgba(255,255,255,0.35); font-size: 12px; margin-bottom: 24px; }
+    .row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,212,255,0.3);
+      color: white;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      width: 140px;
+    }
+    button {
+      padding: 9px 20px;
+      border-radius: 10px;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.85; }
+    #btn-start { background: #00D4FF; color: #000; }
+    #btn-stop  { background: rgba(255,60,60,0.2); color: #ff6060; border: 1px solid rgba(255,60,60,0.35); }
+    #btn-2v2   { background: rgba(124,58,237,0.25); color: #c084fc; border: 1px solid rgba(124,58,237,0.4); }
+
+    .log-box {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 12px;
+      min-height: 80px;
+      max-height: 160px;
+      overflow-y: auto;
+      margin-bottom: 24px;
+      line-height: 1.8;
+    }
+    .log-ok   { color: #4ade80; }
+    .log-info { color: #00D4FF; }
+    .log-warn { color: #f59e0b; }
+    .log-err  { color: #f87171; }
+
+    .bots {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .bot-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 16px;
+      flex: 1;
+      min-width: 260px;
+    }
+    .bot-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .bot-card .desc { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 12px; }
+    .dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      margin-right: 6px;
+      background: #444;
+    }
+    .dot.green  { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+    .dot.yellow { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+    .dot.cyan   { background: #00D4FF; box-shadow: 0 0 6px #00D4FF; }
+    canvas {
+      border-radius: 10px;
+      display: block;
+      width: 100%;
+      aspect-ratio: 4/3;
+      margin-top: 10px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 3px 10px;
+      border-radius: 50px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.4);
+    }
+    .status-pill.active { background: rgba(0,212,255,0.12); border-color: rgba(0,212,255,0.35); color: #00D4FF; }
+    .status-pill.matched { background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.35); color: #4ade80; }
+
+    .instructions {
+      background: rgba(0,212,255,0.04);
+      border: 1px solid rgba(0,212,255,0.12);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.9;
+      margin-bottom: 24px;
+    }
+    .instructions b { color: rgba(255,255,255,0.75); }
+  </style>
+</head>
+<body>
+
+  <h2>🤖 Vybe Duo Bot</h2>
+  <p class="subtitle">Simulates a duo partner + stranger so you can test the 3-panel and 2v2 layouts</p>
+
+  <div class="instructions">
+    <b>3-Panel test (your duo + 1 stranger):</b><br>
+    1. Enter your squad code below → click <b>Start 3-Panel Bot</b><br>
+    2. Wait for "Stranger in queue" log<br>
+    3. Open your app → go to chat (the bot partner will already be in your squad)<br>
+    4. Start a match — the squad will auto-connect with the bot stranger<br><br>
+    <b>2v2 test (your duo + their duo):</b><br>
+    Click <b>Start 2v2 Bot</b> — adds 2 strangers as a squad so you get the 2×2 grid
+  </div>
+
+  <div class="row">
+    <input id="code" value="VY-GWGS" placeholder="Squad code" />
+    <button id="btn-start" onclick="start3Panel()">▶ Start 3-Panel Bot</button>
+    <button id="btn-2v2"   onclick="start2v2()">▶▶ Start 2v2 Bot</button>
+    <button id="btn-stop"  onclick="stopAll()">■ Stop All</button>
+  </div>
+
+  <div class="log-box" id="log"></div>
+
+  <div class="bots">
+    <div class="bot-card">
+      <h3><span class="dot" id="dot-partner"></span>Bot Partner</h3>
+      <p class="desc">Joins your squad — appears as your duo partner</p>
+      <span class="status-pill" id="pill-partner">IDLE</span>
+      <canvas id="canvas-partner" width="320" height="240"></canvas>
+    </div>
+    <div class="bot-card">
+      <h3><span class="dot" id="dot-stranger"></span>Bot Stranger</h3>
+      <p class="desc">Solo stranger — matches with your duo squad</p>
+      <span class="status-pill" id="pill-stranger">IDLE</span>
+      <canvas id="canvas-stranger" width="320" height="240"></canvas>
+    </div>
+    <div class="bot-card" id="card-stranger2" style="display:none">
+      <h3><span class="dot" id="dot-stranger2"></span>Bot Stranger 2</h3>
+      <p class="desc">2v2 only — partner of bot stranger</p>
+      <span class="status-pill" id="pill-stranger2">IDLE</span>
+      <canvas id="canvas-stranger2" width="320" height="240"></canvas>
+    </div>
+  </div>
+
+<script>
+const BACKEND = 'http://localhost:3001'
+let sockets  = []
+let running  = false
+let animIds  = []
+
+// ── Logging ──────────────────────────────────────────────────────────────────
+function log(msg, cls = 'log-info') {
+  const box = document.getElementById('log')
+  const line = document.createElement('div')
+  line.className = cls
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`
+  box.appendChild(line)
+  box.scrollTop = box.scrollHeight
+  console.log(msg)
+}
+
+// ── Canvas fake streams ───────────────────────────────────────────────────────
+function makeStream(canvasId, label, bg1, bg2, textColor) {
+  const canvas = document.getElementById(canvasId)
+  const ctx    = canvas.getContext('2d')
+  let t = 0
+  function draw() {
+    if (!running) return
+    t++
+    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height)
+    grad.addColorStop(0, bg1)
+    grad.addColorStop(1, bg2)
+    ctx.fillStyle = grad
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    // Pulsing orb
+    const pulse = Math.sin(t / 25) * 0.3 + 0.7
+    ctx.beginPath()
+    ctx.arc(canvas.width / 2, canvas.height / 2 - 18, 34 * pulse, 0, Math.PI * 2)
+    ctx.fillStyle = `${textColor}30`
+    ctx.fill()
+    ctx.beginPath()
+    ctx.arc(canvas.width / 2, canvas.height / 2 - 18, 22 * pulse, 0, Math.PI * 2)
+    ctx.fillStyle = `${textColor}55`
+    ctx.fill()
+
+    // Label
+    ctx.fillStyle = 'rgba(255,255,255,0.9)'
+    ctx.font = 'bold 15px Courier New'
+    ctx.textAlign = 'center'
+    ctx.fillText(label, canvas.width / 2, canvas.height / 2 + 22)
+    ctx.fillStyle = textColor + '88'
+    ctx.font = '11px Courier New'
+    ctx.fillText('Vybe Bot • ' + new Date().toLocaleTimeString(), canvas.width / 2, canvas.height / 2 + 42)
+
+    const id = requestAnimationFrame(draw)
+    animIds.push(id)
+  }
+  draw()
+  return canvas.captureStream(30)
+}
+
+// ── Status pills ──────────────────────────────────────────────────────────────
+function setPill(id, text, cls) {
+  const el = document.getElementById(id)
+  el.textContent = text
+  el.className = 'status-pill' + (cls ? ' ' + cls : '')
+}
+function setDot(id, color) {
+  const el = document.getElementById(id)
+  el.className = 'dot ' + color
+}
+
+// ── Create a socket and register ─────────────────────────────────────────────
+function createSocket(username) {
+  const s = io(BACKEND, { transports: ['websocket'] })
+  sockets.push(s)
+  s.on('connect', () => {
+    log(`${username} connected (${s.id.slice(0,8)}…)`, 'log-ok')
+    s.emit('register', { username, gender: 'other', country: '' })
+  })
+  s.on('disconnect', () => log(`${username} disconnected`, 'log-warn'))
+  s.on('connect_error', (e) => log(`${username} connection error: ${e.message}`, 'log-err'))
+  return s
+}
+
+// ── WebRTC peer setup ─────────────────────────────────────────────────────────
+function setupPeers(socket, matchData, localStream, label) {
+  const peerMap = {}
+
+  socket.on('webrtc-offer', ({ offer, from }) => {
+    if (peerMap[from]) {
+      log(`${label} received offer from ${from.slice(0,8)}…`, 'log-info')
+      peerMap[from].signal(offer)
+    }
+  })
+  socket.on('webrtc-answer', ({ answer, from }) => {
+    if (peerMap[from]) peerMap[from].signal(answer)
+  })
+  socket.on('webrtc-ice-candidate', ({ candidate, from }) => {
+    if (peerMap[from]) peerMap[from].signal(candidate)
+  })
+
+  for (const { socketId, isInitiator } of matchData.peers) {
+    if (!socketId) continue
+    const peer = new SimplePeer({
+      initiator: isInitiator,
+      stream: localStream,
+      trickle: true,
+      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
+    })
+
+    peer.on('signal', (sig) => {
+      if (sig.type === 'offer')            socket.emit('webrtc-offer',         { offer: sig,     to: socketId })
+      else if (sig.type === 'answer')      socket.emit('webrtc-answer',        { answer: sig,    to: socketId })
+      else if (sig.candidate !== undefined) socket.emit('webrtc-ice-candidate', { candidate: sig, to: socketId })
+    })
+
+    peer.on('connect', () => {
+      log(`${label} ↔ ${socketId.slice(0,8)}… WebRTC connected ✓`, 'log-ok')
+    })
+    peer.on('error', (e) => log(`${label} peer error: ${e.message}`, 'log-warn'))
+
+    peerMap[socketId] = peer
+  }
+
+  return peerMap
+}
+
+// ── 3-Panel: 1 partner bot + 1 stranger bot ───────────────────────────────────
+async function start3Panel() {
+  if (running) { log('Already running — stop first', 'log-warn'); return }
+  const code = document.getElementById('code').value.trim().toUpperCase()
+  if (!code) { log('Enter a squad code first', 'log-err'); return }
+
+  running = true
+  document.getElementById('log').innerHTML = ''
+  log(`Starting 3-panel bot with code ${code}…`, 'log-info')
+
+  const partnerStream  = makeStream('canvas-partner',  'Bot Partner',  '#0a0020', '#00102a', '#00D4FF')
+  const strangerStream = makeStream('canvas-stranger',  'Bot Stranger', '#200a00', '#201000', '#f59e0b')
+
+  // ── Stranger first (gets in queue before squad search) ──
+  const strangerSock = createSocket('BotStranger')
+  setDot('dot-stranger', 'yellow'); setPill('pill-stranger', 'CONNECTING…')
+
+  await new Promise(resolve => strangerSock.once('connect', resolve))
+
+  await delay(400)
+  strangerSock.emit('find-match', { mode: 'solo', filterGender: null, filterCountry: '' })
+  log('Bot Stranger searching (solo queue)…', 'log-info')
+  setDot('dot-stranger', 'cyan'); setPill('pill-stranger', 'IN QUEUE', 'active')
+
+  strangerSock.on('waiting', () => {
+    setDot('dot-stranger', 'cyan'); setPill('pill-stranger', 'IN QUEUE', 'active')
+  })
+  strangerSock.on('match-found', (data) => {
+    log(`Bot Stranger matched! Room: ${data.room}`, 'log-ok')
+    setDot('dot-stranger', 'green'); setPill('pill-stranger', 'MATCHED', 'matched')
+    setupPeers(strangerSock, data, strangerStream, 'Stranger')
+  })
+
+  // ── Partner (joins squad, then starts searching) ──
+  await delay(600)
+  const partnerSock = createSocket('BotPartner')
+  setDot('dot-partner', 'yellow'); setPill('pill-partner', 'CONNECTING…')
+
+  await new Promise(resolve => partnerSock.once('connect', resolve))
+
+  await delay(400)
+  partnerSock.emit('join-squad', { code, username: 'BotPartner' })
+  log(`Bot Partner joining squad ${code}…`, 'log-info')
+
+  partnerSock.on('squad-error', ({ message }) => {
+    log(`Squad error: ${message}`, 'log-err')
+    setPill('pill-partner', 'ERROR')
+  })
+
+  partnerSock.on('squad-joined', async (data) => {
+    log(`Bot Partner joined squad! (${data.members.length} members)`, 'log-ok')
+    setDot('dot-partner', 'cyan'); setPill('pill-partner', 'IN SQUAD', 'active')
+
+    // Immediately call find-match as a squad member so the squad buffer fills
+    await delay(300)
+    partnerSock.emit('find-match', { squadId: data.squadId, mode: 'squad', filterGender: null, filterCountry: '' })
+    log('Bot Partner emitted find-match — waiting for YOUR find-match to complete the squad…', 'log-info')
+  })
+
+  partnerSock.on('waiting', () => {
+    setPill('pill-partner', 'WAITING…', 'active')
+  })
+  partnerSock.on('match-found', (data) => {
+    log(`Bot Partner matched! Room: ${data.room}`, 'log-ok')
+    setDot('dot-partner', 'green'); setPill('pill-partner', 'MATCHED', 'matched')
+    setupPeers(partnerSock, data, partnerStream, 'Partner')
+  })
+}
+
+// ── 2v2: 1 partner bot + 2 strangers in their own squad ──────────────────────
+async function start2v2() {
+  if (running) { log('Already running — stop first', 'log-warn'); return }
+  const code = document.getElementById('code').value.trim().toUpperCase()
+  if (!code) { log('Enter a squad code first', 'log-err'); return }
+
+  running = true
+  document.getElementById('log').innerHTML = ''
+  document.getElementById('card-stranger2').style.display = ''
+  log(`Starting 2v2 bot with code ${code}…`, 'log-info')
+
+  const partnerStream  = makeStream('canvas-partner',  'Bot Partner',   '#0a0020', '#00102a', '#00D4FF')
+  const strangerStream  = makeStream('canvas-stranger',  'Bot Stranger 1', '#200a00', '#201000', '#f59e0b')
+  const stranger2Stream = makeStream('canvas-stranger2', 'Bot Stranger 2', '#00200a', '#001a10', '#4ade80')
+
+  // ── Two strangers form their own squad ──────────────────────────────────────
+  const sSock1 = createSocket('BotStranger1')
+  setDot('dot-stranger', 'yellow'); setPill('pill-stranger', 'CONNECTING…')
+  await new Promise(r => sSock1.once('connect', r))
+  await delay(400)
+
+  // Stranger 1 creates a squad
+  sSock1.emit('create-squad', { username: 'BotStranger1' })
+  log('Stranger 1 creating squad…', 'log-info')
+
+  const strangerSquadId = await new Promise(resolve => {
+    sSock1.once('squad-created', (d) => {
+      log(`Stranger squad created: code ${d.code}`, 'log-ok')
+      resolve(d)
+    })
+  })
+
+  // Stranger 2 joins the stranger squad
+  const sSock2 = createSocket('BotStranger2')
+  setDot('dot-stranger2', 'yellow'); setPill('pill-stranger2', 'CONNECTING…')
+  await new Promise(r => sSock2.once('connect', r))
+  await delay(400)
+
+  sSock2.emit('join-squad', { code: strangerSquadId.code, username: 'BotStranger2' })
+  log(`Stranger 2 joining stranger squad ${strangerSquadId.code}…`, 'log-info')
+
+  await new Promise(r => sSock2.once('squad-joined', r))
+  log('Stranger squad full! Starting their search…', 'log-ok')
+  setDot('dot-stranger', 'cyan'); setPill('pill-stranger', 'IN QUEUE', 'active')
+  setDot('dot-stranger2', 'cyan'); setPill('pill-stranger2', 'IN QUEUE', 'active')
+
+  // Both strangers call find-match to fill their squad buffer
+  sSock1.emit('find-match', { squadId: strangerSquadId.squadId, mode: 'squad', filterGender: null, filterCountry: '' })
+  sSock2.emit('find-match', { squadId: strangerSquadId.squadId, mode: 'squad', filterGender: null, filterCountry: '' })
+  log('Stranger squad searching…', 'log-info')
+
+  for (const [sock, stream, label, dotId, pillId] of [
+    [sSock1, strangerStream, 'Stranger1', 'dot-stranger', 'pill-stranger'],
+    [sSock2, stranger2Stream, 'Stranger2', 'dot-stranger2', 'pill-stranger2'],
+  ]) {
+    sock.on('match-found', (data) => {
+      log(`${label} matched! Room: ${data.room}`, 'log-ok')
+      setDot(dotId, 'green'); setPill(pillId, 'MATCHED', 'matched')
+      setupPeers(sock, data, stream, label)
+    })
+    sock.on('waiting', () => {
+      setPill(pillId, 'IN QUEUE', 'active')
+    })
+  }
+
+  // ── Partner joins user's squad ───────────────────────────────────────────────
+  await delay(600)
+  const partnerSock = createSocket('BotPartner')
+  setDot('dot-partner', 'yellow'); setPill('pill-partner', 'CONNECTING…')
+  await new Promise(r => partnerSock.once('connect', r))
+  await delay(400)
+
+  partnerSock.emit('join-squad', { code, username: 'BotPartner' })
+  log(`Bot Partner joining user squad ${code}…`, 'log-info')
+
+  partnerSock.on('squad-error', ({ message }) => {
+    log(`Squad error: ${message}`, 'log-err')
+    setPill('pill-partner', 'ERROR')
+  })
+
+  partnerSock.on('squad-joined', async (data) => {
+    log(`Bot Partner joined user squad! (${data.members.length} members)`, 'log-ok')
+    setDot('dot-partner', 'cyan'); setPill('pill-partner', 'IN SQUAD', 'active')
+
+    await delay(300)
+    partnerSock.emit('find-match', { squadId: data.squadId, mode: 'squad', filterGender: null, filterCountry: '' })
+    log('Bot Partner searching — start your chat to complete the squad match!', 'log-info')
+  })
+
+  partnerSock.on('waiting', () => setPill('pill-partner', 'WAITING…', 'active'))
+  partnerSock.on('match-found', (data) => {
+    log(`Bot Partner matched! Room: ${data.room}`, 'log-ok')
+    setDot('dot-partner', 'green'); setPill('pill-partner', 'MATCHED', 'matched')
+    setupPeers(partnerSock, data, partnerStream, 'Partner')
+  })
+}
+
+// ── Stop all ──────────────────────────────────────────────────────────────────
+function stopAll() {
+  running = false
+  animIds.forEach(id => cancelAnimationFrame(id))
+  animIds = []
+  sockets.forEach(s => s.disconnect())
+  sockets = []
+  for (const id of ['dot-partner','dot-stranger','dot-stranger2']) setDot(id, '')
+  for (const [id, txt] of [['pill-partner','IDLE'],['pill-stranger','IDLE'],['pill-stranger2','IDLE']]) setPill(id, txt)
+  document.getElementById('card-stranger2').style.display = 'none'
+  log('All bots stopped.', 'log-warn')
+}
+
+// ── Util ──────────────────────────────────────────────────────────────────────
+function delay(ms) { return new Promise(r => setTimeout(r, ms)) }
+
+// ── Draw idle frames on page load ─────────────────────────────────────────────
+;['canvas-partner','canvas-stranger','canvas-stranger2'].forEach(id => {
+  const c = document.getElementById(id)
+  const ctx = c.getContext('2d')
+  ctx.fillStyle = '#111120'
+  ctx.fillRect(0, 0, c.width, c.height)
+  ctx.fillStyle = 'rgba(255,255,255,0.12)'
+  ctx.font = '12px Courier New'
+  ctx.textAlign = 'center'
+  ctx.fillText('idle', c.width / 2, c.height / 2)
+})
+</script>
+</body>
+</html>

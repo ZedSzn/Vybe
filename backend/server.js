@@ -619,6 +619,7 @@ const serializeUser = (user, extra = {}) => ({
   coins:         user.coins,
   cashableCoins: user.cashableCoins || 0,
   emailVerified: user.emailVerified ?? false,
+  allowFriendRequests: user.allowFriendRequests !== false,
   bio:           user.bio       || '',
   avatar:        user.avatar    || '',
   referralCode:  user.referralCode || '',

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Search, UserPlus, Users, Clock, Send, X, Check, MessageCircle } from 'lucide-react'
+import { ArrowLeft, Search, Send, X, Check, MessageCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
@@ -38,6 +38,7 @@ export default function FriendsPage() {
   const [friends, setFriends] = useState([])
   const [requests, setRequests] = useState([])
   const [sentRequests, setSentRequests] = useState([])
+  const [allowRequests, setAllowRequests] = useState(user?.allowFriendRequests !== false)
   const [selectedFriend, setSelectedFriend] = useState(null)
   const [messages, setMessages] = useState([])
   const [msgInput, setMsgInput] = useState('')
@@ -164,6 +165,18 @@ export default function FriendsPage() {
     setActionLoading('')
   }
 
+  const toggleAllowRequests = async () => {
+    const next = !allowRequests
+    setAllowRequests(next)
+    try {
+      await axios.put(`/api/user/profile`, { allowFriendRequests: next }, { headers: { Authorization: `Bearer ${token}` } })
+      showToast(next ? 'Friend requests are on' : 'Friend requests turned off')
+    } catch {
+      setAllowRequests(!next)
+      showToast('Could not update setting')
+    }
+  }
+
   const cancelSentRequest = async (friendshipId) => {
     setActionLoading(friendshipId + 'cancel')
     try {
@@ -276,26 +289,25 @@ export default function FriendsPage() {
             {/* Tabs */}
             <div className="flex flex-shrink-0 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               {[
-                { id: 'friends',  label: 'Friends',  icon: <Users size={12} /> },
-                { id: 'requests', label: 'Requests', icon: <Clock size={12} />, badge: requests.length },
-                { id: 'sent',     label: 'Sent',     icon: <Send size={12} /> },
-                { id: 'add',      label: 'Add',      icon: <UserPlus size={12} /> },
+                { id: 'friends',  label: 'Friends' },
+                { id: 'requests', label: 'Requests', badge: requests.length },
+                { id: 'sent',     label: 'Sent' },
+                { id: 'add',      label: 'Add' },
               ].map(t => (
                 <motion.button
                   key={t.id}
                   onClick={() => setTab(t.id)}
                   whileTap={{ scale: 0.94 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  className="flex-1 relative flex items-center justify-center gap-1.5 py-3 text-[11px] font-extrabold uppercase tracking-wide transition-colors"
+                  className="flex-1 relative flex items-center justify-center py-3 text-[11px] font-extrabold uppercase transition-colors"
                   style={{
                     color: tab === t.id ? '#fff' : '#4b5563',
                     borderBottom: tab === t.id ? '2px solid #00D4FF' : '2px solid transparent',
                   }}
                 >
-                  {t.icon}
                   {t.label}
                   {t.badge > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-cyan-500 text-[9px] font-black flex items-center justify-center text-white">
+                    <span className="ml-1 w-4 h-4 rounded-full bg-cyan-500 text-[9px] font-black flex items-center justify-center text-white">
                       {t.badge > 9 ? '9+' : t.badge}
                     </span>
                   )}
@@ -389,7 +401,38 @@ export default function FriendsPage() {
 
               {/* ── Requests ── */}
               {tab === 'requests' && (
-                requests.length === 0 ? (
+                <>
+                  {/* Allow friend requests toggle */}
+                  <div
+                    className="flex items-center gap-3 px-4 py-3 border-b"
+                    style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-bold text-white">Allow friend requests</p>
+                      <p className="text-[10px] mt-0.5 leading-snug" style={{ color: '#888899' }}>
+                        {allowRequests ? 'Anyone can send you requests' : "You won't receive new requests"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={toggleAllowRequests}
+                      role="switch"
+                      aria-checked={allowRequests}
+                      className="relative flex-shrink-0 rounded-full transition-colors"
+                      style={{
+                        width: 40, height: 22,
+                        background: allowRequests ? '#00D4FF' : 'rgba(255,255,255,0.12)',
+                        boxShadow: allowRequests ? '0 0 12px rgba(0,212,255,0.45)' : 'none',
+                      }}
+                    >
+                      <motion.span
+                        className="absolute top-0.5 rounded-full bg-white"
+                        style={{ width: 18, height: 18 }}
+                        animate={{ left: allowRequests ? 20 : 2 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                      />
+                    </button>
+                  </div>
+                  {requests.length === 0 ? (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -440,7 +483,8 @@ export default function FriendsPage() {
                       </div>
                     ))}
                   </div>
-                )
+                  )}
+                </>
               )}
 
               {/* ── Sent requests ── */}
