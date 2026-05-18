@@ -435,7 +435,7 @@ export default function WalletPage() {
 
         {/* ── CASH OUT ── */}
         {tab === 'cashout' && (
-          <div className="grid gap-5">
+          <div className="grid gap-5 content-start" style={{ minHeight: 540 }}>
             {/* Earnings summary */}
             <div className="px-5 py-4 rounded-2xl border border-cyan-400/25 flex items-center gap-4" style={{ background: 'rgba(0,212,255,0.06)' }}>
               <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.15)' }}>
