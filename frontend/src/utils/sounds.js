@@ -44,22 +44,28 @@ export function playMatchFound() {
   tone(783.99, t + 0.26, 0.28, 0.22) // G5
 }
 
-// Sparkle burst for gift/badge received
+// Sparkle cascade + warm bell for gift received
 export function playGiftReceived() {
   const c = ctx()
   if (!c) return
   const t = c.currentTime
-  const freqs = [1046, 1318, 1568, 1318, 1046]
-  freqs.forEach((f, i) => tone(f, t + i * 0.065, 0.1, 0.12, 'triangle'))
+  tone(523.25, t, 0.5, 0.11, 'sine') // warm bell body — C5
+  const freqs = [1046, 1318, 1568, 2093, 1760, 2637]
+  freqs.forEach((f, i) => tone(f, t + 0.02 + i * 0.06, 0.12, 0.1, 'triangle'))
 }
 
-// Short sparkle for gift sent
+// Bright, magical rising chime + shimmer tail for gift sent
 export function playGiftSent() {
   const c = ctx()
   if (!c) return
   const t = c.currentTime
-  tone(1046.5, t,        0.08, 0.14, 'triangle') // C6
-  tone(1318.5, t + 0.07, 0.1,  0.12, 'triangle') // E6
+  // Rising chime — E5 → B5 → E6
+  tone(659.25, t,        0.14, 0.17, 'triangle')
+  tone(987.77, t + 0.08, 0.16, 0.17, 'triangle')
+  tone(1318.5, t + 0.17, 0.28, 0.19, 'triangle')
+  // Shimmer tail — quick high sparkles
+  const sparkle = [2093, 2637, 3136, 2349]
+  sparkle.forEach((f, i) => tone(f, t + 0.27 + i * 0.05, 0.09, 0.06, 'sine'))
 }
 
 // Soft coin-drop for tip sent

@@ -16,7 +16,7 @@ import Navbar from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
-import { playTipSent, playClick } from '../utils/sounds'
+import { playClick, playGiftSent, playGiftReceived } from '../utils/sounds'
 
 // Uncontrolled input — reads DOM value directly so React re-renders never interfere
 function FloatingChat({ messages, messagesEndRef, onSend, status }) {
@@ -191,7 +191,8 @@ const REPORT_REASONS = [
   { id: 'other',      label: '📋 Other' },
 ]
 
-// Floating gift animation — fades in at the bottom, drifts up, fades out at the top.
+// Floating gift animation — a burst of glow, a shockwave ring and a sparkle
+// spray, then the gift pops with a wobble and drifts up.
 function GiftFx({ anims }) {
   return (
     <AnimatePresence>
@@ -199,13 +200,75 @@ function GiftFx({ anims }) {
         <motion.div
           key={id}
           className="absolute z-30 pointer-events-none select-none"
-          style={{ left: '50%', bottom: 60, translateX: '-50%' }}
-          initial={{ y: 0, opacity: 0, scale: 0.6 }}
-          animate={{ y: -280, opacity: [0, 1, 1, 0], scale: 1.25 }}
+          style={{ left: '50%', bottom: 96 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 2, ease: 'easeOut', opacity: { duration: 2, times: [0, 0.15, 0.7, 1] } }}
+          transition={{ duration: 0.3 }}
         >
-          <GiftIcon id={giftId} size={76} />
+          {/* radial glow flash */}
+          <motion.div
+            className="absolute rounded-full"
+            style={{
+              width: 240, height: 240, left: '50%', top: '50%',
+              background: 'radial-gradient(circle, rgba(0,212,255,0.45) 0%, rgba(0,212,255,0) 68%)',
+            }}
+            initial={{ x: '-50%', y: '-50%', scale: 0.2, opacity: 0 }}
+            animate={{ x: '-50%', y: '-50%', scale: [0.2, 1.3, 1], opacity: [0, 0.9, 0] }}
+            transition={{ duration: 1.5, ease: 'easeOut' }}
+          />
+          {/* expanding shockwave ring */}
+          <motion.div
+            className="absolute rounded-full"
+            style={{ left: '50%', top: '50%', border: '2px solid rgba(0,212,255,0.65)' }}
+            initial={{ x: '-50%', y: '-50%', width: 36, height: 36, opacity: 0.85 }}
+            animate={{ x: '-50%', y: '-50%', width: 210, height: 210, opacity: 0 }}
+            transition={{ duration: 0.85, ease: 'easeOut' }}
+          />
+          {/* sparkle particles bursting outward */}
+          {Array.from({ length: 12 }).map((_, i) => {
+            const angle = (i / 12) * Math.PI * 2
+            const dist  = 66 + (i % 3) * 22
+            return (
+              <motion.div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  width: 8, height: 8, left: '50%', top: '50%', marginLeft: -4, marginTop: -4,
+                  background: i % 2 ? '#00D4FF' : '#FFE08A',
+                  boxShadow: i % 2 ? '0 0 10px #00D4FF' : '0 0 10px #FFE08A',
+                }}
+                initial={{ x: 0, y: 0, scale: 0, opacity: 0 }}
+                animate={{
+                  x: Math.cos(angle) * dist, y: Math.sin(angle) * dist,
+                  scale: [0, 1.3, 0], opacity: [0, 1, 0],
+                }}
+                transition={{ duration: 1, ease: 'easeOut' }}
+              />
+            )
+          })}
+          {/* the gift — pops in with a wobble, then floats up */}
+          <motion.div
+            className="absolute"
+            style={{ left: '50%', top: '50%', filter: 'drop-shadow(0 8px 20px rgba(0,212,255,0.6))' }}
+            initial={{ x: '-50%', y: 20, scale: 0.2, rotate: -28, opacity: 0 }}
+            animate={{
+              x: '-50%',
+              y: [20, -16, -250],
+              scale: [0.2, 1.55, 1.3, 1.2],
+              rotate: [-28, 14, -7, 0],
+              opacity: [0, 1, 1, 0],
+            }}
+            transition={{
+              duration: 2.3, ease: 'easeOut',
+              y:       { duration: 2.3, times: [0, 0.22, 1], ease: 'easeOut' },
+              scale:   { duration: 2.3, times: [0, 0.22, 0.4, 1] },
+              rotate:  { duration: 1.3, times: [0, 0.3, 0.62, 1] },
+              opacity: { duration: 2.3, times: [0, 0.12, 0.72, 1] },
+            }}
+          >
+            <div style={{ marginTop: -44 }}>
+              <GiftIcon id={giftId} size={88} />
+            </div>
+          </motion.div>
         </motion.div>
       ))}
     </AnimatePresence>
@@ -741,13 +804,14 @@ export default function ChatPage() {
         const target = squadMatesRef.current.includes(recipientSocketId) ? 'partner' : 'stranger'
         const id = Date.now() + Math.random()
         setGiftAnimations((prev) => [...prev, { id, giftId, target }])
-        setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2400)
+        setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2700)
         // Credit my cashable balance if I'm the recipient
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
           setCashableCoins((c) => c + giftCoins)
         }
-        // Toast for everyone except the sender (who already knows)
+        // Toast + sound for everyone except the sender (who already knows)
         if (senderUsername && String(senderId) !== String(user?.id)) {
+          playGiftReceived()
           setTipFeedback({ type: 'success', msg: `🎁 ${senderUsername} sent ${giftName} · ${giftCoins} coins` })
           setTimeout(() => setTipFeedback(null), 3800)
         }
@@ -866,7 +930,7 @@ export default function ChatPage() {
       })
       if (data?.coins !== undefined) setCoins(data.coins)
       setShowGift(false)
-      playTipSent()
+      playGiftSent()
     } catch (err) {
       setTipFeedback({ type: 'error', msg: err.response?.data?.error || 'Gift failed' })
       setTimeout(() => setTipFeedback(null), 3500)
