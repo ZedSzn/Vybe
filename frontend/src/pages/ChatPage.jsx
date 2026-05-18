@@ -1430,6 +1430,11 @@ export default function ChatPage() {
                 {mateSocketIds[0] ? (
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                    {giftedBySocket[mateSocketIds[0]] > 0 && (
+                      <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                        <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} />
+                      </div>
+                    )}
                     <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
                       <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
                         <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
@@ -1521,6 +1526,11 @@ export default function ChatPage() {
                   {mateSocketIds[0] ? (
                     <>
                       <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                      {giftedBySocket[mateSocketIds[0]] > 0 && (
+                        <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                          <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} />
+                        </div>
+                      )}
                       <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
                         <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
                           <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
@@ -2125,13 +2135,16 @@ export default function ChatPage() {
                             </div>
                           )}
                           {/* Duo partner pill */}
-                          <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
+                          <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
                             <ProfilePill
                               username="Partner"
                               isOnline={hasStream}
                               isVerified={false}
                               friendStatus="self"
                             />
+                            {giftedBySocket[mateId] > 0 && (
+                              <GiftChip key={giftedBySocket[mateId]} amount={giftedBySocket[mateId]} />
+                            )}
                           </div>
                           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)', pointerEvents: 'none' }} />
                         </>
