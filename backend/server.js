@@ -1214,6 +1214,15 @@ app.get('/api/friends/requests', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Pending friend requests the user has sent (outgoing)
+app.get('/api/friends/sent', authMiddleware, async (req, res) => {
+  try {
+    const requests = await Friendship.find({ requester: req.user._id, status: 'pending' })
+      .populate('recipient', 'username gender country');
+    res.json({ requests });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.delete('/api/friends/:id', authMiddleware, async (req, res) => {
   try {
     const friendship = await Friendship.findById(req.params.id);

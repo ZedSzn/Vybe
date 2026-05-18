@@ -37,6 +37,7 @@ export default function FriendsPage() {
   const [tab, setTab] = useState('friends')
   const [friends, setFriends] = useState([])
   const [requests, setRequests] = useState([])
+  const [sentRequests, setSentRequests] = useState([])
   const [selectedFriend, setSelectedFriend] = useState(null)
   const [messages, setMessages] = useState([])
   const [msgInput, setMsgInput] = useState('')
@@ -98,13 +99,15 @@ export default function FriendsPage() {
   const fetchAll = async () => {
     setLoadingFriends(true)
     try {
-      const [fr, rq, conv] = await Promise.all([
+      const [fr, rq, sent, conv] = await Promise.all([
         axios.get(`/api/friends`,          { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`/api/friends/requests`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`/api/friends/sent`,     { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`/api/dm/conversations`, { headers: { Authorization: `Bearer ${token}` } }),
       ])
       setFriends(fr.data.friends || [])
       setRequests(rq.data.requests || [])
+      setSentRequests(sent.data.requests || [])
       const counts = {}
       for (const c of (conv.data.conversations || [])) {
         if (c.unread > 0) counts[c.userId] = c.unread
@@ -161,6 +164,18 @@ export default function FriendsPage() {
     setActionLoading('')
   }
 
+  const cancelSentRequest = async (friendshipId) => {
+    setActionLoading(friendshipId + 'cancel')
+    try {
+      await axios.delete(`/api/friends/${friendshipId}`, { headers: { Authorization: `Bearer ${token}` } })
+      setSentRequests(prev => prev.filter(r => r._id !== friendshipId))
+      showToast('Request cancelled.')
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Action failed.')
+    }
+    setActionLoading('')
+  }
+
   const removeFriend = async (friendshipId) => {
     try {
       await axios.delete(`/api/friends/${friendshipId}`, { headers: { Authorization: `Bearer ${token}` } })
@@ -190,6 +205,10 @@ export default function FriendsPage() {
       await axios.post(`/api/friends/request`, { recipientId }, { headers: { Authorization: `Bearer ${token}` } })
       showToast('Friend request sent!')
       setSearchResults(prev => prev.map(u => u._id === recipientId ? { ...u, requestSent: true } : u))
+      try {
+        const { data } = await axios.get(`/api/friends/sent`, { headers: { Authorization: `Bearer ${token}` } })
+        setSentRequests(data.requests || [])
+      } catch {}
     } catch (err) {
       showToast(err.response?.data?.error || 'Could not send request.')
     }
@@ -259,6 +278,7 @@ export default function FriendsPage() {
               {[
                 { id: 'friends',  label: 'Friends',  icon: <Users size={12} /> },
                 { id: 'requests', label: 'Requests', icon: <Clock size={12} />, badge: requests.length },
+                { id: 'sent',     label: 'Sent',     icon: <Send size={12} /> },
                 { id: 'add',      label: 'Add',      icon: <UserPlus size={12} /> },
               ].map(t => (
                 <motion.button
@@ -417,6 +437,49 @@ export default function FriendsPage() {
                             <X size={13} />
                           </motion.button>
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+
+              {/* ── Sent requests ── */}
+              {tab === 'sent' && (
+                sentRequests.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="py-10 text-center px-6 flex flex-col items-center"
+                  >
+                    <EmptyStateIllustration variant="requests" size={88} />
+                    <p className="text-sm font-bold text-white mt-3 mb-1">No sent requests</p>
+                    <p className="text-xs" style={{ color: '#888899' }}>Requests you send will appear here</p>
+                  </motion.div>
+                ) : (
+                  <div>
+                    {sentRequests.map(r => (
+                      <div
+                        key={r._id}
+                        className="flex items-center gap-3 px-4 py-3 border-b"
+                        style={{ borderColor: 'rgba(255,255,255,0.04)' }}
+                      >
+                        <Avatar name={r.recipient?.username || '?'} size={9} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-white truncate">{r.recipient?.username || 'Unknown'}</p>
+                          <p className="text-[11px]" style={{ color: '#888899' }}>Request pending</p>
+                        </div>
+                        <motion.button
+                          onClick={() => cancelSentRequest(r._id)}
+                          disabled={!!actionLoading}
+                          whileTap={{ scale: 0.9 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                          className="flex items-center gap-1 px-3 h-7 rounded-lg text-[11px] font-bold transition-colors hover:bg-red-500/20 disabled:opacity-50 flex-shrink-0"
+                          style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}
+                          title="Cancel request"
+                        >
+                          <X size={12} /> Cancel
+                        </motion.button>
                       </div>
                     ))}
                   </div>
