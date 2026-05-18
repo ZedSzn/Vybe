@@ -63,7 +63,7 @@ export default function WalletPage() {
   const [earnings, setEarnings]           = useState(user?.cashableCoins ?? 0)
   const [balanceLoading, setBalanceLoading] = useState(user?.coins == null)
   const [history, setHistory]             = useState([])
-  const [histLoading, setHistLoading]     = useState(false)
+  const [histLoading, setHistLoading]     = useState(true)
   const [referralInfo, setReferralInfo]   = useState(null)
   const [cashouts, setCashouts]           = useState([])
   const [paypalEmail, setPaypalEmail]     = useState('')
@@ -366,7 +366,7 @@ export default function WalletPage() {
 
         {/* ── HISTORY ── */}
         {tab === 'history' && (
-          <div className={cardCls} style={cardStyle}>
+          <div className={cardCls} style={{ ...cardStyle, minHeight: 540 }}>
             <h2 className="text-white font-bold text-base mb-4">Transaction History</h2>
             {histLoading ? (
               <div className="space-y-2">
