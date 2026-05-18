@@ -434,11 +434,16 @@ function ChangePasswordSection() {
           <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)}
             placeholder="Confirm new password" autoComplete="new-password" className={inputCls} style={inputStyle} />
           {err && <p className="text-red-400 text-xs">{err}</p>}
-          <motion.button onClick={submit} disabled={saving || !current || !next || !confirm} whileTap={{ scale: 0.97 }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
-            style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.28)', color: '#00D4FF' }}>
-            {saving ? <><Loader2 size={13} className="animate-spin" /> Updating…</> : <><KeyRound size={13} /> Update Password</>}
-          </motion.button>
+          <div className="flex items-center gap-3 flex-wrap">
+            <motion.button onClick={submit} disabled={saving || !current || !next || !confirm} whileTap={{ scale: 0.97 }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
+              style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.28)', color: '#00D4FF' }}>
+              {saving ? <><Loader2 size={13} className="animate-spin" /> Updating…</> : <><KeyRound size={13} /> Update Password</>}
+            </motion.button>
+            <Link to="/forgot-password" className="text-xs font-semibold transition-colors hover:text-white" style={{ color: MUTED }}>
+              Forgot your current password?
+            </Link>
+          </div>
         </div>
       )}
     </div>
