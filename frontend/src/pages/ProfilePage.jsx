@@ -150,7 +150,7 @@ export default function ProfilePage() {
   const [saving,        setSaving]        = useState(false)
   const [saveError,     setSaveError]     = useState('')
   const [editForm,      setEditForm]      = useState({
-    bio: '', displayName: '', pronouns: '', gender: 'other', country: '',
+    bio: '', displayName: '', pronouns: '', gender: 'other',
     interests: [], socialLinks: { instagram: '', tiktok: '', twitter: '', twitch: '', kick: '' },
     privacyShowBio: true, privacyShowCountry: true,
     accentColor: '', bannerGradient: '', bannerImage: '',
@@ -177,7 +177,6 @@ export default function ProfilePage() {
             displayName:        data.user.displayName || '',
             pronouns:           data.user.pronouns || '',
             gender:             data.user.gender || 'other',
-            country:            data.user.country || '',
             interests:          data.user.interests || [],
             socialLinks:        data.user.socialLinks || { instagram: '', tiktok: '', twitter: '' },
             privacyShowBio:     data.user.privacyShowBio ?? true,
@@ -260,7 +259,6 @@ export default function ProfilePage() {
           displayName:        editForm.displayName,
           pronouns:           editForm.pronouns,
           gender:             editForm.gender,
-          country:            editForm.country,
           interests:          editForm.interests,
           socialLinks:        editForm.socialLinks,
           privacyShowBio:     editForm.privacyShowBio,
@@ -572,15 +570,6 @@ export default function ProfilePage() {
                     rows={2} placeholder="Tell people about yourself..."
                     className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none resize-none" />
                   <p className="text-vybe-muted text-[10px] text-right mt-0.5">{editForm.bio.length}/100</p>
-                </div>
-
-                {/* Country */}
-                <div>
-                  <label className="block text-[10px] font-bold text-vybe-muted uppercase tracking-wider mb-1">Country</label>
-                  <input value={editForm.country}
-                    onChange={e => setEditForm(f => ({ ...f, country: e.target.value }))}
-                    placeholder="e.g. United Kingdom"
-                    className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none" />
                 </div>
 
                 {/* Interests */}

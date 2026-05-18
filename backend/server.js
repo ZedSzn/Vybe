@@ -2961,9 +2961,14 @@ io.on('connection', (socket) => {
     }
     // Auto-detect country from the connection IP — works for guests too.
     // Falls back to any country already on the profile when geo can't resolve.
-    const country = geoCountry(socket) || data.country || '';
+    const geo = geoCountry(socket);
+    const country = geo || data.country || '';
     onlineUsers.set(socket.id, { ...data, country, userId: resolvedUserId, socketId: socket.id, boostedUntil });
     socket.emit('geo-country', { country });
+    // Persist the detected country so the profile reflects it too.
+    if (geo && resolvedUserId && dbConnected) {
+      User.findByIdAndUpdate(resolvedUserId, { country: geo }).catch(() => {});
+    }
     io.emit('online-count', onlineUsers.size);
 
     // Emit active announcement
