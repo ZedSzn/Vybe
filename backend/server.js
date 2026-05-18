@@ -1919,7 +1919,10 @@ app.get('/api/user/:id/profile', async (req, res) => {
 
 app.put('/api/user/profile', authMiddleware, async (req, res) => {
   try {
-    const { bio, avatar, bannerImage, gender, country, privacyShowCountry, privacyShowBio, allowFriendRequests, cameraBackgroundImage } = req.body;
+    const { bio, avatar, bannerImage, gender, country, privacyShowCountry, privacyShowBio, allowFriendRequests, cameraBackgroundImage, accentColor, bannerGradient, cameraBackground } = req.body;
+    const ACCENT_COLORS    = ['#00D4FF','#ec4899','#f59e0b','#4ade80','#a78bfa','#06b6d4',''];
+    const BANNER_GRADIENTS = ['default','sunset','ocean','forest','ember','aurora','midnight','rose',''];
+    const CAMERA_BACKGROUNDS = ['none','custom'];
     const update = {};
     if (bio !== undefined)  update.bio    = String(bio).slice(0, 100);
     if (gender !== undefined) update.gender = gender;
@@ -1927,6 +1930,10 @@ app.put('/api/user/profile', authMiddleware, async (req, res) => {
     if (privacyShowCountry !== undefined) update.privacyShowCountry = privacyShowCountry;
     if (privacyShowBio !== undefined)     update.privacyShowBio     = privacyShowBio;
     if (allowFriendRequests !== undefined) update.allowFriendRequests = allowFriendRequests;
+    // Cosmetics — accept here too so the profile save persists them in one call.
+    if (accentColor !== undefined && ACCENT_COLORS.includes(accentColor)) update.accentColor = accentColor;
+    if (bannerGradient !== undefined && BANNER_GRADIENTS.includes(bannerGradient)) update.bannerGradient = bannerGradient;
+    if (cameraBackground !== undefined && CAMERA_BACKGROUNDS.includes(cameraBackground)) update.cameraBackground = cameraBackground;
     if (avatar !== undefined) {
       if (avatar && avatar.length > 700000) return res.status(400).json({ error: 'Avatar too large (max ~500KB)' });
       update.avatar = avatar;

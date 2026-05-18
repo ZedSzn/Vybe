@@ -253,25 +253,22 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true); setSaveError('')
     try {
-      const [profileRes] = await Promise.all([
-        axios.put('/api/user/profile', {
-          bio:                editForm.bio,
-          displayName:        editForm.displayName,
-          pronouns:           editForm.pronouns,
-          gender:             editForm.gender,
-          interests:          editForm.interests,
-          socialLinks:        editForm.socialLinks,
-          privacyShowBio:     editForm.privacyShowBio,
-          privacyShowCountry: editForm.privacyShowCountry,
-          avatar:             editForm.avatar || profile.avatar,
-          bannerImage:        editForm.bannerImage,
-          cameraBackgroundImage: editForm.cameraBackgroundImage,
-        }),
-        axios.put('/api/user/cosmetics', {
-          accentColor: editForm.accentColor, bannerGradient: editForm.bannerGradient,
-          cameraBackground: editForm.cameraBackground,
-        }).catch(() => {}),
-      ])
+      const profileRes = await axios.put('/api/user/profile', {
+        bio:                editForm.bio,
+        displayName:        editForm.displayName,
+        pronouns:           editForm.pronouns,
+        gender:             editForm.gender,
+        interests:          editForm.interests,
+        socialLinks:        editForm.socialLinks,
+        privacyShowBio:     editForm.privacyShowBio,
+        privacyShowCountry: editForm.privacyShowCountry,
+        avatar:             editForm.avatar || profile.avatar,
+        bannerImage:        editForm.bannerImage,
+        cameraBackgroundImage: editForm.cameraBackgroundImage,
+        accentColor:        editForm.accentColor,
+        bannerGradient:     editForm.bannerGradient,
+        cameraBackground:   editForm.cameraBackground,
+      })
       const updated = {
         ...profileRes.data.user,
         accentColor:   editForm.accentColor,
