@@ -45,13 +45,13 @@ export default function AuthPage() {
   const inputStyle = {
     width: '100%', padding: '12px 16px', borderRadius: 12,
     background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    color: 'white', fontSize: 14, outline: 'none',
+    color: 'white', fontSize: 14, fontWeight: 500, outline: 'none',
     transition: 'border-color 0.2s',
   }
   const labelStyle = {
-    display: 'block', fontSize: 10, fontWeight: 800,
-    letterSpacing: '0.18em', textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.35)', marginBottom: 6,
+    display: 'block', fontSize: 10, fontWeight: 500,
+    letterSpacing: '0.12em', textTransform: 'uppercase',
+    color: 'rgba(255,255,255,0.62)', marginBottom: 6,
   }
 
   return (
@@ -151,7 +151,7 @@ export default function AuthPage() {
                       key={t}
                       onClick={() => { setTab(t); setError('') }}
                       style={{
-                        flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                        flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: 700, letterSpacing: '0.02em',
                         border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                         ...(tab === t
                           ? { background: '#00D4FF', color: '#0a0a0f', boxShadow: '0 2px 12px rgba(0,212,255,0.4)' }
@@ -199,7 +199,7 @@ export default function AuthPage() {
                                 type="button"
                                 onClick={() => setGender(value)}
                                 style={{
-                                  flex: 1, padding: '10px 0', borderRadius: 12, fontSize: 13, fontWeight: 700,
+                                  flex: 1, padding: '10px 0', borderRadius: 12, fontSize: 13, fontWeight: 700, letterSpacing: '0.02em',
                                   border: '1px solid', cursor: 'pointer', transition: 'all 0.2s',
                                   ...(gender === value
                                     ? { background: 'rgba(0,212,255,0.15)', borderColor: 'rgba(0,212,255,0.5)', color: '#00D4FF' }
@@ -272,7 +272,7 @@ export default function AuthPage() {
                         width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
                         background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
                         boxShadow: '0 4px 24px rgba(0,212,255,0.35), 0 1px 0 rgba(255,255,255,0.12) inset',
-                        color: '#0a0a0f', fontWeight: 800, fontSize: 14, cursor: loading ? 'not-allowed' : 'pointer',
+                        color: '#0a0a0f', fontWeight: 600, fontSize: 14, letterSpacing: '0.02em', cursor: loading ? 'not-allowed' : 'pointer',
                         opacity: loading ? 0.65 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                       }}
                     >
@@ -306,7 +306,7 @@ export default function AuthPage() {
                       type="button"
                       onClick={() => navigate('/chat', { state: { mode: 'solo', filterGender: null, filterCountry: '' } })}
                       style={{
-                        width: '100%', padding: '13px 0', borderRadius: 14, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                        width: '100%', padding: '13px 0', borderRadius: 14, fontSize: 13, fontWeight: 600, letterSpacing: '0.02em', cursor: 'pointer',
                         background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
                         color: 'rgba(255,255,255,0.4)', transition: 'all 0.2s',
                       }}
