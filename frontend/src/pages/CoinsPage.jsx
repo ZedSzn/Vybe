@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Loader2, Shield, Gift } from 'lucide-react'
 import Navbar from '../components/Navbar'
@@ -19,6 +19,8 @@ const PACKAGES = [
 export default function CoinsPage() {
   const { user, token, loading: authLoading } = useAuth()
   const navigate        = useNavigate()
+  const [searchParams]  = useSearchParams()
+  const fromChat        = searchParams.get('from') === 'chat'
   const [loading, setLoading] = useState(null)
   const [error,   setError]   = useState('')
 
@@ -75,12 +77,12 @@ export default function CoinsPage() {
           transition={{ duration: 0.55 }}
         >
           <button
-            onClick={() => navigate('/wallet')}
+            onClick={() => navigate(fromChat ? '/chat' : '/wallet')}
             className="inline-flex items-center gap-2 text-sm mb-6 transition-colors"
             style={{ color: '#888899' }}
           >
             <ArrowLeft size={15} />
-            Back to Wallet
+            {fromChat ? 'Back to chat' : 'Back to Wallet'}
           </button>
           <div className="flex items-center justify-center gap-3 mb-3">
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center"

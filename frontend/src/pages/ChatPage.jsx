@@ -1230,7 +1230,7 @@ export default function ChatPage() {
                           : `Send ${amt.toLocaleString()} coins`}
                       </button>
                       <button type="button"
-                        onClick={() => { setShowGift(false); navigate('/coins') }}
+                        onClick={() => { setShowGift(false); navigate('/coins?from=chat') }}
                         style={{ width: '100%', marginTop: 8, padding: '10px 0', borderRadius: 50, background: 'transparent', color: '#00D4FF', fontWeight: 700, fontSize: 13, fontFamily: "'Sora', system-ui, sans-serif", border: '1px solid rgba(0,212,255,0.35)', cursor: 'pointer' }}>
                         Buy coins
                       </button>
