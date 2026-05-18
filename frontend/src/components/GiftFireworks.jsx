@@ -33,7 +33,7 @@ export default function GiftFireworks({ anims }) {
     playFireworkBurst(power)
     flashesRef.current.push({ x, y, r: 8, maxR: 64 + power * 96, life: 1 })
     const shape = Math.random() // 0-.34 sphere · .34-.67 ring · .67-1 willow
-    const count = 40 + Math.round(power * 40)
+    const count = 32 + Math.round(power * 36)
     const base  = 3.4 + power * 5.2
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * Math.PI * 2 + Math.random() * 0.22
@@ -192,7 +192,7 @@ export default function GiftFireworks({ anims }) {
     const value = coins || gift?.coins || 100
     const mag   = Math.max(0, Math.min(1,
       (Math.log(value) - Math.log(50)) / (Math.log(5000) - Math.log(50))))
-    const shellCount = 3 + Math.round(mag * 14) // 3 → 17
+    const shellCount = 5 + Math.round(mag * 45) // 5 → 50
 
     for (let i = 0; i < shellCount; i++) {
       setTimeout(() => {
@@ -207,7 +207,7 @@ export default function GiftFireworks({ anims }) {
           hist: [],
         })
         playFireworkLaunch()
-      }, i * (80 + Math.random() * 150))
+      }, i * (48 + Math.random() * 92))
     }
   }
 
@@ -234,43 +234,57 @@ export default function GiftFireworks({ anims }) {
           const gc = GIFTS.find((g) => g.id === centerGift.giftId)?.color || '#00D4FF'
           return (
           <div key={centerGift.key} className="absolute left-1/2 top-1/2">
+            {/* entrance flash */}
+            <motion.div
+              className="absolute rounded-full"
+              style={{
+                width: 440, height: 440, left: '50%', top: '50%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 60%)',
+              }}
+              initial={{ x: '-50%', y: '-50%', scale: 0.2, opacity: 0 }}
+              animate={{ x: '-50%', y: '-50%', scale: [0.2, 1.3], opacity: [0, 0.95, 0] }}
+              transition={{ duration: 0.55, ease: 'easeOut' }}
+            />
             {/* rotating light rays */}
             <motion.div
               className="absolute rounded-full"
               style={{
-                width: 640, height: 640, left: '50%', top: '50%',
-                background: 'repeating-conic-gradient(from 0deg, rgba(255,255,255,0.10) 0deg 9deg, transparent 9deg 22deg)',
+                width: 700, height: 700, left: '50%', top: '50%',
+                background: `repeating-conic-gradient(from 0deg, ${gc}2b 0deg 8deg, transparent 8deg 21deg)`,
               }}
               initial={{ x: '-50%', y: '-50%', scale: 0.3, rotate: 0, opacity: 0 }}
-              animate={{ x: '-50%', y: '-50%', scale: 1, rotate: 42, opacity: [0, 0.8, 0] }}
-              transition={{ duration: 3, ease: 'easeOut' }}
+              animate={{ x: '-50%', y: '-50%', scale: 1, rotate: 50, opacity: [0, 0.9, 0.9, 0] }}
+              transition={{ duration: 3, times: [0, 0.16, 0.72, 1], ease: 'easeOut' }}
             />
-            {/* themed glow halo */}
+            {/* pulsing glow halo */}
             <motion.div
               className="absolute rounded-full"
               style={{
-                width: 360, height: 360, left: '50%', top: '50%',
-                background: `radial-gradient(circle, ${gc}66 0%, ${gc}00 70%)`,
+                width: 400, height: 400, left: '50%', top: '50%',
+                background: `radial-gradient(circle, ${gc}73 0%, ${gc}00 70%)`,
               }}
               initial={{ x: '-50%', y: '-50%', scale: 0.3, opacity: 0 }}
-              animate={{ x: '-50%', y: '-50%', scale: [0.3, 1.15, 1], opacity: [0, 0.95, 0] }}
-              transition={{ duration: 3, ease: 'easeOut' }}
+              animate={{ x: '-50%', y: '-50%', scale: [0.3, 1.15, 0.95, 1.12, 0.97, 1], opacity: [0, 1, 0.7, 0.95, 0.6, 0] }}
+              transition={{ duration: 3, ease: 'easeInOut' }}
             />
-            {/* expanding shockwave ring */}
-            <motion.div
-              className="absolute rounded-full"
-              style={{ left: '50%', top: '50%', border: `2px solid ${gc}` }}
-              initial={{ x: '-50%', y: '-50%', width: 60, height: 60, opacity: 0.8 }}
-              animate={{ x: '-50%', y: '-50%', width: 320, height: 320, opacity: 0 }}
-              transition={{ duration: 0.95, ease: 'easeOut' }}
-            />
-            {/* sparkle burst around the gift */}
-            {Array.from({ length: 14 }).map((_, i) => {
-              const ang = (i / 14) * Math.PI * 2
-              const d   = 120 + (i % 3) * 28
+            {/* expanding shockwave rings */}
+            {[0, 1].map((r) => (
+              <motion.div
+                key={'rg' + r}
+                className="absolute rounded-full"
+                style={{ left: '50%', top: '50%', border: `2px solid ${gc}` }}
+                initial={{ x: '-50%', y: '-50%', width: 60, height: 60, opacity: 0.8 }}
+                animate={{ x: '-50%', y: '-50%', width: 340 + r * 130, height: 340 + r * 130, opacity: 0 }}
+                transition={{ duration: 1 + r * 0.3, ease: 'easeOut', delay: r * 0.18 }}
+              />
+            ))}
+            {/* one-shot sparkle burst */}
+            {Array.from({ length: 18 }).map((_, i) => {
+              const ang = (i / 18) * Math.PI * 2
+              const d   = 130 + (i % 3) * 30
               return (
                 <motion.div
-                  key={i}
+                  key={'sp' + i}
                   className="absolute rounded-full"
                   style={{
                     width: 9, height: 9, left: '50%', top: '50%', marginLeft: -4.5, marginTop: -4.5,
@@ -283,20 +297,45 @@ export default function GiftFireworks({ anims }) {
                 />
               )
             })}
-            {/* the gift — a clean springy pop that holds proudly */}
+            {/* sparkles orbiting the gift while it holds */}
+            {Array.from({ length: 5 }).map((_, i) => {
+              const radius = 108 + i * 15
+              return (
+                <motion.div
+                  key={'orb' + i}
+                  className="absolute"
+                  style={{ left: '50%', top: '50%' }}
+                  initial={{ x: '-50%', y: '-50%', rotate: i * 72, opacity: 0 }}
+                  animate={{ x: '-50%', y: '-50%', rotate: i * 72 + 320, opacity: [0, 0, 1, 1, 0] }}
+                  transition={{ duration: 3, times: [0, 0.22, 0.34, 0.8, 1], ease: 'linear' }}
+                >
+                  <div style={{
+                    position: 'absolute', left: radius, top: 0, width: 8, height: 8,
+                    marginLeft: -4, marginTop: -4, borderRadius: '50%',
+                    background: i % 2 ? gc : '#FFE08A',
+                    boxShadow: `0 0 12px ${i % 2 ? gc : '#FFE08A'}`,
+                  }} />
+                </motion.div>
+              )
+            })}
+            {/* the gift — a punchy pop, then a gentle breathing hold */}
             <motion.div
               className="absolute left-1/2 top-1/2"
-              style={{ filter: `drop-shadow(0 14px 40px ${gc}cc)` }}
+              style={{ filter: `drop-shadow(0 14px 44px ${gc}dd)` }}
               initial={{ x: '-50%', y: '-50%', scale: 0, opacity: 0 }}
-              animate={{ x: '-50%', y: '-50%', scale: [0, 1.32, 1, 1, 1], opacity: [0, 1, 1, 1, 0] }}
+              animate={{
+                x: '-50%', y: '-50%',
+                scale: [0, 1.4, 1, 1.07, 1, 1.05, 1],
+                opacity: [0, 1, 1, 1, 1, 1, 0],
+              }}
               exit={{ opacity: 0, scale: 0.85 }}
               transition={{
-                duration: 3, ease: 'easeOut',
-                scale:   { duration: 3, times: [0, 0.16, 0.3, 0.85, 1] },
-                opacity: { duration: 3, times: [0, 0.1, 0.3, 0.85, 1] },
+                duration: 3,
+                scale:   { duration: 3, times: [0, 0.14, 0.27, 0.45, 0.62, 0.8, 1], ease: 'easeInOut' },
+                opacity: { duration: 3, times: [0, 0.1, 0.3, 0.5, 0.7, 0.86, 1] },
               }}
             >
-              <GiftIcon id={centerGift.giftId} size={150} />
+              <GiftIcon id={centerGift.giftId} size={158} />
             </motion.div>
           </div>
           )
