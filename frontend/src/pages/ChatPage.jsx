@@ -860,7 +860,7 @@ export default function ChatPage() {
     try {
       const { data } = await axios.post('/api/user/send-gift', {
         recipientId: recipientSocketId,
-        giftId: sel ? sel.id : 'vybe',
+        giftId: sel ? sel.id : 'custom',
         coins: amount,
         room: roomId,
       })

@@ -1,4 +1,5 @@
 // Shared gift catalog + custom SVG gift-box icons for the Vybe gifting system.
+import VybeCoin from './VybeCoin'
 
 export const GIFTS = [
   { id: 'small-vybe',     name: 'Small Vybe',     subtitle: 'Show some love',       coins: 50,   tier: 'Starter', color: '#00D4FF' },
@@ -77,6 +78,8 @@ export function GiftIcon({ id, size = 28 }) {
         <path d="M8 3 L9.5 7 M40 3 L38.5 7 M3 9 L6 10.5 M45 9 L42 10.5" stroke="#f59e0b" strokeWidth="1" strokeLinecap="round" opacity="0.8" />
       </svg>
     )
+    // Custom coin amounts — show the Vybe coin instead of a named gift box.
+    case 'custom': return <VybeCoin size={size} />
     default: return null
   }
 }
