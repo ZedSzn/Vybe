@@ -9,11 +9,11 @@ import { VybeCoin } from '../components/VybeCoin'
 import axios from 'axios'
 
 const PACKAGES = [
-  { id: 'coins_100',  coins: 100,  price: '£1.49',  label: 'Starter',    color: '#6b7280', glow: 'rgba(107,114,128,0.25)', popular: false, desc: 'A few gifts to get started' },
-  { id: 'coins_500',  coins: 500,  price: '£5.99',  label: 'Popular',    color: '#00D4FF', glow: 'rgba(0,212,255,0.3)',    popular: false, desc: 'The most popular pick' },
-  { id: 'coins_1200', coins: 1200, price: '£11.99', label: 'Best Value', color: '#7C3AED', glow: 'rgba(124,58,237,0.35)',  popular: true,  desc: 'More coins, better rate' },
-  { id: 'coins_3000', coins: 3000, price: '£24.99', label: 'Mega',       color: '#00D4FF', glow: 'rgba(0,212,255,0.25)',   popular: false, desc: 'For frequent gifters' },
-  { id: 'coins_7000', coins: 7000, price: '£49.99', label: 'Ultimate',   color: '#f59e0b', glow: 'rgba(245,158,11,0.3)',   popular: false, desc: 'The best rate available' },
+  { id: 'coins_100',  coins: 100,  price: '£1.49',  label: 'Starter',    color: '#10b981', glow: 'rgba(16,185,129,0.3)',  popular: false, desc: 'A few gifts to get started' },
+  { id: 'coins_500',  coins: 500,  price: '£5.99',  label: 'Popular',    color: '#00D4FF', glow: 'rgba(0,212,255,0.3)',   popular: false, desc: 'The most popular pick' },
+  { id: 'coins_1200', coins: 1200, price: '£11.99', label: 'Best Value', color: '#7C3AED', glow: 'rgba(124,58,237,0.35)', popular: true,  desc: 'More coins, better rate' },
+  { id: 'coins_3000', coins: 3000, price: '£24.99', label: 'Mega',       color: '#ec4899', glow: 'rgba(236,72,153,0.3)',  popular: false, desc: 'For frequent gifters' },
+  { id: 'coins_7000', coins: 7000, price: '£49.99', label: 'Ultimate',   color: '#f59e0b', glow: 'rgba(245,158,11,0.3)',  popular: false, desc: 'The best rate available' },
 ]
 
 export default function CoinsPage() {
