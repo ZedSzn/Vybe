@@ -1136,6 +1136,21 @@ export default function AdminDashboard() {
       } catch (e) { showToast(e.response?.data?.error || 'Failed', 'error') }
     }
 
+    const unbanUser = async (appeal) => {
+      const uid = appeal.userId?._id
+      if (!uid) { showToast('User account not found', 'error'); return }
+      try {
+        const note = noteMap[appeal._id] || ''
+        // Send the reply (if any) so the user hears the outcome, then unban.
+        if (note.trim()) {
+          await axios.post(`/api/admin-secure/appeals/${appeal._id}/resolve`, { note }, ah(token))
+        }
+        await axios.post(`/api/admin-secure/users/${uid}/unban`, { note }, ah(token))
+        showToast('User unbanned')
+        fetchAppeals(filter)
+      } catch (e) { showToast(e.response?.data?.error || 'Failed', 'error') }
+    }
+
     return (
       <div>
         <div className="flex gap-1 bg-vybe-card2 p-1 rounded-xl w-fit mb-5">
@@ -1180,6 +1195,12 @@ export default function AdminDashboard() {
                           placeholder="Reply to the user (optional) — they'll get it as a notification"
                           rows={2}
                           className="w-full px-3 py-2 bg-vybe-card2 border border-vybe-border rounded-lg text-white text-xs placeholder-vybe-muted focus:border-vybe-purple focus:outline-none resize-none" />
+                        {a.userId?.isBanned && (
+                          <button onClick={() => unbanUser(a)}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold hover:bg-emerald-500/25 transition-all">
+                            Unban user
+                          </button>
+                        )}
                         <button onClick={() => resolve(a._id)}
                           className="px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 text-xs font-bold hover:bg-cyan-500/25 transition-all">
                           {(noteMap[a._id] || '').trim() ? 'Send reply & resolve' : 'Mark resolved'}

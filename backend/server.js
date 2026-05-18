@@ -2876,10 +2876,13 @@ io.on('connection', (socket) => {
               isBanned: false, banReason: '', banType: null, banExpiresAt: null, bannedAt: null,
               $push: { banHistory: { action: 'unban', unbannedBy: 'expired', note: 'Ban expired automatically', timestamp: new Date() } },
             });
+            socket.emit('ban-cleared');
           } else {
             socket.emit('you-are-banned', { reason: u.banReason, banType: u.banType, banExpiresAt: u.banExpiresAt });
             return;
           }
+        } else {
+          socket.emit('ban-cleared');
         }
         if (u?.warnings?.length) {
           const unread = u.warnings.filter((w) => !w.read);

@@ -19,7 +19,14 @@ export function SocketProvider({ children }) {
   const [onlineCount, setOnlineCount] = useState(0)
   const [pendingWarnings, setPendingWarnings] = useState([])
   const [pendingAnnouncements, setPendingAnnouncements] = useState([])
-  const [bannedInfo, setBannedInfo] = useState(null) // { reason, banType, banExpiresAt }
+  const [bannedInfo, setBannedInfo] = useState(() => {
+    // Restore from cache so the ban modal shows instantly on refresh — no flash.
+    try {
+      const c = localStorage.getItem('vybe_ban')
+      if (c) { const b = JSON.parse(c); return { reason: b.reason, banType: b.banType, banExpiresAt: b.banExpiresAt ? new Date(b.banExpiresAt) : null } }
+    } catch {}
+    return null
+  })
 
   // Keep a ref so the connect callback always reads fresh user data
   // without needing to recreate the socket when non-identity fields change
@@ -70,7 +77,16 @@ export function SocketProvider({ children }) {
 
     // Ban handler — works on any page, not just ChatPage
     s.on('you-are-banned', ({ reason, banType, banExpiresAt }) => {
-      setBannedInfo({ reason: reason || 'Your account has been suspended.', banType: banType || null, banExpiresAt: banExpiresAt ? new Date(banExpiresAt) : null })
+      const info = { reason: reason || 'Your account has been suspended.', banType: banType || null, banExpiresAt: banExpiresAt ? new Date(banExpiresAt) : null }
+      setBannedInfo(info)
+      try {
+        localStorage.setItem('vybe_ban', JSON.stringify({ reason: info.reason, banType: info.banType, banExpiresAt: info.banExpiresAt ? info.banExpiresAt.toISOString() : null }))
+      } catch {}
+    })
+    // Server confirms the user is not banned — clear any cached ban.
+    s.on('ban-cleared', () => {
+      setBannedInfo(null)
+      try { localStorage.removeItem('vybe_ban') } catch {}
     })
 
     // Live broadcast announcement from admin
@@ -98,7 +114,10 @@ export function SocketProvider({ children }) {
     setPendingWarnings(prev => prev.slice(1))
   }, [])
   const dismissAnnouncement = useCallback(() => setPendingAnnouncements(prev => prev.slice(1)), [])
-  const clearBanned         = useCallback(() => setBannedInfo(null), [])
+  const clearBanned         = useCallback(() => {
+    setBannedInfo(null)
+    try { localStorage.removeItem('vybe_ban') } catch {}
+  }, [])
 
   return (
     <SocketContext.Provider value={{ socket, isConnected, onlineCount, pendingWarnings, dismissWarning, pendingAnnouncements, dismissAnnouncement, bannedInfo, clearBanned }}>
