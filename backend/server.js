@@ -1069,10 +1069,15 @@ app.post('/api/unban/appeal', authMiddleware, async (req, res) => {
     const { message } = req.body;
     if (!message || !message.trim()) return res.status(400).json({ error: 'Please write a message.' });
     if (message.length > 2000) return res.status(400).json({ error: 'Message too long (max 2000 chars).' });
-    const existing = await BanAppeal.findOne({ userId: req.user._id, status: 'pending' });
-    if (existing) return res.status(400).json({ error: 'You already have an appeal under review.' });
-    const user = await User.findById(req.user._id).select('username email banReason banType');
+    const user = await User.findById(req.user._id).select('username email banReason banType bannedAt');
     if (!user) return res.status(404).json({ error: 'User not found' });
+    // Only an appeal raised since the current ban began counts as pending —
+    // a stale appeal from a previous ban must not block a fresh one.
+    const existing = await BanAppeal.findOne({
+      userId: req.user._id, status: 'pending',
+      createdAt: { $gte: user.bannedAt || new Date(0) },
+    });
+    if (existing) return res.status(400).json({ error: 'You already have an appeal under review.' });
 
     await BanAppeal.create({
       userId: user._id, username: user.username, email: user.email,
@@ -1097,7 +1102,11 @@ app.post('/api/unban/appeal', authMiddleware, async (req, res) => {
 // Whether the logged-in user already has an appeal awaiting review.
 app.get('/api/unban/appeal-status', authMiddleware, async (req, res) => {
   try {
-    const pending = await BanAppeal.exists({ userId: req.user._id, status: 'pending' });
+    const me = await User.findById(req.user._id).select('bannedAt');
+    const pending = await BanAppeal.exists({
+      userId: req.user._id, status: 'pending',
+      createdAt: { $gte: me?.bannedAt || new Date(0) },
+    });
     res.json({ pending: !!pending });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
