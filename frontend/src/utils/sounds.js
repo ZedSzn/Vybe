@@ -225,6 +225,50 @@ export function playGiftImpact(level = 0) {
   sparkle.forEach((f, i) => tone(f, t + 0.05 + i * 0.045, 0.11, 0.05 + lvl * 0.008, 'triangle'))
 }
 
+// Gift rocket — a rising launch whistle + low thrust rumble, then a detonation
+// at the apex (~0.78s in). `level` 0-5 makes every gift sound distinct: more
+// booms, longer crackle, a chord on the mid tiers and a finale on the top one.
+export function playGiftRocket(level = 0) {
+  const c = ctx()
+  if (!c) return
+  const t   = c.currentTime
+  const lvl = Math.max(0, Math.min(5, Math.round(level)))
+  // Launch whistle — rising over the ~0.8s ascent
+  try {
+    const osc = c.createOscillator(), env = c.createGain()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(280, t)
+    osc.frequency.exponentialRampToValueAtTime(1300 + lvl * 120, t + 0.76)
+    env.gain.setValueAtTime(0.0001, t)
+    env.gain.linearRampToValueAtTime(0.055 + lvl * 0.006, t + 0.16)
+    env.gain.exponentialRampToValueAtTime(0.0001, t + 0.8)
+    osc.connect(env); env.connect(c.destination)
+    osc.start(t); osc.stop(t + 0.82)
+  } catch {}
+  // Low thrust rumble under the launch
+  try {
+    const src = c.createBufferSource(); src.buffer = noiseBuffer(c)
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 600
+    const env = c.createGain()
+    env.gain.setValueAtTime(0.04 + lvl * 0.005, t)
+    env.gain.exponentialRampToValueAtTime(0.0001, t + 0.78)
+    src.connect(lp); lp.connect(env); env.connect(c.destination)
+    src.start(t); src.stop(t + 0.8)
+  } catch {}
+  // Detonation at the apex
+  const et = t + 0.78
+  const booms = 1 + Math.ceil(lvl * 0.8) // 1 → 5
+  for (let i = 0; i < booms; i++) {
+    boom(et + i * 0.13, (0.24 + lvl * 0.03) * (0.85 + Math.random() * 0.3))
+    crackle(et + 0.05 + i * 0.13, 0.4 + lvl * 0.13, 0.04 + lvl * 0.012)
+  }
+  if (lvl >= 3) {
+    const chord = [523.25, 659.25, 783.99, 1046.5]
+    chord.forEach((f, i) => tone(f, et + 0.05 + i * 0.05, 0.6, 0.045 + lvl * 0.006, 'triangle'))
+  }
+  if (lvl >= 5) { boom(et + 0.9, 0.3); crackle(et + 0.9, 1.0, 0.09) }
+}
+
 // Big full-screen gift blast — a deep impact, a rising power sweep, a sparkle
 // cascade and (from the mid tiers) a triumphant chord.
 export function playGiftBlast(level = 0) {
