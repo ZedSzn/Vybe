@@ -192,11 +192,23 @@ const REPORT_REASONS = [
 ]
 
 // Floating gift animation — a burst of glow, a shockwave ring and a sparkle
-// spray, then the gift pops with a wobble and drifts up.
+// spray, then the gift pops with a wobble and drifts up. The whole burst
+// scales with the gift's value, so a Legendary lands far bigger than a Small.
 function GiftFx({ anims }) {
   return (
     <AnimatePresence>
-      {anims.map(({ id, giftId }) => (
+      {anims.map(({ id, giftId, coins }) => {
+        // Magnitude 0→1 on a log scale across the 50→5000 coin range.
+        const value = coins || GIFTS.find((g) => g.id === giftId)?.coins || 100
+        const mag   = Math.max(0, Math.min(1,
+          (Math.log(value) - Math.log(50)) / (Math.log(5000) - Math.log(50))))
+        const iconSize  = Math.round(62 + mag * 58)   //  62 → 120
+        const particles = Math.round(8 + mag * 16)    //   8 → 24
+        const glowSize  = Math.round(180 + mag * 180) // 180 → 360
+        const ringSize  = Math.round(150 + mag * 150) // 150 → 300
+        const burstDist = 50 + mag * 54               //  50 → 104
+        const riseY     = -210 - mag * 90             // -210 → -300
+        return (
         <motion.div
           key={id}
           className="absolute z-30 pointer-events-none select-none"
@@ -208,7 +220,7 @@ function GiftFx({ anims }) {
           <motion.div
             className="absolute rounded-full"
             style={{
-              width: 240, height: 240, left: '50%', top: '50%',
+              width: glowSize, height: glowSize, left: '50%', top: '50%',
               background: 'radial-gradient(circle, rgba(0,212,255,0.45) 0%, rgba(0,212,255,0) 68%)',
             }}
             initial={{ x: '-50%', y: '-50%', scale: 0.2, opacity: 0 }}
@@ -220,13 +232,13 @@ function GiftFx({ anims }) {
             className="absolute rounded-full"
             style={{ left: '50%', top: '50%', border: '2px solid rgba(0,212,255,0.65)' }}
             initial={{ x: '-50%', y: '-50%', width: 36, height: 36, opacity: 0.85 }}
-            animate={{ x: '-50%', y: '-50%', width: 210, height: 210, opacity: 0 }}
+            animate={{ x: '-50%', y: '-50%', width: ringSize, height: ringSize, opacity: 0 }}
             transition={{ duration: 0.85, ease: 'easeOut' }}
           />
           {/* sparkle particles bursting outward */}
-          {Array.from({ length: 12 }).map((_, i) => {
-            const angle = (i / 12) * Math.PI * 2
-            const dist  = 66 + (i % 3) * 22
+          {Array.from({ length: particles }).map((_, i) => {
+            const angle = (i / particles) * Math.PI * 2
+            const dist  = burstDist + (i % 3) * 22
             return (
               <motion.div
                 key={i}
@@ -252,7 +264,7 @@ function GiftFx({ anims }) {
             initial={{ x: '-50%', y: 20, scale: 0.2, rotate: -28, opacity: 0 }}
             animate={{
               x: '-50%',
-              y: [20, -16, -250],
+              y: [20, -16, riseY],
               scale: [0.2, 1.55, 1.3, 1.2],
               rotate: [-28, 14, -7, 0],
               opacity: [0, 1, 1, 0],
@@ -265,12 +277,13 @@ function GiftFx({ anims }) {
               opacity: { duration: 2.3, times: [0, 0.12, 0.72, 1] },
             }}
           >
-            <div style={{ marginTop: -44 }}>
-              <GiftIcon id={giftId} size={88} />
+            <div style={{ marginTop: -iconSize / 2 }}>
+              <GiftIcon id={giftId} size={iconSize} />
             </div>
           </motion.div>
         </motion.div>
-      ))}
+        )
+      })}
     </AnimatePresence>
   )
 }
@@ -803,7 +816,7 @@ export default function ChatPage() {
         if (!mounted) return
         const target = squadMatesRef.current.includes(recipientSocketId) ? 'partner' : 'stranger'
         const id = Date.now() + Math.random()
-        setGiftAnimations((prev) => [...prev, { id, giftId, target }])
+        setGiftAnimations((prev) => [...prev, { id, giftId, target, coins: giftCoins }])
         setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2700)
         // Credit my cashable balance if I'm the recipient
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
