@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import ProfilePill from '../components/ProfilePill'
 import { GiftIcon, GIFTS, GIFT_TIERS } from '../components/GiftIcon'
+import GiftFireworks from '../components/GiftFireworks'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -16,7 +17,7 @@ import Navbar from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
-import { playClick, playGiftSent, playGiftReceived } from '../utils/sounds'
+import { playClick } from '../utils/sounds'
 
 // Uncontrolled input — reads DOM value directly so React re-renders never interfere
 function FloatingChat({ messages, messagesEndRef, onSend, status }) {
@@ -190,103 +191,6 @@ const REPORT_REASONS = [
   { id: 'spam',       label: '🤖 Spam or bot' },
   { id: 'other',      label: '📋 Other' },
 ]
-
-// Floating gift animation — a burst of glow, a shockwave ring and a sparkle
-// spray, then the gift pops with a wobble and drifts up. The whole burst
-// scales with the gift's value, so a Legendary lands far bigger than a Small.
-function GiftFx({ anims }) {
-  return (
-    <AnimatePresence>
-      {anims.map(({ id, giftId, coins }) => {
-        // Magnitude 0→1 on a log scale across the 50→5000 coin range.
-        const value = coins || GIFTS.find((g) => g.id === giftId)?.coins || 100
-        const mag   = Math.max(0, Math.min(1,
-          (Math.log(value) - Math.log(50)) / (Math.log(5000) - Math.log(50))))
-        const iconSize  = Math.round(62 + mag * 58)   //  62 → 120
-        const particles = Math.round(8 + mag * 16)    //   8 → 24
-        const glowSize  = Math.round(180 + mag * 180) // 180 → 360
-        const ringSize  = Math.round(150 + mag * 150) // 150 → 300
-        const burstDist = 50 + mag * 54               //  50 → 104
-        const riseY     = -210 - mag * 90             // -210 → -300
-        return (
-        <motion.div
-          key={id}
-          className="absolute z-30 pointer-events-none select-none"
-          style={{ left: '50%', bottom: 96 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {/* radial glow flash */}
-          <motion.div
-            className="absolute rounded-full"
-            style={{
-              width: glowSize, height: glowSize, left: '50%', top: '50%',
-              background: 'radial-gradient(circle, rgba(0,212,255,0.45) 0%, rgba(0,212,255,0) 68%)',
-            }}
-            initial={{ x: '-50%', y: '-50%', scale: 0.2, opacity: 0 }}
-            animate={{ x: '-50%', y: '-50%', scale: [0.2, 1.3, 1], opacity: [0, 0.9, 0] }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-          />
-          {/* expanding shockwave ring */}
-          <motion.div
-            className="absolute rounded-full"
-            style={{ left: '50%', top: '50%', border: '2px solid rgba(0,212,255,0.65)' }}
-            initial={{ x: '-50%', y: '-50%', width: 36, height: 36, opacity: 0.85 }}
-            animate={{ x: '-50%', y: '-50%', width: ringSize, height: ringSize, opacity: 0 }}
-            transition={{ duration: 0.85, ease: 'easeOut' }}
-          />
-          {/* sparkle particles bursting outward */}
-          {Array.from({ length: particles }).map((_, i) => {
-            const angle = (i / particles) * Math.PI * 2
-            const dist  = burstDist + (i % 3) * 22
-            return (
-              <motion.div
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  width: 8, height: 8, left: '50%', top: '50%', marginLeft: -4, marginTop: -4,
-                  background: i % 2 ? '#00D4FF' : '#FFE08A',
-                  boxShadow: i % 2 ? '0 0 10px #00D4FF' : '0 0 10px #FFE08A',
-                }}
-                initial={{ x: 0, y: 0, scale: 0, opacity: 0 }}
-                animate={{
-                  x: Math.cos(angle) * dist, y: Math.sin(angle) * dist,
-                  scale: [0, 1.3, 0], opacity: [0, 1, 0],
-                }}
-                transition={{ duration: 1, ease: 'easeOut' }}
-              />
-            )
-          })}
-          {/* the gift — pops in with a wobble, then floats up */}
-          <motion.div
-            className="absolute"
-            style={{ left: '50%', top: '50%', filter: 'drop-shadow(0 8px 20px rgba(0,212,255,0.6))' }}
-            initial={{ x: '-50%', y: 20, scale: 0.2, rotate: -28, opacity: 0 }}
-            animate={{
-              x: '-50%',
-              y: [20, -16, riseY],
-              scale: [0.2, 1.55, 1.3, 1.2],
-              rotate: [-28, 14, -7, 0],
-              opacity: [0, 1, 1, 0],
-            }}
-            transition={{
-              duration: 2.3, ease: 'easeOut',
-              y:       { duration: 2.3, times: [0, 0.22, 1], ease: 'easeOut' },
-              scale:   { duration: 2.3, times: [0, 0.22, 0.4, 1] },
-              rotate:  { duration: 1.3, times: [0, 0.3, 0.62, 1] },
-              opacity: { duration: 2.3, times: [0, 0.12, 0.72, 1] },
-            }}
-          >
-            <div style={{ marginTop: -iconSize / 2 }}>
-              <GiftIcon id={giftId} size={iconSize} />
-            </div>
-          </motion.div>
-        </motion.div>
-        )
-      })}
-    </AnimatePresence>
-  )
-}
 
 export default function ChatPage() {
   const navigate  = useNavigate()
@@ -828,9 +732,8 @@ export default function ChatPage() {
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
           setCashableCoins((c) => c + giftCoins)
         }
-        // Toast + sound for everyone except the sender (who already knows)
+        // Toast for everyone except the sender (who already knows)
         if (senderUsername && String(senderId) !== String(user?.id)) {
-          playGiftReceived()
           setTipFeedback({ type: 'success', msg: `🎁 ${senderUsername} sent ${giftName} · ${giftCoins} coins` })
           setTimeout(() => setTipFeedback(null), 3800)
         }
@@ -949,7 +852,6 @@ export default function ChatPage() {
       })
       if (data?.coins !== undefined) setCoins(data.coins)
       setShowGift(false)
-      playGiftSent()
     } catch (err) {
       setTipFeedback({ type: 'error', msg: err.response?.data?.error || 'Gift failed' })
       setTimeout(() => setTipFeedback(null), 3500)
@@ -1650,8 +1552,8 @@ export default function ChatPage() {
           </div>
 
 
-          {/* Mobile gift animations */}
-          <GiftFx anims={giftAnimations} />
+          {/* Gift fireworks — full-screen celebration overlay */}
+          <GiftFireworks anims={giftAnimations} />
 
           {/* Draggable PiP self-view — solo mode only */}
           {!isDuoMode && (
@@ -2037,9 +1939,6 @@ export default function ChatPage() {
                   </motion.div>
                 )}
 
-                {/* Gift floating animations — over the stranger panel */}
-                <GiftFx anims={giftAnimations.filter((a) => a.target === 'stranger')} />
-
                 {/* Partner identity overlay — top left */}
                 <AnimatePresence>
                   {status === 'matched' && (
@@ -2148,8 +2047,6 @@ export default function ChatPage() {
                         </>
                       )
                     })()}
-                    {/* Gift floating animations — over the duo partner panel */}
-                    <GiftFx anims={giftAnimations.filter((a) => a.target === 'partner')} />
                   </div>
                 </div>
               ) : (
