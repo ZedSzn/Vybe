@@ -56,6 +56,9 @@ export default function WalletPage() {
 
   const switchTab = (t) => {
     setTab(t)
+    // Show the skeleton from the first frame — otherwise History briefly
+    // flashes the previous visit's stale list before loadHistory runs.
+    if (t === 'history') setHistLoading(true)
     setSearchParams(t === 'overview' ? {} : { tab: t }, { replace: true })
     // Jump instantly — the global `scroll-behavior: smooth` would otherwise
     // animate the scroll and flash the footer through view as the shorter
