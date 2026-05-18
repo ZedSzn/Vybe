@@ -14,7 +14,7 @@ const PALETTES = [
   ['#FF4D4D', '#FFB199', '#FFFFFF'],
 ]
 
-const TRAIL = 9 // how many past positions each spark keeps for its trail
+const TRAIL = 16 // how many past positions each spark keeps for its trail
 
 // Full-screen fireworks overlay. Watches `anims` (the chat's gift queue) and,
 // for every new gift, launches a burst of shells + plays the gift's sound.
@@ -33,22 +33,22 @@ export default function GiftFireworks({ anims }) {
     flashesRef.current.push({ x, y, r: 8, maxR: 64 + power * 96, life: 1 })
     const shape = Math.random() // 0-.34 sphere · .34-.67 ring · .67-1 willow
     const count = 40 + Math.round(power * 40)
-    const base  = 2 + power * 3.6
+    const base  = 3.4 + power * 5.2
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * Math.PI * 2 + Math.random() * 0.22
       let speed, decay, grav
       if (shape < 0.34) {            // sphere — varied speeds, full volume
         speed = base * (0.35 + Math.random() * 0.85)
-        decay = 0.0065 + Math.random() * 0.010
-        grav  = 0.035
+        decay = 0.013 + Math.random() * 0.013
+        grav  = 0.05
       } else if (shape < 0.67) {     // ring — near-uniform speed, clean shell
         speed = base * (0.92 + Math.random() * 0.12)
-        decay = 0.0075 + Math.random() * 0.009
-        grav  = 0.028
+        decay = 0.014 + Math.random() * 0.012
+        grav  = 0.042
       } else {                       // willow — slow, long-lived, drooping
         speed = base * (0.3 + Math.random() * 0.5)
-        decay = 0.0035 + Math.random() * 0.005
-        grav  = 0.062
+        decay = 0.0085 + Math.random() * 0.008
+        grav  = 0.085
       }
       sparksRef.current.push({
         x, y,
@@ -64,21 +64,27 @@ export default function GiftFireworks({ anims }) {
     }
   }
 
-  // Stroke a fading trail through a particle's position history.
+  // Draw a particle's trail in just two strokes — a long faint tail plus a
+  // brighter recent segment for a tail-to-head taper. Cheap enough to stay
+  // at 60fps even with hundreds of sparks on screen.
   const drawTrail = (ctx, hist, x, y, color, width, alpha) => {
     if (hist.length < 2) return
-    for (let k = 1; k < hist.length; k++) {
-      ctx.globalAlpha = alpha * (k / hist.length) // tail dim → head bright
-      ctx.strokeStyle = color
-      ctx.lineWidth = width * (0.4 + 0.6 * (k / hist.length))
-      ctx.beginPath()
-      ctx.moveTo(hist[k - 1][0], hist[k - 1][1])
-      ctx.lineTo(hist[k][0], hist[k][1])
-      ctx.stroke()
-    }
-    ctx.globalAlpha = alpha
+    ctx.strokeStyle = color
+    // full faint tail
+    ctx.globalAlpha = alpha * 0.4
+    ctx.lineWidth = width * 0.7
     ctx.beginPath()
-    ctx.moveTo(hist[hist.length - 1][0], hist[hist.length - 1][1])
+    ctx.moveTo(hist[0][0], hist[0][1])
+    for (let k = 1; k < hist.length; k++) ctx.lineTo(hist[k][0], hist[k][1])
+    ctx.lineTo(x, y)
+    ctx.stroke()
+    // brighter recent segment
+    const start = Math.max(0, hist.length - 6)
+    ctx.globalAlpha = alpha
+    ctx.lineWidth = width
+    ctx.beginPath()
+    ctx.moveTo(hist[start][0], hist[start][1])
+    for (let k = start + 1; k < hist.length; k++) ctx.lineTo(hist[k][0], hist[k][1])
     ctx.lineTo(x, y)
     ctx.stroke()
   }
@@ -109,8 +115,8 @@ export default function GiftFireworks({ anims }) {
     const flashes = flashesRef.current
     for (let i = flashes.length - 1; i >= 0; i--) {
       const f = flashes[i]
-      f.r += (f.maxR - f.r) * 0.34
-      f.life -= 0.12
+      f.r += (f.maxR - f.r) * 0.4
+      f.life -= 0.17
       if (f.life <= 0) { flashes.splice(i, 1); continue }
       ctx.globalAlpha = Math.max(0, f.life) * 0.5
       ctx.fillStyle = '#FFFFFF'
@@ -121,7 +127,7 @@ export default function GiftFireworks({ anims }) {
     const shells = shellsRef.current
     for (let i = shells.length - 1; i >= 0; i--) {
       const s = shells[i]
-      s.x += s.vx; s.y += s.vy; s.vy += 0.022
+      s.x += s.vx; s.y += s.vy; s.vy += 0.03
       s.hist.push([s.x, s.y])
       if (s.hist.length > TRAIL) s.hist.shift()
       drawTrail(ctx, s.hist, s.x, s.y, '#FFF7E0', 3, 1)
@@ -135,7 +141,7 @@ export default function GiftFireworks({ anims }) {
     const sparks = sparksRef.current
     for (let i = sparks.length - 1; i >= 0; i--) {
       const p = sparks[i]
-      p.vx *= 0.985; p.vy *= 0.985; p.vy += p.grav
+      p.vx *= 0.982; p.vy *= 0.982; p.vy += p.grav
       p.x += p.vx; p.y += p.vy
       p.life -= p.decay
       if (p.life <= 0) { sparks.splice(i, 1); continue }
@@ -194,7 +200,7 @@ export default function GiftFireworks({ anims }) {
           x: W * (0.1 + Math.random() * 0.8),
           y: H + 8,
           vx: (Math.random() - 0.5) * 0.8,
-          vy: -(7 + Math.random() * 3.4),
+          vy: -(11 + Math.random() * 4),
           targetY: H * (0.14 + Math.random() * 0.44),
           palette: PALETTES[Math.floor(Math.random() * PALETTES.length)],
           power: 0.5 + mag * 0.95,
