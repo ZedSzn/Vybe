@@ -247,52 +247,59 @@ function createSocket(username) {
   return s
 }
 
-// ── WebRTC peer setup ─────────────────────────────────────────────────────────
-function setupPeers(socket, matchData, localStream, label) {
+// ── WebRTC peer management (persistent per socket) ───────────────────────────
+const peerState = new Map() // socket → { peerMap, localStream, label }
+
+// Register the WebRTC signal routing for a socket — once. Peers persist across
+// squad-peer-ready (pre-connect) and match-found, just like the real app.
+function initPeerSocket(socket, localStream, label) {
+  let state = peerState.get(socket)
+  if (state) return state
   const peerMap = {}
+  state = { peerMap, localStream, label }
+  peerState.set(socket, state)
 
-  // Clear listeners from any previous match so stale peers can't cross-talk.
-  socket.off('webrtc-offer')
-  socket.off('webrtc-answer')
-  socket.off('webrtc-ice-candidate')
+  socket.on('webrtc-offer',         ({ offer,     from }) => { if (peerMap[from]) { try { peerMap[from].signal(offer)     } catch (e) {} } })
+  socket.on('webrtc-answer',        ({ answer,    from }) => { if (peerMap[from]) { try { peerMap[from].signal(answer)    } catch (e) {} } })
+  socket.on('webrtc-ice-candidate', ({ candidate, from }) => { if (peerMap[from]) { try { peerMap[from].signal(candidate) } catch (e) {} } })
+  return state
+}
 
-  socket.on('webrtc-offer', ({ offer, from }) => {
-    if (peerMap[from]) {
-      log(`${label} received offer from ${from.slice(0,8)}…`, 'log-info')
-      peerMap[from].signal(offer)
-    }
+// Open one peer. Skips if a peer to that socket already exists — e.g. a squad
+// mate pre-connected via squad-peer-ready before match-found arrives.
+function connectPeer(socket, peerId, isInitiator) {
+  const state = peerState.get(socket)
+  if (!state || !peerId || state.peerMap[peerId]) return
+  const peer = new SimplePeer({
+    initiator: isInitiator,
+    stream: state.localStream,
+    trickle: true,
+    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
   })
-  socket.on('webrtc-answer', ({ answer, from }) => {
-    if (peerMap[from]) peerMap[from].signal(answer)
+  peer.on('signal', (sig) => {
+    if (sig.type === 'offer')             socket.emit('webrtc-offer',         { offer: sig,     to: peerId })
+    else if (sig.type === 'answer')       socket.emit('webrtc-answer',        { answer: sig,    to: peerId })
+    else if (sig.candidate !== undefined) socket.emit('webrtc-ice-candidate', { candidate: sig, to: peerId })
   })
-  socket.on('webrtc-ice-candidate', ({ candidate, from }) => {
-    if (peerMap[from]) peerMap[from].signal(candidate)
-  })
+  peer.on('connect', () => log(`${state.label} ↔ ${peerId.slice(0,8)}… WebRTC connected ✓`, 'log-ok'))
+  peer.on('error',  (e) => log(`${state.label} peer error: ${e.message}`, 'log-warn'))
+  peer.on('close',  () => { if (state.peerMap[peerId] === peer) delete state.peerMap[peerId] })
+  state.peerMap[peerId] = peer
+}
 
-  for (const { socketId, isInitiator } of matchData.peers) {
-    if (!socketId) continue
-    const peer = new SimplePeer({
-      initiator: isInitiator,
-      stream: localStream,
-      trickle: true,
-      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
-    })
-
-    peer.on('signal', (sig) => {
-      if (sig.type === 'offer')            socket.emit('webrtc-offer',         { offer: sig,     to: socketId })
-      else if (sig.type === 'answer')      socket.emit('webrtc-answer',        { answer: sig,    to: socketId })
-      else if (sig.candidate !== undefined) socket.emit('webrtc-ice-candidate', { candidate: sig, to: socketId })
-    })
-
-    peer.on('connect', () => {
-      log(`${label} ↔ ${socketId.slice(0,8)}… WebRTC connected ✓`, 'log-ok')
-    })
-    peer.on('error', (e) => log(`${label} peer error: ${e.message}`, 'log-warn'))
-
-    peerMap[socketId] = peer
+// Connect to every peer in a match-found payload (skips already-connected mates).
+function connectMatchPeers(socket, matchData) {
+  for (const { socketId, isInitiator } of (matchData.peers || [])) {
+    connectPeer(socket, socketId, isInitiator)
   }
+}
 
-  return peerMap
+// Squad mates: pre-connect before the match (mirrors the real app).
+// Initiator rule must match the server: higher socket id initiates.
+function connectSquadMates(socket, mates) {
+  for (const mateId of (mates || [])) {
+    connectPeer(socket, mateId, socket.id > mateId)
+  }
 }
 
 // ── 3-Panel: 1 partner bot + 1 stranger bot ───────────────────────────────────
@@ -313,6 +320,7 @@ async function start3Panel() {
   setDot('dot-stranger', 'yellow'); setPill('pill-stranger', 'CONNECTING…')
 
   await new Promise(resolve => strangerSock.once('connect', resolve))
+  initPeerSocket(strangerSock, strangerStream, 'Stranger')
 
   await delay(400)
   strangerSock.emit('find-match', { mode: 'solo', filterGender: null, filterCountry: '', noDevBot: true })
@@ -325,7 +333,7 @@ async function start3Panel() {
   strangerSock.on('match-found', (data) => {
     log(`Bot Stranger matched! Room: ${data.room}`, 'log-ok')
     setDot('dot-stranger', 'green'); setPill('pill-stranger', 'MATCHED', 'matched')
-    setupPeers(strangerSock, data, strangerStream, 'Stranger')
+    connectMatchPeers(strangerSock, data)
   })
 
   // ── Partner (joins squad, then starts searching) ──
@@ -334,6 +342,7 @@ async function start3Panel() {
   setDot('dot-partner', 'yellow'); setPill('pill-partner', 'CONNECTING…')
 
   await new Promise(resolve => partnerSock.once('connect', resolve))
+  initPeerSocket(partnerSock, partnerStream, 'Partner')
 
   await delay(400)
   partnerSock.emit('join-squad', { code, username: 'BotPartner' })
@@ -357,10 +366,14 @@ async function start3Panel() {
   partnerSock.on('waiting', () => {
     setPill('pill-partner', 'WAITING…', 'active')
   })
+  partnerSock.on('squad-peer-ready', ({ mates }) => {
+    log('Bot Partner pre-connecting to squad mate…', 'log-info')
+    connectSquadMates(partnerSock, mates)
+  })
   partnerSock.on('match-found', (data) => {
     log(`Bot Partner matched! Room: ${data.room}`, 'log-ok')
     setDot('dot-partner', 'green'); setPill('pill-partner', 'MATCHED', 'matched')
-    setupPeers(partnerSock, data, partnerStream, 'Partner')
+    connectMatchPeers(partnerSock, data)
   })
 }
 
@@ -419,10 +432,12 @@ async function start2v2() {
     [sSock1, strangerStream, 'Stranger1', 'dot-stranger', 'pill-stranger'],
     [sSock2, stranger2Stream, 'Stranger2', 'dot-stranger2', 'pill-stranger2'],
   ]) {
+    initPeerSocket(sock, stream, label)
+    sock.on('squad-peer-ready', ({ mates }) => connectSquadMates(sock, mates))
     sock.on('match-found', (data) => {
       log(`${label} matched! Room: ${data.room}`, 'log-ok')
       setDot(dotId, 'green'); setPill(pillId, 'MATCHED', 'matched')
-      setupPeers(sock, data, stream, label)
+      connectMatchPeers(sock, data)
     })
     sock.on('waiting', () => {
       setPill(pillId, 'IN QUEUE', 'active')
@@ -434,6 +449,7 @@ async function start2v2() {
   const partnerSock = createSocket('BotPartner')
   setDot('dot-partner', 'yellow'); setPill('pill-partner', 'CONNECTING…')
   await new Promise(r => partnerSock.once('connect', r))
+  initPeerSocket(partnerSock, partnerStream, 'Partner')
   await delay(400)
 
   partnerSock.emit('join-squad', { code, username: 'BotPartner' })
@@ -454,10 +470,11 @@ async function start2v2() {
   })
 
   partnerSock.on('waiting', () => setPill('pill-partner', 'WAITING…', 'active'))
+  partnerSock.on('squad-peer-ready', ({ mates }) => connectSquadMates(partnerSock, mates))
   partnerSock.on('match-found', (data) => {
     log(`Bot Partner matched! Room: ${data.room}`, 'log-ok')
     setDot('dot-partner', 'green'); setPill('pill-partner', 'MATCHED', 'matched')
-    setupPeers(partnerSock, data, partnerStream, 'Partner')
+    connectMatchPeers(partnerSock, data)
   })
 }
 
@@ -466,6 +483,10 @@ function stopAll() {
   running = false
   animIds.forEach(id => cancelAnimationFrame(id))
   animIds = []
+  for (const { peerMap } of peerState.values()) {
+    for (const p of Object.values(peerMap)) { try { p.destroy() } catch (e) {} }
+  }
+  peerState.clear()
   sockets.forEach(s => s.disconnect())
   sockets = []
   for (const id of ['dot-partner','dot-stranger','dot-stranger2']) setDot(id, '')
