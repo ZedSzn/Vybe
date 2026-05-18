@@ -1160,7 +1160,7 @@ export default function MainPage() {
                       style={{
                         padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', position: 'relative', transition: 'all 0.15s ease',
                         ...(filterGender === val
-                          ? { background: '#00D4FF', color: '#060612', border: 'none', boxShadow: '0 0 14px rgba(0,212,255,0.5), 0 2px 6px rgba(0,212,255,0.3)' }
+                          ? { background: '#00D4FF', color: '#060612', border: '1px solid transparent', boxShadow: '0 0 14px rgba(0,212,255,0.5), 0 2px 6px rgba(0,212,255,0.3)' }
                           : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.08)' }),
                       }}>
                       {label}
@@ -1214,7 +1214,7 @@ export default function MainPage() {
                       style={{
                         padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s ease',
                         ...(mode === val
-                          ? { background: '#00D4FF', color: '#060612', border: 'none', boxShadow: '0 0 14px rgba(0,212,255,0.5), 0 2px 6px rgba(0,212,255,0.3)' }
+                          ? { background: '#00D4FF', color: '#060612', border: '1px solid transparent', boxShadow: '0 0 14px rgba(0,212,255,0.5), 0 2px 6px rgba(0,212,255,0.3)' }
                           : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.08)' }),
                       }}>
                       {label}
