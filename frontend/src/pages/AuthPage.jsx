@@ -129,7 +129,7 @@ export default function AuthPage() {
           {/* Main card */}
           {!verifyBanner && (
             <div style={{
-              background: 'rgba(18,20,30,0.96)',
+              background: '#12141e',
               border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24,
               overflow: 'hidden',
               boxShadow: '0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,212,255,0.04) inset',
