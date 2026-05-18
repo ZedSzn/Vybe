@@ -14,6 +14,8 @@ const PALETTES = [
   ['#FF4D4D', '#FFB199', '#FFFFFF'],
 ]
 
+const TRAIL = 9 // how many past positions each spark keeps for its trail
+
 // Full-screen fireworks overlay. Watches `anims` (the chat's gift queue) and,
 // for every new gift, launches a burst of shells + plays the gift's sound.
 // Bigger gifts → more shells, denser/faster explosions, a louder/longer sound.
@@ -22,26 +24,9 @@ export default function GiftFireworks({ anims }) {
   const sparksRef  = useRef([])
   const shellsRef  = useRef([])
   const flashesRef = useRef([])
-  const rafRef     = useRef(0)
-  const runningRef = useRef(false)
+  const dirtyRef   = useRef(false)
   const seenRef    = useRef(new Set())
   const [centerGift, setCenterGift] = useState(null)
-
-  // ── Canvas sizing ──
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const resize = () => {
-      canvas.width  = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-    resize()
-    window.addEventListener('resize', resize)
-    return () => {
-      window.removeEventListener('resize', resize)
-      cancelAnimationFrame(rafRef.current)
-    }
-  }, [])
 
   // Detonate a shell: a bright flash + a spark burst in one of three shapes.
   const spawnExplosion = (x, y, palette, power) => {
@@ -54,15 +39,15 @@ export default function GiftFireworks({ anims }) {
       let speed, decay, grav
       if (shape < 0.34) {            // sphere — varied speeds, full volume
         speed = base * (0.35 + Math.random() * 0.85)
-        decay = 0.008 + Math.random() * 0.012
+        decay = 0.0065 + Math.random() * 0.010
         grav  = 0.035
       } else if (shape < 0.67) {     // ring — near-uniform speed, clean shell
         speed = base * (0.92 + Math.random() * 0.12)
-        decay = 0.009 + Math.random() * 0.010
+        decay = 0.0075 + Math.random() * 0.009
         grav  = 0.028
       } else {                       // willow — slow, long-lived, drooping
         speed = base * (0.3 + Math.random() * 0.5)
-        decay = 0.004 + Math.random() * 0.006
+        decay = 0.0035 + Math.random() * 0.005
         grav  = 0.062
       }
       sparksRef.current.push({
@@ -74,19 +59,48 @@ export default function GiftFireworks({ anims }) {
         life: 1, decay, grav,
         glow: true,
         twinkle: Math.random() < 0.55,
+        hist: [],
       })
     }
   }
 
-  const tick = () => {
+  // Stroke a fading trail through a particle's position history.
+  const drawTrail = (ctx, hist, x, y, color, width, alpha) => {
+    if (hist.length < 2) return
+    for (let k = 1; k < hist.length; k++) {
+      ctx.globalAlpha = alpha * (k / hist.length) // tail dim → head bright
+      ctx.strokeStyle = color
+      ctx.lineWidth = width * (0.4 + 0.6 * (k / hist.length))
+      ctx.beginPath()
+      ctx.moveTo(hist[k - 1][0], hist[k - 1][1])
+      ctx.lineTo(hist[k][0], hist[k][1])
+      ctx.stroke()
+    }
+    ctx.globalAlpha = alpha
+    ctx.beginPath()
+    ctx.moveTo(hist[hist.length - 1][0], hist[hist.length - 1][1])
+    ctx.lineTo(x, y)
+    ctx.stroke()
+  }
+
+  // One animation frame. Wrapped by the loop in try/catch so a single bad
+  // frame can never permanently kill the fireworks.
+  const draw = () => {
     const canvas = canvasRef.current
-    if (!canvas) { runningRef.current = false; return }
+    if (!canvas) return
     const ctx = canvas.getContext('2d')
     const w = canvas.width, h = canvas.height
 
-    // Full clear every frame — each spark carries its own streak tail, so a
-    // trail fades out completely with the spark's life and never leaves any
-    // stuck residue behind (the old proportional fade couldn't reach zero).
+    const active = shellsRef.current.length || sparksRef.current.length || flashesRef.current.length
+    if (!active) {
+      // Clear once after the last particle dies, then idle cheaply.
+      if (dirtyRef.current) { ctx.clearRect(0, 0, w, h); dirtyRef.current = false }
+      return
+    }
+    dirtyRef.current = true
+
+    // Full clear every frame — particles carry their own trails, so a trail
+    // fades out completely with the spark's life and leaves no stuck residue.
     ctx.clearRect(0, 0, w, h)
     ctx.globalCompositeOperation = 'lighter'
     ctx.lineCap = 'round'
@@ -103,31 +117,21 @@ export default function GiftFireworks({ anims }) {
       ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill()
     }
 
-    // Rising shells — a bright streak + a sparkle trail
+    // Rising shells — a bright climbing streak
     const shells = shellsRef.current
     for (let i = shells.length - 1; i >= 0; i--) {
       const s = shells[i]
       s.x += s.vx; s.y += s.vy; s.vy += 0.022
-      sparksRef.current.push({
-        x: s.x + (Math.random() - 0.5) * 3, y: s.y + 2,
-        vx: (Math.random() - 0.5) * 0.6, vy: Math.random() * 0.7,
-        color: '#FFE9B0', size: 0.9 + Math.random(),
-        life: 0.55, decay: 0.03, grav: 0.02, glow: false, twinkle: false,
-      })
-      ctx.globalAlpha = 1
-      ctx.strokeStyle = '#FFF7E0'
-      ctx.lineWidth = 3
-      ctx.beginPath()
-      ctx.moveTo(s.x - s.vx * 3.5, s.y - s.vy * 3.5)
-      ctx.lineTo(s.x, s.y)
-      ctx.stroke()
+      s.hist.push([s.x, s.y])
+      if (s.hist.length > TRAIL) s.hist.shift()
+      drawTrail(ctx, s.hist, s.x, s.y, '#FFF7E0', 3, 1)
       if (s.y <= s.targetY || s.vy >= 0) {
         spawnExplosion(s.x, s.y, s.palette, s.power)
         shells.splice(i, 1)
       }
     }
 
-    // Drifting sparks — a tapered streak + bright head, twinkle as they fade
+    // Drifting sparks — a fading trail, a glow halo, twinkle as they die
     const sparks = sparksRef.current
     for (let i = sparks.length - 1; i >= 0; i--) {
       const p = sparks[i]
@@ -135,17 +139,11 @@ export default function GiftFireworks({ anims }) {
       p.x += p.vx; p.y += p.vy
       p.life -= p.decay
       if (p.life <= 0) { sparks.splice(i, 1); continue }
+      p.hist.push([p.x, p.y])
+      if (p.hist.length > TRAIL) p.hist.shift()
       let a = Math.max(0, p.life)
-      if (p.twinkle && p.life < 0.55) a *= 0.3 + Math.random() * 0.7
-      // tapered streak tail (shrinks naturally as the spark slows)
-      ctx.globalAlpha = a * 0.7
-      ctx.strokeStyle = p.color
-      ctx.lineWidth = p.size * 1.5
-      ctx.beginPath()
-      ctx.moveTo(p.x - p.vx * 3.4, p.y - p.vy * 3.4)
-      ctx.lineTo(p.x, p.y)
-      ctx.stroke()
-      // glow halo + bright head
+      if (p.twinkle && p.life < 0.55) a *= 0.35 + Math.random() * 0.65
+      drawTrail(ctx, p.hist, p.x, p.y, p.color, p.size * 1.3, a * 0.85)
       ctx.fillStyle = p.color
       if (p.glow && p.life > 0.3) {
         ctx.globalAlpha = a * 0.22
@@ -155,24 +153,34 @@ export default function GiftFireworks({ anims }) {
       ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill()
     }
     ctx.globalAlpha = 1
-
-    if (shells.length || sparks.length || flashes.length) {
-      rafRef.current = requestAnimationFrame(tick)
-    } else {
-      runningRef.current = false
-    }
   }
 
-  const ensureRunning = () => {
-    if (!runningRef.current) {
-      runningRef.current = true
-      rafRef.current = requestAnimationFrame(tick)
-    }
-  }
-
-  const launch = (giftId, coins) => {
+  // ── Continuous loop — always running while mounted, so it can never get
+  //    stuck. try/catch keeps one bad frame from breaking every future gift.
+  useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
+    const resize = () => {
+      canvas.width  = window.innerWidth
+      canvas.height = window.innerHeight
+      dirtyRef.current = true
+    }
+    resize()
+    window.addEventListener('resize', resize)
+    let raf = 0
+    const loop = () => {
+      try { draw() } catch (e) { /* swallow — never kill the loop */ }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+    return () => {
+      window.removeEventListener('resize', resize)
+      cancelAnimationFrame(raf)
+    }
+  }, []) // eslint-disable-line
+
+  const launch = (giftId, coins) => {
+    const W = window.innerWidth, H = window.innerHeight
     const gift  = GIFTS.find((g) => g.id === giftId)
     const value = coins || gift?.coins || 100
     const mag   = Math.max(0, Math.min(1,
@@ -181,21 +189,18 @@ export default function GiftFireworks({ anims }) {
     const shellCount = 3 + Math.round(mag * 14) // 3 → 17
 
     for (let i = 0; i < shellCount; i++) {
-      const delay = i * (80 + Math.random() * 150)
       setTimeout(() => {
-        const cv = canvasRef.current
-        if (!cv) return
         shellsRef.current.push({
-          x: cv.width * (0.1 + Math.random() * 0.8),
-          y: cv.height + 8,
+          x: W * (0.1 + Math.random() * 0.8),
+          y: H + 8,
           vx: (Math.random() - 0.5) * 0.8,
           vy: -(7 + Math.random() * 3.4),
-          targetY: cv.height * (0.14 + Math.random() * 0.44),
+          targetY: H * (0.14 + Math.random() * 0.44),
           palette: PALETTES[Math.floor(Math.random() * PALETTES.length)],
           power: 0.5 + mag * 0.95,
+          hist: [],
         })
-        ensureRunning()
-      }, delay)
+      }, i * (80 + Math.random() * 150))
     }
     playGiftFireworks(level)
   }
@@ -213,7 +218,7 @@ export default function GiftFireworks({ anims }) {
     seenRef.current = new Set(
       [...seenRef.current].filter((id) => anims.some((a) => a.id === id)),
     )
-  }, [anims])
+  }, [anims]) // eslint-disable-line
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 60 }}>
