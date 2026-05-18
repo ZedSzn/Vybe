@@ -11,15 +11,17 @@ const PALETTES = [
   ['#FF5FA2', '#FF9DC8', '#FFFFFF'],
   ['#A78BFA', '#00D4FF', '#E9D5FF'],
   ['#4ADE80', '#A7F3D0', '#FFFFFF'],
+  ['#FF4D4D', '#FFB199', '#FFFFFF'],
 ]
 
 // Full-screen fireworks overlay. Watches `anims` (the chat's gift queue) and,
 // for every new gift, launches a burst of shells + plays the gift's sound.
-// Bigger gifts → more shells, denser explosions, a louder/longer sound.
+// Bigger gifts → more shells, denser/faster explosions, a louder/longer sound.
 export default function GiftFireworks({ anims }) {
   const canvasRef  = useRef(null)
   const sparksRef  = useRef([])
   const shellsRef  = useRef([])
+  const flashesRef = useRef([])
   const rafRef     = useRef(0)
   const runningRef = useRef(false)
   const seenRef    = useRef(new Set())
@@ -41,19 +43,37 @@ export default function GiftFireworks({ anims }) {
     }
   }, [])
 
-  const explode = (x, y, palette, power) => {
-    const count = 38 + Math.round(power * 34)
+  // Detonate a shell: a bright flash + a spark burst in one of three shapes.
+  const spawnExplosion = (x, y, palette, power) => {
+    flashesRef.current.push({ x, y, r: 8, maxR: 64 + power * 96, life: 1 })
+    const shape = Math.random() // 0-.34 sphere · .34-.67 ring · .67-1 willow
+    const count = 40 + Math.round(power * 40)
+    const base  = 2 + power * 3.6
     for (let i = 0; i < count; i++) {
-      const angle = (i / count) * Math.PI * 2 + Math.random() * 0.25
-      const speed = (1.4 + Math.random() * 4.6) * (0.7 + power * 0.55)
+      const angle = (i / count) * Math.PI * 2 + Math.random() * 0.22
+      let speed, decay, grav
+      if (shape < 0.34) {            // sphere — varied speeds, full volume
+        speed = base * (0.35 + Math.random() * 0.85)
+        decay = 0.008 + Math.random() * 0.012
+        grav  = 0.035
+      } else if (shape < 0.67) {     // ring — near-uniform speed, clean shell
+        speed = base * (0.92 + Math.random() * 0.12)
+        decay = 0.009 + Math.random() * 0.010
+        grav  = 0.028
+      } else {                       // willow — slow, long-lived, drooping
+        speed = base * (0.3 + Math.random() * 0.5)
+        decay = 0.004 + Math.random() * 0.006
+        grav  = 0.062
+      }
       sparksRef.current.push({
         x, y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         color: palette[Math.floor(Math.random() * palette.length)],
-        size: 1.5 + Math.random() * 2,
-        life: 1,
-        decay: 0.007 + Math.random() * 0.012,
+        size: 1.6 + Math.random() * 2.2,
+        life: 1, decay, grav,
+        glow: true,
+        twinkle: Math.random() < 0.55,
       })
     }
   }
@@ -66,43 +86,63 @@ export default function GiftFireworks({ anims }) {
 
     // Fade existing trails by lowering alpha — does NOT darken the video below.
     ctx.globalCompositeOperation = 'destination-out'
-    ctx.fillStyle = 'rgba(0,0,0,0.16)'
+    ctx.fillStyle = 'rgba(0,0,0,0.14)'
     ctx.fillRect(0, 0, w, h)
     ctx.globalCompositeOperation = 'lighter'
 
-    // Rising shells
+    // Detonation flashes
+    const flashes = flashesRef.current
+    for (let i = flashes.length - 1; i >= 0; i--) {
+      const f = flashes[i]
+      f.r += (f.maxR - f.r) * 0.34
+      f.life -= 0.12
+      if (f.life <= 0) { flashes.splice(i, 1); continue }
+      ctx.globalAlpha = Math.max(0, f.life) * 0.5
+      ctx.fillStyle = '#FFFFFF'
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill()
+    }
+
+    // Rising shells — each leaves a sparkle trail as it climbs
     const shells = shellsRef.current
     for (let i = shells.length - 1; i >= 0; i--) {
       const s = shells[i]
       s.x += s.vx; s.y += s.vy; s.vy += 0.022
+      sparksRef.current.push({
+        x: s.x + (Math.random() - 0.5) * 3, y: s.y + 2,
+        vx: (Math.random() - 0.5) * 0.6, vy: Math.random() * 0.7,
+        color: '#FFE9B0', size: 0.9 + Math.random(),
+        life: 0.55, decay: 0.03, grav: 0.02, glow: false, twinkle: false,
+      })
       ctx.globalAlpha = 1
-      ctx.beginPath()
-      ctx.fillStyle = '#FFFFFF'
-      ctx.arc(s.x, s.y, 2.6, 0, Math.PI * 2)
-      ctx.fill()
+      ctx.fillStyle = '#FFF7E0'
+      ctx.beginPath(); ctx.arc(s.x, s.y, 2.7, 0, Math.PI * 2); ctx.fill()
       if (s.y <= s.targetY || s.vy >= 0) {
-        explode(s.x, s.y, s.palette, s.power)
+        spawnExplosion(s.x, s.y, s.palette, s.power)
         shells.splice(i, 1)
       }
     }
 
-    // Drifting sparks
+    // Drifting sparks — glow halo + twinkle as they fade
     const sparks = sparksRef.current
     for (let i = sparks.length - 1; i >= 0; i--) {
       const p = sparks[i]
-      p.vx *= 0.984; p.vy *= 0.984; p.vy += 0.034
+      p.vx *= 0.985; p.vy *= 0.985; p.vy += p.grav
       p.x += p.vx; p.y += p.vy
       p.life -= p.decay
       if (p.life <= 0) { sparks.splice(i, 1); continue }
-      ctx.globalAlpha = Math.max(0, p.life)
-      ctx.beginPath()
+      let a = Math.max(0, p.life)
+      if (p.twinkle && p.life < 0.55) a *= 0.3 + Math.random() * 0.7
       ctx.fillStyle = p.color
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-      ctx.fill()
+      if (p.glow && p.life > 0.35) {
+        ctx.globalAlpha = a * 0.26
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * 2.7, 0, Math.PI * 2); ctx.fill()
+      }
+      ctx.globalAlpha = a
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill()
     }
     ctx.globalAlpha = 1
 
-    if (shells.length || sparks.length) {
+    if (shells.length || sparks.length || flashes.length) {
       rafRef.current = requestAnimationFrame(tick)
     } else {
       ctx.clearRect(0, 0, w, h)
@@ -120,7 +160,6 @@ export default function GiftFireworks({ anims }) {
   const launch = (giftId, coins) => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const w = canvas.width, h = canvas.height
     const gift  = GIFTS.find((g) => g.id === giftId)
     const value = coins || gift?.coins || 100
     const mag   = Math.max(0, Math.min(1,
@@ -168,27 +207,39 @@ export default function GiftFireworks({ anims }) {
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
       <AnimatePresence>
         {centerGift && (
-          <motion.div
-            key={centerGift.key}
-            className="absolute left-1/2 top-1/2"
-            initial={{ x: '-50%', y: '-50%', scale: 0.2, rotate: -22, opacity: 0 }}
-            animate={{
-              x: '-50%', y: '-50%',
-              scale: [0.2, 1.4, 1.18, 1.18],
-              rotate: [-22, 10, -4, 0],
-              opacity: [0, 1, 1, 0],
-            }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{
-              duration: 2.5, ease: 'easeOut',
-              opacity: { duration: 2.5, times: [0, 0.1, 0.74, 1] },
-              scale:   { duration: 2.5, times: [0, 0.28, 0.42, 1] },
-              rotate:  { duration: 1.4, times: [0, 0.3, 0.62, 1] },
-            }}
-            style={{ filter: 'drop-shadow(0 12px 34px rgba(0,212,255,0.7))' }}
-          >
-            <GiftIcon id={centerGift.giftId} size={148} />
-          </motion.div>
+          <div key={centerGift.key} className="absolute left-1/2 top-1/2">
+            {/* soft glow halo behind the gift */}
+            <motion.div
+              className="absolute rounded-full"
+              style={{
+                width: 320, height: 320, left: '50%', top: '50%',
+                background: 'radial-gradient(circle, rgba(0,212,255,0.4) 0%, rgba(0,212,255,0) 70%)',
+              }}
+              initial={{ x: '-50%', y: '-50%', scale: 0.3, opacity: 0 }}
+              animate={{ x: '-50%', y: '-50%', scale: [0.3, 1.2, 1], opacity: [0, 0.85, 0] }}
+              transition={{ duration: 2.5, ease: 'easeOut' }}
+            />
+            <motion.div
+              className="absolute left-1/2 top-1/2"
+              initial={{ x: '-50%', y: '-50%', scale: 0.2, rotate: -22, opacity: 0 }}
+              animate={{
+                x: '-50%', y: '-50%',
+                scale: [0.2, 1.4, 1.18, 1.18],
+                rotate: [-22, 10, -4, 0],
+                opacity: [0, 1, 1, 0],
+              }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{
+                duration: 2.5, ease: 'easeOut',
+                opacity: { duration: 2.5, times: [0, 0.1, 0.74, 1] },
+                scale:   { duration: 2.5, times: [0, 0.28, 0.42, 1] },
+                rotate:  { duration: 1.4, times: [0, 0.3, 0.62, 1] },
+              }}
+              style={{ filter: 'drop-shadow(0 12px 34px rgba(0,212,255,0.7))' }}
+            >
+              <GiftIcon id={centerGift.giftId} size={148} />
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
