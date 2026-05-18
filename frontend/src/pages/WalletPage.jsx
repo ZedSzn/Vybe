@@ -39,7 +39,7 @@ function TabBtn({ active, onClick, children }) {
     <button
       onClick={onClick}
       className={`px-3 sm:px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-        active ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'
+        active ? 'bg-[#00D4FF] text-[#0a0a0f]' : 'text-vybe-muted hover:text-white'
       }`}
     >
       {children}
@@ -57,6 +57,7 @@ export default function WalletPage() {
   const switchTab = (t) => {
     setTab(t)
     setSearchParams(t === 'overview' ? {} : { tab: t }, { replace: true })
+    window.scrollTo({ top: 0 })
   }
   const [coins, setCoins]                 = useState(user?.coins ?? 0)
   const [earnings, setEarnings]           = useState(user?.cashableCoins ?? 0)
