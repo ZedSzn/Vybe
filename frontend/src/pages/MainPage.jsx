@@ -1359,6 +1359,7 @@ export default function MainPage() {
                 isVerified={!!user?.emailVerified}
                 country={myCountry}
                 accentColor={user?.accentColor}
+                bannerGradient={user?.bannerGradient}
                 friendStatus="self"
               />
             </div>

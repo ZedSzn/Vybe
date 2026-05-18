@@ -22,6 +22,8 @@
  *   onAddFriend  : () => void   (parent owns the friendStatus state)
  */
 
+import { bannerBackground } from '../utils/banners'
+
 const ACCENT  = '#00D4FF'
 const PURPLE  = '#7C3AED'
 const PAGE_BG = '#0a0a0f'
@@ -59,10 +61,12 @@ export default function ProfilePill({
   isVip = false,
   country = '',
   accentColor = '',
+  bannerGradient = '',
   friendStatus = 'none',
   onAddFriend,
 }) {
   const initials   = (username.trim() || '?').slice(0, 2).toUpperCase()
+  const surface    = bannerBackground(bannerGradient) || 'rgba(255,255,255,0.07)'
   const showButton = friendStatus !== 'self'
   const locked     = friendStatus === 'pending' || friendStatus === 'friends'
   const btn        = FRIEND_BTN[friendStatus] || FRIEND_BTN.none
@@ -75,7 +79,7 @@ export default function ProfilePill({
         gap: 6,
         padding: '4px 8px 4px 4px',
         borderRadius: 50,
-        background: 'rgba(255,255,255,0.07)',
+        background: surface,
         border: accentColor ? `1px solid ${accentColor}59` : '1px solid rgba(0,212,255,0.3)',
         boxShadow: accentColor ? `0 0 14px ${accentColor}66` : 'none',
         fontFamily: "'Sora', system-ui, sans-serif",

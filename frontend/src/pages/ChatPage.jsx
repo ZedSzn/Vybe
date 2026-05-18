@@ -1857,6 +1857,7 @@ export default function ChatPage() {
                     isVerified={!!user?.emailVerified}
                     country={myCountry}
                     accentColor={user?.accentColor}
+                    bannerGradient={user?.bannerGradient}
                     friendStatus="self"
                   />
                 </div>
@@ -2071,6 +2072,7 @@ export default function ChatPage() {
                         isVerified={!!user?.emailVerified}
                         country={myCountry}
                         accentColor={user?.accentColor}
+                        bannerGradient={user?.bannerGradient}
                         friendStatus="self"
                       />
                     </div>
@@ -2151,6 +2153,7 @@ export default function ChatPage() {
                       isVerified={!!user?.emailVerified}
                       country={myCountry}
                       accentColor={user?.accentColor}
+                      bannerGradient={user?.bannerGradient}
                       friendStatus="self"
                     />
                   </div>
