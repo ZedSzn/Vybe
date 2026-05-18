@@ -1978,11 +1978,19 @@ export default function ChatPage() {
                           initial={{ scale: 0.7, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-full"
-                          style={{ background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.35)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            padding: '6px 11px', borderRadius: 50,
+                            background: 'rgba(255,255,255,0.07)',
+                            border: '1px solid rgba(0,212,255,0.3)',
+                            fontFamily: "'Sora', system-ui, sans-serif",
+                          }}
                         >
-                          <Gift size={11} style={{ color: '#00D4FF' }} />
-                          <span style={{ color: '#00D4FF', fontSize: 11, fontWeight: 800 }}>{giftedToPartner.toLocaleString()} gifted</span>
+                          <Gift size={12} style={{ color: '#00D4FF' }} />
+                          <span style={{ fontSize: 11, fontWeight: 700, lineHeight: 1, whiteSpace: 'nowrap' }}>
+                            <span style={{ color: '#00D4FF' }}>{giftedToPartner.toLocaleString()}</span>
+                            <span style={{ color: 'rgba(255,255,255,0.7)' }}> gifted</span>
+                          </span>
                         </motion.div>
                       )}
                     </motion.div>
