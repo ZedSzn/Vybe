@@ -58,6 +58,7 @@ export default function ProfilePill({
   isVerified = false,
   isVip = false,
   country = '',
+  accentColor = '',
   friendStatus = 'none',
   onAddFriend,
 }) {
@@ -75,7 +76,8 @@ export default function ProfilePill({
         padding: '4px 8px 4px 4px',
         borderRadius: 50,
         background: 'rgba(255,255,255,0.07)',
-        border: '1px solid rgba(0,212,255,0.3)',
+        border: accentColor ? `1px solid ${accentColor}59` : '1px solid rgba(0,212,255,0.3)',
+        boxShadow: accentColor ? `0 0 14px ${accentColor}66` : 'none',
         fontFamily: "'Sora', system-ui, sans-serif",
       }}
     >

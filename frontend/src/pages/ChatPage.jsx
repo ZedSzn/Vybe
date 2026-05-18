@@ -1856,6 +1856,7 @@ export default function ChatPage() {
                     isOnline
                     isVerified={!!user?.emailVerified}
                     country={myCountry}
+                    accentColor={user?.accentColor}
                     friendStatus="self"
                   />
                 </div>
@@ -2069,6 +2070,7 @@ export default function ChatPage() {
                         isOnline
                         isVerified={!!user?.emailVerified}
                         country={myCountry}
+                        accentColor={user?.accentColor}
                         friendStatus="self"
                       />
                     </div>
@@ -2148,6 +2150,7 @@ export default function ChatPage() {
                       isOnline
                       isVerified={!!user?.emailVerified}
                       country={myCountry}
+                      accentColor={user?.accentColor}
                       friendStatus="self"
                     />
                   </div>

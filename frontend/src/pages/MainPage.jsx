@@ -1358,6 +1358,7 @@ export default function MainPage() {
                 isOnline
                 isVerified={!!user?.emailVerified}
                 country={myCountry}
+                accentColor={user?.accentColor}
                 friendStatus="self"
               />
             </div>
