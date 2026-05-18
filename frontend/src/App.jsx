@@ -369,13 +369,13 @@ function AppRoutes() {
         <AnnouncementToast message={pendingAnnouncements[0]} onDismiss={dismissAnnouncement} />
       )}
 
-      {/* Admin warning modal */}
-      {pendingWarnings.length > 0 && (
+      {/* Admin warning modal — never over the admin dashboard */}
+      {!isAdminPath && pendingWarnings.length > 0 && (
         <WarningModal message={pendingWarnings[0]} onDismiss={dismissWarning} />
       )}
 
-      {/* Ban modal — shown on any page when admin bans the user live */}
-      {bannedInfo && (
+      {/* Ban modal — shown on any page except the admin dashboard */}
+      {!isAdminPath && bannedInfo && (
         <BanModal info={bannedInfo} onDismiss={handleBanDismiss} />
       )}
 
