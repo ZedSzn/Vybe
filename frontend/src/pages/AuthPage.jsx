@@ -73,9 +73,9 @@ export default function AuthPage() {
 
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', position: 'relative', zIndex: 1 }}>
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
           style={{ width: '100%', maxWidth: 420 }}
         >
           {/* Back link */}
@@ -95,7 +95,7 @@ export default function AuthPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               style={{
-                background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)',
+                background: 'rgba(20,22,32,0.92)',
                 border: '1px solid rgba(0,212,255,0.25)', borderRadius: 20,
                 padding: 28, marginBottom: 20, textAlign: 'center',
               }}
@@ -129,8 +129,7 @@ export default function AuthPage() {
           {/* Main card */}
           {!verifyBanner && (
             <div style={{
-              background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
+              background: 'rgba(18,20,30,0.96)',
               border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24,
               overflow: 'hidden',
               boxShadow: '0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,212,255,0.04) inset',
@@ -194,7 +193,7 @@ export default function AuthPage() {
                         <div>
                           <label style={labelStyle}>I am a <span style={{ color: '#f87171' }}>*</span></label>
                           <div style={{ display: 'flex', gap: 10 }}>
-                            {[{ value: 'male', label: '♂ Male' }, { value: 'female', label: '♀ Female' }].map(({ value, label }) => (
+                            {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
                               <button
                                 key={value}
                                 type="button"
