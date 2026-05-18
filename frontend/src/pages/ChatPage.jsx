@@ -1979,34 +1979,34 @@ export default function ChatPage() {
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ type: 'spring', stiffness: 500, damping: 22 }}
                           style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 5,
-                            padding: '2px 11px 2px 2px', borderRadius: 999,
+                            display: 'inline-flex', alignItems: 'center', gap: 6,
+                            padding: '4px 12px 4px 4px', borderRadius: 50,
                             background: 'rgba(6,10,22,0.9)',
                             border: '1px solid rgba(0,212,255,0.6)',
-                            boxShadow: '0 0 7px rgba(0,212,255,0.4), 0 0 16px rgba(0,212,255,0.22)',
+                            boxShadow: '0 0 8px rgba(0,212,255,0.4), 0 0 18px rgba(0,212,255,0.24)',
                             fontFamily: "'Sora', system-ui, sans-serif",
                           }}
                         >
-                          {/* glowing icon circle */}
+                          {/* glowing icon circle — matches the profile pill avatar size */}
                           <div style={{
-                            width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                            width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
                             background: 'rgba(0,212,255,0.07)',
                             border: '1px solid rgba(0,212,255,0.55)',
                             boxShadow: '0 0 6px rgba(0,212,255,0.45), inset 0 0 5px rgba(0,212,255,0.16)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                           }}>
-                            <Gift size={11} style={{ color: '#00D4FF', filter: 'drop-shadow(0 0 2px rgba(0,212,255,0.9))' }} />
+                            <Gift size={13} style={{ color: '#00D4FF', filter: 'drop-shadow(0 0 2px rgba(0,212,255,0.9))' }} />
                           </div>
                           {/* count */}
-                          <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 3, whiteSpace: 'nowrap' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4, whiteSpace: 'nowrap' }}>
                             <span style={{
-                              color: '#00D4FF', fontSize: 11, fontWeight: 800,
+                              color: '#00D4FF', fontSize: 12, fontWeight: 800,
                               fontVariantNumeric: 'tabular-nums', letterSpacing: '0.01em',
                               textShadow: '0 0 6px rgba(0,212,255,0.6)',
                             }}>
                               {giftedToPartner.toLocaleString()}
                             </span>
-                            <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 10, fontWeight: 600 }}>Gifted</span>
+                            <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: 600 }}>Gifted</span>
                           </span>
                         </motion.div>
                       )}
