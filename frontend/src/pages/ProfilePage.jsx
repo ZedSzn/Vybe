@@ -152,7 +152,7 @@ export default function ProfilePage() {
   const [editForm,      setEditForm]      = useState({
     bio: '', displayName: '', pronouns: '', gender: 'other', country: '',
     interests: [], socialLinks: { instagram: '', tiktok: '', twitter: '', twitch: '', kick: '' },
-    privacyShowBio: true, privacyShowCountry: true,
+    privacyShowBio: true, privacyShowCountry: true, allowFriendRequests: true,
     accentColor: '', bannerGradient: '', bannerImage: '',
     cameraBackground: 'none', cameraBackgroundImage: '',
   })
@@ -180,8 +180,9 @@ export default function ProfilePage() {
             country:            data.user.country || '',
             interests:          data.user.interests || [],
             socialLinks:        data.user.socialLinks || { instagram: '', tiktok: '', twitter: '' },
-            privacyShowBio:     data.user.privacyShowBio ?? true,
-            privacyShowCountry: data.user.privacyShowCountry ?? true,
+            privacyShowBio:      data.user.privacyShowBio ?? true,
+            privacyShowCountry:  data.user.privacyShowCountry ?? true,
+            allowFriendRequests: data.user.allowFriendRequests ?? true,
             accentColor:        data.user.accentColor || '',
             bannerGradient:     data.user.bannerGradient || '',
             bannerImage:        data.user.bannerImage || '',
@@ -263,8 +264,9 @@ export default function ProfilePage() {
           country:            editForm.country,
           interests:          editForm.interests,
           socialLinks:        editForm.socialLinks,
-          privacyShowBio:     editForm.privacyShowBio,
-          privacyShowCountry: editForm.privacyShowCountry,
+          privacyShowBio:      editForm.privacyShowBio,
+          privacyShowCountry:  editForm.privacyShowCountry,
+          allowFriendRequests: editForm.allowFriendRequests,
           avatar:             editForm.avatar || profile.avatar,
           bannerImage:        editForm.bannerImage,
           cameraBackgroundImage: editForm.cameraBackgroundImage,
@@ -632,8 +634,9 @@ export default function ProfilePage() {
                 {/* Privacy toggles */}
                 <div className="space-y-2">
                   {[
-                    { key: 'privacyShowBio',     label: 'Show bio publicly' },
-                    { key: 'privacyShowCountry', label: 'Show country publicly' },
+                    { key: 'privacyShowBio',      label: 'Show bio publicly' },
+                    { key: 'privacyShowCountry',  label: 'Show country publicly' },
+                    { key: 'allowFriendRequests', label: 'Allow friend requests' },
                   ].map(({ key, label }) => (
                     <label key={key} className="flex items-center gap-2.5 cursor-pointer">
                       <input type="checkbox" checked={editForm[key]}

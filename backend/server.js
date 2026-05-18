@@ -390,6 +390,7 @@ const userSchema = new mongoose.Schema({
   // Privacy
   privacyShowCountry: { type: Boolean, default: true },
   privacyShowBio:     { type: Boolean, default: true },
+  allowFriendRequests:{ type: Boolean, default: true },
   // Coin economy extras
   paypalEmail:      { type: String, default: '' },
   tipsEarned:       { type: Number, default: 0 },
@@ -1152,6 +1153,12 @@ app.post('/api/friends/request', authMiddleware, async (req, res) => {
     });
     if (existing) return res.status(400).json({ error: existing.status === 'accepted' ? 'Already friends' : 'Request already sent' });
 
+    const recipient = await User.findById(recipientId).select('allowFriendRequests');
+    if (!recipient) return res.status(404).json({ error: 'User not found' });
+    if (recipient.allowFriendRequests === false) {
+      return res.status(403).json({ error: "This user isn't accepting friend requests" });
+    }
+
     const friendship = await Friendship.create({ requester: req.user._id, recipient: recipientId });
 
     // Notify recipient
@@ -1893,13 +1900,14 @@ app.get('/api/user/:id/profile', async (req, res) => {
 
 app.put('/api/user/profile', authMiddleware, async (req, res) => {
   try {
-    const { bio, avatar, bannerImage, gender, country, privacyShowCountry, privacyShowBio, cameraBackgroundImage } = req.body;
+    const { bio, avatar, bannerImage, gender, country, privacyShowCountry, privacyShowBio, allowFriendRequests, cameraBackgroundImage } = req.body;
     const update = {};
     if (bio !== undefined)  update.bio    = String(bio).slice(0, 100);
     if (gender !== undefined) update.gender = gender;
     if (country !== undefined) update.country = country;
     if (privacyShowCountry !== undefined) update.privacyShowCountry = privacyShowCountry;
     if (privacyShowBio !== undefined)     update.privacyShowBio     = privacyShowBio;
+    if (allowFriendRequests !== undefined) update.allowFriendRequests = allowFriendRequests;
     if (avatar !== undefined) {
       if (avatar && avatar.length > 700000) return res.status(400).json({ error: 'Avatar too large (max ~500KB)' });
       update.avatar = avatar;
