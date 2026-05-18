@@ -225,6 +225,23 @@ export function playGiftImpact(level = 0) {
   sparkle.forEach((f, i) => tone(f, t + 0.05 + i * 0.045, 0.11, 0.05 + lvl * 0.008, 'triangle'))
 }
 
+// A single firework launch — a soft rising whistle (one per shell).
+export function playFireworkLaunch() {
+  const c = ctx()
+  if (!c) return
+  whistle(c.currentTime, 0.035)
+}
+
+// A single firework burst — a boom + crackle, scaled by the shell's power.
+// Played per explosion so the sound lasts exactly as long as the show.
+export function playFireworkBurst(power = 0.8) {
+  const c = ctx()
+  if (!c) return
+  const t = c.currentTime
+  boom(t, 0.14 + power * 0.13)
+  crackle(t + 0.04, 0.32 + power * 0.4, 0.035 + power * 0.03)
+}
+
 // Gift rocket — a rising launch whistle + low thrust rumble, then a detonation
 // at the apex (~0.78s in). `level` 0-5 makes every gift sound distinct: more
 // booms, longer crackle, a chord on the mid tiers and a finale on the top one.
