@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import ProfilePill from '../components/ProfilePill'
 import { GiftIcon, GIFTS, GIFT_TIERS } from '../components/GiftIcon'
-import GiftRocket from '../components/GiftRocket'
+import GiftFireworks from '../components/GiftFireworks'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'framer-motion'
 import {
@@ -1065,8 +1065,8 @@ export default function ChatPage() {
 
         {/* ── Fixed overlays ───────────────────────────────────────── */}
 
-        {/* Gift rocket — launch + detonation, both layouts */}
-        <GiftRocket anims={giftAnimations} />
+        {/* Gift fireworks — full-screen celebration, both layouts */}
+        <GiftFireworks anims={giftAnimations} />
 
         {/* Connection lost */}
         <AnimatePresence>
