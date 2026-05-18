@@ -57,7 +57,10 @@ export default function WalletPage() {
   const switchTab = (t) => {
     setTab(t)
     setSearchParams(t === 'overview' ? {} : { tab: t }, { replace: true })
-    window.scrollTo({ top: 0 })
+    // Jump instantly — the global `scroll-behavior: smooth` would otherwise
+    // animate the scroll and flash the footer through view as the shorter
+    // tab swaps in.
+    window.scrollTo({ top: 0, behavior: 'instant' })
   }
   const [coins, setCoins]                 = useState(user?.coins ?? 0)
   const [earnings, setEarnings]           = useState(user?.cashableCoins ?? 0)
