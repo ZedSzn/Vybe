@@ -1225,7 +1225,7 @@ export default function ChatPage() {
                       style={{ width: '100%', padding: '12px 0', borderRadius: 50, background: '#00D4FF', color: '#0a0a0f', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', system-ui, sans-serif", border: 'none', cursor: enabled ? 'pointer' : 'not-allowed', opacity: enabled ? 1 : 0.4 }}>
                       {giftSending ? 'Sending…'
                         : !hasAmount ? 'Select a gift'
-                        : broke ? `Buy coins to send · ${amt.toLocaleString()}`
+                        : broke ? 'Not enough coins — Top up'
                         : sel ? `Send ${sel.name} · ${sel.coins.toLocaleString()} coins`
                         : `Send ${amt.toLocaleString()} coins`}
                     </button>
