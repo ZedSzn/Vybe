@@ -292,14 +292,11 @@ export default function AuthPage() {
                       </p>
                     )}
 
-                    {/* Divider */}
-                    <div style={{ position: 'relative', margin: '2px 0' }}>
-                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center' }}>
-                        <div style={{ width: '100%', borderTop: '1px solid rgba(255,255,255,0.07)' }} />
-                      </div>
-                      <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-                        <span style={{ padding: '0 12px', fontSize: 11, color: 'rgba(255,255,255,0.25)', background: '#12141e' }}>or</span>
-                      </div>
+                    {/* Divider — two line segments either side of "or", no mask */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '2px 0' }}>
+                      <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>or</span>
+                      <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
                     </div>
 
                     <button
