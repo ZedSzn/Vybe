@@ -886,7 +886,7 @@ export default function MainPage() {
                 style={{ width: '100%', padding: '13px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
                 Start Free Trial →
               </motion.button>
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 8, marginBottom: 0 }}>🔒 Secured by Stripe · Cancel before day 7 to avoid £12.99/mo</p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 8, marginBottom: 0 }}>🔒 Secured by Stripe · Cancel before day 7 to avoid £12.99/mo · Cancelling ends VIP access immediately</p>
             </div>
           </motion.div>
         )}
@@ -1259,7 +1259,7 @@ export default function MainPage() {
                       </span>
                     ))}
                   </div>
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0 }}>Card required. Cancel before day 7 to avoid £12.99/month charge.</p>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0 }}>Card required. Cancel before day 7 to avoid the £12.99/month charge — cancelling ends your VIP access immediately.</p>
                 </div>
                 {/* Right CTA */}
                 <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, position: 'relative', zIndex: 1 }}>
