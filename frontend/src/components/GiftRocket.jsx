@@ -12,6 +12,9 @@ function hexA(hex, a) {
   return `rgba(${r},${g},${b},${a})`
 }
 
+// Festive multi-colour confetti — the celebration.
+const CONFETTI = ['#00D4FF', '#FF5FA2', '#FFE08A', '#7C3AED', '#4ADE80', '#FF9D2E', '#FFFFFF']
+
 // Per-gift traits: tier index (0-5), magnitude, accent colour.
 function traitsOf(giftId, coins) {
   const idx  = GIFTS.findIndex((g) => g.id === giftId)
@@ -22,17 +25,19 @@ function traitsOf(giftId, coins) {
   return { idx: idx < 0 ? 0 : idx, mag, color: gift?.color || '#00D4FF' }
 }
 
-// The blast when the rocket detonates — flash, expanding rings, a particle
-// spray and the gift popping. Ring count and size scale with the gift tier.
+// The celebration when the rocket detonates: a flash, shockwave rings, a
+// confetti shower down the whole screen, and the gift presented in the centre.
 function Explosion({ x, y, color, mag, idx, giftId }) {
   const D = Math.max(window.innerWidth, window.innerHeight)
-  const count   = 26 + Math.round(mag * 56)        // 26 → 82
-  const rings   = idx >= 4 ? 3 : idx >= 2 ? 2 : 1
-  const flash   = 260 + mag * 460
-  const giftPop = 80 + mag * 78
+  const H = window.innerHeight
+  const confettiN = 34 + Math.round(mag * 82)   // 34 → 116
+  const rings     = idx >= 4 ? 3 : idx >= 2 ? 2 : 1
+  const flash     = 240 + mag * 440
+  const giftPop   = 112 + mag * 96
+
   return (
     <>
-      {/* flash */}
+      {/* detonation flash */}
       <motion.div
         style={{
           position: 'fixed', left: x, top: y, width: flash, height: flash,
@@ -41,14 +46,14 @@ function Explosion({ x, y, color, mag, idx, giftId }) {
         }}
         initial={{ scale: 0.2, opacity: 0 }}
         animate={{ scale: [0.2, 1.2, 1], opacity: [0, 1, 0] }}
-        transition={{ duration: 1.1, ease: 'easeOut' }}
+        transition={{ duration: 1, ease: 'easeOut' }}
       />
       {/* shockwave rings */}
       {Array.from({ length: rings }).map((_, r) => {
         const size = 160 + mag * 230 + r * 80
         return (
           <motion.div
-            key={r}
+            key={'r' + r}
             style={{ position: 'fixed', left: x, top: y, borderRadius: '50%', border: `3px solid ${color}` }}
             initial={{ x: '-50%', y: '-50%', width: 22, height: 22, opacity: 0.85 }}
             animate={{ x: '-50%', y: '-50%', width: size, height: size, opacity: 0 }}
@@ -56,38 +61,58 @@ function Explosion({ x, y, color, mag, idx, giftId }) {
           />
         )
       })}
-      {/* particle spray */}
-      {Array.from({ length: count }).map((_, i) => {
-        const ang  = Math.random() * Math.PI * 2
-        const dist = (0.3 + Math.random() * 0.7) * (180 + mag * D * 0.46)
-        const tone = i % 3 === 0 ? '#FFFFFF' : i % 3 === 1 ? color : '#FFE08A'
+      {/* confetti shower — bursts out then rains down the whole screen */}
+      {Array.from({ length: confettiN }).map((_, i) => {
+        const ang    = Math.random() * Math.PI * 2
+        const spread = (0.25 + Math.random() * 0.75) * (160 + mag * D * 0.4)
+        const w      = 7 + Math.random() * 8
+        const h      = 4 + Math.random() * 6
+        const spin   = (Math.random() < 0.5 ? -1 : 1) * (360 + Math.random() * 760)
+        const fall   = H * (0.55 + Math.random() * 0.6)
+        const dur    = 2 + Math.random() * 1.1
         return (
           <motion.div
-            key={'p' + i}
+            key={'c' + i}
             style={{
-              position: 'fixed', left: x, top: y, width: 9, height: 9,
-              marginLeft: -4.5, marginTop: -4.5, borderRadius: '50%',
-              background: tone, boxShadow: `0 0 10px ${tone}`,
+              position: 'fixed', left: x, top: y, width: w, height: h,
+              marginLeft: -w / 2, marginTop: -h / 2, borderRadius: 1.5,
+              background: CONFETTI[i % CONFETTI.length],
             }}
-            initial={{ x: 0, y: 0, scale: 0, opacity: 0 }}
+            initial={{ x: 0, y: 0, rotate: 0, opacity: 0 }}
             animate={{
-              x: Math.cos(ang) * dist, y: Math.sin(ang) * dist + 90,
-              scale: [0, 1.4, 0], opacity: [0, 1, 0],
+              x: Math.cos(ang) * spread + (Math.random() - 0.5) * 70,
+              y: [0, Math.sin(ang) * spread - 30, fall],
+              rotate: spin,
+              opacity: [0, 1, 1, 0],
             }}
-            transition={{ duration: 1.1 + Math.random() * 0.6, ease: 'easeOut' }}
+            transition={{
+              duration: dur, ease: 'easeOut',
+              opacity: { duration: dur, times: [0, 0.08, 0.72, 1] },
+            }}
           />
         )
       })}
-      {/* the gift pops out of the blast */}
+      {/* soft glow behind the gift */}
+      <motion.div
+        style={{
+          position: 'fixed', left: x, top: y, width: giftPop * 2.6, height: giftPop * 2.6,
+          marginLeft: -giftPop * 1.3, marginTop: -giftPop * 1.3, borderRadius: '50%',
+          background: `radial-gradient(circle, ${hexA(color, 0.42)} 0%, transparent 68%)`,
+        }}
+        initial={{ scale: 0.3, opacity: 0 }}
+        animate={{ scale: [0.3, 1.1, 1, 1], opacity: [0, 0.9, 0.65, 0] }}
+        transition={{ duration: 2.3, ease: 'easeOut' }}
+      />
+      {/* the gift — pops in clean, holds in the centre, then drifts up & fades */}
       <motion.div
         style={{
           position: 'fixed', left: x, top: y,
           marginLeft: -giftPop / 2, marginTop: -giftPop / 2,
-          filter: `drop-shadow(0 10px 30px ${hexA(color, 0.8)})`,
+          filter: `drop-shadow(0 14px 38px ${hexA(color, 0.85)})`,
         }}
-        initial={{ scale: 0, rotate: -40, opacity: 0 }}
-        animate={{ scale: [0, 1.5, 1.2, 1.2], rotate: [-40, 12, 0, 0], opacity: [0, 1, 1, 0] }}
-        transition={{ duration: 1.3, times: [0, 0.25, 0.4, 1], ease: 'easeOut' }}
+        initial={{ scale: 0, y: 0, opacity: 0 }}
+        animate={{ scale: [0, 1.2, 1, 1, 1], y: [0, 0, 0, -12, -12], opacity: [0, 1, 1, 1, 0] }}
+        transition={{ duration: 2.3, times: [0, 0.16, 0.3, 0.82, 1], ease: 'easeOut' }}
       >
         <GiftIcon id={giftId} size={giftPop} />
       </motion.div>
@@ -145,8 +170,8 @@ function GiftRocketOne({ anim }) {
   )
 }
 
-// For every gift: a rocket launches with the gift on top, then detonates in a
-// blast. Themed by the gift's colour and scaled by its tier.
+// For every gift: a rocket launches with the gift on top, then detonates into
+// a confetti celebration. Themed by the gift's colour, scaled by its tier.
 export default function GiftRocket({ anims }) {
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 60 }}>

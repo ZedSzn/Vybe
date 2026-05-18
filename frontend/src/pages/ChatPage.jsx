@@ -737,7 +737,7 @@ export default function ChatPage() {
           }
         }
         setGiftAnimations((prev) => [...prev, { id, giftId, coins: giftCoins, target }])
-        setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 2900)
+        setTimeout(() => setGiftAnimations((prev) => prev.filter((a) => a.id !== id)), 4000)
         // Credit my cashable balance if I'm the recipient
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
           setCashableCoins((c) => c + giftCoins)

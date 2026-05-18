@@ -262,6 +262,9 @@ export function playGiftRocket(level = 0) {
     boom(et + i * 0.13, (0.24 + lvl * 0.03) * (0.85 + Math.random() * 0.3))
     crackle(et + 0.05 + i * 0.13, 0.4 + lvl * 0.13, 0.04 + lvl * 0.012)
   }
+  // Cheerful celebration arpeggio at the reveal
+  const arp = [659.25, 880, 1174.66, 1567.98]
+  arp.forEach((f, i) => tone(f, et + 0.14 + i * 0.07, 0.16, 0.05 + lvl * 0.005, 'triangle'))
   if (lvl >= 3) {
     const chord = [523.25, 659.25, 783.99, 1046.5]
     chord.forEach((f, i) => tone(f, et + 0.05 + i * 0.05, 0.6, 0.045 + lvl * 0.006, 'triangle'))
