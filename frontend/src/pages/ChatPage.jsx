@@ -336,7 +336,7 @@ export default function ChatPage() {
   useEffect(() => {
     // Always fetch fresh balance — localStorage can be stale
     if (user) {
-      axios.get('/api/coins').then(({ data }) => {
+      axios.get('/api/me/balance').then(({ data }) => {
         setCoins(data.coins ?? 0)
         setCashableCoins(data.cashableCoins ?? 0)
       }).catch(() => {
