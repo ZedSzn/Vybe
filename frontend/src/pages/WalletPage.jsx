@@ -14,11 +14,11 @@ import {
 } from 'lucide-react'
 
 const PACKAGES = [
-  { id: 'coins_100',  coins: 100,  amountGbp: 1.49,  label: '100 Coins',   popular: false },
-  { id: 'coins_500',  coins: 500,  amountGbp: 5.99,  label: '500 Coins',   popular: false },
-  { id: 'coins_1200', coins: 1200, amountGbp: 11.99, label: '1,200 Coins', popular: true  },
-  { id: 'coins_3000', coins: 3000, amountGbp: 24.99, label: '3,000 Coins', popular: false },
-  { id: 'coins_7000', coins: 7000, amountGbp: 49.99, label: '7,000 Coins', popular: false },
+  { id: 'coins_100',  coins: 100,  price: '£1.49',  label: 'Starter',    color: '#6b7280', glow: 'rgba(107,114,128,0.25)', popular: false, desc: 'A few gifts to get started' },
+  { id: 'coins_500',  coins: 500,  price: '£5.99',  label: 'Popular',    color: '#00D4FF', glow: 'rgba(0,212,255,0.3)',    popular: false, desc: 'The most popular pick' },
+  { id: 'coins_1200', coins: 1200, price: '£11.99', label: 'Best Value', color: '#7C3AED', glow: 'rgba(124,58,237,0.35)',  popular: true,  desc: 'More coins, better rate' },
+  { id: 'coins_3000', coins: 3000, price: '£24.99', label: 'Mega',       color: '#00D4FF', glow: 'rgba(0,212,255,0.25)',   popular: false, desc: 'For frequent gifters' },
+  { id: 'coins_7000', coins: 7000, price: '£49.99', label: 'Ultimate',   color: '#f59e0b', glow: 'rgba(245,158,11,0.3)',   popular: false, desc: 'The best rate available' },
 ]
 
 const TX_TYPE_LABELS = {
@@ -308,44 +308,56 @@ export default function WalletPage() {
 
         {/* ── BUY COINS ── */}
         {tab === 'buy' && (
-          <div className={`${cardCls} space-y-4`} style={cardStyle}>
-            <h2 className="text-white font-bold text-base">Choose a Package</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {PACKAGES.map((pkg) => (
+          <div className={cardCls} style={cardStyle}>
+            <h2 className="text-white font-bold text-base mb-4">Choose a Package</h2>
+            <div className="space-y-3">
+              {PACKAGES.map((pkg, i) => (
                 <motion.div
                   key={pkg.id}
-                  whileHover={{ scale: 1.02 }}
-                  className={`relative rounded-2xl p-5 border cursor-pointer transition-colors ${pkg.popular ? 'border-cyan-400/50' : 'border-white/8'}`}
-                  style={{ background: pkg.popular ? 'rgba(168,85,247,0.08)' : 'rgba(255,255,255,0.03)' }}
-                  onClick={() => handleBuy(pkg)}
+                  className="relative flex items-center gap-4 rounded-2xl p-4"
+                  style={{
+                    background: pkg.popular ? 'linear-gradient(135deg, rgba(124,58,237,0.14) 0%, rgba(10,15,32,0.5) 100%)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${pkg.popular ? pkg.color + '80' : 'rgba(255,255,255,0.07)'}`,
+                    boxShadow: pkg.popular ? `0 0 34px ${pkg.glow}` : 'none',
+                  }}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06, duration: 0.4 }}
                 >
                   {pkg.popular && (
-                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-extrabold text-white"
-                      style={{ background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
+                    <div className="absolute -top-2.5 left-4 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider text-white"
+                      style={{ background: pkg.color }}>
                       BEST VALUE
-                    </span>
+                    </div>
                   )}
-                  <div className="flex items-center justify-between mb-3">
-                    <VybeCoin size={28} />
-                    <span className="text-2xl font-extrabold text-cyan-300">{pkg.label}</span>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: `${pkg.color}1e`, border: `1px solid ${pkg.color}40` }}>
+                    <VybeCoin size={26} />
                   </div>
-                  <div className="flex items-end justify-between">
-                    <span className="text-white/40 text-xs">One-time payment</span>
-                    <button
-                      disabled={buyLoading === pkg.id}
-                      className="px-4 py-2 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-60"
-                      style={{
-                        background: pkg.popular ? 'linear-gradient(135deg, #00D4FF, #7C3AED)' : 'linear-gradient(135deg,#00D4FF,#00B8E0)',
-                        boxShadow: pkg.popular ? '0 0 16px rgba(168,85,247,0.4)' : '0 0 16px rgba(0,212,255,0.4)',
-                      }}
-                    >
-                      {buyLoading === pkg.id ? <Loader2 size={13} className="animate-spin inline" /> : `£${pkg.amountGbp.toFixed(2)}`}
-                    </button>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-black text-lg leading-tight">{pkg.coins.toLocaleString()} coins</p>
+                    <p className="text-xs truncate" style={{ color: '#888899' }}>
+                      <span style={{ color: pkg.color, fontWeight: 700 }}>{pkg.label}</span> · {pkg.desc}
+                    </p>
                   </div>
+                  <motion.button
+                    onClick={() => handleBuy(pkg)}
+                    disabled={buyLoading === pkg.id}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    className="flex-shrink-0 py-2.5 rounded-xl font-extrabold text-sm text-white flex items-center justify-center disabled:opacity-60"
+                    style={{
+                      minWidth: 96,
+                      background: pkg.color,
+                      boxShadow: pkg.popular ? `0 0 22px ${pkg.glow}` : 'none',
+                    }}
+                  >
+                    {buyLoading === pkg.id ? <Loader2 size={15} className="animate-spin" /> : pkg.price}
+                  </motion.button>
                 </motion.div>
               ))}
             </div>
-            <p className="text-vybe-muted text-xs text-center pt-2">
+            <p className="text-vybe-muted text-xs text-center pt-4">
               Payments processed securely via Stripe. No subscriptions — one-time purchases only.
             </p>
           </div>
