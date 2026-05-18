@@ -1987,8 +1987,8 @@ export default function ChatPage() {
                           }}
                         >
                           <Gift size={12} style={{ color: '#00D4FF' }} />
-                          <span style={{ fontSize: 11, fontWeight: 700, lineHeight: 1, whiteSpace: 'nowrap' }}>
-                            <span style={{ color: '#00D4FF' }}>{giftedToPartner.toLocaleString()}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, lineHeight: 1, whiteSpace: 'nowrap', letterSpacing: '0.01em' }}>
+                            <span style={{ color: '#00D4FF', fontVariantNumeric: 'tabular-nums' }}>{giftedToPartner.toLocaleString()}</span>
                             <span style={{ color: 'rgba(255,255,255,0.7)' }}> gifted</span>
                           </span>
                         </motion.div>
