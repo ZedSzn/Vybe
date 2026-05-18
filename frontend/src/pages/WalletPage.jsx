@@ -56,9 +56,6 @@ export default function WalletPage() {
 
   const switchTab = (t) => {
     setTab(t)
-    // Show the skeleton from the first frame — otherwise History briefly
-    // flashes the previous visit's stale list before loadHistory runs.
-    if (t === 'history') setHistLoading(true)
     setSearchParams(t === 'overview' ? {} : { tab: t }, { replace: true })
     // Jump instantly — the global `scroll-behavior: smooth` would otherwise
     // animate the scroll and flash the footer through view as the shorter
@@ -70,6 +67,7 @@ export default function WalletPage() {
   const [balanceLoading, setBalanceLoading] = useState(user?.coins == null)
   const [history, setHistory]             = useState([])
   const [histLoading, setHistLoading]     = useState(true)
+  const [histLoaded, setHistLoaded]       = useState(false)  // fetched at least once
   const [referralInfo, setReferralInfo]   = useState(null)
   const [cashouts, setCashouts]           = useState([])
   const [paypalEmail, setPaypalEmail]     = useState('')
@@ -110,6 +108,7 @@ export default function WalletPage() {
       setEarnings(data.cashableCoins ?? 0)
     } catch {}
     setHistLoading(false)
+    setHistLoaded(true)
   }, [])
 
   const loadReferral = useCallback(async () => {
@@ -374,7 +373,7 @@ export default function WalletPage() {
         {tab === 'history' && (
           <div className={cardCls} style={{ ...cardStyle, minHeight: 540 }}>
             <h2 className="text-white font-bold text-base mb-4">Transaction History</h2>
-            {histLoading ? (
+            {histLoading && !histLoaded ? (
               <div className="space-y-2">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl">
