@@ -1975,15 +1975,26 @@ export default function ChatPage() {
                       {giftedToPartner > 0 && (
                         <motion.div
                           key={giftedToPartner}
-                          initial={{ scale: 0.7, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                          initial={{ scale: 0.6, opacity: 0 }}
+                          animate={{
+                            scale: [0.6, 1.18, 1],
+                            opacity: 1,
+                            boxShadow: [
+                              '0 0 8px rgba(0,212,255,0.38), 0 0 18px rgba(0,212,255,0.22)',
+                              '0 0 16px rgba(0,212,255,0.7), 0 0 34px rgba(0,212,255,0.42)',
+                              '0 0 8px rgba(0,212,255,0.38), 0 0 18px rgba(0,212,255,0.22)',
+                            ],
+                          }}
+                          transition={{
+                            scale:     { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
+                            opacity:   { duration: 0.3 },
+                            boxShadow: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
+                          }}
                           style={{
                             display: 'inline-flex', alignItems: 'center', gap: 6,
                             padding: '4px 12px 4px 4px', borderRadius: 50,
                             background: 'rgba(6,10,22,0.9)',
                             border: '1px solid rgba(0,212,255,0.6)',
-                            boxShadow: '0 0 8px rgba(0,212,255,0.4), 0 0 18px rgba(0,212,255,0.24)',
                             fontFamily: "'Sora', system-ui, sans-serif",
                           }}
                         >
