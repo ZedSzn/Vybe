@@ -251,6 +251,11 @@ function createSocket(username) {
 function setupPeers(socket, matchData, localStream, label) {
   const peerMap = {}
 
+  // Clear listeners from any previous match so stale peers can't cross-talk.
+  socket.off('webrtc-offer')
+  socket.off('webrtc-answer')
+  socket.off('webrtc-ice-candidate')
+
   socket.on('webrtc-offer', ({ offer, from }) => {
     if (peerMap[from]) {
       log(`${label} received offer from ${from.slice(0,8)}…`, 'log-info')
@@ -310,8 +315,8 @@ async function start3Panel() {
   await new Promise(resolve => strangerSock.once('connect', resolve))
 
   await delay(400)
-  strangerSock.emit('find-match', { mode: 'solo', filterGender: null, filterCountry: '' })
-  log('Bot Stranger searching (solo queue)…', 'log-info')
+  strangerSock.emit('find-match', { mode: 'solo', filterGender: null, filterCountry: '', noDevBot: true })
+  log('Bot Stranger searching (solo queue, waiting for you)…', 'log-info')
   setDot('dot-stranger', 'cyan'); setPill('pill-stranger', 'IN QUEUE', 'active')
 
   strangerSock.on('waiting', () => {

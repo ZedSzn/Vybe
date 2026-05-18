@@ -3075,7 +3075,8 @@ io.on('connection', (socket) => {
       const queueEntry = { type: 'solo', socketId: socket.id, socketIds: [socket.id], gender: userData.gender || 'other', country: userData.country || '', mode: prefs.mode || 'solo', filterGender: prefs.filterGender || null, filterCountry: prefs.filterCountry || '' };
       if (isBoosted) waitingQueue.unshift(queueEntry); else waitingQueue.push(queueEntry);
       socket.emit('waiting');
-      spawnBotMatch(socket);
+      // The duo-test bot opts out so the server's dev bot can't hijack its stranger.
+      if (!prefs.noDevBot) spawnBotMatch(socket);
     }
   });
 
