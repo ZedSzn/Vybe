@@ -57,17 +57,12 @@ export default function AuthPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
 
-      {/* Ambient cyan glow */}
+      {/* Ambient cyan glow — one centred glow only, no off-centre patches */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
         <div style={{
           position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%,-50%)',
           width: 600, height: 600, borderRadius: '50%',
           background: 'radial-gradient(ellipse, rgba(0,212,255,0.07) 0%, transparent 70%)',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '10%', right: '15%',
-          width: 320, height: 320, borderRadius: '50%',
-          background: 'radial-gradient(ellipse, rgba(0,184,224,0.05) 0%, transparent 70%)',
         }} />
       </div>
 
