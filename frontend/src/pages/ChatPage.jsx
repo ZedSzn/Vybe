@@ -1218,17 +1218,23 @@ export default function ChatPage() {
                   const amt = sel ? sel.coins : (parseInt(customAmount, 10) || 0)
                   const hasAmount = amt >= 10
                   const broke   = hasAmount && amt > coins
-                  const enabled = hasAmount && !giftSending
+                  const canSend = hasAmount && !broke && !giftSending
                   return (
-                    <button type="button" disabled={!enabled}
-                      onClick={() => { if (!enabled) return; if (broke) { setShowGift(false); navigate('/coins') } else sendGift() }}
-                      style={{ width: '100%', padding: '12px 0', borderRadius: 50, background: '#00D4FF', color: '#0a0a0f', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', system-ui, sans-serif", border: 'none', cursor: enabled ? 'pointer' : 'not-allowed', opacity: enabled ? 1 : 0.4 }}>
-                      {giftSending ? 'Sending…'
-                        : !hasAmount ? 'Select a gift'
-                        : broke ? 'Not enough coins — Top up'
-                        : sel ? `Send ${sel.name} · ${sel.coins.toLocaleString()} coins`
-                        : `Send ${amt.toLocaleString()} coins`}
-                    </button>
+                    <>
+                      <button type="button" disabled={!canSend}
+                        onClick={() => { if (canSend) sendGift() }}
+                        style={{ width: '100%', padding: '12px 0', borderRadius: 50, background: '#00D4FF', color: '#0a0a0f', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', system-ui, sans-serif", border: 'none', cursor: canSend ? 'pointer' : 'not-allowed', opacity: canSend ? 1 : 0.4 }}>
+                        {giftSending ? 'Sending…'
+                          : !hasAmount ? 'Select a gift'
+                          : sel ? `Send ${sel.name} · ${sel.coins.toLocaleString()} coins`
+                          : `Send ${amt.toLocaleString()} coins`}
+                      </button>
+                      <button type="button"
+                        onClick={() => { setShowGift(false); navigate('/coins') }}
+                        style={{ width: '100%', marginTop: 8, padding: '10px 0', borderRadius: 50, background: 'transparent', color: '#00D4FF', fontWeight: 700, fontSize: 13, fontFamily: "'Sora', system-ui, sans-serif", border: '1px solid rgba(0,212,255,0.35)', cursor: 'pointer' }}>
+                        Buy coins
+                      </button>
+                    </>
                   )
                 })()}
               </motion.div>
