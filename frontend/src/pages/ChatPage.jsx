@@ -1051,6 +1051,9 @@ export default function ChatPage() {
 
         {/* ── Fixed overlays ───────────────────────────────────────── */}
 
+        {/* Gift fireworks — full-screen celebration, both layouts */}
+        <GiftFireworks anims={giftAnimations} />
+
         {/* Connection lost */}
         <AnimatePresence>
           {connectionLost && (
@@ -1551,9 +1554,6 @@ export default function ChatPage() {
             </motion.button>
           </div>
 
-
-          {/* Gift fireworks — full-screen celebration overlay */}
-          <GiftFireworks anims={giftAnimations} />
 
           {/* Draggable PiP self-view — solo mode only */}
           {!isDuoMode && (
