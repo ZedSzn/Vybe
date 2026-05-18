@@ -250,6 +250,7 @@ export default function ChatPage() {
   const [duoPipExpanded,   setDuoPipExpanded]   = useState(false)
   const [tipIdx,           setTipIdx]           = useState(0)
   const [giftAnimations,   setGiftAnimations]   = useState([])   // [{ id, giftId, target: 'stranger'|'partner' }]
+  const [giftedToPartner,  setGiftedToPartner]  = useState(0)    // coins gifted to the partner this chat
   const [showGift,         setShowGift]         = useState(false) // "Send Coins" modal open
   const [giftRecipient,    setGiftRecipient]    = useState('stranger') // 'stranger' | 'partner'
   const [selectedGiftId,   setSelectedGiftId]   = useState(null)
@@ -619,6 +620,7 @@ export default function ChatPage() {
         setPartnerEmailVerified(pEmailVerified || false)
         setPartnerCountry(pCountry || null)
         setGiftAnimations([])
+        setGiftedToPartner(0)
         setFriendReqSent(false)
         setMatchFlash(true)
         clearTimeout(matchFlashTimer.current)
@@ -731,6 +733,10 @@ export default function ChatPage() {
         // Credit my cashable balance if I'm the recipient
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
           setCashableCoins((c) => c + giftCoins)
+        }
+        // Tally coins gifted to the partner this chat — drives the gift chip
+        if (recipientSocketId === partnerSockRef.current && giftCoins) {
+          setGiftedToPartner((p) => p + giftCoins)
         }
         // Toast for everyone except the sender (who already knows)
         if (senderUsername && String(senderId) !== String(user?.id)) {
@@ -1958,6 +1964,19 @@ export default function ChatPage() {
                         friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
                         onAddFriend={handleAddFriend}
                       />
+                      {giftedToPartner > 0 && (
+                        <motion.div
+                          key={giftedToPartner}
+                          initial={{ scale: 0.7, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-full"
+                          style={{ background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.35)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                        >
+                          <Gift size={11} style={{ color: '#00D4FF' }} />
+                          <span style={{ color: '#00D4FF', fontSize: 11, fontWeight: 800 }}>{giftedToPartner.toLocaleString()} gifted</span>
+                        </motion.div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
