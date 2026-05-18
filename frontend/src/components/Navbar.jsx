@@ -30,13 +30,19 @@ export default function Navbar({ onPremiumClick }) {
   const [showNotifs,      setShowNotifs]      = useState(false)
   const [notifications,   setNotifications]   = useState([])
   const [unreadCount,     setUnreadCount]     = useState(0)
-  const [coins,           setCoins]           = useState(user?.coins ?? 0)
+  const [coins,           setCoins]           = useState(() => {
+    // Seed from cache so the count never flashes 0 when the navbar remounts.
+    const cached = localStorage.getItem('vybe_coins')
+    return cached !== null ? (Number(cached) || 0) : (user?.coins ?? 0)
+  })
   const [pendingRequests, setPendingRequests] = useState(0)
 
   const userMenuRef = useRef(null)
   const notifsRef   = useRef(null)
 
   useEffect(() => { if (user?.coins !== undefined) setCoins(user.coins) }, [user?.coins])
+  // Persist the latest count so a navbar remount can render it instantly.
+  useEffect(() => { try { localStorage.setItem('vybe_coins', String(coins)) } catch {} }, [coins])
 
   const fetchCoins = useCallback(async () => {
     if (!isAuthenticated) return
