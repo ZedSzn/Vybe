@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Lock, Globe, ChevronDown, UserPlus, Copy, Check,
   Crown, Loader2, X as XIcon, Video, VideoOff, Shield,
-  Camera, DollarSign, SlidersHorizontal, User, Users, RefreshCw,
+  Camera, DollarSign, User, Users, RefreshCw,
   Eye, EyeOff,
 } from 'lucide-react'
 
@@ -159,7 +159,6 @@ export default function MainPage() {
   const [permissionAsked,    setPermissionAsked]    = useState(false)
   const [faqOpen,         setFaqOpen]         = useState(null)
   const [autoMatch,       setAutoMatch]       = useState(true)
-  const [showAdvanced,    setShowAdvanced]    = useState(false)
   const [showGenderPop,   setShowGenderPop]   = useState(false)
 
   const [squad,        setSquad]        = useState(null)
@@ -1220,12 +1219,6 @@ export default function MainPage() {
                       {label}
                     </motion.button>
                   ))}
-                  <motion.button
-                    onClick={() => setShowAdvanced(v => !v)}
-                    whileTap={{ scale: 0.9 }}
-                    style={{ marginLeft: 'auto', padding: '4px 6px', borderRadius: 7, color: showAdvanced ? '#00D4FF' : 'rgba(255,255,255,0.28)', background: showAdvanced ? 'rgba(0,212,255,0.1)' : 'none', border: 'none', cursor: 'pointer', display: 'flex', transition: 'all 0.15s ease' }}>
-                    <SlidersHorizontal size={13} />
-                  </motion.button>
                 </div>
               </div>
 
