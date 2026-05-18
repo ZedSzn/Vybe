@@ -398,7 +398,7 @@ export default function WalletPage() {
                 <p className="text-white/30 text-xs">Buy coins or receive gifts to see your history here</p>
               </motion.div>
             ) : (
-              <div className="space-y-1 max-h-[520px] overflow-y-auto pr-1">
+              <div className="space-y-1 max-h-[460px] overflow-y-auto pr-1">
                 {history.map((tx, i) => {
                   const meta = TX_TYPE_LABELS[tx.type] || { label: tx.type || '—', color: tx.amount > 0 ? 'text-cyan-400' : 'text-red-400' }
                   const isEarning = tx.type === 'tip_received' || tx.type === 'cashout' || tx.type === 'cashout_refund'
