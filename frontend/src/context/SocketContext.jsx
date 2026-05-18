@@ -17,6 +17,7 @@ export function SocketProvider({ children }) {
   const socketRef = useRef(null)
   const [isConnected, setIsConnected] = useState(false)
   const [onlineCount, setOnlineCount] = useState(0)
+  const [myCountry, setMyCountry] = useState('') // geo-detected on connect
   const [pendingWarnings, setPendingWarnings] = useState([])
   const [pendingAnnouncements, setPendingAnnouncements] = useState([])
   const [bannedInfo, setBannedInfo] = useState(() => {
@@ -64,6 +65,8 @@ export function SocketProvider({ children }) {
 
     s.on('disconnect', () => setIsConnected(false))
     s.on('online-count', setOnlineCount)
+    // Country auto-detected from the connection IP (geo-IP).
+    s.on('geo-country', ({ country }) => setMyCountry(country || ''))
 
     // Global admin warning handlers — work on any page
     s.on('admin-warning', ({ message }) => {
@@ -120,7 +123,7 @@ export function SocketProvider({ children }) {
   }, [])
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected, onlineCount, pendingWarnings, dismissWarning, pendingAnnouncements, dismissAnnouncement, bannedInfo, clearBanned }}>
+    <SocketContext.Provider value={{ socket, isConnected, onlineCount, myCountry, pendingWarnings, dismissWarning, pendingAnnouncements, dismissAnnouncement, bannedInfo, clearBanned }}>
       {children}
     </SocketContext.Provider>
   )

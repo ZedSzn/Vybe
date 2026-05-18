@@ -15,6 +15,7 @@ import SimplePeer from 'simple-peer'
 import axios from 'axios'
 import Navbar from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
+import { useSocket } from '../context/SocketContext'
 import VybeCoin from '../components/VybeCoin'
 import VybeGlobe from '../components/VybeGlobe'
 import { playClick } from '../utils/sounds'
@@ -196,6 +197,7 @@ export default function ChatPage() {
   const navigate  = useNavigate()
   const location  = useLocation()
   const { user, updateUser } = useAuth()
+  const { myCountry } = useSocket()
   // Custom image shown in place of the camera when no webcam is available.
   const camBgImage  = user?.cameraBackground === 'custom' ? (user?.cameraBackgroundImage || null) : null
 
@@ -1165,7 +1167,7 @@ export default function ChatPage() {
                   <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                     <button type="button" onClick={() => setGiftRecipient('stranger')}
                       style={{ flex: 1, padding: 4, borderRadius: 12, background: 'transparent', border: giftRecipient === 'stranger' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
-                      <ProfilePill username={partnerUsername || 'Stranger'} avatarUrl={partnerAvatar} isOnline isVerified={!!partnerEmailVerified} friendStatus="self" />
+                      <ProfilePill username={partnerUsername || 'Stranger'} avatarUrl={partnerAvatar} isOnline isVerified={!!partnerEmailVerified} country={partnerCountry} friendStatus="self" />
                     </button>
                     <button type="button" onClick={() => setGiftRecipient('partner')}
                       style={{ flex: 1, padding: 4, borderRadius: 12, background: 'transparent', border: giftRecipient === 'partner' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
@@ -1853,6 +1855,7 @@ export default function ChatPage() {
                     avatarUrl={user?.avatar}
                     isOnline
                     isVerified={!!user?.emailVerified}
+                    country={myCountry}
                     friendStatus="self"
                   />
                 </div>
@@ -2065,6 +2068,7 @@ export default function ChatPage() {
                         avatarUrl={user?.avatar}
                         isOnline
                         isVerified={!!user?.emailVerified}
+                        country={myCountry}
                         friendStatus="self"
                       />
                     </div>
@@ -2143,6 +2147,7 @@ export default function ChatPage() {
                       avatarUrl={user?.avatar}
                       isOnline
                       isVerified={!!user?.emailVerified}
+                      country={myCountry}
                       friendStatus="self"
                     />
                   </div>

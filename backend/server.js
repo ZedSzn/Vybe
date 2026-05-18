@@ -9,7 +9,25 @@ const bcrypt = require('bcryptjs');
 const { Resend } = require('resend');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
+const geoip = require('geoip-lite');
 require('dotenv').config();
+
+// Resolve a socket's real client IP — uses x-forwarded-for behind a proxy
+// (Render) and strips the IPv6-mapped-IPv4 prefix.
+function clientIp(socket) {
+  const fwd = socket.handshake.headers['x-forwarded-for'];
+  const raw = (fwd ? String(fwd).split(',')[0] : socket.handshake.address) || '';
+  return raw.trim().replace(/^::ffff:/, '');
+}
+
+// Country code (e.g. 'US') for a socket via geo-IP, or '' if it can't resolve
+// (localhost, private IPs, unknown ranges).
+function geoCountry(socket) {
+  try {
+    const g = geoip.lookup(clientIp(socket));
+    return g && g.country ? g.country : '';
+  } catch { return ''; }
+}
 
 // Warn loudly if using default JWT secret in production
 if ((process.env.JWT_SECRET || 'vybe_secret') === 'vybe_secret') {
@@ -2941,7 +2959,11 @@ io.on('connection', (socket) => {
         boostedUntil = u?.boostedUntil || null;
       } catch {}
     }
-    onlineUsers.set(socket.id, { ...data, userId: resolvedUserId, socketId: socket.id, boostedUntil });
+    // Auto-detect country from the connection IP — works for guests too.
+    // Falls back to any country already on the profile when geo can't resolve.
+    const country = geoCountry(socket) || data.country || '';
+    onlineUsers.set(socket.id, { ...data, country, userId: resolvedUserId, socketId: socket.id, boostedUntil });
+    socket.emit('geo-country', { country });
     io.emit('online-count', onlineUsers.size);
 
     // Emit active announcement

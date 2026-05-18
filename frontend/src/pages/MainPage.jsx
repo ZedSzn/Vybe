@@ -136,7 +136,7 @@ const GRID_USERS = [
 
 export default function MainPage() {
   const { user }                              = useAuth()
-  const { socket, isConnected, onlineCount } = useSocket()
+  const { socket, isConnected, onlineCount, myCountry } = useSocket()
   // Custom image shown in the camera panel when the device has no webcam.
   const camBgImage  = user?.cameraBackground === 'custom' ? (user?.cameraBackgroundImage || null) : null
   const navigate                             = useNavigate()
@@ -1357,6 +1357,7 @@ export default function MainPage() {
                 avatarUrl={user?.avatar}
                 isOnline
                 isVerified={!!user?.emailVerified}
+                country={myCountry}
                 friendStatus="self"
               />
             </div>
