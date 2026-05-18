@@ -1155,7 +1155,7 @@ export default function MainPage() {
                   {[['Both', 'both'], ['Male', 'male'], ['Female', 'female']].map(([label, val]) => (
                     <motion.button key={val}
                       onClick={() => handleGender(val)}
-                      whileHover={filterGender !== val ? { background: 'rgba(255,255,255,0.10)' } : {}}
+                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.92 }}
                       style={{
                         padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', position: 'relative', transition: 'all 0.15s ease',
@@ -1209,7 +1209,7 @@ export default function MainPage() {
                   {[['Solo', 'solo'], ['Duo', 'squad']].map(([label, val]) => (
                     <motion.button key={val}
                       onClick={() => handleModeClick(val)}
-                      whileHover={mode !== val ? { background: 'rgba(255,255,255,0.10)' } : {}}
+                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.92 }}
                       style={{
                         padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s ease',
