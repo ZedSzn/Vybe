@@ -84,11 +84,12 @@ export default function GiftFireworks({ anims }) {
     const ctx = canvas.getContext('2d')
     const w = canvas.width, h = canvas.height
 
-    // Fade existing trails by lowering alpha — does NOT darken the video below.
-    ctx.globalCompositeOperation = 'destination-out'
-    ctx.fillStyle = 'rgba(0,0,0,0.14)'
-    ctx.fillRect(0, 0, w, h)
+    // Full clear every frame — each spark carries its own streak tail, so a
+    // trail fades out completely with the spark's life and never leaves any
+    // stuck residue behind (the old proportional fade couldn't reach zero).
+    ctx.clearRect(0, 0, w, h)
     ctx.globalCompositeOperation = 'lighter'
+    ctx.lineCap = 'round'
 
     // Detonation flashes
     const flashes = flashesRef.current
@@ -102,7 +103,7 @@ export default function GiftFireworks({ anims }) {
       ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill()
     }
 
-    // Rising shells — each leaves a sparkle trail as it climbs
+    // Rising shells — a bright streak + a sparkle trail
     const shells = shellsRef.current
     for (let i = shells.length - 1; i >= 0; i--) {
       const s = shells[i]
@@ -114,15 +115,19 @@ export default function GiftFireworks({ anims }) {
         life: 0.55, decay: 0.03, grav: 0.02, glow: false, twinkle: false,
       })
       ctx.globalAlpha = 1
-      ctx.fillStyle = '#FFF7E0'
-      ctx.beginPath(); ctx.arc(s.x, s.y, 2.7, 0, Math.PI * 2); ctx.fill()
+      ctx.strokeStyle = '#FFF7E0'
+      ctx.lineWidth = 3
+      ctx.beginPath()
+      ctx.moveTo(s.x - s.vx * 3.5, s.y - s.vy * 3.5)
+      ctx.lineTo(s.x, s.y)
+      ctx.stroke()
       if (s.y <= s.targetY || s.vy >= 0) {
         spawnExplosion(s.x, s.y, s.palette, s.power)
         shells.splice(i, 1)
       }
     }
 
-    // Drifting sparks — glow halo + twinkle as they fade
+    // Drifting sparks — a tapered streak + bright head, twinkle as they fade
     const sparks = sparksRef.current
     for (let i = sparks.length - 1; i >= 0; i--) {
       const p = sparks[i]
@@ -132,10 +137,19 @@ export default function GiftFireworks({ anims }) {
       if (p.life <= 0) { sparks.splice(i, 1); continue }
       let a = Math.max(0, p.life)
       if (p.twinkle && p.life < 0.55) a *= 0.3 + Math.random() * 0.7
+      // tapered streak tail (shrinks naturally as the spark slows)
+      ctx.globalAlpha = a * 0.7
+      ctx.strokeStyle = p.color
+      ctx.lineWidth = p.size * 1.5
+      ctx.beginPath()
+      ctx.moveTo(p.x - p.vx * 3.4, p.y - p.vy * 3.4)
+      ctx.lineTo(p.x, p.y)
+      ctx.stroke()
+      // glow halo + bright head
       ctx.fillStyle = p.color
-      if (p.glow && p.life > 0.35) {
-        ctx.globalAlpha = a * 0.26
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * 2.7, 0, Math.PI * 2); ctx.fill()
+      if (p.glow && p.life > 0.3) {
+        ctx.globalAlpha = a * 0.22
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * 2.6, 0, Math.PI * 2); ctx.fill()
       }
       ctx.globalAlpha = a
       ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill()
@@ -145,7 +159,6 @@ export default function GiftFireworks({ anims }) {
     if (shells.length || sparks.length || flashes.length) {
       rafRef.current = requestAnimationFrame(tick)
     } else {
-      ctx.clearRect(0, 0, w, h)
       runningRef.current = false
     }
   }
