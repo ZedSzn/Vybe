@@ -298,7 +298,7 @@ export default function AuthPage() {
                         <div style={{ width: '100%', borderTop: '1px solid rgba(255,255,255,0.07)' }} />
                       </div>
                       <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-                        <span style={{ padding: '0 12px', fontSize: 11, color: 'rgba(255,255,255,0.25)', background: 'rgba(13,13,24,0.9)' }}>or</span>
+                        <span style={{ padding: '0 12px', fontSize: 11, color: 'rgba(255,255,255,0.25)', background: '#12141e' }}>or</span>
                       </div>
                     </div>
 
