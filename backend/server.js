@@ -2160,10 +2160,12 @@ app.post('/api/user/send-gift', authMiddleware, async (req, res) => {
     // recipientId is the recipient's socket id — resolve their user account.
     const recipientData = onlineUsers.get(recipientId);
     const recipientUserId = recipientData?.userId;
-    // DEV only: gifting a test bot (a connected socket with no real account) is
-    // allowed so the gift flow can be tested — the sender is charged and the
-    // animation plays, but there is no wallet to credit.
-    const isTestGift = !recipientUserId && IS_DEV && !!recipientData;
+    // DEV only: gifting a test bot is allowed so the gift flow can be tested —
+    // the sender is charged and the animation plays, but there is no wallet to
+    // credit. Covers duo-bot sockets (real socket, no userId) and the server
+    // dev bot (a fake `dev_bot_…` id that is not a real socket at all).
+    const isDevBot   = typeof recipientId === 'string' && recipientId.startsWith('dev_bot_');
+    const isTestGift = !recipientUserId && IS_DEV && (!!recipientData || isDevBot);
     if (!recipientUserId && !isTestGift) {
       return res.status(400).json({ error: 'Recipient is not available' });
     }
