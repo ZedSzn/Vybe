@@ -1287,10 +1287,7 @@ export default function MainPage() {
 
             {/* ── Trust panel — mirrors the filter bar above, fills the space past the trial offer ── */}
             {(user?.isVip || user?.isPremium || user?.trialUsed) && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.4 }}
+              <div
                 style={{
                   marginTop: 14, borderRadius: 16, display: 'flex', alignItems: 'stretch', overflow: 'hidden',
                   background: 'linear-gradient(135deg, rgba(0,212,255,0.04) 0%, rgba(10,10,28,0.9) 50%, rgba(124,58,237,0.04) 100%)',
@@ -1324,7 +1321,7 @@ export default function MainPage() {
                     </div>
                   </Fragment>
                 ))}
-              </motion.div>
+              </div>
             )}
 
           </div>
