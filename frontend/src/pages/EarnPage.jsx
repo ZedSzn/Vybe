@@ -355,7 +355,7 @@ export default function EarnPage() {
 
         {/* How it works */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.1 }} style={{ marginBottom: 48 }}>
-          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 20 }}>How it works</h2>
+          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 20, textAlign: 'center' }}>How it works</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
             {HOW_IT_WORKS.map((step, i) => (
               <div key={i} style={{ padding: 20, borderRadius: 16, display: 'flex', gap: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -382,21 +382,21 @@ export default function EarnPage() {
 
         {/* Comparison table */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.24 }} style={{ marginBottom: 48 }}>
-          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 6 }}>Why creators choose Vybe</h2>
-          <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 14, marginBottom: 20 }}>Compare us to the big platforms</p>
+          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 6, textAlign: 'center' }}>Why creators choose Vybe</h2>
+          <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 14, marginBottom: 20, textAlign: 'center' }}>Compare us to the big platforms</p>
           <CompareTable onStartEarning={() => navigate('/chat')} />
         </motion.div>
 
         {/* Earnings calculator */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.3 }} style={{ marginBottom: 48 }}>
-          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 6 }}>Estimate your earnings</h2>
-          <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 14, marginBottom: 20 }}>See how much you could make on Vybe</p>
+          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 6, textAlign: 'center' }}>Estimate your earnings</h2>
+          <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 14, marginBottom: 20, textAlign: 'center' }}>See how much you could make on Vybe</p>
           <EarningsCalculator onStartEarning={() => navigate('/chat')} />
         </motion.div>
 
         {/* FAQ */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.36 }} style={{ marginBottom: 48 }}>
-          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 20 }}>Common questions</h2>
+          <h2 style={{ color: 'white', fontWeight: 900, fontSize: 20, marginBottom: 20, textAlign: 'center' }}>Common questions</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {FAQS.map((item, i) => (
               <div key={i} style={{ padding: 20, borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
