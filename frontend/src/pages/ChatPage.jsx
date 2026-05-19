@@ -1457,7 +1457,7 @@ export default function ChatPage() {
                   />
                 </div>
                 {giftedBySocket[opponentSocketIds[0]] > 0 && (
-                  <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
+                  <div className="absolute" style={{ bottom: 8, left: 8, zIndex: 10 }}>
                     <GiftChip key={giftedBySocket[opponentSocketIds[0]]} amount={giftedBySocket[opponentSocketIds[0]]} />
                   </div>
                 )}
@@ -1470,7 +1470,7 @@ export default function ChatPage() {
                   <ProfilePill username="Stranger" isOnline isVerified={false} friendStatus="self" />
                 </div>
                 {giftedBySocket[opponentSocketIds[1]] > 0 && (
-                  <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
+                  <div className="absolute" style={{ bottom: 8, left: 8, zIndex: 10 }}>
                     <GiftChip key={giftedBySocket[opponentSocketIds[1]]} amount={giftedBySocket[opponentSocketIds[1]]} />
                   </div>
                 )}
