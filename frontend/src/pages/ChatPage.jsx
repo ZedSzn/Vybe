@@ -1524,10 +1524,18 @@ export default function ChatPage() {
                       )}
                     </div>
                   )}
-                  <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
-                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
-                      <span className="text-white/75 font-semibold text-[9px]">{user ? user.username : 'You'}</span>
-                    </div>
+                  <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                    <ProfilePill
+                      username={user ? user.username : 'You'}
+                      avatarUrl={user?.avatar}
+                      isOnline
+                      isVerified={!!user?.emailVerified}
+                      isVip={!!user?.isVip}
+                      country={myCountry}
+                      accentColor={user?.accentColor}
+                      bannerGradient={user?.bannerGradient}
+                      friendStatus="self"
+                    />
                   </div>
                 </div>
                 {/* Vertical divider */}
@@ -1537,21 +1545,21 @@ export default function ChatPage() {
                   {mateSocketIds[0] ? (
                     <>
                       <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                      <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                        <ProfilePill username="Partner" isOnline isVerified={false} friendStatus="self" />
+                      </div>
                       {giftedBySocket[mateSocketIds[0]] > 0 && (
-                        <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                        <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
                           <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} />
                         </div>
                       )}
-                      <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
-                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
-                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
-                          <span className="text-white/80 font-semibold text-[9px]">Duo</span>
-                        </div>
-                      </div>
                     </>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="loading-dots flex"><span /><span /><span /></div>
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 px-3 text-center">
+                      <div className="rounded-full flex items-center justify-center" style={{ width: 40, height: 40, background: 'rgba(0,212,255,0.07)', border: '1.5px dashed rgba(0,212,255,0.3)' }}>
+                        <Loader2 size={15} className="animate-spin" style={{ color: 'rgba(0,184,224,0.7)' }} />
+                      </div>
+                      <p className="text-[10px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>Partner connecting…</p>
                     </div>
                   )}
                 </div>
@@ -1760,25 +1768,6 @@ export default function ChatPage() {
             )}
           </AnimatePresence>
           )}
-
-          {/* ── DUO MODE badge — top center ── */}
-          <AnimatePresence>
-            {isDuoMode && status === 'matched' && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ type: 'spring', damping: 24, stiffness: 280 }}
-                className="absolute z-[6] left-1/2 -translate-x-1/2 pointer-events-none"
-                style={{ top: 'max(14px, env(safe-area-inset-top, 0px) + 12px)' }}
-              >
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,212,255,0.22)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.38)', boxShadow: '0 0 16px rgba(0,212,255,0.15)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#00D4FF' }} />
-                  <span className="text-[10px] font-black tracking-widest text-white/90">DUO MODE</span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
         </div>
 
