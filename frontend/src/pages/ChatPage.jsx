@@ -1457,9 +1457,9 @@ export default function ChatPage() {
               />
             </motion.div>
           ) : (
-            /* SOLO MODE: Fullscreen stranger */
-            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute inset-0">
-              {/* Primary opponent — always fullscreen */}
+            /* SOLO MODE: stranger fills the top half (your camera fills the bottom half below) */
+            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%' }}>
+              {/* Primary opponent */}
               <video
                 ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }}
                 autoPlay playsInline
@@ -1542,6 +1542,34 @@ export default function ChatPage() {
                     </div>
                   )}
                 </div>
+              </div>
+            </>
+          )}
+
+          {/* SOLO MODE: Bottom half — your camera (split-screen, like other video-chat apps) */}
+          {!isDuoMode && opponentSocketIds.length > 0 && (
+            <>
+              <div className="absolute z-[4] inset-x-0" style={{ top: 'calc(50% - 0.5px)', height: 1, background: 'rgba(0,212,255,0.2)' }} />
+              <div className="absolute z-[2] overflow-hidden" style={{ top: '50%', left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+                <video
+                  ref={(el) => { if (el && localStreamRef.current) { el.srcObject = localStreamRef.current; el.play().catch(() => {}) } }}
+                  autoPlay muted playsInline className="w-full h-full object-cover"
+                />
+                {!hasCamera && (camBgImage
+                  ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
+                {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                {(!hasCamera || videoOff) && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ zIndex: 5 }}>
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)' }} />
+                    ) : (
+                      <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 900, color: '#00D4FF' }}>
+                        {user?.username?.[0]?.toUpperCase() || 'Y'}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -1635,8 +1663,8 @@ export default function ChatPage() {
           </div>
 
 
-          {/* Draggable PiP self-view — solo mode only */}
-          {!isDuoMode && (
+          {/* Draggable PiP self-view — solo mode, only while searching (matched solo uses the bottom-half split) */}
+          {!isDuoMode && opponentSocketIds.length === 0 && (
           <motion.div
             drag
             dragConstraints={{
