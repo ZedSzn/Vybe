@@ -317,7 +317,8 @@ export default function ChatPage() {
   const [friendReqLoad,  setFriendReqLoad]    = useState(false)
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
-  const [tipFeedback,    setTipFeedback]      = useState(null) // shared feedback toast (gift events etc.)
+  const [tipFeedback,    setTipFeedback]      = useState(null) // shared feedback toast (errors etc.)
+  const [giftToast,      setGiftToast]        = useState(null) // gift sent/received — shown at the bottom
   const [boostLoading,   setBoostLoading]     = useState(false)
   const [boostActive,    setBoostActive]      = useState(false)
   const [skipQueueLoading, setSkipQueueLoading] = useState(false)
@@ -346,6 +347,7 @@ export default function ChatPage() {
   const searchTextTimer  = useRef(null)
   const reconnectTimer   = useRef(null)
   const matchFlashTimer  = useRef(null)
+  const giftToastTimer   = useRef(null)
   const statusRef        = useRef(status)
 
   const SEARCH_TEXTS = [
@@ -834,10 +836,18 @@ export default function ChatPage() {
         if (recipientSocketId && giftCoins && String(senderId) === String(user?.id)) {
           setGiftedBySocket((m) => ({ ...m, [recipientSocketId]: (m[recipientSocketId] || 0) + giftCoins }))
         }
-        // Toast for everyone except the sender (who already knows)
-        if (senderUsername && String(senderId) !== String(user?.id)) {
-          setTipFeedback({ type: 'success', msg: `🎁 ${senderUsername} sent ${giftName} · ${giftCoins} coins` })
-          setTimeout(() => setTipFeedback(null), 3800)
+        // Bottom toast — the recipient gets a personal message, sender a
+        // confirmation, anyone else watching a neutral note.
+        const iAmSender    = String(senderId) === String(user?.id)
+        const iAmRecipient = recipientSocketId === socketRef.current?.id
+        let msg = null
+        if (iAmRecipient && senderUsername) msg = `🎁 ${senderUsername} sent you ${giftName} · ${giftCoins} coins`
+        else if (iAmSender)                 msg = `🎁 Gift sent · ${giftName}`
+        else if (senderUsername)            msg = `🎁 ${senderUsername} sent ${giftName} · ${giftCoins} coins`
+        if (msg) {
+          setGiftToast(msg)
+          clearTimeout(giftToastTimer.current)
+          giftToastTimer.current = setTimeout(() => setGiftToast(null), 3800)
         }
       })
 
@@ -1237,6 +1247,21 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
+        {/* Gift notification — anchored to the bottom, above the control bar */}
+        <AnimatePresence>
+          {giftToast && (
+            <div className="fixed left-0 right-0 z-[46] flex justify-center px-4 pointer-events-none"
+              style={{ bottom: 'max(76px, calc(env(safe-area-inset-bottom, 0px) + 72px))' }}>
+              <motion.div initial={{ opacity: 0, y: 16, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12 }}
+                transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[13px] font-semibold pointer-events-auto max-w-[calc(100vw-32px)] text-center"
+                style={{ background: 'rgba(0,212,255,0.16)', border: '1px solid rgba(0,212,255,0.4)', color: '#7df0ff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 8px 28px rgba(0,0,0,0.5), 0 0 24px rgba(0,212,255,0.18)' }}>
+                {giftToast}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
         {/* Send Coins modal */}
         <AnimatePresence>
           {showGift && (
@@ -1261,15 +1286,18 @@ export default function ChatPage() {
                   <button onClick={() => setShowGift(false)} className="text-white/40 hover:text-white"><X size={16} /></button>
                 </div>
 
-                {/* Recipient picker — shown whenever there's more than one person to gift */}
+                {/* Recipient picker — shown whenever there's more than one person to gift.
+                    Mates come from squadMates so the duo partner is always giftable,
+                    even before their video stream has connected. */}
                 {(() => {
+                  const mateIds = squadMates.length ? squadMates : (persistentMateId ? [persistentMateId] : [])
                   const giftTargets = [
                     ...opponentSocketIds.map((sid, i) => ({
                       sid,
                       label: opponentSocketIds.length > 1 ? `Stranger ${i + 1}` : (partnerUsername || 'Stranger'),
                       avatar: i === 0 ? partnerAvatar : null,
                     })),
-                    ...mateSocketIds.map((sid) => ({ sid, label: 'Partner', avatar: null })),
+                    ...mateIds.map((sid, i) => ({ sid, label: mateIds.length > 1 ? `Partner ${i + 1}` : 'Partner', avatar: null })),
                   ]
                   if (giftTargets.length < 2) return null
                   return (
