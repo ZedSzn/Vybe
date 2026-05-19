@@ -356,6 +356,7 @@ export default function ChatPage() {
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
   const [tipFeedback,    setTipFeedback]      = useState(null) // shared feedback toast (errors etc.)
   const [giftPopup,      setGiftPopup]        = useState(null) // brief gift card over the chat panel
+  const [giftsReceived,  setGiftsReceived]    = useState(0)    // cumulative coins gifted to me this match
   const [boostLoading,   setBoostLoading]     = useState(false)
   const [boostActive,    setBoostActive]      = useState(false)
   const [skipQueueLoading, setSkipQueueLoading] = useState(false)
@@ -746,6 +747,7 @@ export default function ChatPage() {
         setPartnerEmailVerified(pEmailVerified || false)
         setPartnerCountry(pCountry || null)
         setGiftAnimations([])
+        setGiftsReceived(0)
         setFriendReqSent(false)
         setMatchFlash(true)
         clearTimeout(matchFlashTimer.current)
@@ -886,6 +888,7 @@ export default function ChatPage() {
         // Credit my cashable balance if I'm the recipient
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
           setCashableCoins((c) => c + giftCoins)
+          setGiftsReceived((n) => n + Number(giftCoins || 0))
         }
         // Brief gift popup over the chat panel — not kept in chat history.
         const iAmSender   = String(senderId) === String(user?.id)
@@ -2456,26 +2459,26 @@ export default function ChatPage() {
                 style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 18px', borderRadius: 50, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: !reportSent && status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease', flexShrink: 0 }}>
                 {reportSent ? <><ShieldCheck size={13} style={{ marginRight: 4 }} />Reported</> : <><Flag size={13} />Report</>}
               </motion.button>
-              {/* Inline gift chip — appears alongside the action buttons when
-                  a gift arrives, with the sender, gift name, and coin amount. */}
+              {/* Inline running total — coins gifted to you this match. Stays
+                  visible while you're in the chat, animates on each new gift. */}
               <AnimatePresence>
-                {giftPopup && (
+                {giftsReceived > 0 && (
                   <motion.div
-                    key={giftPopup.id}
+                    key="gift-total-chip"
                     initial={{ opacity: 0, x: -12, scale: 0.92 }}
                     animate={{ opacity: 1, x: 0, scale: 1 }}
                     exit={{ opacity: 0, x: -8, scale: 0.94 }}
                     transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-                    style={{ height: 40, display: 'flex', alignItems: 'center', gap: 8, padding: '0 14px 0 4px', borderRadius: 50, background: 'rgba(0,212,255,0.14)', border: '1px solid rgba(0,212,255,0.4)', boxShadow: '0 0 18px rgba(0,212,255,0.25)' }}>
-                    <div style={{ flexShrink: 0, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <GiftIcon id={giftPopup.giftId} size={30} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15, whiteSpace: 'nowrap' }}>
-                      <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 10, fontWeight: 600 }}>{giftPopup.who}</span>
-                      <span style={{ color: '#7df0ff', fontSize: 13, fontWeight: 800, textShadow: '0 0 8px rgba(0,212,255,0.5)' }}>
-                        {giftPopup.giftName} · {giftPopup.coins.toLocaleString()} coins
-                      </span>
-                    </div>
+                    style={{ height: 40, display: 'flex', alignItems: 'center', gap: 8, padding: '0 14px', borderRadius: 50, background: 'rgba(0,212,255,0.14)', border: '1px solid rgba(0,212,255,0.4)', boxShadow: '0 0 18px rgba(0,212,255,0.25)' }}>
+                    <Gift size={15} style={{ color: '#00D4FF', filter: 'drop-shadow(0 0 4px rgba(0,212,255,0.8))', flexShrink: 0 }} />
+                    <motion.span
+                      key={giftsReceived}
+                      initial={{ scale: 1.15 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', damping: 18, stiffness: 380 }}
+                      style={{ color: '#7df0ff', fontSize: 13, fontWeight: 800, textShadow: '0 0 8px rgba(0,212,255,0.5)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                      {giftsReceived.toLocaleString()} coins received
+                    </motion.span>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -2581,11 +2584,11 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* Gift popup — mobile only. Desktop gets an inline chip in the
-            bottom bar (rendered separately below) so it sits with the UI. */}
+        {/* Gift popup — brief arrival card on both mobile and desktop.
+            A persistent running total also lives in the desktop bottom bar. */}
         <AnimatePresence>
           {giftPopup && (
-            <div className="lg:hidden fixed inset-x-0 flex justify-center px-4 pointer-events-none"
+            <div className="fixed inset-x-0 flex justify-center px-4 pointer-events-none"
               style={{ bottom: 'max(80px, calc(env(safe-area-inset-bottom, 0px) + 76px))', zIndex: 44 }}>
             <motion.div
               key={giftPopup.id}
