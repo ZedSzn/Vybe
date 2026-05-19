@@ -1319,11 +1319,11 @@ export default function ChatPage() {
         </AnimatePresence>
 
         {/* ── MOBILE: Fullscreen immersive camera ── */}
-        <div ref={pipContainerRef} className="lg:hidden fixed inset-0 z-[1] overflow-hidden" style={{ background: '#0a0a14' }}>
+        <div ref={pipContainerRef} className="lg:hidden fixed inset-0 z-[1] overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
 
           {/* Fullscreen background: stranger video OR searching state */}
           {status === 'searching' ? (
-            <div className="absolute bg-[#0a0a0f] flex flex-col items-center justify-center px-6" style={{ top: 0, left: 0, right: 0, height: '50%', gap: 16 }}>
+            <div className="absolute flex flex-col items-center justify-center px-6" style={{ top: 0, left: 0, right: 0, height: '50%', gap: 16, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
               {/* Globe — fixed container so rings stay within bounds */}
               <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 240, height: 240 }}>
                 <motion.div className="absolute rounded-full" style={{ width: 232, height: 232, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
@@ -1364,7 +1364,7 @@ export default function ChatPage() {
               </div>
             </div>
           ) : opponentSocketIds.length === 0 ? (
-            <div className="absolute bg-[#080812] flex flex-col items-center justify-center gap-3" style={{ top: 0, left: 0, right: 0, height: '50%' }}>
+            <div className="absolute flex flex-col items-center justify-center gap-3" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
               {status === 'matched' ? (
                 <>
                   {partnerAvatar ? (
