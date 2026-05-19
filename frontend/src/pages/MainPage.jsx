@@ -1600,7 +1600,7 @@ export default function MainPage() {
           <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#00B8E0' }}>Simple by design</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             Up and chatting in{' '}
-            <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ color: '#00D4FF' }}>
               30 seconds
             </span>
           </h2>
@@ -1649,7 +1649,7 @@ export default function MainPage() {
               <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#00B8E0' }}>Membership</p>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                 Match smarter with{' '}
-                <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
+                <span style={{ color: '#00D4FF' }}>filters</span>
               </h2>
               <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(180,190,210,0.65)' }}>
                 Free gets you started. Membership gets you exactly who you want to meet — filter by gender, country, and more.
@@ -1717,7 +1717,7 @@ export default function MainPage() {
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                   Go live. Get paid.{' '}
-                  <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
+                  <span style={{ color: '#00D4FF' }}>Keep 70%.</span>
                 </h2>
                 <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(180,190,210,0.65)' }}>
                   Turn your conversations into income. Viewers send gifts, you earn real money — no middlemen taking the bulk of your earnings.
@@ -1768,7 +1768,7 @@ export default function MainPage() {
           <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#00B8E0' }}>Trust & Safety</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             Safe by{' '}
-            <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>default</span>
+            <span style={{ color: '#00D4FF' }}>default</span>
           </h2>
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1814,7 +1814,7 @@ export default function MainPage() {
             </p>
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
               Frequently Asked{' '}
-              <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Questions</span>
+              <span style={{ color: '#00D4FF' }}>Questions</span>
             </h2>
           </div>
 
