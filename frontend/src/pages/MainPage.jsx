@@ -198,9 +198,17 @@ export default function MainPage() {
     setFilterGender(g)
   }
 
-  const handleCountryClick = () => {
+  const handleCountryClick = (e) => {
     if (!user?.isVip) { navigate('/subscription'); return }
-    setShowCountryDrop(v => { if (v) setCountrySearch(''); return !v })
+    const btn = e.currentTarget
+    setShowCountryDrop((v) => {
+      if (v) { setCountrySearch(''); return false }
+      // Anchor the dropdown to the button that was actually tapped — no ref
+      // ambiguity, computed synchronously so the portal renders in place.
+      const r = btn.getBoundingClientRect()
+      setCountryDropPos({ bottom: window.innerHeight - r.top + 8, left: Math.max(8, r.left), width: Math.max(r.width, 280) })
+      return true
+    })
   }
 
 
@@ -212,16 +220,7 @@ export default function MainPage() {
   }, [showGenderPop])
   useEffect(() => {
     if (!showCountryDrop) return
-    const calcPos = () => {
-      // The ref is on both the mobile and desktop buttons — use whichever
-      // one is actually visible (the hidden layout has a zero-size rect).
-      const el = [countryBtnRef.current, countryBtnRefLg.current]
-        .find((n) => n && n.getBoundingClientRect().width > 0)
-      if (!el) return
-      const r = el.getBoundingClientRect()
-      setCountryDropPos({ bottom: window.innerHeight - r.top + 8, left: Math.max(8, r.left), width: Math.max(r.width, 280) })
-    }
-    calcPos()
+    // Position is set on click; scroll/resize just dismiss the dropdown.
     const close = () => setShowCountryDrop(false)
     window.addEventListener('scroll', close, { passive: true })
     window.addEventListener('resize', close, { passive: true })
