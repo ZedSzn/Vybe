@@ -749,7 +749,7 @@ export default function ChatPage() {
       socket.on('duo-partner-ended', () => {
         if (!mounted) return
         setTipFeedback({ type: 'error', msg: 'Your partner ended the chat' })
-        setTimeout(() => navigate('/'), 2200)
+        setTimeout(() => navigate('/', { state: { fromDuoChat: true } }), 2200)
       })
 
       // Route WebRTC signals to the correct peer using `from`
@@ -954,7 +954,10 @@ export default function ChatPage() {
 
   const handleEnd = () => {
     socketRef.current?.emit('end-chat')
-    navigate('/')
+    // In a duo, tell the home page so it opens straight in Duo mode
+    // (the squad stays alive) instead of flashing the solo layout.
+    const inDuo = prefs.mode === 'squad' && !!prefs.squadId
+    navigate('/', inDuo ? { state: { fromDuoChat: true } } : undefined)
   }
 
   const handleReport = async (reasonId) => {

@@ -145,7 +145,9 @@ export default function MainPage() {
   const videoRefDesktop                      = useRef(null)   // desktop camera
   const streamRef                            = useRef(null)
 
-  const [mode,            setMode]            = useState('solo')
+  // Start in Duo mode straight away when arriving back from a duo chat so the
+  // page never flashes the solo layout for a frame before the squad restores.
+  const [mode,            setMode]            = useState(() => location.state?.fromDuoChat ? 'squad' : 'solo')
   const [filterGender,    setFilterGender]    = useState('both')
   const [filterCountry,   setFilterCountry]   = useState('')
   const [showCountryDrop, setShowCountryDrop] = useState(false)
@@ -358,7 +360,14 @@ export default function MainPage() {
     }
     // After leaving a duo chat, re-hydrate the squad so the duo stays
     // intact on the home page instead of resetting to solo.
-    const onRestored = (data) => { setSquad(data); setMode('squad') }
+    let restored = false
+    const onRestored = (data) => { restored = true; setSquad(data); setMode('squad') }
+    // If we optimistically opened in Duo mode but the squad no longer
+    // exists (e.g. it expired during the chat), fall back to solo.
+    const fallbackTimer = location.state?.fromDuoChat
+      ? setTimeout(() => { if (!restored) setMode('solo') }, 4000)
+      : null
+    if (location.state?.fromDuoChat) window.history.replaceState({}, '')
     socket.on('squad-created',       onCreated)
     socket.on('squad-updated',       onUpdated)
     socket.on('squad-joined',        onJoined)
@@ -377,6 +386,7 @@ export default function MainPage() {
       socket.off('squad-error',         onError)
       socket.off('squad-navigate',      onNavigate)
       socket.off('squad-restored',      onRestored)
+      if (fallbackTimer) clearTimeout(fallbackTimer)
     }
   }, [socket, navigate])
 
