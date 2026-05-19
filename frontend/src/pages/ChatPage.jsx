@@ -953,6 +953,14 @@ export default function ChatPage() {
     }
     const recipientSocketId = giftRecipient || resolveGiftRecipient()
     if (!recipientSocketId) {
+      // Diagnostic — please share what this logs if the error still appears.
+      console.warn('[gift] empty recipient', {
+        giftRecipient,
+        opponentSocketIds, mateSocketIds, squadMates,
+        persistentMateId, partnerSock,
+        botPeerIds, remoteStreamKeys: Object.keys(remoteStreams),
+        status, isDuoMode, is2v2,
+      })
       setTipFeedback({ type: 'error', msg: 'No one to gift right now' })
       setTimeout(() => setTipFeedback(null), 3000); return
     }
