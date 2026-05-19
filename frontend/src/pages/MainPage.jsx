@@ -653,9 +653,9 @@ export default function MainPage() {
           transition={{ delay: 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
           <h1 className="font-extrabold leading-[1.1] tracking-[-0.03em] text-white mb-2" style={{ fontSize: 'clamp(1.7rem, 7vw, 2.3rem)' }}>
-            Meet real people.{' '}
-            <span style={{ background: 'linear-gradient(125deg, #00D4FF 0%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              Instantly.
+            <span style={{ display: 'block' }}>Meet someone real.</span>
+            <span style={{ display: 'block', background: 'linear-gradient(120deg, #00D4FF 0%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              Share authentic vibes.
             </span>
           </h1>
           <p className="leading-relaxed" style={{ fontSize: 17, color: 'rgba(255,255,255,0.72)', fontWeight: 400 }}>
@@ -699,7 +699,7 @@ export default function MainPage() {
             ? <><Loader2 size={17} className="animate-spin" />Waiting for partner…</>
             : mode === 'squad' && squadReady
               ? <><Video size={19} strokeWidth={2.5} />Start Vybing</>
-              : <><Video size={19} strokeWidth={2.5} />Start Chatting Now</>
+              : <><Video size={19} strokeWidth={2.5} />Start Video Chat</>
           }
         </motion.button>
 
