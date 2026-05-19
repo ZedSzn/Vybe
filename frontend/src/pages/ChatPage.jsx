@@ -2013,6 +2013,7 @@ export default function ChatPage() {
                     avatarUrl={user?.avatar}
                     isOnline
                     isVerified={!!user?.emailVerified}
+                    isVip={!!user?.isVip}
                     country={myCountry}
                     accentColor={user?.accentColor}
                     bannerGradient={user?.bannerGradient}
@@ -2197,6 +2198,7 @@ export default function ChatPage() {
                         avatarUrl={user?.avatar}
                         isOnline
                         isVerified={!!user?.emailVerified}
+                        isVip={!!user?.isVip}
                         country={myCountry}
                         accentColor={user?.accentColor}
                         bannerGradient={user?.bannerGradient}
@@ -2281,6 +2283,7 @@ export default function ChatPage() {
                       avatarUrl={user?.avatar}
                       isOnline
                       isVerified={!!user?.emailVerified}
+                      isVip={!!user?.isVip}
                       country={myCountry}
                       accentColor={user?.accentColor}
                       bannerGradient={user?.bannerGradient}
