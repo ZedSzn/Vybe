@@ -499,15 +499,18 @@ export default function MainPage() {
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5"
-          style={{ background: 'linear-gradient(90deg, rgba(0,212,255,0.06) 0%, rgba(0,212,255,0.14) 50%, rgba(0,212,255,0.06) 100%)', border: '1px solid rgba(0,212,255,0.2)' }}
+          className="w-full flex items-center justify-center gap-2.5 rounded-xl px-3 py-2.5"
+          style={{ background: 'linear-gradient(90deg, rgba(0,212,255,0.06) 0%, rgba(0,212,255,0.13) 50%, rgba(0,212,255,0.06) 100%)', border: '1px solid rgba(0,212,255,0.18)' }}
         >
-          <span className="flex-shrink-0 px-2 py-0.5 rounded-md text-[9px] font-black tracking-[0.14em] uppercase"
-            style={{ background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: '#fff', boxShadow: '0 0 8px rgba(0,212,255,0.35)' }}>New</span>
-          <span className="text-[12px] font-medium text-left leading-tight" style={{ color: 'rgba(255,255,255,0.8)' }}>
-            Get paid to chat — turn conversations into real money.
+          <span className="flex-shrink-0 px-2.5 py-1 rounded-md text-[10px] font-black uppercase"
+            style={{ background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: '#fff', letterSpacing: '0.16em', boxShadow: '0 0 10px rgba(0,212,255,0.4)' }}>New</span>
+          <span className="text-[12px] font-medium leading-tight" style={{ color: 'rgba(255,255,255,0.75)' }}>
+            Get paid to chat — turn your conversations into real money.
           </span>
-          <span className="ml-auto flex-shrink-0 text-[14px] font-bold" style={{ color: '#00D4FF' }}>→</span>
+          <span className="flex-shrink-0 flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg"
+            style={{ color: '#00D4FF', background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.25)' }}>
+            Learn more <span style={{ fontSize: 12 }}>→</span>
+          </span>
         </motion.button>
 
         {/* Camera preview — your camera, plus the partner tile in Duo mode */}
