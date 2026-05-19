@@ -1319,7 +1319,7 @@ export default function ChatPage() {
         </AnimatePresence>
 
         {/* ── MOBILE: Fullscreen immersive camera ── */}
-        <div ref={pipContainerRef} className="lg:hidden fixed inset-0 z-[1] bg-black overflow-hidden">
+        <div ref={pipContainerRef} className="lg:hidden fixed inset-0 z-[1] overflow-hidden" style={{ background: '#0a0a14' }}>
 
           {/* Fullscreen background: stranger video OR searching state */}
           {status === 'searching' ? (
@@ -1458,13 +1458,26 @@ export default function ChatPage() {
             </motion.div>
           ) : (
             /* SOLO MODE: stranger fills the top half (your camera fills the bottom half below) */
-            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%' }}>
+            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
               {/* Primary opponent */}
               <video
                 ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }}
                 autoPlay playsInline
                 className="w-full h-full object-cover"
               />
+              {/* No stream yet — show the dark surface + avatar instead of a black box */}
+              {!remoteStreams[opponentSocketIds[0]] && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+                  {partnerAvatar ? (
+                    <img src={partnerAvatar} style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 40px rgba(0,212,255,0.12)' }} />
+                  ) : (
+                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 900, color: '#00D4FF' }}>
+                      {(partnerUsername || 'S')[0].toUpperCase()}
+                    </div>
+                  )}
+                  <p style={{ color: 'white', fontWeight: 700, fontSize: 15, lineHeight: 1 }}>{partnerUsername || 'Stranger'}</p>
+                </div>
+              )}
               {/* Secondary opponent PiP — only when 2 opponents */}
               {opponentSocketIds.length > 1 && (
                 <motion.div
