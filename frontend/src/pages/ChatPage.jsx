@@ -1318,27 +1318,6 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* ── No one available overlay ──────────────────────────────── */}
-        <AnimatePresence>
-          {status === 'searching' && searchElapsed >= 30 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-20 flex flex-col items-center justify-center px-6"
-              style={{ background: '#0a0a0f' }}>
-              <div className="text-center max-w-sm">
-                <div className="text-5xl mb-5">😴</div>
-                <h2 className="text-2xl font-black text-white mb-3">No one available right now</h2>
-                <p className="text-vybe-muted text-sm mb-4">Check back soon — Vybe gets busiest on evenings and weekends!</p>
-                <div className="space-y-3">
-                  <button onClick={() => { setSearchElapsed(0); findMatch(socketRef.current) }} className="w-full py-3.5 rounded-xl btn-purple text-white font-black text-sm">Try Again</button>
-                  <button onClick={handleEnd} className="w-full py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-sm transition-colors">Back to Home</button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-
-
         {/* ── MOBILE: Fullscreen immersive camera ── */}
         <div ref={pipContainerRef} className="lg:hidden fixed inset-0 z-[1] bg-black overflow-hidden">
 
@@ -1369,6 +1348,18 @@ export default function ChatPage() {
                   <motion.p key={tipIdx} initial={{ opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: 0.4 }} className="text-[11px]" style={{ color: '#555566' }}>
                     {TIPS[tipIdx % TIPS.length]}
                   </motion.p>
+                </AnimatePresence>
+                <AnimatePresence>
+                  {searchElapsed >= 25 && (
+                    <motion.p
+                      initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="text-[11px] leading-relaxed max-w-[260px] mt-1"
+                      style={{ color: '#7a7a8c' }}
+                    >
+                      It's quiet right now — we'll connect you the moment someone joins. Vybe gets busiest on evenings &amp; weekends.
+                    </motion.p>
+                  )}
                 </AnimatePresence>
               </div>
             </div>
@@ -2003,6 +1994,18 @@ export default function ChatPage() {
                         <motion.p key={tipIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.4 }} className="text-[12px]" style={{ color: '#555566' }}>
                           {TIPS[tipIdx % TIPS.length]}
                         </motion.p>
+                      </AnimatePresence>
+                      <AnimatePresence>
+                        {searchElapsed >= 25 && (
+                          <motion.p
+                            initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="text-[12px] leading-relaxed max-w-[320px] mt-1"
+                            style={{ color: '#7a7a8c' }}
+                          >
+                            It's quiet right now — we'll connect you the moment someone joins. Vybe gets busiest on evenings &amp; weekends.
+                          </motion.p>
+                        )}
                       </AnimatePresence>
                     </div>
                   </div>
