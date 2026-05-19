@@ -1534,8 +1534,8 @@ export default function ChatPage() {
             </motion.div>
           )}
 
-          {/* DUO MODE: Bottom half — your camera (left) + duo partner (right) — 3-panel only */}
-          {isDuoMode && !is2v2 && opponentSocketIds.length > 0 && (
+          {/* DUO MODE: Bottom half — your camera (left) + duo partner (right) — 3-panel; shown while searching too */}
+          {isDuoMode && !is2v2 && (status === 'searching' || status === 'matched') && (
             <>
               <div className="absolute z-[4] inset-x-0" style={{ top: 'calc(50% - 0.5px)', height: 1, background: 'rgba(0,212,255,0.2)' }} />
               <div className="absolute z-[2] flex overflow-hidden" style={{ top: '50%', left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
