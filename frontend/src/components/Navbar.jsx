@@ -426,7 +426,7 @@ export default function Navbar({ onPremiumClick }) {
                         transition={{ delay: 0.22 + i * 0.03, duration: 0.15 }}
                         className="w-full px-4 py-2.5 text-left text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2"
                       >
-                        {t(link.key)}
+                        {link.label || t(link.key)}
                       </motion.button>
                     ))}
                   </div>
