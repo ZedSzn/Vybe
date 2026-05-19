@@ -1029,7 +1029,7 @@ export default function ChatPage() {
     socketRef.current?.emit('end-chat')
     // In a duo, tell the home page so it opens straight in Duo mode
     // (the squad stays alive) instead of flashing the solo layout.
-    const inDuo = (prefs.mode === 'squad' || prefs.mode === 'private') && !!prefs.squadId
+    const inDuo = prefs.mode === 'squad' && !!prefs.squadId
     navigate('/', inDuo ? { state: { fromDuoChat: true } } : undefined)
   }
 
@@ -1151,8 +1151,7 @@ export default function ChatPage() {
   }
 
   // Derive opponent vs squad-mate video entries
-  const isSquadSession     = (prefs.mode === 'squad' || prefs.mode === 'private') && !!prefs.squadId
-  const isPrivateRoom      = prefs.mode === 'private' && !!prefs.squadId
+  const isSquadSession     = prefs.mode === 'squad' && !!prefs.squadId
   const allRemoteEntries   = Object.keys(remoteStreams)
   const opponentSocketIds  = botPeerIds ? botPeerIds.opponents : allRemoteEntries.filter((sid) => !squadMates.includes(sid))
   const mateSocketIds      = botPeerIds ? botPeerIds.mates     : allRemoteEntries.filter((sid) => squadMates.includes(sid))
@@ -1509,82 +1508,6 @@ export default function ChatPage() {
                 </AnimatePresence>
               </div>
             </div>
-          ) : isPrivateRoom ? (
-            /* PRIVATE ROOM MOBILE: 2x2 grid of all members (you + up to 3 others) */
-            <div className="absolute inset-0" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
-              {/* TOP LEFT: member 0 (or empty placeholder) */}
-              <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)', borderRight: '1px solid rgba(0,212,255,0.2)' }}>
-                {mateSocketIds[0] ? (
-                  <>
-                    <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                    {!remoteStreams[mateSocketIds[0]] && <TilePlaceholder name="Friend" />}
-                    <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
-                      <ProfilePill username="Friend" isOnline isVerified={false} friendStatus="self" />
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(160,170,190,0.45)', fontSize: 11, fontWeight: 600 }}>Empty</div>
-                )}
-              </div>
-              {/* TOP RIGHT: member 1 */}
-              <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)' }}>
-                {mateSocketIds[1] ? (
-                  <>
-                    <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                    {!remoteStreams[mateSocketIds[1]] && <TilePlaceholder name="Friend" />}
-                    <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
-                      <ProfilePill username="Friend" isOnline isVerified={false} friendStatus="self" />
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(160,170,190,0.45)', fontSize: 11, fontWeight: 600 }}>Empty</div>
-                )}
-              </div>
-              {/* BOTTOM LEFT: your camera */}
-              <div className="relative overflow-hidden" style={{ borderRight: '1px solid rgba(0,212,255,0.2)' }}>
-                <video
-                  ref={(el) => {
-                    if (el && localStreamRef.current) {
-                      el.srcObject = localStreamRef.current
-                      el.play().catch(() => {})
-                    }
-                  }}
-                  autoPlay muted playsInline className="w-full h-full object-cover"
-                />
-                {!hasCamera && (camBgImage
-                  ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                  : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
-                {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                {(!hasCamera || videoOff) && <CameraOffView user={user} />}
-                <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
-                  <ProfilePill
-                    username={user ? user.username : 'You'}
-                    avatarUrl={user?.avatar}
-                    isOnline
-                    isVerified={!!user?.emailVerified}
-                    isVip={!!user?.isVip}
-                    country={myCountry}
-                    accentColor={user?.accentColor}
-                    bannerGradient={user?.bannerGradient}
-                    friendStatus="self"
-                  />
-                </div>
-              </div>
-              {/* BOTTOM RIGHT: member 2 */}
-              <div className="relative overflow-hidden">
-                {mateSocketIds[2] ? (
-                  <>
-                    <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[2]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                    {!remoteStreams[mateSocketIds[2]] && <TilePlaceholder name="Friend" />}
-                    <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
-                      <ProfilePill username="Friend" isOnline isVerified={false} friendStatus="self" />
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ color: 'rgba(160,170,190,0.45)', fontSize: 11, fontWeight: 600 }}>Empty</div>
-                )}
-              </div>
-            </div>
           ) : opponentSocketIds.length === 0 ? (
             <div className="absolute flex flex-col items-center justify-center gap-3" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
               {status === 'matched' ? (
@@ -1743,7 +1666,7 @@ export default function ChatPage() {
           )}
 
           {/* DUO MODE: Bottom half — your camera (left) + duo partner (right) — 3-panel; shown while searching too */}
-          {isDuoMode && !is2v2 && !isPrivateRoom && (status === 'searching' || status === 'matched') && (
+          {isDuoMode && !is2v2 && (status === 'searching' || status === 'matched') && (
             <>
               <div className="absolute z-[4] inset-x-0" style={{ top: 'calc(50% - 0.5px)', height: 1, background: 'rgba(0,212,255,0.2)' }} />
               <div className="absolute z-[2] flex overflow-hidden" style={{ top: '50%', left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
@@ -1857,7 +1780,7 @@ export default function ChatPage() {
               Uses the shared ProfilePill so the bot/stranger gets the same
               avatar + verified + VIP crown treatment as your own pill. */}
           <AnimatePresence>
-            {status === 'matched' && !is2v2 && !isPrivateRoom && (
+            {status === 'matched' && !is2v2 && (
               <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}
                 className="absolute z-[6] flex items-center gap-2"
                 style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', left: 12 }}>
@@ -1944,16 +1867,14 @@ export default function ChatPage() {
                 style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(239,68,68,0.16)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }}>
                 <PhoneOff size={16} />
               </motion.button>
-              {/* Skip — primary (hidden in private rooms — nothing to skip TO) */}
-              {!isPrivateRoom && (
-                <motion.button
-                  onClick={handleSkip}
-                  whileTap={{ scale: 0.97 }}
-                  className="flex-shrink-0 flex items-center justify-center gap-1.5"
-                  style={{ width: 112, height: 42, borderRadius: 24, background: 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)', boxShadow: '0 0 18px rgba(0,212,255,0.35)', color: 'white', fontWeight: 800, fontSize: 15 }}>
-                  <SkipForward size={16} /> Skip
-                </motion.button>
-              )}
+              {/* Skip — primary */}
+              <motion.button
+                onClick={handleSkip}
+                whileTap={{ scale: 0.97 }}
+                className="flex-shrink-0 flex items-center justify-center gap-1.5"
+                style={{ width: 112, height: 42, borderRadius: 24, background: 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)', boxShadow: '0 0 18px rgba(0,212,255,0.35)', color: 'white', fontWeight: 800, fontSize: 15 }}>
+                <SkipForward size={16} /> Skip
+              </motion.button>
               {/* Gift */}
               {user && (
                 <motion.button onClick={openGiftFlow} whileTap={{ scale: 0.9 }}
@@ -2445,7 +2366,7 @@ export default function ChatPage() {
                         transition={{ duration: 0.2, ease: 'easeOut' }}
                         className="flex flex-col"
                         style={{ position: 'absolute', bottom: 16, right: 16, width: 260, maxHeight: '50vh', zIndex: 30, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, overflow: 'hidden' }}>
-                        <FloatingChat messages={messages} partnerMessages={partnerMessages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} chatTab={chatTab} onTabChange={setActiveTab} unread={unread} partnerUnread={partnerUnread} showPartnerTab={isDuoMode && !isPrivateRoom} />
+                        <FloatingChat messages={messages} partnerMessages={partnerMessages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} chatTab={chatTab} onTabChange={setActiveTab} unread={unread} partnerUnread={partnerUnread} showPartnerTab={isDuoMode} />
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -2616,7 +2537,7 @@ export default function ChatPage() {
                 zIndex: 40,
               }}
             >
-              <FloatingChat messages={messages} partnerMessages={partnerMessages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} chatTab={chatTab} onTabChange={setActiveTab} unread={unread} partnerUnread={partnerUnread} showPartnerTab={isDuoMode && !isPrivateRoom} />
+              <FloatingChat messages={messages} partnerMessages={partnerMessages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} chatTab={chatTab} onTabChange={setActiveTab} unread={unread} partnerUnread={partnerUnread} showPartnerTab={isDuoMode} />
             </motion.div>
           )}
         </AnimatePresence>

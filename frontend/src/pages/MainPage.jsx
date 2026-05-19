@@ -354,9 +354,9 @@ export default function MainPage() {
     const onExpired  = ()     => { setSquad(null); setSquadError('Duo expired. Create a new one.') }
     const onKicked   = ()     => { setSquad(null); setMode('solo'); setSquadError('You were removed from the duo.') }
     const onError    = ({ message }) => { setSquadLoading(false); setSquadError(message) }
-    const onNavigate = ({ squadId, mode: navMode }) => {
+    const onNavigate = ({ squadId }) => {
       streamRef.current?.getTracks().forEach((t) => t.stop())
-      navigate('/chat', { state: { mode: navMode === 'private' ? 'private' : 'squad', squadId, filterGender: null, filterCountry: '' } })
+      navigate('/chat', { state: { mode: 'squad', squadId, filterGender: null, filterCountry: '' } })
     }
     // After leaving a duo chat, re-hydrate the squad so the duo stays
     // intact on the home page instead of resetting to solo.
@@ -421,16 +421,11 @@ export default function MainPage() {
   const inviteUrl = duoDisplayCode ? `${window.location.origin}/duo/${duoDisplayCode}` : ''
   const handleModeClick = (val) => {
     setMode(val)
-    if ((val === 'squad' || val === 'private') && (!squad || squad.type !== (val === 'private' ? 'private' : 'duo')) && !instantDuoCode) {
-      // If switching between duo and private, dissolve any stale squad first
-      if (squad && squad.type !== (val === 'private' ? 'private' : 'duo')) {
-        if (socket) socket.emit('leave-squad', { squadId: squad.squadId })
-        setSquad(null)
-      }
+    if (val === 'squad' && !squad && !instantDuoCode) {
       setInstantDuoCode(genCode())
       if (socket && isConnected) {
         setSquadLoading(true); setSquadError('')
-        socket.emit('create-squad', { username: user?.username || 'Guest', type: val === 'private' ? 'private' : 'duo' })
+        socket.emit('create-squad', { username: user?.username || 'Guest' })
       }
     }
   }
@@ -470,12 +465,6 @@ export default function MainPage() {
       if (!squad) { setSquadError('Create a duo room first.'); return }
       if (squad.members.length < 2) { setSquadError('Waiting for your friend to join…'); return }
       socket.emit('squad-start-match', { squadId: squad.squadId })
-      return
-    }
-    if (mode === 'private') {
-      if (!squad) { setSquadError('Setting up the room…'); return }
-      if (squad.members.length < 2) { setSquadError('Waiting for someone to join with the code…'); return }
-      socket.emit('squad-start-private', { squadId: squad.squadId })
       return
     }
     streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -720,37 +709,31 @@ export default function MainPage() {
         </div>
 
         {/* Start Chatting Now — dominant CTA */}
-        {(() => {
-          const isRoomMode = mode === 'squad' || mode === 'private'
-          const waiting    = isRoomMode && !squadReady
-          return (
         <motion.button
-          onClick={waiting ? undefined : startVybing}
-          whileHover={waiting ? {} : { scale: 1.02 }}
-          whileTap={waiting ? {} : { scale: 0.97 }}
+          onClick={mode === 'squad' && !squadReady ? undefined : startVybing}
+          whileHover={mode === 'squad' && !squadReady ? {} : { scale: 1.02 }}
+          whileTap={mode === 'squad' && !squadReady ? {} : { scale: 0.97 }}
           className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl font-extrabold"
           style={{
             fontSize: '16px',
-            background: waiting ? 'rgba(20,20,36,0.8)' : 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)',
-            boxShadow: waiting ? 'none' : '0 0 20px rgba(0,212,255,0.28), 0 4px 20px rgba(0,0,0,0.4)',
-            border: waiting ? '1px solid rgba(255,255,255,0.08)' : 'none',
-            color: waiting ? 'rgba(255,255,255,0.35)' : 'white',
-            cursor: waiting ? 'not-allowed' : 'pointer',
+            background: mode === 'squad' && !squadReady
+              ? 'rgba(20,20,36,0.8)'
+              : 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)',
+            boxShadow: mode === 'squad' && !squadReady
+              ? 'none'
+              : '0 0 20px rgba(0,212,255,0.28), 0 4px 20px rgba(0,0,0,0.4)',
+            border: mode === 'squad' && !squadReady ? '1px solid rgba(255,255,255,0.08)' : 'none',
+            color: mode === 'squad' && !squadReady ? 'rgba(255,255,255,0.35)' : 'white',
+            cursor: mode === 'squad' && !squadReady ? 'not-allowed' : 'pointer',
           }}
         >
-          {waiting && mode === 'private'
-            ? <><Loader2 size={17} className="animate-spin" />Waiting for someone to join…</>
-            : waiting
-              ? <><Loader2 size={17} className="animate-spin" />Waiting for partner…</>
-              : mode === 'private' && squadReady
-                ? <><Video size={19} strokeWidth={2.5} />Start Private Call</>
-                : mode === 'squad' && squadReady
-                  ? <><Video size={19} strokeWidth={2.5} />Start Vybing</>
-                  : <><Video size={19} strokeWidth={2.5} />Start Video Chat</>
+          {mode === 'squad' && !squadReady
+            ? <><Loader2 size={17} className="animate-spin" />Waiting for partner…</>
+            : mode === 'squad' && squadReady
+              ? <><Video size={19} strokeWidth={2.5} />Start Vybing</>
+              : <><Video size={19} strokeWidth={2.5} />Start Video Chat</>
           }
         </motion.button>
-          )
-        })()}
 
         <motion.button
           onClick={() => {
@@ -774,7 +757,7 @@ export default function MainPage() {
           <div>
             <p className="text-[10px] font-black tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(160,160,180,0.45)' }}>MODE</p>
             <div className="flex gap-1.5 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
-              {[{ id: 'solo', label: 'Solo' }, { id: 'squad', label: 'Duo' }, { id: 'private', label: 'Private' }].map(({ id, label }) => (
+              {[{ id: 'solo', label: 'Solo' }, { id: 'squad', label: 'Duo' }].map(({ id, label }) => (
                 <motion.button key={id} onClick={() => handleModeClick(id)} whileTap={{ scale: 0.93 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   className="flex-1 py-2 text-xs font-bold transition-colors"
                   style={mode === id
@@ -822,9 +805,9 @@ export default function MainPage() {
             </motion.button>
           </div>
 
-          {/* Duo / Private room inline panel */}
+          {/* Duo room inline panel */}
           <AnimatePresence initial={false}>
-            {(mode === 'squad' || mode === 'private') && (
+            {mode === 'squad' && (
               <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
                 <div className="rounded-2xl p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.10)', paddingBottom: 20, overflow: 'visible' }}>
                   {!duoDisplayCode ? (
@@ -1169,37 +1152,31 @@ export default function MainPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 12 }}>
 
               {/* Primary */}
-              {(() => {
-                const isRoomMode = mode === 'squad' || mode === 'private'
-                const waiting    = isRoomMode && !squadReady
-                return (
               <motion.button
-                onClick={waiting ? undefined : startVybing}
-                whileHover={waiting ? {} : { scale: 1.012 }}
-                whileTap={waiting ? {} : { scale: 0.985 }}
+                onClick={mode === 'squad' && !squadReady ? undefined : startVybing}
+                whileHover={mode === 'squad' && !squadReady ? {} : { scale: 1.012 }}
+                whileTap={mode === 'squad' && !squadReady ? {} : { scale: 0.985 }}
                 style={{
                   width: '100%', height: 56, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                  background: waiting ? 'rgba(20,20,36,0.8)' : 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
-                  boxShadow: waiting ? 'none' : '0 4px 28px rgba(0,212,255,0.38), 0 1px 0 rgba(255,255,255,0.12) inset',
-                  border: waiting ? '1px solid rgba(255,255,255,0.08)' : 'none',
-                  color: waiting ? 'rgba(255,255,255,0.35)' : 'white',
+                  background: mode === 'squad' && !squadReady
+                    ? 'rgba(20,20,36,0.8)'
+                    : 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
+                  boxShadow: mode === 'squad' && !squadReady
+                    ? 'none'
+                    : '0 4px 28px rgba(0,212,255,0.38), 0 1px 0 rgba(255,255,255,0.12) inset',
+                  border: mode === 'squad' && !squadReady ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                  color: mode === 'squad' && !squadReady ? 'rgba(255,255,255,0.35)' : 'white',
                   fontSize: 15, fontWeight: 800, letterSpacing: '-0.01em',
-                  cursor: waiting ? 'not-allowed' : 'pointer',
+                  cursor: mode === 'squad' && !squadReady ? 'not-allowed' : 'pointer',
                   opacity: 1, transition: 'all 0.25s ease',
                 }}>
-                {waiting && mode === 'private'
-                  ? <><Loader2 size={17} className="animate-spin" />Waiting for someone to join…</>
-                  : waiting
-                    ? <><Loader2 size={17} className="animate-spin" />Waiting for partner…</>
-                    : mode === 'private' && squadReady
-                      ? <><Video size={17} />Start Private Call</>
-                      : mode === 'squad' && squadReady
-                        ? <><Video size={17} />Start Vybing</>
-                        : <><Video size={17} />Start Video Chat</>
+                {mode === 'squad' && !squadReady
+                  ? <><Loader2 size={17} className="animate-spin" />Waiting for partner…</>
+                  : mode === 'squad' && squadReady
+                    ? <><Video size={17} />Start Vybing</>
+                    : <><Video size={17} />Start Video Chat</>
                 }
               </motion.button>
-                )
-              })()}
 
               {/* Secondary */}
               <motion.button
@@ -1289,7 +1266,7 @@ export default function MainPage() {
               <div style={{ flex: 1, padding: '11px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
                 <span style={{ fontSize: 8, fontWeight: 900, letterSpacing: '0.22em', color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase' }}>Mode</span>
                 <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                  {[['Solo', 'solo'], ['Duo', 'squad'], ['Private', 'private']].map(([label, val]) => (
+                  {[['Solo', 'solo'], ['Duo', 'squad']].map(([label, val]) => (
                     <motion.button key={val}
                       onClick={() => handleModeClick(val)}
                       whileHover={{ scale: 1.05 }}
