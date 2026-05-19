@@ -472,7 +472,7 @@ export default function MainPage() {
       <Navbar onPremiumClick={() => setShowPremium(true)} />
 
       {/* ══════════════ MOBILE LAYOUT ══════════════ */}
-      <div className="lg:hidden relative z-10 px-4 pt-4 pb-12 flex flex-col gap-5">
+      <div className="lg:hidden relative z-10 px-4 pt-4 pb-2 flex flex-col gap-5">
 
         {/* Live pill */}
         <div className="flex justify-center">
@@ -1589,7 +1589,7 @@ export default function MainPage() {
       </section>
 
                         {/* ══════════════ HOW IT WORKS ══════════════ */}
-      <section id="how-it-works" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-16 lg:py-24">
+      <section id="how-it-works" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-12 lg:py-24">
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0, y: 20 }}

@@ -14,11 +14,11 @@ import {
 } from 'lucide-react'
 
 const PACKAGES = [
-  { id: 'coins_100',  coins: 100,  price: '£1.49',  label: 'Starter',    color: '#10b981', glow: 'rgba(16,185,129,0.3)',  popular: false, desc: 'A few gifts to get started' },
-  { id: 'coins_500',  coins: 500,  price: '£5.99',  label: 'Popular',    color: '#00D4FF', glow: 'rgba(0,212,255,0.3)',   popular: false, desc: 'The most popular pick' },
-  { id: 'coins_1200', coins: 1200, price: '£11.99', label: 'Best Value', color: '#7C3AED', glow: 'rgba(124,58,237,0.35)', popular: true,  desc: 'More coins, better rate' },
-  { id: 'coins_3000', coins: 3000, price: '£24.99', label: 'Mega',       color: '#ec4899', glow: 'rgba(236,72,153,0.3)',  popular: false, desc: 'For frequent gifters' },
-  { id: 'coins_7000', coins: 7000, price: '£49.99', label: 'Ultimate',   color: '#f59e0b', glow: 'rgba(245,158,11,0.3)',  popular: false, desc: 'The best rate available' },
+  { id: 'coins_100',  coins: 100,  price: '£1.49',  label: 'Starter',    color: '#00D4FF', glow: 'rgba(0,212,255,0.3)', popular: false, desc: 'A few gifts to get started' },
+  { id: 'coins_500',  coins: 500,  price: '£5.99',  label: 'Popular',    color: '#00D4FF', glow: 'rgba(0,212,255,0.3)', popular: false, desc: 'The most popular pick' },
+  { id: 'coins_1200', coins: 1200, price: '£11.99', label: 'Best Value', color: '#00D4FF', glow: 'rgba(0,212,255,0.4)', popular: true,  desc: 'More coins, better rate' },
+  { id: 'coins_3000', coins: 3000, price: '£24.99', label: 'Mega',       color: '#00D4FF', glow: 'rgba(0,212,255,0.3)', popular: false, desc: 'For frequent gifters' },
+  { id: 'coins_7000', coins: 7000, price: '£49.99', label: 'Ultimate',   color: '#00D4FF', glow: 'rgba(0,212,255,0.3)', popular: false, desc: 'The best rate available' },
 ]
 
 const TX_TYPE_LABELS = {
@@ -38,7 +38,7 @@ function TabBtn({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`px-3 sm:px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+      className={`flex-1 px-2 sm:px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
         active ? 'bg-[#00D4FF] text-[#0a0a0f]' : 'text-vybe-muted hover:text-white'
       }`}
     >
@@ -262,7 +262,7 @@ export default function WalletPage() {
         </AnimatePresence>
 
         {/* Tabs */}
-        <div className="flex flex-wrap items-center gap-1 mb-6 bg-white/3 rounded-2xl p-1">
+        <div className="flex items-center gap-1 mb-6 bg-white/3 rounded-2xl p-1">
           {[
             ['overview', 'Overview'],
             ['buy',      'Buy Coins'],
@@ -322,7 +322,7 @@ export default function WalletPage() {
                   key={pkg.id}
                   className="relative flex items-center gap-4 rounded-2xl p-4"
                   style={{
-                    background: pkg.popular ? 'linear-gradient(135deg, rgba(124,58,237,0.14) 0%, rgba(10,15,32,0.5) 100%)' : 'rgba(255,255,255,0.03)',
+                    background: pkg.popular ? 'linear-gradient(135deg, rgba(0,212,255,0.14) 0%, rgba(10,15,32,0.5) 100%)' : 'rgba(255,255,255,0.03)',
                     border: `1px solid ${pkg.popular ? pkg.color + '80' : 'rgba(255,255,255,0.07)'}`,
                     boxShadow: pkg.popular ? `0 0 34px ${pkg.glow}` : 'none',
                   }}

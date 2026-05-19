@@ -164,33 +164,34 @@ function CompareTable({ onStartEarning }) {
             </div>
           ))}
 
-          {/* Bottom banner */}
-          <div style={{
-            background: 'rgba(0,212,255,0.06)',
-            borderTop: '1px solid rgba(0,212,255,0.15)',
-            padding: '24px', textAlign: 'center',
-          }}>
-            <p style={{ fontWeight: 700, fontSize: 17, color: 'white', marginBottom: 6 }}>
-              Vybe wins on 6 out of 7 features
-            </p>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 18 }}>
-              Join thousands already earning on Vybe
-            </p>
-            <motion.button
-              onClick={onStartEarning}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              style={{
-                padding: '12px 28px', borderRadius: 10, border: 'none',
-                background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
-                color: '#0a0a0f', fontWeight: 800, fontSize: 14, cursor: 'pointer',
-              }}
-            >
-              Start Earning Free
-            </motion.button>
-          </div>
-
         </div>
+      </div>
+
+      {/* Bottom banner — kept outside the horizontal-scroll container so it
+          spans the viewport width and never clips on mobile */}
+      <div style={{
+        background: 'rgba(0,212,255,0.06)',
+        borderTop: '1px solid rgba(0,212,255,0.15)',
+        padding: '24px', textAlign: 'center',
+      }}>
+        <p style={{ fontWeight: 700, fontSize: 17, color: 'white', marginBottom: 6 }}>
+          Vybe wins on 6 out of 7 features
+        </p>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 18 }}>
+          Join thousands already earning on Vybe
+        </p>
+        <motion.button
+          onClick={onStartEarning}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          style={{
+            padding: '12px 28px', borderRadius: 10, border: 'none',
+            background: 'linear-gradient(135deg, #00B8E0 0%, #00D4FF 50%, #00B8E0 100%)',
+            color: '#0a0a0f', fontWeight: 800, fontSize: 14, cursor: 'pointer',
+          }}
+        >
+          Start Earning Free
+        </motion.button>
       </div>
     </div>
   )

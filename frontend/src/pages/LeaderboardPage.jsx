@@ -84,7 +84,8 @@ function PodiumCard({ entry, place, coinsOf }) {
       </div>
       <div style={{ position: 'relative', width: '100%', minHeight: p.minH, background: p.bg, borderRadius: 16,
         border: `1.5px solid ${entry ? p.border : '#2a2a4a'}`, padding: '32px 8px 14px',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: entry ? 'flex-start' : 'center' }}>
         {/* Rank number badge */}
         <div style={{ position: 'absolute', top: 8, left: 8, width: 22, height: 22, borderRadius: 6,
           background: p.badgeBg, color: p.badgeColor, fontWeight: 800, fontSize: 11,
