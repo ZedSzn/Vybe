@@ -435,8 +435,7 @@ export default function MainPage() {
     }
   }
 
-  const inviteLabel = mode === 'private' || squad?.type === 'private' ? 'private room' : 'duo'
-  const inviteText  = `Join my ${inviteLabel} on Vybe! ${inviteUrl}`
+  const inviteText = `Join my duo on Vybe! ${inviteUrl}`
 
   const toggleCodeVisibility = () => {
     if (codeRevealTimer.current) clearTimeout(codeRevealTimer.current)
@@ -461,7 +460,7 @@ export default function MainPage() {
   const shareUrls = {
     whatsapp: `https://wa.me/?text=${encodeURIComponent(inviteText)}`,
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteUrl)}`,
-    twitter:  `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Join my ${inviteLabel} on Vybe!`)}&url=${encodeURIComponent(inviteUrl)}`,
+    twitter:  `https://twitter.com/intent/tweet?text=${encodeURIComponent('Join my duo on Vybe!')}&url=${encodeURIComponent(inviteUrl)}`,
   }
 
   const squadReady = squad?.members?.length >= 2
@@ -1442,7 +1441,7 @@ export default function MainPage() {
               />
             </div>
 
-            {(mode === 'squad' || mode === 'private') ? (
+            {mode === 'squad' ? (
               <>
                 {/* Shared animated background */}
                 <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
