@@ -858,7 +858,7 @@ export default function MainPage() {
             <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 64, fontWeight: 900, color: 'rgba(255,255,255,0.03)', letterSpacing: -3, pointerEvents: 'none', zIndex: 0, userSelect: 'none', lineHeight: 1 }}>VIP</span>
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div style={{ marginBottom: 8 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'white', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', borderRadius: 20, padding: '3px 10px', display: 'inline-block' }}>LIMITED OFFER</span>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'white', background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', borderRadius: 20, padding: '3px 10px', display: 'inline-block' }}>LIMITED OFFER</span>
               </div>
               <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Try VIP Free for 7 Days</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginBottom: 12 }}>
@@ -882,7 +882,7 @@ export default function MainPage() {
                     alert(msg)
                   }
                 }}
-                style={{ width: '100%', padding: '13px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
+                style={{ width: '100%', padding: '13px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
                 Start Free Trial →
               </motion.button>
               <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 8, marginBottom: 0 }}>🔒 Secured by Stripe · Cancel before day 7 to avoid £12.99/mo · Cancelling ends VIP access immediately</p>
@@ -1017,7 +1017,7 @@ export default function MainPage() {
           {/* NEW badge */}
           <span className="flex-shrink-0 px-2.5 py-1 rounded-md text-[10px] font-black tracking-[0.18em] uppercase"
             style={{
-              background: 'linear-gradient(135deg, #00D4FF, #7C3AED)',
+              background: 'linear-gradient(135deg, #00D4FF, #00B8E0)',
               color: '#fff',
               letterSpacing: '0.16em',
               boxShadow: '0 0 10px rgba(0,212,255,0.4)',
@@ -1242,7 +1242,7 @@ export default function MainPage() {
                 {/* Left content */}
                 <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
                   <div style={{ marginBottom: 8 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'white', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', borderRadius: 20, padding: '3px 10px', display: 'inline-block' }}>LIMITED OFFER</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'white', background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', borderRadius: 20, padding: '3px 10px', display: 'inline-block' }}>LIMITED OFFER</span>
                   </div>
                   <p style={{ fontSize: 17, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Try VIP Free for 7 Days</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6, flexWrap: 'wrap' }}>
@@ -1270,7 +1270,7 @@ export default function MainPage() {
                         alert(msg)
                       }
                     }}
-                    style={{ padding: '12px 24px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,212,255,0.35), 0 2px 8px rgba(124,58,237,0.2)' }}>
+                    style={{ padding: '12px 24px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,212,255,0.35), 0 2px 8px rgba(0,184,224,0.25)' }}>
                     Start Free Trial
                   </motion.button>
                   <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>🔒 Secured by Stripe</span>
@@ -1591,7 +1591,7 @@ export default function MainPage() {
                         {/* ══════════════ HOW IT WORKS ══════════════ */}
       <section id="how-it-works" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-12 lg:py-24">
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-8 lg:mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -1600,12 +1600,12 @@ export default function MainPage() {
           <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#00B8E0' }}>Simple by design</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             Up and chatting in{' '}
-            <span style={{ background: 'linear-gradient(135deg, #00D4FF 0%, #7C3AED 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               30 seconds
             </span>
           </h2>
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-8">
           {[
             { num: '01', title: 'Open Your Camera', desc: 'Allow camera access when prompted. Takes two seconds. You can also start without a camera if you prefer.', icon: Camera, color: '#00D4FF' },
             { num: '02', title: 'Set Your Preferences', desc: 'Choose who to match with — anyone, a specific gender, or people from your country. Free and paid options available.', icon: Globe, color: '#00B8E0' },
@@ -1613,7 +1613,7 @@ export default function MainPage() {
           ].map(({ num, title, desc, icon: Icon, color }, i) => (
             <motion.div
               key={num}
-              className="flex flex-col items-center text-center gap-4 p-6 rounded-2xl"
+              className="flex md:flex-col items-center text-left md:text-center gap-4 p-4 md:p-6 rounded-2xl"
               style={{ background: 'rgba(10,10,15,0.6)', border: '1px solid rgba(0,212,255,0.1)' }}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -1621,14 +1621,14 @@ export default function MainPage() {
               transition={{ delay: i * 0.1, duration: 0.5 }}
               whileHover={{ y: -4, borderColor: 'rgba(0,212,255,0.28)', boxShadow: '0 12px 40px rgba(0,212,255,0.1)' }}
             >
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)' }}>
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)' }}>
                   <Icon size={22} style={{ color }} />
                 </div>
                 <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black text-white" style={{ background: '#00D4FF' }}>{i + 1}</span>
               </div>
               <div>
-                <p className="text-white font-bold text-base mb-2">{title}</p>
+                <p className="text-white font-bold text-base mb-1 md:mb-2">{title}</p>
                 <p className="text-sm leading-relaxed" style={{ color: 'rgba(180,190,210,0.65)' }}>{desc}</p>
               </div>
             </motion.div>
@@ -1637,9 +1637,9 @@ export default function MainPage() {
       </section>
 
       {/* ══════════════ MEMBERSHIP VALUE ══════════════ */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
-        <div className="rounded-3xl overflow-hidden p-8 lg:p-12" style={{ background: 'rgba(10,10,15,0.5)', border: '1px solid rgba(0,212,255,0.12)' }}>
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-12 lg:pb-20">
+        <div className="rounded-3xl overflow-hidden p-5 sm:p-8 lg:p-12" style={{ background: 'rgba(10,10,15,0.5)', border: '1px solid rgba(0,212,255,0.12)' }}>
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -1649,7 +1649,7 @@ export default function MainPage() {
               <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#00B8E0' }}>Membership</p>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                 Match smarter with{' '}
-                <span style={{ background: 'linear-gradient(135deg, #00D4FF 0%, #7C3AED 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
+                <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>filters</span>
               </h2>
               <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(180,190,210,0.65)' }}>
                 Free gets you started. Membership gets you exactly who you want to meet — filter by gender, country, and more.
@@ -1701,10 +1701,10 @@ export default function MainPage() {
       </section>
 
       {/* ══════════════ CREATOR MONETIZATION ══════════════ */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-20">
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-12 lg:pb-20">
         <div className="rounded-3xl overflow-hidden" style={{ background: 'rgba(10,10,15,0.5)', border: '1px solid rgba(0,212,255,0.12)' }}>
-          <div className="p-8 lg:p-12">
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="p-5 sm:p-8 lg:p-12">
+            <div className="grid md:grid-cols-2 gap-6 lg:gap-8 items-center">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -1717,7 +1717,7 @@ export default function MainPage() {
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4">
                   Go live. Get paid.{' '}
-                  <span style={{ background: 'linear-gradient(135deg, #00D4FF 0%, #7C3AED 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
+                  <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Keep 70%.</span>
                 </h2>
                 <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(180,190,210,0.65)' }}>
                   Turn your conversations into income. Viewers send gifts, you earn real money — no middlemen taking the bulk of your earnings.
@@ -1757,9 +1757,9 @@ export default function MainPage() {
       </section>
 
       {/* ══════════════ TRUST & SAFETY ══════════════ */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-16 lg:pb-24">
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pb-12 lg:pb-24">
         <motion.div
-          className="text-center mb-10"
+          className="text-center mb-8 lg:mb-10"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -1768,7 +1768,7 @@ export default function MainPage() {
           <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#00B8E0' }}>Trust & Safety</p>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             Safe by{' '}
-            <span style={{ background: 'linear-gradient(135deg, #00D4FF 0%, #7C3AED 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>default</span>
+            <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>default</span>
           </h2>
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1780,7 +1780,7 @@ export default function MainPage() {
           ].map(({ icon: Icon, title, desc, color }, i) => (
             <motion.div
               key={title}
-              className="p-5 rounded-2xl flex flex-col gap-3"
+              className="p-4 sm:p-5 rounded-2xl flex sm:flex-col items-center sm:items-start gap-3.5 sm:gap-3"
               style={{ background: 'rgba(10,10,15,0.6)', border: '1px solid rgba(0,212,255,0.1)' }}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -1788,7 +1788,7 @@ export default function MainPage() {
               transition={{ delay: i * 0.07, duration: 0.45 }}
               whileHover={{ y: -3, borderColor: 'rgba(0,212,255,0.28)', boxShadow: '0 8px 28px rgba(0,212,255,0.1)' }}
             >
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.18)' }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.18)' }}>
                 <Icon size={18} style={{ color }} />
               </div>
               <div>
@@ -1801,20 +1801,20 @@ export default function MainPage() {
       </section>
 
       {/* ══════════════ FAQ SECTION ══════════════ */}
-      <section id="faq" className="relative z-10 max-w-3xl mx-auto w-full px-4 pb-24 pt-8">
+      <section id="faq" className="relative z-10 max-w-3xl mx-auto w-full px-4 pb-16 lg:pb-24 pt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55 }}
         >
-          <div className="text-center mb-10">
+          <div className="text-center mb-8 lg:mb-10">
             <p className="text-[11px] font-black tracking-[0.2em] uppercase mb-3" style={{ color: '#00B8E0' }}>
               Got questions?
             </p>
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
               Frequently Asked{' '}
-              <span style={{ background: 'linear-gradient(135deg, #00D4FF 0%, #7C3AED 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Questions</span>
+              <span style={{ background: 'linear-gradient(135deg, #5BE8FF 0%, #00D4FF 55%, #00B8E0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Questions</span>
             </h2>
           </div>
 
