@@ -2447,14 +2447,39 @@ export default function ChatPage() {
           {/* Desktop bottom bar */}
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 64, background: 'rgba(10,10,20,0.9)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50 }}>
 
-            {/* Far left: Report */}
-            <motion.button
-              onClick={() => status === 'matched' && !reportSent && setShowReport(true)}
-              whileHover={!reportSent && status === 'matched' ? { background: 'rgba(255,255,255,0.12)' } : {}}
-              whileTap={!reportSent && status === 'matched' ? { scale: 0.93 } : {}}
-              style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 18px', borderRadius: 50, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: !reportSent && status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease', flexShrink: 0 }}>
-              {reportSent ? <><ShieldCheck size={13} style={{ marginRight: 4 }} />Reported</> : <><Flag size={13} />Report</>}
-            </motion.button>
+            {/* Far left: Report + transient gift indicator */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <motion.button
+                onClick={() => status === 'matched' && !reportSent && setShowReport(true)}
+                whileHover={!reportSent && status === 'matched' ? { background: 'rgba(255,255,255,0.12)' } : {}}
+                whileTap={!reportSent && status === 'matched' ? { scale: 0.93 } : {}}
+                style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 18px', borderRadius: 50, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: !reportSent && status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease', flexShrink: 0 }}>
+                {reportSent ? <><ShieldCheck size={13} style={{ marginRight: 4 }} />Reported</> : <><Flag size={13} />Report</>}
+              </motion.button>
+              {/* Inline gift chip — appears alongside the action buttons when
+                  a gift arrives, with the sender, gift name, and coin amount. */}
+              <AnimatePresence>
+                {giftPopup && (
+                  <motion.div
+                    key={giftPopup.id}
+                    initial={{ opacity: 0, x: -12, scale: 0.92 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -8, scale: 0.94 }}
+                    transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+                    style={{ height: 40, display: 'flex', alignItems: 'center', gap: 8, padding: '0 14px 0 4px', borderRadius: 50, background: 'rgba(0,212,255,0.14)', border: '1px solid rgba(0,212,255,0.4)', boxShadow: '0 0 18px rgba(0,212,255,0.25)' }}>
+                    <div style={{ flexShrink: 0, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <GiftIcon id={giftPopup.giftId} size={30} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15, whiteSpace: 'nowrap' }}>
+                      <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 10, fontWeight: 600 }}>{giftPopup.who}</span>
+                      <span style={{ color: '#7df0ff', fontSize: 13, fontWeight: 800, textShadow: '0 0 8px rgba(0,212,255,0.5)' }}>
+                        {giftPopup.giftName} · {giftPopup.coins.toLocaleString()} coins
+                      </span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Center: Coins | Gender | Country | Skip */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -2556,11 +2581,11 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* Gift popup — a brief card anchored near the bottom, then it fades.
-            Centered on desktop, fills width on mobile, same content on both. */}
+        {/* Gift popup — mobile only. Desktop gets an inline chip in the
+            bottom bar (rendered separately below) so it sits with the UI. */}
         <AnimatePresence>
           {giftPopup && (
-            <div className="fixed inset-x-0 flex justify-center px-4 pointer-events-none"
+            <div className="lg:hidden fixed inset-x-0 flex justify-center px-4 pointer-events-none"
               style={{ bottom: 'max(80px, calc(env(safe-area-inset-bottom, 0px) + 76px))', zIndex: 44 }}>
             <motion.div
               key={giftPopup.id}
