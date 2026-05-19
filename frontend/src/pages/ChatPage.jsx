@@ -1685,6 +1685,17 @@ export default function ChatPage() {
             </div>
           )}
 
+          {/* Mobile — Leave button while searching (no full control bar yet) */}
+          {status === 'searching' && (
+            <div className="absolute z-[7] flex justify-center" style={{ bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, right: 12 }}>
+              <motion.button onClick={handleEnd} whileTap={{ scale: 0.95 }}
+                className="flex items-center justify-center gap-2"
+                style={{ padding: '11px 30px', borderRadius: 24, background: 'rgba(239,68,68,0.16)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171', fontWeight: 700, fontSize: 14 }}>
+                <PhoneOff size={15} /> Leave
+              </motion.button>
+            </div>
+          )}
+
           {/* Mobile control bar — one row, Skip dominant */}
           {status === 'matched' && (
             <div className="absolute z-[7] flex items-center gap-2"
