@@ -171,7 +171,8 @@ export default function MainPage() {
   const [instantDuoCode, setInstantDuoCode] = useState('')
   const [codeVisible,    setCodeVisible]    = useState(false)
 
-  const countryBtnRef    = useRef(null)
+  const countryBtnRef    = useRef(null)   // mobile country button
+  const countryBtnRefLg  = useRef(null)   // desktop country button
   const codeRevealTimer  = useRef(null)
   const [countryDropPos, setCountryDropPos] = useState({ top: 0, left: 0, width: 0 })
 
@@ -210,10 +211,14 @@ export default function MainPage() {
     return () => { clearTimeout(timer); document.removeEventListener('click', handler) }
   }, [showGenderPop])
   useEffect(() => {
-    if (!showCountryDrop || !countryBtnRef.current) return
+    if (!showCountryDrop) return
     const calcPos = () => {
-      const r = countryBtnRef.current?.getBoundingClientRect()
-      if (!r) return
+      // The ref is on both the mobile and desktop buttons — use whichever
+      // one is actually visible (the hidden layout has a zero-size rect).
+      const el = [countryBtnRef.current, countryBtnRefLg.current]
+        .find((n) => n && n.getBoundingClientRect().width > 0)
+      if (!el) return
+      const r = el.getBoundingClientRect()
       setCountryDropPos({ bottom: window.innerHeight - r.top + 8, left: Math.max(8, r.left), width: Math.max(r.width, 280) })
     }
     calcPos()
@@ -1205,7 +1210,7 @@ export default function MainPage() {
               <div style={{ flex: 1, padding: '11px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
                 <span style={{ fontSize: 8, fontWeight: 900, letterSpacing: '0.22em', color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase' }}>Country</span>
                 <motion.button
-                  ref={countryBtnRef}
+                  ref={countryBtnRefLg}
                   onClick={handleCountryClick}
                   whileHover={{ background: filterCountry ? 'rgba(0,212,255,0.22)' : 'rgba(255,255,255,0.10)' }}
                   whileTap={{ scale: 0.96 }}
