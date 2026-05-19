@@ -92,7 +92,7 @@ function FloatingChat({ messages, messagesEndRef, onSend, status }) {
 
   return (
     <>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px 4px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 6, minHeight: 0 }}>
+      <div style={{ overflowY: 'auto', padding: '10px 12px 4px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
         {messages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
             <div style={{
@@ -2346,7 +2346,7 @@ export default function ChatPage() {
                 bottom: 80,
                 left: 16,
                 right: 16,
-                height: 240,
+                maxHeight: 240,
                 background: 'rgba(0,0,0,0.3)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
