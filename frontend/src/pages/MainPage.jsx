@@ -1670,6 +1670,7 @@ export default function MainPage() {
         <div className="rounded-3xl overflow-hidden p-5 sm:p-8 lg:p-12" style={{ background: 'rgba(10,10,15,0.5)', border: '1px solid rgba(0,212,255,0.12)' }}>
           <div className="grid md:grid-cols-2 gap-6 lg:gap-12 items-center">
             <motion.div
+              className="text-center md:text-left"
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -1735,6 +1736,7 @@ export default function MainPage() {
           <div className="p-5 sm:p-8 lg:p-12">
             <div className="grid md:grid-cols-2 gap-6 lg:gap-8 items-center">
               <motion.div
+                className="text-center md:text-left"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -1755,7 +1757,7 @@ export default function MainPage() {
                   onClick={() => navigate('/earn')}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  className="px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 mx-auto md:mx-0"
                   style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.28)', color: '#00B8E0' }}
                 >
                   <DollarSign size={15} /> Start Earning
