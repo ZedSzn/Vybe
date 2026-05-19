@@ -3314,6 +3314,15 @@ io.on('connection', (socket) => {
   socket.on('webrtc-ice-candidate', ({ candidate, to }) => io.to(to).emit('webrtc-ice-candidate',  { candidate, from: socket.id }));
   socket.on('chat-message', ({ message, room }) => socket.to(room).emit('chat-message', { message, from: socket.id, timestamp: Date.now() }));
 
+  // Partner-only chat — routes a message to the sender's squad mates only,
+  // never to opponents. Silently dropped for non-squad sockets.
+  socket.on('partner-chat-message', ({ message }) => {
+    const mates = liveSquadPairs.get(socket.id) || [];
+    if (mates.length === 0 || typeof message !== 'string' || !message.trim()) return;
+    const payload = { message: message.slice(0, 1000), from: socket.id, timestamp: Date.now() };
+    for (const sid of mates) io.to(sid).emit('partner-chat-message', payload);
+  });
+
   async function recordChatCompletion(socketId, partnerSocketId) {
     const userData = onlineUsers.get(socketId);
     if (!userData?.userId) return;

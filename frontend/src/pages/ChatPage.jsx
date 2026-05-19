@@ -73,13 +73,14 @@ function GiftChip({ amount, compact }) {
 }
 
 // Uncontrolled input — reads DOM value directly so React re-renders never interfere
-function FloatingChat({ messages, messagesEndRef, onSend, status }) {
+function FloatingChat({ messages, partnerMessages, messagesEndRef, onSend, status, chatTab, onTabChange, unread, partnerUnread, showPartnerTab }) {
   const inputRef = useRef(null)
+  const activeMessages = chatTab === 'partner' ? partnerMessages : messages
 
   const send = () => {
     const val = inputRef.current?.value?.trim()
     if (!val || status !== 'matched') return
-    onSend(val)
+    onSend(val, chatTab)
     if (inputRef.current) inputRef.current.value = ''
   }
 
@@ -92,8 +93,35 @@ function FloatingChat({ messages, messagesEndRef, onSend, status }) {
 
   return (
     <>
+      {showPartnerTab && (
+        <div style={{ flexShrink: 0, display: 'flex', gap: 4, padding: '8px 10px 0' }}>
+          {[
+            { id: 'all',     label: 'All',     count: unread },
+            { id: 'partner', label: 'Partner', count: partnerUnread },
+          ].map((t) => {
+            const active = chatTab === t.id
+            return (
+              <button key={t.id} type="button" onClick={() => onTabChange(t.id)}
+                style={{ flex: 1, position: 'relative', padding: '6px 10px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                  background: active ? 'rgba(0,212,255,0.16)' : 'rgba(255,255,255,0.04)',
+                  color: active ? '#7df0ff' : 'rgba(255,255,255,0.6)',
+                  fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                {t.label}
+                {t.count > 0 && !active && (
+                  <span style={{ position: 'absolute', top: 4, right: 8, width: 7, height: 7, borderRadius: '50%', background: '#00D4FF', boxShadow: '0 0 6px rgba(0,212,255,0.7)' }} />
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
       <div style={{ overflowY: 'auto', padding: '10px 12px 4px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
-        {messages.map((msg, i) => (
+        {activeMessages.length === 0 && chatTab === 'partner' && (
+          <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.35)', fontSize: 11, padding: '12px 4px', lineHeight: 1.5 }}>
+            Only your duo partner sees these messages.<br />Coordinate freely.
+          </div>
+        )}
+        {activeMessages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
             <div style={{
               padding: '7px 11px', fontSize: 13, lineHeight: 1.45, color: 'white', maxWidth: '75%', wordBreak: 'break-word',
@@ -107,14 +135,14 @@ function FloatingChat({ messages, messagesEndRef, onSend, status }) {
         <div ref={messagesEndRef} />
       </div>
       <div style={{ flexShrink: 0, padding: '6px 10px 10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 6px 5px 14px', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: chatTab === 'partner' ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '5px 6px 5px 14px', gap: 8 }}>
           <input
             ref={inputRef}
             type="text"
             className="chat-input"
             defaultValue=""
             onKeyDown={handleKeyDown}
-            placeholder="Say something..."
+            placeholder={chatTab === 'partner' ? 'Message your partner…' : 'Say something...'}
             disabled={status !== 'matched'}
             style={{ flex: 1, background: 'transparent', color: 'white', fontSize: 13, border: 'none', outline: 'none', boxShadow: 'none', opacity: status !== 'matched' ? 0.4 : 1 }}
           />
@@ -284,6 +312,9 @@ export default function ChatPage() {
   const [banExpiresAt,     setBanExpiresAt]     = useState(null)
   const [unbanLoading,     setUnbanLoading]     = useState(false)
   const [messages,         setMessages]         = useState([])
+  const [partnerMessages,  setPartnerMessages]  = useState([]) // duo-only side channel — never seen by opponents
+  const [chatTab,          setChatTab]          = useState('all') // 'all' (room chat) | 'partner' (duo only)
+  const [partnerUnread,    setPartnerUnread]    = useState(0)
   const [showChat,         setShowChat]         = useState(false)
   const [isMuted,          setIsMuted]          = useState(false)
   const [uiHidden,         setUiHidden]         = useState(false)
@@ -351,6 +382,8 @@ export default function ChatPage() {
   const matchFlashTimer  = useRef(null)
   const giftPopupTimer   = useRef(null)
   const statusRef        = useRef(status)
+  const chatTabRef       = useRef('all')
+  const showChatRef      = useRef(false)
 
   const SEARCH_TEXTS = [
     'Finding your next Vybe',
@@ -420,6 +453,8 @@ export default function ChatPage() {
   useEffect(() => { partnerUidRef.current  = partnerUid  }, [partnerUid])
   useEffect(() => { statusRef.current = status }, [status])
   useEffect(() => { squadMatesRef.current = squadMates }, [squadMates])
+  useEffect(() => { chatTabRef.current = chatTab }, [chatTab])
+  useEffect(() => { showChatRef.current = showChat }, [showChat])
 
   // Sync remote streams → video elements (stream objects don't trigger re-renders on srcObject change)
   useEffect(() => {
@@ -492,6 +527,8 @@ export default function ChatPage() {
       setReconnectCount(0)
       destroyAllPeers()
       setMessages([])
+      setPartnerMessages([])
+      setPartnerUnread(0)
       setStatus('searching')
       if (socketRef.current?.connected) findMatch(socketRef.current)
       return
@@ -771,7 +808,15 @@ export default function ChatPage() {
       socket.on('chat-message', ({ message, timestamp }) => {
         if (!mounted) return
         setMessages((prev) => [...prev, { text: message, from: 'stranger', timestamp }])
-        setUnread((n) => n + 1)
+        // Skip the unread bump if the panel is already showing the All tab
+        if (!showChatRef.current || chatTabRef.current !== 'all') setUnread((n) => n + 1)
+      })
+
+      // Partner-only message — squad mate sent through the side channel
+      socket.on('partner-chat-message', ({ message, timestamp }) => {
+        if (!mounted) return
+        setPartnerMessages((prev) => [...prev, { text: message, from: 'partner', timestamp }])
+        if (!showChatRef.current || chatTabRef.current !== 'partner') setPartnerUnread((n) => n + 1)
       })
 
       const handlePartnerGone = () => {
@@ -780,7 +825,11 @@ export default function ChatPage() {
           // In duo mode: keep squad mate connection, only clear opponent state
           destroyOpponentPeers()
         } else {
+          // No mate left — partner-only chat is meaningless without them.
           destroyAllPeers()
+          setPartnerMessages([])
+          setPartnerUnread(0)
+          if (chatTabRef.current === 'partner') setChatTab('all')
         }
         setMessages([])
         setReportSent(false)
@@ -894,7 +943,11 @@ export default function ChatPage() {
     if (squadMatesRef.current.length > 0) {
       destroyOpponentPeers()
     } else {
+      // No squad mate — clear the partner-only chat too.
       destroyAllPeers()
+      setPartnerMessages([])
+      setPartnerUnread(0)
+      if (chatTabRef.current === 'partner') setChatTab('all')
     }
     setMessages([])
     setReportSent(false)
@@ -1051,11 +1104,23 @@ export default function ChatPage() {
     setSkipQueueLoading(false)
   }
 
-  const handleSend = useCallback((text) => {
+  const handleSend = useCallback((text, tab = 'all') => {
     if (!text || !roomId || status !== 'matched') return
-    setMessages((prev) => [...prev, { text, from: 'me', timestamp: Date.now() }])
-    socketRef.current?.emit('chat-message', { message: text, room: roomId })
+    const now = Date.now()
+    if (tab === 'partner') {
+      setPartnerMessages((prev) => [...prev, { text, from: 'me', timestamp: now }])
+      socketRef.current?.emit('partner-chat-message', { message: text })
+    } else {
+      setMessages((prev) => [...prev, { text, from: 'me', timestamp: now }])
+      socketRef.current?.emit('chat-message', { message: text, room: roomId })
+    }
   }, [roomId, status])
+
+  const setActiveTab = (tab) => {
+    setChatTab(tab)
+    if (tab === 'all') setUnread(0)
+    else setPartnerUnread(0)
+  }
 
   const toggleMute = () => {
     const newMuted = !isMuted
@@ -1075,7 +1140,14 @@ export default function ChatPage() {
   }
 
   const toggleChat = () => {
-    setShowChat((v) => { if (!v) setUnread(0); return !v })
+    setShowChat((v) => {
+      if (!v) {
+        // Opening — clear the unread on the tab the user is about to see.
+        if (chatTab === 'partner') setPartnerUnread(0)
+        else                       setUnread(0)
+      }
+      return !v
+    })
   }
 
   // Derive opponent vs squad-mate video entries
@@ -1816,7 +1888,7 @@ export default function ChatPage() {
                 className="flex-shrink-0 flex items-center justify-center relative"
                 style={{ width: 42, height: 42, borderRadius: '50%', background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.12)', color: showChat ? '#00D4FF' : 'white' }}>
                 <MessageSquare size={16} />
-                {unread > 0 && !showChat && (
+                {(unread + partnerUnread) > 0 && !showChat && (
                   <span style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, background: '#00D4FF', borderRadius: '50%' }} />
                 )}
               </motion.button>
@@ -2294,7 +2366,7 @@ export default function ChatPage() {
                         transition={{ duration: 0.2, ease: 'easeOut' }}
                         className="flex flex-col"
                         style={{ position: 'absolute', bottom: 16, right: 16, width: 260, maxHeight: '50vh', zIndex: 30, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, overflow: 'hidden' }}>
-                        <FloatingChat messages={messages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} />
+                        <FloatingChat messages={messages} partnerMessages={partnerMessages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} chatTab={chatTab} onTabChange={setActiveTab} unread={unread} partnerUnread={partnerUnread} showPartnerTab={isDuoMode} />
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -2433,7 +2505,7 @@ export default function ChatPage() {
               style={{ position: 'relative', height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 18px', borderRadius: 50, background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.10)', color: showChat ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease', flexShrink: 0 }}>
               <MessageSquare size={13} />
               Chat
-              {unread > 0 && !showChat && (
+              {(unread + partnerUnread) > 0 && !showChat && (
                 <span style={{ position: 'absolute', top: -3, right: -3, width: 8, height: 8, background: '#00D4FF', borderRadius: '50%' }} />
               )}
             </motion.button>
@@ -2465,7 +2537,7 @@ export default function ChatPage() {
                 zIndex: 40,
               }}
             >
-              <FloatingChat messages={messages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} />
+              <FloatingChat messages={messages} partnerMessages={partnerMessages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} chatTab={chatTab} onTabChange={setActiveTab} unread={unread} partnerUnread={partnerUnread} showPartnerTab={isDuoMode} />
             </motion.div>
           )}
         </AnimatePresence>
