@@ -542,26 +542,8 @@ export default function MainPage() {
                   )}
                   {cameraErr ? (
                     <>
-                      <p className="text-white font-bold text-[13px] text-center mb-1 leading-snug">Camera blocked</p>
-                      <p className="text-[11px] text-center mb-3 leading-relaxed px-2" style={{ color: 'rgba(248,113,113,0.8)' }}>{cameraErrMsg || 'Allow camera in your browser settings.'}</p>
-                      {(() => {
-                        const ua = navigator.userAgent
-                        const isIOS = /iPad|iPhone|iPod/.test(ua)
-                        const isAndroid = /Android/.test(ua)
-                        const steps = isIOS
-                          ? ['Settings > Chrome/Safari > Camera > Allow']
-                          : isAndroid
-                          ? ['Address bar lock > Permissions > Camera > Allow']
-                          : null
-                        if (!steps) return null
-                        return (
-                          <div className="w-full mb-3 px-1">
-                            {steps.map((s, i) => (
-                              <p key={i} className="text-[10px] text-center leading-relaxed" style={{ color: 'rgba(0,184,224,0.55)' }}>› {s}</p>
-                            ))}
-                          </div>
-                        )
-                      })()}
+                      <p className="text-center" style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>Camera access needed</p>
+                      <p className="text-center" style={{ fontSize: 12, color: 'rgba(255,255,255,0.22)', maxWidth: 220, lineHeight: 1.45 }}>{cameraErrMsg || 'Allow camera access in browser settings'}</p>
                     </>
                   ) : (
                     <>
