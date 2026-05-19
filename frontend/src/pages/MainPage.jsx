@@ -488,6 +488,24 @@ export default function MainPage() {
           </motion.div>
         </div>
 
+        {/* Earnings announcement — mirrors the desktop top banner */}
+        <motion.button
+          onClick={() => navigate('/earn')}
+          whileTap={{ scale: 0.98 }}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5"
+          style={{ background: 'linear-gradient(90deg, rgba(0,212,255,0.06) 0%, rgba(0,212,255,0.14) 50%, rgba(0,212,255,0.06) 100%)', border: '1px solid rgba(0,212,255,0.2)' }}
+        >
+          <span className="flex-shrink-0 px-2 py-0.5 rounded-md text-[9px] font-black tracking-[0.14em] uppercase"
+            style={{ background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: '#fff', boxShadow: '0 0 8px rgba(0,212,255,0.35)' }}>New</span>
+          <span className="text-[12px] font-medium text-left leading-tight" style={{ color: 'rgba(255,255,255,0.8)' }}>
+            Get paid to chat — turn conversations into real money.
+          </span>
+          <span className="ml-auto flex-shrink-0 text-[14px] font-bold" style={{ color: '#00D4FF' }}>→</span>
+        </motion.button>
+
         {/* Camera preview — your camera, plus the partner tile in Duo mode */}
         <div className="flex flex-col gap-2">
         <motion.div
@@ -682,12 +700,18 @@ export default function MainPage() {
         </motion.button>
 
         <motion.button
-          onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={() => {
+            streamRef.current?.getTracks().forEach((t) => t.stop())
+            streamRef.current = null
+            setCameraOn(false)
+            navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } })
+          }}
           whileTap={{ scale: 0.97 }}
-          className="w-full flex items-center justify-center gap-1.5 py-3 rounded-2xl text-sm font-semibold"
-          style={{ color: 'rgba(180,190,210,0.6)', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold"
+          style={{ background: 'rgba(13,13,24,0.55)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.18)', color: 'rgba(255,255,255,0.55)' }}
         >
-          See How It Works 
+          <VideoOff size={16} />
+          Start Without Camera
         </motion.button>
 
         {/* â”€â”€ Match Settings â”€â”€ */}
@@ -711,10 +735,7 @@ export default function MainPage() {
 
           {/* Gender */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <p className="text-[10px] font-black tracking-[0.18em] uppercase" style={{ color: 'rgba(160,160,180,0.45)' }}>MATCH WITH</p>
-              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(0,212,255,0.12)', color: 'rgba(147,197,253,0.85)' }}>Basic</span>
-            </div>
+            <p className="text-[10px] font-black tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(160,160,180,0.45)' }}>MATCH WITH</p>
             <div className="flex gap-1.5">
               {[{ id: 'both', label: 'Anyone', free: true }, { id: 'male', label: 'Male', free: false }, { id: 'female', label: 'Female', free: false }].map(({ id, label, free }) => (
                 <motion.button key={id} onClick={() => handleGender(id)} whileTap={{ scale: 0.92 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -731,10 +752,7 @@ export default function MainPage() {
 
           {/* Country — always visible */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <p className="text-[10px] font-black tracking-[0.18em] uppercase" style={{ color: 'rgba(160,160,180,0.45)' }}>COUNTRY</p>
-              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(234,179,8,0.12)', color: 'rgba(250,204,21,0.85)' }}>VIP</span>
-            </div>
+            <p className="text-[10px] font-black tracking-[0.18em] uppercase mb-2" style={{ color: 'rgba(160,160,180,0.45)' }}>COUNTRY</p>
             <motion.button
               ref={countryBtnRef}
               onClick={handleCountryClick}
@@ -744,7 +762,7 @@ export default function MainPage() {
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(160,160,180,0.5)', borderRadius: '10px' }}
             >
               <span className="flex items-center gap-2">
-                {user?.isVip ? <Globe size={12} style={{ color: 'rgba(167,139,250,0.7)' }} /> : <Lock size={12} style={{ opacity: 0.3 }} />}
+                {user?.isVip ? <Globe size={12} style={{ color: 'rgba(0,212,255,0.7)' }} /> : <Lock size={12} style={{ opacity: 0.3 }} />}
                 <span style={{ color: filterCountry ? 'white' : undefined }}>{filterCountry || 'Any country'}</span>
               </span>
               <ChevronDown size={12} style={{ transition: 'transform 200ms', transform: showCountryDrop ? 'rotate(180deg)' : 'rotate(0deg)' }} />
@@ -998,22 +1016,6 @@ export default function MainPage() {
           </AnimatePresence>,
           document.body
         )}
-
-                {/* Start Without Camera — ghost secondary */}
-        <motion.button
-          onClick={() => {
-            streamRef.current?.getTracks().forEach((t) => t.stop())
-            streamRef.current = null
-            setCameraOn(false)
-            navigate('/chat', { state: { mode, filterGender: filterGender === 'both' ? null : filterGender, filterCountry, noCam: true } })
-          }}
-          whileTap={{ scale: 0.97 }}
-          className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium"
-          style={{ color: 'rgba(107,114,128,0.4)', background: 'transparent' }}
-        >
-          <VideoOff size={12} strokeWidth={2} />
-          Start Without Camera
-        </motion.button>
 
         <p className="text-center text-[11px]" style={{ color: 'rgba(75,85,99,0.4)' }}>Free forever · No sign-up required</p>
       </div>
