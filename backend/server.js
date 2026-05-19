@@ -2819,8 +2819,8 @@ function spawnBotMatch(socket, mode) {
         partnerUserId:        null,
         partnerAvatar:        null,
         partnerIsPremium:     false,
-        partnerIsVip:         false,
-        partnerEmailVerified: false,
+        partnerIsVip:         true,
+        partnerEmailVerified: true,
         partnerCountry:       'US',
       });
       setTimeout(() => {
@@ -2846,8 +2846,8 @@ function spawnBotMatch(socket, mode) {
       partnerUserId:        null,
       partnerAvatar:        null,
       partnerIsPremium:     false,
-      partnerIsVip:         false,
-      partnerEmailVerified: false,
+      partnerIsVip:         true,
+      partnerEmailVerified: true,
       partnerCountry:       'US',
     });
     setTimeout(() => {
@@ -2903,8 +2903,8 @@ function spawnSquadBotMatch(squadId, mySocketIds) {
         partnerUserId:        null,
         partnerAvatar:        null,
         partnerIsPremium:     false,
-        partnerIsVip:         false,
-        partnerEmailVerified: false,
+        partnerIsVip:         true,
+        partnerEmailVerified: true,
         partnerCountry:       'US',
       });
     }

@@ -1704,31 +1704,24 @@ export default function ChatPage() {
           {/* Bottom gradient overlay */}
           <div className="absolute inset-x-0 bottom-0 h-52 pointer-events-none z-[3]" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }} />
 
-          {/* Partner info — top left (2v2 tiles carry their own pills) */}
+          {/* Partner info — top left (2v2 tiles carry their own pills).
+              Uses the shared ProfilePill so the bot/stranger gets the same
+              avatar + verified + VIP crown treatment as your own pill. */}
           <AnimatePresence>
             {status === 'matched' && !is2v2 && (
               <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}
                 className="absolute z-[6] flex items-center gap-2"
                 style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', left: 12 }}>
-                <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50 }}>
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-white font-bold text-[12px]">{partnerUsername ? partnerUsername : 'Stranger'}</span>
-                    {partnerEmailVerified && <ShieldCheck size={10} style={{ color: '#00B8E0', flexShrink: 0 }} />}
-                    {partnerIsVip && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(124,58,237,0.3))', color: '#e0f0ff', border: '1px solid rgba(0,212,255,0.3)' }}><Crown size={7} /> VIP</span>}
-                    {!partnerIsVip && partnerIsPremium && <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black" style={{ background: 'rgba(0,212,255,0.15)', color: '#00D4FF', border: '1px solid rgba(0,212,255,0.3)' }}><Zap size={7} /> Member</span>}
-                  </div>
-                  {user && partnerUid && !friendReqSent && (
-                    <button onClick={handleAddFriend} disabled={friendReqLoad} className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5 active:scale-95" style={{ background: 'rgba(0,212,255,0.25)', border: '1px solid rgba(0,212,255,0.4)', color: '#00B8E0', flexShrink: 0 }}>
-                      {friendReqLoad ? <Loader2 size={9} className="animate-spin" /> : <UserPlus size={9} />}
-                    </button>
-                  )}
-                  {user && partnerUid && friendReqSent && (
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full ml-0.5" style={{ background: 'rgba(0,212,255,0.2)', border: '1px solid rgba(0,212,255,0.35)', color: '#4ade80', flexShrink: 0 }}>
-                      <UserPlus size={9} />
-                    </span>
-                  )}
-                </div>
+                <ProfilePill
+                  username={partnerUsername || 'Stranger'}
+                  avatarUrl={partnerAvatar}
+                  isOnline
+                  isVerified={!!partnerEmailVerified}
+                  isVip={!!partnerIsVip}
+                  country={partnerCountry}
+                  friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
+                  onAddFriend={handleAddFriend}
+                />
                 {giftedBySocket[partnerSock] > 0 && (
                   <GiftChip key={giftedBySocket[partnerSock]} amount={giftedBySocket[partnerSock]} />
                 )}
