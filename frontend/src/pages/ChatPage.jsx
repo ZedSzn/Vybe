@@ -331,7 +331,7 @@ export default function ChatPage() {
   const [giftAnimations,   setGiftAnimations]   = useState([])   // [{ id, giftId, target: 'stranger'|'partner' }]
   const [giftedBySocket,   setGiftedBySocket]   = useState({})   // socketId -> coins I've gifted them this chat
   const [showGift,         setShowGift]         = useState(false) // "Send Coins" modal open
-  const [giftRecipient,    setGiftRecipient]    = useState('stranger') // 'stranger' | 'partner'
+  const [giftRecipient,    setGiftRecipient]    = useState(null) // socketId of the chosen gift recipient
   const [selectedGiftId,   setSelectedGiftId]   = useState(null)
   const [customAmount,     setCustomAmount]     = useState('')
   const [giftSending,      setGiftSending]      = useState(false)
@@ -920,7 +920,7 @@ export default function ChatPage() {
   // Open the "Send Coins" modal (recipient defaults to the stranger).
   const openGiftFlow = () => {
     if (status !== 'matched') return
-    setGiftRecipient('stranger')
+    setGiftRecipient(opponentSocketIds[0] || mateSocketIds[0] || partnerSock || null)
     setSelectedGiftId(null)
     setCustomAmount('')
     setShowGift(true)
@@ -938,9 +938,7 @@ export default function ChatPage() {
       setTipFeedback({ type: 'error', msg: 'Not enough coins' })
       setTimeout(() => setTipFeedback(null), 3000); return
     }
-    const recipientSocketId = giftRecipient === 'partner'
-      ? (mateSocketIds[0] || persistentMateId)
-      : (opponentSocketIds[0] || partnerSock)
+    const recipientSocketId = giftRecipient || opponentSocketIds[0] || mateSocketIds[0] || partnerSock
     if (!recipientSocketId) {
       setTipFeedback({ type: 'error', msg: 'No one to gift right now' })
       setTimeout(() => setTipFeedback(null), 3000); return
@@ -1243,11 +1241,16 @@ export default function ChatPage() {
         <AnimatePresence>
           {showGift && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-end justify-center px-4"
-              style={{ background: 'rgba(0,0,0,0.7)', paddingBottom: 80 }} onClick={() => setShowGift(false)}>
-              <motion.div initial={{ y: 48 }} animate={{ y: 0 }} exit={{ y: 48 }} onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 z-50 flex items-end justify-center"
+              style={{ background: 'rgba(0,0,0,0.72)' }} onClick={() => setShowGift(false)}>
+              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 32, stiffness: 340 }}
+                onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-sm"
-                style={{ background: 'rgba(13,13,24,0.95)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 16, padding: 16, fontFamily: "'Sora', system-ui, sans-serif", maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+                style={{ background: 'rgba(13,13,24,0.98)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '22px 22px 0 0', padding: '8px 16px max(16px, env(safe-area-inset-bottom, 0px))', fontFamily: "'Sora', system-ui, sans-serif", maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+
+                {/* Grab handle */}
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.18)', margin: '0 auto 10px' }} />
 
                 {/* Header */}
                 <div className="flex items-start justify-between" style={{ marginBottom: 12 }}>
@@ -1258,19 +1261,37 @@ export default function ChatPage() {
                   <button onClick={() => setShowGift(false)} className="text-white/40 hover:text-white"><X size={16} /></button>
                 </div>
 
-                {/* Recipient picker — duo only */}
-                {isDuoMode && (
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                    <button type="button" onClick={() => setGiftRecipient('stranger')}
-                      style={{ flex: 1, padding: 4, borderRadius: 12, background: 'transparent', border: giftRecipient === 'stranger' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
-                      <ProfilePill username={partnerUsername || 'Stranger'} avatarUrl={partnerAvatar} isOnline isVerified={!!partnerEmailVerified} country={partnerCountry} friendStatus="self" />
-                    </button>
-                    <button type="button" onClick={() => setGiftRecipient('partner')}
-                      style={{ flex: 1, padding: 4, borderRadius: 12, background: 'transparent', border: giftRecipient === 'partner' ? '2px solid #00D4FF' : '2px solid rgba(255,255,255,0.07)', cursor: 'pointer', display: 'flex', justifyContent: 'center' }}>
-                      <ProfilePill username="Partner" isOnline friendStatus="self" />
-                    </button>
-                  </div>
-                )}
+                {/* Recipient picker — shown whenever there's more than one person to gift */}
+                {(() => {
+                  const giftTargets = [
+                    ...opponentSocketIds.map((sid, i) => ({
+                      sid,
+                      label: opponentSocketIds.length > 1 ? `Stranger ${i + 1}` : (partnerUsername || 'Stranger'),
+                      avatar: i === 0 ? partnerAvatar : null,
+                    })),
+                    ...mateSocketIds.map((sid) => ({ sid, label: 'Partner', avatar: null })),
+                  ]
+                  if (giftTargets.length < 2) return null
+                  return (
+                    <div style={{ marginBottom: 12 }}>
+                      <p style={{ color: '#666677', fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 6 }}>Send to</p>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        {giftTargets.map((t) => {
+                          const sel = giftRecipient === t.sid
+                          return (
+                            <button key={t.sid} type="button" onClick={() => setGiftRecipient(t.sid)}
+                              style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '6px 12px 6px 6px', borderRadius: 50, background: sel ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.04)', border: sel ? '1.5px solid #00D4FF' : '1.5px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+                              {t.avatar
+                                ? <img src={t.avatar} alt="" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} />
+                                : <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'linear-gradient(135deg, #00D4FF, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#0a0a0f' }}>{t.label[0]}</div>}
+                              <span style={{ color: sel ? '#fff' : '#9a9aab', fontSize: 12, fontWeight: 700 }}>{t.label}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 {/* Gift list — grouped by tier */}
                 <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
