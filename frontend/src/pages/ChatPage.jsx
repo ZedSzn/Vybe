@@ -318,7 +318,6 @@ export default function ChatPage() {
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
   const [tipFeedback,    setTipFeedback]      = useState(null) // shared feedback toast (errors etc.)
-  const [giftToast,      setGiftToast]        = useState(null) // gift sent/received — shown at the bottom
   const [boostLoading,   setBoostLoading]     = useState(false)
   const [boostActive,    setBoostActive]      = useState(false)
   const [skipQueueLoading, setSkipQueueLoading] = useState(false)
@@ -347,7 +346,6 @@ export default function ChatPage() {
   const searchTextTimer  = useRef(null)
   const reconnectTimer   = useRef(null)
   const matchFlashTimer  = useRef(null)
-  const giftToastTimer   = useRef(null)
   const statusRef        = useRef(status)
 
   const SEARCH_TEXTS = [
@@ -836,19 +834,6 @@ export default function ChatPage() {
         if (recipientSocketId && giftCoins && String(senderId) === String(user?.id)) {
           setGiftedBySocket((m) => ({ ...m, [recipientSocketId]: (m[recipientSocketId] || 0) + giftCoins }))
         }
-        // Bottom toast — the recipient gets a personal message, sender a
-        // confirmation, anyone else watching a neutral note.
-        const iAmSender    = String(senderId) === String(user?.id)
-        const iAmRecipient = recipientSocketId === socketRef.current?.id
-        let msg = null
-        if (iAmRecipient && senderUsername) msg = `🎁 ${senderUsername} sent you ${giftName} · ${giftCoins} coins`
-        else if (iAmSender)                 msg = `🎁 Gift sent · ${giftName}`
-        else if (senderUsername)            msg = `🎁 ${senderUsername} sent ${giftName} · ${giftCoins} coins`
-        if (msg) {
-          setGiftToast(msg)
-          clearTimeout(giftToastTimer.current)
-          giftToastTimer.current = setTimeout(() => setGiftToast(null), 3800)
-        }
       })
 
 
@@ -1247,20 +1232,6 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* Gift notification — anchored to the bottom, above the control bar */}
-        <AnimatePresence>
-          {giftToast && (
-            <div className="fixed left-0 right-0 z-[46] flex justify-center px-4 pointer-events-none"
-              style={{ bottom: 'max(76px, calc(env(safe-area-inset-bottom, 0px) + 72px))' }}>
-              <motion.div initial={{ opacity: 0, y: 16, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12 }}
-                transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[13px] font-semibold pointer-events-auto max-w-[calc(100vw-32px)] text-center"
-                style={{ background: 'rgba(0,212,255,0.16)', border: '1px solid rgba(0,212,255,0.4)', color: '#7df0ff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 8px 28px rgba(0,0,0,0.5), 0 0 24px rgba(0,212,255,0.18)' }}>
-                {giftToast}
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
 
         {/* Send Coins modal */}
         <AnimatePresence>
@@ -1473,8 +1444,7 @@ export default function ChatPage() {
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)', borderRight: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {!remoteStreams[opponentSocketIds[0]] && <TilePlaceholder avatarUrl={partnerAvatar} name={partnerUsername || 'Stranger'} />}
-                {/* Bottom strip — name pill + how much they've been gifted */}
-                <div className="absolute flex items-end justify-between" style={{ bottom: 8, left: 8, right: 8, gap: 6, zIndex: 10 }}>
+                <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                   <ProfilePill
                     username={partnerUsername || 'Stranger'}
                     avatarUrl={partnerAvatar}
@@ -1485,22 +1455,25 @@ export default function ChatPage() {
                     friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
                     onAddFriend={handleAddFriend}
                   />
-                  {giftedBySocket[opponentSocketIds[0]] > 0 && (
-                    <GiftChip key={giftedBySocket[opponentSocketIds[0]]} amount={giftedBySocket[opponentSocketIds[0]]} compact />
-                  )}
                 </div>
+                {giftedBySocket[opponentSocketIds[0]] > 0 && (
+                  <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
+                    <GiftChip key={giftedBySocket[opponentSocketIds[0]]} amount={giftedBySocket[opponentSocketIds[0]]} />
+                  </div>
+                )}
               </div>
               {/* TOP RIGHT: Stranger 2 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {!remoteStreams[opponentSocketIds[1]] && <TilePlaceholder name="Stranger" />}
-                {/* Bottom strip — name pill + how much they've been gifted */}
-                <div className="absolute flex items-end justify-between" style={{ bottom: 8, left: 8, right: 8, gap: 6, zIndex: 10 }}>
+                <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                   <ProfilePill username="Stranger" isOnline isVerified={false} friendStatus="self" />
-                  {giftedBySocket[opponentSocketIds[1]] > 0 && (
-                    <GiftChip key={giftedBySocket[opponentSocketIds[1]]} amount={giftedBySocket[opponentSocketIds[1]]} compact />
-                  )}
                 </div>
+                {giftedBySocket[opponentSocketIds[1]] > 0 && (
+                  <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
+                    <GiftChip key={giftedBySocket[opponentSocketIds[1]]} amount={giftedBySocket[opponentSocketIds[1]]} />
+                  </div>
+                )}
               </div>
               {/* BOTTOM LEFT: Your camera */}
               <div className="relative overflow-hidden" style={{ borderRight: '1px solid rgba(0,212,255,0.2)' }}>
@@ -1538,13 +1511,14 @@ export default function ChatPage() {
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                     {!remoteStreams[mateSocketIds[0]] && <TilePlaceholder name="Partner" />}
-                    {/* Top strip — bottom of this tile is occupied by the control bar */}
-                    <div className="absolute flex items-start justify-between" style={{ top: 8, left: 8, right: 8, gap: 6, zIndex: 10 }}>
+                    <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                       <ProfilePill username="Partner" isOnline isVerified={false} friendStatus="self" />
-                      {giftedBySocket[mateSocketIds[0]] > 0 && (
-                        <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} compact />
-                      )}
                     </div>
+                    {giftedBySocket[mateSocketIds[0]] > 0 && (
+                      <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
+                        <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} />
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-2 px-3 text-center">
