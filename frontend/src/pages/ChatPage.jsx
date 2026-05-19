@@ -1323,7 +1323,7 @@ export default function ChatPage() {
 
           {/* Fullscreen background: stranger video OR searching state */}
           {status === 'searching' ? (
-            <div className="absolute inset-0 bg-[#0a0a0f] flex flex-col items-center justify-center px-6" style={{ gap: 20 }}>
+            <div className="absolute bg-[#0a0a0f] flex flex-col items-center justify-center px-6" style={{ top: 0, left: 0, right: 0, height: '50%', gap: 16 }}>
               {/* Globe — fixed container so rings stay within bounds */}
               <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 240, height: 240 }}>
                 <motion.div className="absolute rounded-full" style={{ width: 232, height: 232, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
@@ -1364,7 +1364,7 @@ export default function ChatPage() {
               </div>
             </div>
           ) : opponentSocketIds.length === 0 ? (
-            <div className="absolute inset-0 bg-[#080812] flex flex-col items-center justify-center gap-3">
+            <div className="absolute bg-[#080812] flex flex-col items-center justify-center gap-3" style={{ top: 0, left: 0, right: 0, height: '50%' }}>
               {status === 'matched' ? (
                 <>
                   {partnerAvatar ? (
@@ -1547,7 +1547,7 @@ export default function ChatPage() {
           )}
 
           {/* SOLO MODE: Bottom half — your camera (split-screen, like other video-chat apps) */}
-          {!isDuoMode && opponentSocketIds.length > 0 && (
+          {!isDuoMode && (status === 'searching' || status === 'matched') && (
             <>
               <div className="absolute z-[4] inset-x-0" style={{ top: 'calc(50% - 0.5px)', height: 1, background: 'rgba(0,212,255,0.2)' }} />
               <div className="absolute z-[2] overflow-hidden" style={{ top: '50%', left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
@@ -1671,95 +1671,6 @@ export default function ChatPage() {
             </div>
           )}
 
-
-          {/* Draggable PiP self-view — solo mode, only while searching (matched solo uses the bottom-half split) */}
-          {!isDuoMode && opponentSocketIds.length === 0 && (
-          <motion.div
-            drag
-            dragConstraints={{
-              left: 0,
-              top: 0,
-              right: window.innerWidth - 138,
-              bottom: window.innerHeight - PIP_H,
-            }}
-            dragElastic={0.08}
-            dragMomentum={false}
-            onTap={() => {
-              const now = Date.now()
-              if (now - pipLastTapRef.current < 350) {
-                setSelfViewExpanded(v => !v)
-                pipLastTapRef.current = 0
-              } else {
-                pipLastTapRef.current = now
-              }
-            }}
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              width: selfViewExpanded ? 138 : 86,
-              height: selfViewExpanded ? 190 : 115,
-              borderRadius: selfViewExpanded ? 16 : 12,
-            }}
-            transition={{ type: 'spring', damping: 26, stiffness: 300 }}
-            className="absolute z-[10] overflow-hidden"
-            style={{
-              x: pipX,
-              y: pipY,
-              top: 0,
-              left: 0,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.45)',
-              border: '1.5px solid rgba(255,255,255,0.15)',
-              touchAction: 'none',
-              cursor: 'grab',
-            }}
-          >
-            <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-            {!hasCamera && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ background: camBgImage ? '#000' : '#0a0a14' }}>
-                {camBgImage && <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />}
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="" style={{ position: 'relative', width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
-                ) : (
-                  <div style={{ position: 'relative', width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#00D4FF' }}>
-                    {user?.username ? user.username[0].toUpperCase() : 'Y'}
-                  </div>
-                )}
-              </div>
-            )}
-            {videoOff && hasCamera && (
-              <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-1.5">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
-                ) : (
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#00D4FF' }}>
-                    {user?.username ? user.username[0].toUpperCase() : 'Y'}
-                  </div>
-                )}
-              </div>
-            )}
-            {/* Username label */}
-            <div className="absolute bottom-1 inset-x-0 flex items-center justify-center pointer-events-none">
-              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
-                <span className="text-white/75 font-semibold text-[9px]">{user ? user.username : 'You'}</span>
-              </div>
-            </div>
-            {/* Camera controls — only shown when expanded */}
-            {selfViewExpanded && (
-              <div className="absolute top-1.5 right-1.5 flex gap-1">
-                {hasCamera && (
-                  <button
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={(e) => { e.stopPropagation(); toggleVideo() }}
-                    className="w-6 h-6 rounded-full flex items-center justify-center active:scale-90"
-                    style={{ background: videoOff ? 'rgba(220,38,38,0.55)' : 'rgba(0,0,0,0.6)', border: videoOff ? '1px solid rgba(220,38,38,0.5)' : '1px solid rgba(255,255,255,0.12)' }}>
-                    {videoOff ? <VideoOff size={10} className="text-white" /> : <Video size={10} className="text-white/70" />}
-                  </button>
-                )}
-              </div>
-            )}
-          </motion.div>
-          )}
 
           {/* ── DUO MODE: squad-mate floating PiP — hidden in duo mode (partner shown in bottom panel) ── */}
           {!isDuoMode && (
