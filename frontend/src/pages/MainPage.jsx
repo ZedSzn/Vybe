@@ -492,7 +492,7 @@ export default function MainPage() {
         <div className="flex flex-col gap-2">
         <motion.div
           className="relative rounded-2xl overflow-hidden w-full"
-          style={{ aspectRatio: '4/3', background: '#080812', border: '1px solid rgba(0,212,255,0.2)', boxShadow: '0 0 0 1px rgba(0,212,255,0.06) inset, 0 20px 60px rgba(0,0,0,0.6), 0 0 32px rgba(0,212,255,0.08)' }}
+          style={{ aspectRatio: mode === 'squad' ? '4/3' : '5/6', background: '#080812', border: '1px solid rgba(0,212,255,0.2)', boxShadow: '0 0 0 1px rgba(0,212,255,0.06) inset, 0 20px 60px rgba(0,0,0,0.6), 0 0 32px rgba(0,212,255,0.08)' }}
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
