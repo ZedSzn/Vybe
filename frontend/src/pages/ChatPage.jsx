@@ -1737,9 +1737,9 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* Mobile control bar — one row, Skip dominant */}
+          {/* Mobile control bar — one row, centered */}
           {status === 'matched' && (
-            <motion.div className="absolute z-[7] flex items-center gap-2"
+            <motion.div className="absolute z-[7] flex items-center justify-center gap-2"
               animate={{ y: uiHidden ? 96 : 0, opacity: uiHidden ? 0 : 1 }}
               transition={{ type: 'spring', damping: 30, stiffness: 320 }}
               style={{ bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, right: 12, pointerEvents: uiHidden ? 'none' : 'auto' }}>
@@ -1767,9 +1767,9 @@ export default function ChatPage() {
               <motion.button
                 onClick={handleSkip}
                 whileTap={{ scale: 0.97 }}
-                className="flex-1 flex items-center justify-center gap-2"
-                style={{ height: 42, borderRadius: 24, background: 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)', boxShadow: '0 0 18px rgba(0,212,255,0.35)', color: 'white', fontWeight: 800, fontSize: 15 }}>
-                <SkipForward size={17} /> Skip
+                className="flex-shrink-0 flex items-center justify-center gap-1.5"
+                style={{ width: 112, height: 42, borderRadius: 24, background: 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)', boxShadow: '0 0 18px rgba(0,212,255,0.35)', color: 'white', fontWeight: 800, fontSize: 15 }}>
+                <SkipForward size={16} /> Skip
               </motion.button>
               {/* Gift */}
               {user && (
