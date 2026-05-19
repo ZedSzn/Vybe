@@ -22,7 +22,7 @@ import { playClick } from '../utils/sounds'
 
 // Glowing "X Gifted" chip — shown next to a person's pill once you've gifted them.
 // Remount it (key={amount}) to replay the pop animation on each new gift.
-function GiftChip({ amount }) {
+function GiftChip({ amount, compact }) {
   return (
     <motion.div
       initial={{ scale: 0.6, opacity: 0 }}
@@ -41,8 +41,8 @@ function GiftChip({ amount }) {
         boxShadow: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
       }}
       style={{
-        display: 'inline-flex', alignItems: 'center', gap: 6,
-        padding: '4px 12px 4px 4px', borderRadius: 50,
+        display: 'inline-flex', alignItems: 'center', gap: compact ? 4 : 6,
+        padding: compact ? '3px 9px 3px 3px' : '4px 12px 4px 4px', borderRadius: 50,
         background: 'rgba(6,10,22,0.9)',
         border: '1px solid rgba(0,212,255,0.6)',
         fontFamily: "'Sora', system-ui, sans-serif",
@@ -50,23 +50,23 @@ function GiftChip({ amount }) {
       }}
     >
       <div style={{
-        width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+        width: compact ? 18 : 24, height: compact ? 18 : 24, borderRadius: '50%', flexShrink: 0,
         background: 'rgba(0,212,255,0.07)',
         border: '1px solid rgba(0,212,255,0.55)',
         boxShadow: '0 0 6px rgba(0,212,255,0.45), inset 0 0 5px rgba(0,212,255,0.16)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <Gift size={13} style={{ color: '#00D4FF', filter: 'drop-shadow(0 0 2px rgba(0,212,255,0.9))' }} />
+        <Gift size={compact ? 10 : 13} style={{ color: '#00D4FF', filter: 'drop-shadow(0 0 2px rgba(0,212,255,0.9))' }} />
       </div>
       <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4, whiteSpace: 'nowrap' }}>
         <span style={{
-          color: '#00D4FF', fontSize: 12, fontWeight: 800,
+          color: '#00D4FF', fontSize: compact ? 11 : 12, fontWeight: 800,
           fontVariantNumeric: 'tabular-nums', letterSpacing: '0.01em',
           textShadow: '0 0 6px rgba(0,212,255,0.6)',
         }}>
           {amount.toLocaleString()}
         </span>
-        <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: 600 }}>Gifted</span>
+        {!compact && <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: 600 }}>Gifted</span>}
       </span>
     </motion.div>
   )
@@ -1473,7 +1473,8 @@ export default function ChatPage() {
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)', borderRight: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {!remoteStreams[opponentSocketIds[0]] && <TilePlaceholder avatarUrl={partnerAvatar} name={partnerUsername || 'Stranger'} />}
-                <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                {/* Bottom strip — name pill + how much they've been gifted */}
+                <div className="absolute flex items-end justify-between" style={{ bottom: 8, left: 8, right: 8, gap: 6, zIndex: 10 }}>
                   <ProfilePill
                     username={partnerUsername || 'Stranger'}
                     avatarUrl={partnerAvatar}
@@ -1484,25 +1485,22 @@ export default function ChatPage() {
                     friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
                     onAddFriend={handleAddFriend}
                   />
+                  {giftedBySocket[opponentSocketIds[0]] > 0 && (
+                    <GiftChip key={giftedBySocket[opponentSocketIds[0]]} amount={giftedBySocket[opponentSocketIds[0]]} compact />
+                  )}
                 </div>
-                {giftedBySocket[opponentSocketIds[0]] > 0 && (
-                  <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
-                    <GiftChip key={giftedBySocket[opponentSocketIds[0]]} amount={giftedBySocket[opponentSocketIds[0]]} />
-                  </div>
-                )}
               </div>
               {/* TOP RIGHT: Stranger 2 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {!remoteStreams[opponentSocketIds[1]] && <TilePlaceholder name="Stranger" />}
-                <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                {/* Bottom strip — name pill + how much they've been gifted */}
+                <div className="absolute flex items-end justify-between" style={{ bottom: 8, left: 8, right: 8, gap: 6, zIndex: 10 }}>
                   <ProfilePill username="Stranger" isOnline isVerified={false} friendStatus="self" />
+                  {giftedBySocket[opponentSocketIds[1]] > 0 && (
+                    <GiftChip key={giftedBySocket[opponentSocketIds[1]]} amount={giftedBySocket[opponentSocketIds[1]]} compact />
+                  )}
                 </div>
-                {giftedBySocket[opponentSocketIds[1]] > 0 && (
-                  <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
-                    <GiftChip key={giftedBySocket[opponentSocketIds[1]]} amount={giftedBySocket[opponentSocketIds[1]]} />
-                  </div>
-                )}
               </div>
               {/* BOTTOM LEFT: Your camera */}
               <div className="relative overflow-hidden" style={{ borderRight: '1px solid rgba(0,212,255,0.2)' }}>
@@ -1540,14 +1538,13 @@ export default function ChatPage() {
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                     {!remoteStreams[mateSocketIds[0]] && <TilePlaceholder name="Partner" />}
-                    <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                    {/* Top strip — bottom of this tile is occupied by the control bar */}
+                    <div className="absolute flex items-start justify-between" style={{ top: 8, left: 8, right: 8, gap: 6, zIndex: 10 }}>
                       <ProfilePill username="Partner" isOnline isVerified={false} friendStatus="self" />
+                      {giftedBySocket[mateSocketIds[0]] > 0 && (
+                        <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} compact />
+                      )}
                     </div>
-                    {giftedBySocket[mateSocketIds[0]] > 0 && (
-                      <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
-                        <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} />
-                      </div>
-                    )}
                   </>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-2 px-3 text-center">
