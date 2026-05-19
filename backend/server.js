@@ -3029,6 +3029,18 @@ function processSquadBuf(squadId) {
   squadMatchBuf.delete(squadId);
   const mySocketIds = buf.map((b) => b.socketId).filter((sid) => io.sockets.sockets.get(sid));
   if (mySocketIds.length === 0) return;
+  // Private room: everyone in the squad is in one call together — no stranger
+  // matching, no bots, no waiting queue. Just connect them directly.
+  if (squad.type === 'private') {
+    const room = `private_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    for (const sid of mySocketIds) {
+      io.sockets.sockets.get(sid)?.join(room);
+      activePairs.set(sid, mySocketIds.filter((x) => x !== sid));
+    }
+    // Everyone is a squad mate, no opponent group.
+    emitMatchFound(mySocketIds, room, mySocketIds, []);
+    return;
+  }
   const filterSrc = buf.find((b) => b.canFilter && (b.fg || b.fc));
   const squadFG = filterSrc ? filterSrc.fg : null;
   const squadFC = filterSrc ? filterSrc.fc : '';
@@ -3146,11 +3158,12 @@ io.on('connection', (socket) => {
     for (const [sid, squad] of squads.entries()) {
       if (squad.leaderId === socket.id) dissolveSquad(sid);
     }
+    const type    = data?.type === 'private' ? 'private' : 'duo';
     const code    = genSquadCode();
     const squadId = `sq_${Date.now()}_${genSquadCode()}`;
     const me      = onlineUsers.get(socket.id) || {};
     const squad   = {
-      id: squadId, code, leaderId: socket.id,
+      id: squadId, code, leaderId: socket.id, type,
       members: [{ socketId: socket.id, userId: me.userId || null, username: me.username || data?.username || 'User' }],
       createdAt: Date.now(), expiresAt: Date.now() + 10 * 60 * 1000,
     };
@@ -3160,7 +3173,7 @@ io.on('connection', (socket) => {
     setTimeout(() => {
       if (squads.has(squadId)) { io.to(squadId).emit('squad-expired'); dissolveSquad(squadId); }
     }, 10 * 60 * 1000);
-    socket.emit('squad-created', { squadId, code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
+    socket.emit('squad-created', { squadId, code, type, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
   });
 
   socket.on('join-squad', (data) => {
@@ -3171,14 +3184,15 @@ io.on('connection', (socket) => {
     if (!squad)                       { socket.emit('squad-error', { message: 'Squad not found.' }); return; }
     if (Date.now() > squad.expiresAt) { socket.emit('squad-error', { message: 'Invite link has expired.' }); return; }
     if (squad.members.some(m => m.socketId === socket.id)) {
-      socket.emit('squad-joined', { squadId, code: squad.code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
+      socket.emit('squad-joined', { squadId, code: squad.code, type: squad.type, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
       return;
     }
-    if (squad.members.length >= 2) { socket.emit('squad-error', { message: 'This squad is already full.' }); return; }
+    const cap = squad.type === 'private' ? 4 : 2;
+    if (squad.members.length >= cap) { socket.emit('squad-error', { message: squad.type === 'private' ? 'This room is full (max 4).' : 'This squad is already full.' }); return; }
     const me = onlineUsers.get(socket.id) || {};
     squad.members.push({ socketId: socket.id, userId: me.userId || null, username: me.username || data?.username || 'Guest' });
     socket.join(squadId);
-    const payload = { squadId, code: squad.code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt };
+    const payload = { squadId, code: squad.code, type: squad.type, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt };
     io.to(squadId).emit('squad-updated', payload);
     socket.emit('squad-joined', payload);
   });
@@ -3191,7 +3205,7 @@ io.on('connection', (socket) => {
     if (squad.members.length === 0) { dissolveSquad(squadId); }
     else {
       if (squad.leaderId === socket.id) squad.leaderId = squad.members[0].socketId;
-      io.to(squadId).emit('squad-updated', { squadId, code: squad.code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
+      io.to(squadId).emit('squad-updated', { squadId, code: squad.code, type: squad.type, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
     }
   });
 
@@ -3201,7 +3215,7 @@ io.on('connection', (socket) => {
     squad.members = squad.members.filter(m => m.socketId !== targetSocketId);
     io.to(targetSocketId).emit('squad-kicked');
     io.sockets.sockets.get(targetSocketId)?.leave(squadId);
-    io.to(squadId).emit('squad-updated', { squadId, code: squad.code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
+    io.to(squadId).emit('squad-updated', { squadId, code: squad.code, type: squad.type, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
   });
 
   socket.on('squad-start-match', ({ squadId }) => {
@@ -3211,13 +3225,21 @@ io.on('connection', (socket) => {
     io.to(squadId).emit('squad-navigate', { squadId, code: squad.code });
   });
 
+  // Private room start — everyone in the squad enters one call, no strangers.
+  socket.on('squad-start-private', ({ squadId }) => {
+    const squad = squads.get(squadId);
+    if (!squad || squad.type !== 'private' || squad.leaderId !== socket.id) return;
+    if (squad.members.length < 2) { socket.emit('squad-error', { message: 'Need at least 2 people to start.' }); return; }
+    io.to(squadId).emit('squad-navigate', { squadId, code: squad.code, mode: 'private' });
+  });
+
   // Re-fetch the caller's squad — used by the home page after leaving a duo
   // chat so the duo stays intact instead of resetting to solo.
   socket.on('my-squad', () => {
     for (const [squadId, squad] of squads.entries()) {
       if (squad.members.some((m) => m.socketId === socket.id)) {
         socket.join(squadId);
-        socket.emit('squad-restored', { squadId, code: squad.code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
+        socket.emit('squad-restored', { squadId, code: squad.code, type: squad.type, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
         return;
       }
     }
@@ -3494,7 +3516,7 @@ io.on('connection', (socket) => {
       if (squad.members.length === 0) { dissolveSquad(squadId); }
       else {
         if (squad.leaderId === socket.id) squad.leaderId = squad.members[0].socketId;
-        io.to(squadId).emit('squad-updated', { squadId, code: squad.code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
+        io.to(squadId).emit('squad-updated', { squadId, code: squad.code, type: squad.type, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
       }
       const buf = squadMatchBuf.get(squadId);
       if (buf) {
