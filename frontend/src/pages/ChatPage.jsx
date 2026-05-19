@@ -7,7 +7,7 @@ import { motion, AnimatePresence, useMotionValue, animate as fmAnimate } from 'f
 import {
   SkipForward, PhoneOff, Flag, Send, Mic, MicOff, Video, VideoOff,
   MessageSquare, X, ChevronRight, Shield, ShieldCheck, Loader2, Ban, UserX, UserPlus, Camera, Crown, Zap, Edit2,
-  ChevronDown, Lock, Globe, Gift,
+  ChevronDown, ChevronUp, Lock, Globe, Gift,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { io } from 'socket.io-client'
@@ -280,6 +280,7 @@ export default function ChatPage() {
   const [messages,         setMessages]         = useState([])
   const [showChat,         setShowChat]         = useState(false)
   const [isMuted,          setIsMuted]          = useState(false)
+  const [uiHidden,         setUiHidden]         = useState(false)
   const [videoOff,         setVideoOff]         = useState(false)
   const [showReport,       setShowReport]       = useState(false)
   const [reportSent,       setReportSent]       = useState(false)
@@ -1703,10 +1704,33 @@ export default function ChatPage() {
             </div>
           )}
 
+          {/* Hide / show UI toggle — sits just above the control bar.
+              Lets the user clear the screen for a distraction-free view. */}
+          {status === 'matched' && (
+            <div className="absolute z-[8] flex justify-center pointer-events-none"
+              style={{
+                left: 0, right: 0,
+                bottom: uiHidden
+                  ? 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 14px))'
+                  : 'max(74px, calc(env(safe-area-inset-bottom, 0px) + 68px))',
+                transition: 'bottom 300ms cubic-bezier(0.22,1,0.36,1)',
+              }}>
+              <motion.button
+                onClick={() => setUiHidden((v) => !v)}
+                whileTap={{ scale: 0.88 }}
+                className="pointer-events-auto flex items-center justify-center"
+                style={{ height: 26, padding: '0 14px', borderRadius: 13, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.7)' }}>
+                {uiHidden ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+              </motion.button>
+            </div>
+          )}
+
           {/* Mobile control bar — one row, Skip dominant */}
           {status === 'matched' && (
-            <div className="absolute z-[7] flex items-center gap-2"
-              style={{ bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, right: 12 }}>
+            <motion.div className="absolute z-[7] flex items-center gap-2"
+              animate={{ y: uiHidden ? 96 : 0, opacity: uiHidden ? 0 : 1 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 320 }}
+              style={{ bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, right: 12, pointerEvents: uiHidden ? 'none' : 'auto' }}>
               {/* Report */}
               <motion.button
                 onClick={() => !reportSent && setShowReport(true)}
@@ -1752,7 +1776,7 @@ export default function ChatPage() {
                   <span style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, background: '#00D4FF', borderRadius: '50%' }} />
                 )}
               </motion.button>
-            </div>
+            </motion.div>
           )}
 
 
