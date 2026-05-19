@@ -1611,56 +1611,73 @@ export default function ChatPage() {
             )}
           </AnimatePresence>
 
-          {/* Timer — shifted left for Skip button */}
+          {/* Timer — shifted left for the Leave button */}
           {status === 'matched' && (
             <div className="absolute z-[6] px-2.5 py-1.5 rounded-xl font-mono text-[11px] font-bold"
-              style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 80, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+              style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 100, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
               {fmt(elapsed)}
             </div>
           )}
 
-          {/* Mobile Skip — top right */}
+          {/* Mobile Leave — top right, kept apart from Skip to avoid mis-taps */}
           <motion.button
-            onClick={status === 'matched' ? handleSkip : undefined}
-            whileTap={status === 'matched' ? { scale: 0.92 } : {}}
-            style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, zIndex: 6, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 50, padding: '8px 20px', color: 'white', fontWeight: 700, fontSize: 14, cursor: status === 'matched' ? 'pointer' : 'default', opacity: status === 'matched' ? 1 : 0.35, transition: 'all 150ms ease' }}>
-            Skip
+            onClick={handleEnd}
+            whileTap={{ scale: 0.92 }}
+            style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, zIndex: 7, background: 'rgba(239,68,68,0.16)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(239,68,68,0.38)', borderRadius: 50, padding: '8px 16px', color: '#f87171', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <PhoneOff size={13} /> Leave
           </motion.button>
 
-          {/* Mobile Gift — top left, below partner pill */}
-          {user && status === 'matched' && (
-            <motion.button
-              onClick={openGiftFlow}
-              whileTap={{ scale: 0.92 }}
-              style={{ position: 'absolute', top: 'max(52px, env(safe-area-inset-top, 0px) + 50px)', left: 12, zIndex: 6, background: 'rgba(0,212,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.28)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-              <Gift size={13} style={{ color: '#00D4FF' }} />
-              <span style={{ color: '#00D4FF', fontSize: 11, fontWeight: 700 }}>Gift</span>
-            </motion.button>
-          )}
-
-          {/* Mobile Report — bottom left */}
+          {/* Mobile control bar — one row, Skip dominant */}
           {status === 'matched' && (
-            <motion.button
-              onClick={() => !reportSent && setShowReport(true)}
-              whileTap={!reportSent ? { scale: 0.92 } : {}}
-              style={{ position: 'absolute', bottom: 'max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, zIndex: 6, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', borderRadius: 50, padding: '7px 16px', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, cursor: reportSent ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {reportSent ? '✓ Reported' : <><Flag size={12} />Report</>}
-            </motion.button>
-          )}
-
-          {/* Mobile Chat — bottom right */}
-          <div style={{ position: 'absolute', bottom: 'max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px))', right: 12, zIndex: 6 }}>
-            <motion.button
-              onClick={toggleChat}
-              whileTap={{ scale: 0.92 }}
-              style={{ position: 'relative', background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '7px 16px', color: showChat ? '#00D4FF' : 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <MessageSquare size={14} />
-              Chat
-              {unread > 0 && !showChat && (
-                <span style={{ position: 'absolute', top: -3, right: -3, width: 8, height: 8, background: '#00D4FF', borderRadius: '50%' }} />
+            <div className="absolute z-[7] flex items-center gap-2"
+              style={{ bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, right: 12 }}>
+              {/* Report */}
+              <motion.button
+                onClick={() => !reportSent && setShowReport(true)}
+                whileTap={!reportSent ? { scale: 0.9 } : {}}
+                className="flex-shrink-0 flex items-center justify-center"
+                style={{ width: 42, height: 42, borderRadius: '50%', background: reportSent ? 'rgba(0,212,255,0.12)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: reportSent ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.12)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.7)' }}>
+                {reportSent ? <ShieldCheck size={16} /> : <Flag size={16} />}
+              </motion.button>
+              {/* Mic */}
+              <motion.button onClick={toggleMute} whileTap={{ scale: 0.9 }}
+                className="flex-shrink-0 flex items-center justify-center"
+                style={{ width: 42, height: 42, borderRadius: '50%', background: isMuted ? 'rgba(239,68,68,0.85)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: isMuted ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.12)', color: 'white' }}>
+                {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
+              </motion.button>
+              {/* Camera */}
+              <motion.button onClick={toggleVideo} whileTap={{ scale: 0.9 }}
+                className="flex-shrink-0 flex items-center justify-center"
+                style={{ width: 42, height: 42, borderRadius: '50%', background: videoOff ? 'rgba(239,68,68,0.85)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: videoOff ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.12)', color: 'white' }}>
+                {videoOff ? <VideoOff size={16} /> : <Video size={16} />}
+              </motion.button>
+              {/* Skip — primary */}
+              <motion.button
+                onClick={handleSkip}
+                whileTap={{ scale: 0.97 }}
+                className="flex-1 flex items-center justify-center gap-2"
+                style={{ height: 42, borderRadius: 24, background: 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)', boxShadow: '0 0 18px rgba(0,212,255,0.35)', color: 'white', fontWeight: 800, fontSize: 15 }}>
+                <SkipForward size={17} /> Skip
+              </motion.button>
+              {/* Gift */}
+              {user && (
+                <motion.button onClick={openGiftFlow} whileTap={{ scale: 0.9 }}
+                  className="flex-shrink-0 flex items-center justify-center"
+                  style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(0,212,255,0.14)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF' }}>
+                  <Gift size={17} />
+                </motion.button>
               )}
-            </motion.button>
-          </div>
+              {/* Chat */}
+              <motion.button onClick={toggleChat} whileTap={{ scale: 0.9 }}
+                className="flex-shrink-0 flex items-center justify-center relative"
+                style={{ width: 42, height: 42, borderRadius: '50%', background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.12)', color: showChat ? '#00D4FF' : 'white' }}>
+                <MessageSquare size={16} />
+                {unread > 0 && !showChat && (
+                  <span style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, background: '#00D4FF', borderRadius: '50%' }} />
+                )}
+              </motion.button>
+            </div>
+          )}
 
 
           {/* Draggable PiP self-view — solo mode, only while searching (matched solo uses the bottom-half split) */}
