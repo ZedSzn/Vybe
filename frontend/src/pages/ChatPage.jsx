@@ -2192,6 +2192,12 @@ export default function ChatPage() {
                     {opponentSocketIds.map((sid, idx) => (
                       <div key={sid} className={`relative flex-1 overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
                         <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                        {!remoteStreams[sid] && (
+                          <TilePlaceholder
+                            avatarUrl={idx === 0 ? partnerAvatar : null}
+                            name={idx === 0 ? (partnerUsername || 'Stranger') : 'Stranger'}
+                          />
+                        )}
                       </div>
                     ))}
                   </motion.div>
@@ -2542,18 +2548,20 @@ export default function ChatPage() {
           )}
         </AnimatePresence>
 
-        {/* Gift popup — a brief card over the chat panel area, then it fades */}
+        {/* Gift popup — a brief card anchored near the bottom, then it fades.
+            Centered on desktop, fills width on mobile, same content on both. */}
         <AnimatePresence>
           {giftPopup && (
+            <div className="fixed inset-x-0 flex justify-center px-4 pointer-events-none"
+              style={{ bottom: 'max(80px, calc(env(safe-area-inset-bottom, 0px) + 76px))', zIndex: 44 }}>
             <motion.div
               key={giftPopup.id}
-              className="lg:hidden fixed flex items-center gap-3"
+              className="flex items-center gap-3 pointer-events-auto w-full max-w-sm"
               initial={{ opacity: 0, y: 14, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.97 }}
               transition={{ type: 'spring', damping: 25, stiffness: 320 }}
               style={{
-                position: 'fixed', bottom: 80, left: 16, right: 16, zIndex: 44,
                 padding: '12px 14px', borderRadius: 18,
                 background: 'rgba(8,12,24,0.94)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
                 border: '1px solid rgba(0,212,255,0.4)',
@@ -2571,6 +2579,7 @@ export default function ChatPage() {
                 </p>
               </div>
             </motion.div>
+            </div>
           )}
         </AnimatePresence>
 
