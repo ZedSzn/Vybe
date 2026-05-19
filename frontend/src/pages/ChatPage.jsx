@@ -130,6 +130,23 @@ function FloatingChat({ messages, messagesEndRef, onSend, status }) {
   )
 }
 
+// "Camera off" placeholder — your own tile when the camera is off or absent.
+// Mirrors the partner tile's connecting state so the two read as siblings.
+function CameraOffView({ user }) {
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ zIndex: 5 }}>
+      {user?.avatar ? (
+        <img src={user.avatar} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)' }} />
+      ) : (
+        <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#00D4FF' }}>
+          {user?.username?.[0]?.toUpperCase() || 'Y'}
+        </div>
+      )}
+      <p className="text-[10px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>Camera off</p>
+    </div>
+  )
+}
+
 // Defined outside ChatPage so the reference is stable across re-renders (no unmount flicker)
 function BarBtn({ onClick, children, label, active, red, disabled: dis, title: t }) {
   return (
@@ -1432,6 +1449,7 @@ export default function ChatPage() {
                   ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   : <div className="absolute inset-0 bg-[#0a0a14]" />)}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
+                {(!hasCamera || videoOff) && <CameraOffView user={user} />}
                 <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                   <ProfilePill
                     username={user ? user.username : 'You'}
@@ -1536,17 +1554,7 @@ export default function ChatPage() {
                   ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                  {(!hasCamera || videoOff) && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ zIndex: 5 }}>
-                      {user?.avatar ? (
-                        <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(0,212,255,0.35)' }} />
-                      ) : (
-                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '1.5px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, color: '#00D4FF' }}>
-                          {user?.username?.[0]?.toUpperCase() || 'Y'}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {(!hasCamera || videoOff) && <CameraOffView user={user} />}
                   <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                     <ProfilePill
                       username={user ? user.username : 'You'}
