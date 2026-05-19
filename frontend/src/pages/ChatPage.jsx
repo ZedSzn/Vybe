@@ -748,6 +748,7 @@ export default function ChatPage() {
         destroyOpponentPeers()
         setMessages([])
         setReportSent(false)
+        setBotPeerIds(null)
         setStatus('searching')
         findMatch(socket)
       })
@@ -780,6 +781,7 @@ export default function ChatPage() {
         }
         setMessages([])
         setReportSent(false)
+        setBotPeerIds(null)
         setStatus('searching')
         findMatch(socket)
       }

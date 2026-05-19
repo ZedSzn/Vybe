@@ -3005,6 +3005,47 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
   }
 }
 
+// Process a squad's buffered find-match requests as a group — match them
+// against a real opponent duo, or fall back to bot strangers. Called either
+// when every member has re-searched or after a short wait, so a slow or
+// missing member can never stall the search forever.
+function processSquadBuf(squadId) {
+  cancelBotTimer(`bufwait_${squadId}`);
+  const squad = squads.get(squadId);
+  const buf   = squadMatchBuf.get(squadId);
+  if (!squad || !buf || buf.length === 0) return;
+  squadMatchBuf.delete(squadId);
+  const mySocketIds = buf.map((b) => b.socketId).filter((sid) => io.sockets.sockets.get(sid));
+  if (mySocketIds.length === 0) return;
+  const filterSrc = buf.find((b) => b.canFilter && (b.fg || b.fc));
+  const squadFG = filterSrc ? filterSrc.fg : null;
+  const squadFC = filterSrc ? filterSrc.fc : '';
+  // Tell squad members about each other so they can pre-connect via WebRTC.
+  for (const sid of mySocketIds) {
+    const mates = mySocketIds.filter((x) => x !== sid);
+    if (mates.length > 0) {
+      liveSquadPairs.set(sid, mates);
+      io.to(sid).emit('squad-peer-ready', { mates });
+    }
+  }
+  const myMembers = mySocketIds.map((sid) => onlineUsers.get(sid) || {});
+  const opponent  = findSquadMatch(squadId, squadFG, squadFC, myMembers);
+  if (opponent) {
+    const opponentSocketIds = opponent.socketIds || [opponent.socketId];
+    const allSocketIds = [...mySocketIds, ...opponentSocketIds];
+    const room = `room_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter((x) => x !== sid)); }
+    emitMatchFound(allSocketIds, room, mySocketIds, opponentSocketIds);
+  } else {
+    const existing = waitingQueue.findIndex((e) => e.squadId === squadId);
+    if (existing !== -1) waitingQueue.splice(existing, 1);
+    waitingQueue.push({ type: 'squad', socketIds: mySocketIds, squadId, mode: 'squad', filterGender: squadFG, filterCountry: squadFC });
+    for (const sid of mySocketIds) io.to(sid).emit('waiting');
+    // Dev: fill the stranger slots with bots if no real opponent shows up.
+    spawnSquadBotMatch(squadId, mySocketIds);
+  }
+}
+
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 io.on('connection', (socket) => {
   console.log(`🔌 ${socket.id}`);
@@ -3216,37 +3257,19 @@ io.on('connection', (socket) => {
         buf.push({ socketId: socket.id, fg: prefs.filterGender || null, fc: prefs.filterCountry || '', canFilter });
       }
       squadMatchBuf.set(prefs.squadId, buf);
-      if (buf.length < squad.members.length) { socket.emit('waiting'); return; }
-      const mySocketIds = buf.map((b) => b.socketId);
-      // Filters are a members-only perk — the squad can filter if ANY member
-      // has a membership; the values come from a filtering member.
-      const filterSrc = buf.find((b) => b.canFilter && (b.fg || b.fc));
-      const squadFG = filterSrc ? filterSrc.fg : null;
-      const squadFC = filterSrc ? filterSrc.fc : '';
-      squadMatchBuf.delete(prefs.squadId);
-      // Tell squad members about each other so they can pre-connect via WebRTC while searching
-      for (const sid of mySocketIds) {
-        const mates = mySocketIds.filter(x => x !== sid);
-        if (mates.length > 0) {
-          liveSquadPairs.set(sid, mates);
-          io.to(sid).emit('squad-peer-ready', { mates });
-        }
-      }
-      const myMembers = mySocketIds.map((sid) => onlineUsers.get(sid) || {});
-      const opponent = findSquadMatch(prefs.squadId, squadFG, squadFC, myMembers);
-      if (opponent) {
-        const opponentSocketIds = opponent.socketIds || [opponent.socketId];
-        const allSocketIds = [...mySocketIds, ...opponentSocketIds];
-        const room = `room_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-        for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter(x => x !== sid)); }
-        emitMatchFound(allSocketIds, room, mySocketIds, opponentSocketIds);
+      socket.emit('waiting');
+      if (buf.length >= squad.members.length) {
+        // Whole squad has re-searched — match them as a group right away.
+        processSquadBuf(prefs.squadId);
       } else {
-        const existing = waitingQueue.findIndex(e => e.squadId === prefs.squadId);
-        if (existing !== -1) waitingQueue.splice(existing, 1);
-        waitingQueue.push({ type: 'squad', socketIds: mySocketIds, squadId: prefs.squadId, mode: 'squad', filterGender: squadFG, filterCountry: squadFC });
-        for (const sid of mySocketIds) io.to(sid).emit('waiting');
-        // Dev: fill the stranger slots with bots if no real opponent shows up.
-        spawnSquadBotMatch(prefs.squadId, mySocketIds);
+        // Wait briefly for the rest of the squad, then proceed with whoever
+        // is here so a slow/missing member can't stall the search forever.
+        cancelBotTimer(`bufwait_${prefs.squadId}`);
+        const squadId = prefs.squadId;
+        botTimers.set(`bufwait_${squadId}`, setTimeout(() => {
+          botTimers.delete(`bufwait_${squadId}`);
+          processSquadBuf(squadId);
+        }, 2500));
       }
       return;
     }
@@ -3451,7 +3474,7 @@ io.on('connection', (socket) => {
         io.to(squadId).emit('squad-updated', { squadId, code: squad.code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
       }
       const buf = squadMatchBuf.get(squadId);
-      if (buf) { const u = buf.filter(id => id !== socket.id); u.length ? squadMatchBuf.set(squadId, u) : squadMatchBuf.delete(squadId); }
+      if (buf) { const u = buf.filter(b => b.socketId !== socket.id); u.length ? squadMatchBuf.set(squadId, u) : squadMatchBuf.delete(squadId); }
     }
     io.emit('online-count', onlineUsers.size);
   });
