@@ -125,6 +125,17 @@ const SOCIAL_PLATFORMS = [
   { key: 'kick',      label: 'Kick',      color: '#53fc18', url: u => `https://kick.com/${u}`,       domain: 'kick.com'      },
 ]
 
+// Compact number — keeps big stats (e.g. 412,000) inside their box on mobile.
+function compactNum(n) {
+  const num = Number(n) || 0
+  if (num < 1000) return String(num)
+  if (num < 1_000_000) {
+    const k = num / 1000
+    return (k >= 100 ? Math.round(k) : Math.round(k * 10) / 10) + 'K'
+  }
+  return (Math.round((num / 1_000_000) * 10) / 10) + 'M'
+}
+
 export default function ProfilePage() {
   const { id }          = useParams()
   const { user: me, updateUser, loading: authLoading } = useAuth()
@@ -744,13 +755,13 @@ export default function ProfilePage() {
             {/* Stats grid */}
             <div className="grid grid-cols-5 gap-2 mb-5">
               {[
-                { label: 'Chats',     value: profile.totalChats || 0,                                      Icon: MessageCircle },
+                { label: 'Chats',     value: compactNum(profile.totalChats || 0),                           Icon: MessageCircle },
                 { label: 'Streak',    value: `${profile.loginStreak || 0}d`,                               Icon: Flame         },
-                { label: 'Countries', value: profile.countriesCount || profile.uniqueCountries || 0,       Icon: Globe         },
-                { label: 'Gifts',     value: profile.giftsReceived || 0,                                   Icon: Gift          },
-                { label: 'Gifted',    value: (profile.totalCoinsGifted || 0).toLocaleString(),             Icon: VybeCoin      },
+                { label: 'Countries', value: compactNum(profile.countriesCount || profile.uniqueCountries || 0), Icon: Globe    },
+                { label: 'Gifts',     value: compactNum(profile.giftsReceived || 0),                       Icon: Gift          },
+                { label: 'Gifted',    value: compactNum(profile.totalCoinsGifted || 0),                    Icon: VybeCoin      },
               ].map(({ label, value, Icon }) => (
-                <div key={label} className="bg-vybe-card border border-vybe-border rounded-2xl p-2.5 text-center">
+                <div key={label} className="bg-vybe-card border border-vybe-border rounded-2xl p-2 text-center overflow-hidden">
                   <div className="flex justify-center mb-1"><Icon size={14} className="text-vybe-purple-light opacity-70" /></div>
                   <p className="text-white font-black text-base leading-none mb-0.5">{value}</p>
                   <p className="text-vybe-muted text-[10px]">{label}</p>
