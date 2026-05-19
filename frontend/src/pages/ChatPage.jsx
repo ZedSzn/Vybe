@@ -920,10 +920,20 @@ export default function ChatPage() {
     setChatCountrySearch('')
   }
 
-  // Open the "Send Coins" modal (recipient defaults to the stranger).
+  // Open the "Send Coins" modal (recipient defaults to the stranger, falling
+  // back through every known recipient source so a real partner or a stale
+  // last-known socket is still giftable when the stream-derived lists are
+  // briefly empty).
+  const resolveGiftRecipient = () =>
+    opponentSocketIds[0]
+    || mateSocketIds[0]
+    || squadMates[0]
+    || persistentMateId
+    || partnerSock
+    || null
   const openGiftFlow = () => {
     if (status !== 'matched') return
-    setGiftRecipient(opponentSocketIds[0] || mateSocketIds[0] || partnerSock || null)
+    setGiftRecipient(resolveGiftRecipient())
     setSelectedGiftId(null)
     setCustomAmount('')
     setShowGift(true)
@@ -941,7 +951,7 @@ export default function ChatPage() {
       setTipFeedback({ type: 'error', msg: 'Not enough coins' })
       setTimeout(() => setTipFeedback(null), 3000); return
     }
-    const recipientSocketId = giftRecipient || opponentSocketIds[0] || mateSocketIds[0] || partnerSock
+    const recipientSocketId = giftRecipient || resolveGiftRecipient()
     if (!recipientSocketId) {
       setTipFeedback({ type: 'error', msg: 'No one to gift right now' })
       setTimeout(() => setTipFeedback(null), 3000); return
