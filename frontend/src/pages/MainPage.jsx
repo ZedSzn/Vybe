@@ -603,9 +603,21 @@ export default function MainPage() {
               <Camera size={16} className="text-white" />
             </motion.button>
           )}
-          {/* "You" marker — only in Duo, so the two tiles read clearly */}
-          {mode === 'squad' && !cameraOn && (
-            <span className="absolute top-3 left-3 text-[9px] font-black tracking-[0.18em] uppercase z-20" style={{ color: 'rgba(0,212,255,0.55)' }}>You</span>
+          {/* Your profile pill — shown in Duo so the two tiles read clearly */}
+          {mode === 'squad' && (
+            <div className="absolute" style={{ top: 12, left: 12, zIndex: 20 }}>
+              <ProfilePill
+                username={user ? user.username : 'You'}
+                avatarUrl={user?.avatar}
+                isOnline
+                isVerified={!!user?.emailVerified}
+                isVip={!!user?.isVip}
+                country={myCountry}
+                accentColor={user?.accentColor}
+                bannerGradient={user?.bannerGradient}
+                friendStatus="self"
+              />
+            </div>
           )}
         </motion.div>
 
@@ -615,30 +627,31 @@ export default function MainPage() {
           return (
             <motion.div
               className="relative rounded-2xl overflow-hidden w-full flex items-center justify-center"
-              style={{ aspectRatio: '16/7', background: '#080812', border: '1px solid rgba(0,212,255,0.2)', boxShadow: '0 0 0 1px rgba(0,212,255,0.06) inset, 0 12px 40px rgba(0,0,0,0.5)' }}
+              style={{ aspectRatio: mode === 'squad' ? '4/3' : '5/6', background: '#080812', border: '1px solid rgba(0,212,255,0.2)', boxShadow: '0 0 0 1px rgba(0,212,255,0.06) inset, 0 20px 60px rgba(0,0,0,0.6), 0 0 32px rgba(0,212,255,0.08)' }}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.14, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 38%, rgba(0,212,255,0.1) 0%, transparent 70%)' }} />
-              <span className="absolute top-2.5 left-3 text-[9px] font-black tracking-[0.18em] uppercase z-10" style={{ color: 'rgba(0,212,255,0.5)' }}>Duo partner</span>
               {squadReady && partner ? (
-                <div className="relative z-10 flex items-center gap-3 px-4">
-                  <div className="rounded-full flex items-center justify-center flex-shrink-0" style={{ width: 52, height: 52, background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: '#0a0a0f', fontWeight: 900, fontSize: 20 }}>
-                    {partner.username?.[0]?.toUpperCase() || '?'}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-white font-bold text-sm truncate">{partner.username || 'Friend'}</p>
-                    <p className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: '#4ade80' }}>
-                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#4ade80', boxShadow: '0 0 6px rgba(74,222,128,0.7)' }} />
+                <>
+                  <div className="relative z-10 flex flex-col items-center gap-2.5">
+                    <div className="rounded-full flex items-center justify-center" style={{ width: 64, height: 64, background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: '#0a0a0f', fontWeight: 900, fontSize: 26 }}>
+                      {partner.username?.[0]?.toUpperCase() || '?'}
+                    </div>
+                    <p className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: '#4ade80' }}>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#4ade80', boxShadow: '0 0 6px rgba(74,222,128,0.7)' }} />
                       Connected &amp; ready
                     </p>
                   </div>
-                </div>
+                  <div className="absolute" style={{ top: 12, left: 12, zIndex: 20 }}>
+                    <ProfilePill username={partner.username || 'Friend'} isOnline isVerified={false} friendStatus="self" />
+                  </div>
+                </>
               ) : (
-                <div className="relative z-10 flex flex-col items-center gap-2 px-4 text-center">
-                  <div className="rounded-full flex items-center justify-center" style={{ width: 44, height: 44, background: 'rgba(0,212,255,0.07)', border: '1.5px dashed rgba(0,212,255,0.3)' }}>
-                    <Loader2 size={17} className="animate-spin" style={{ color: 'rgba(0,184,224,0.7)' }} />
+                <div className="relative z-10 flex flex-col items-center gap-2.5 px-4 text-center">
+                  <div className="rounded-full flex items-center justify-center" style={{ width: 48, height: 48, background: 'rgba(0,212,255,0.07)', border: '1.5px dashed rgba(0,212,255,0.3)' }}>
+                    <Loader2 size={18} className="animate-spin" style={{ color: 'rgba(0,184,224,0.7)' }} />
                   </div>
                   <p className="text-[12px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>Waiting for your friend to join…</p>
                 </div>
