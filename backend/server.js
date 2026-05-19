@@ -3262,14 +3262,16 @@ io.on('connection', (socket) => {
         // Whole squad has re-searched — match them as a group right away.
         processSquadBuf(prefs.squadId);
       } else {
-        // Wait briefly for the rest of the squad, then proceed with whoever
-        // is here so a slow/missing member can't stall the search forever.
+        // Wait for the rest of the squad. The window is long so a slow or
+        // backgrounded second browser doesn't get split off into its own
+        // match — it only fires as a true last resort if a member never
+        // shows up at all (a disconnect resolves it sooner, see below).
         cancelBotTimer(`bufwait_${prefs.squadId}`);
         const squadId = prefs.squadId;
         botTimers.set(`bufwait_${squadId}`, setTimeout(() => {
           botTimers.delete(`bufwait_${squadId}`);
           processSquadBuf(squadId);
-        }, 2500));
+        }, 15000));
       }
       return;
     }
@@ -3474,7 +3476,13 @@ io.on('connection', (socket) => {
         io.to(squadId).emit('squad-updated', { squadId, code: squad.code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
       }
       const buf = squadMatchBuf.get(squadId);
-      if (buf) { const u = buf.filter(b => b.socketId !== socket.id); u.length ? squadMatchBuf.set(squadId, u) : squadMatchBuf.delete(squadId); }
+      if (buf) {
+        const u = buf.filter(b => b.socketId !== socket.id);
+        u.length ? squadMatchBuf.set(squadId, u) : squadMatchBuf.delete(squadId);
+        // A member left while the rest of the squad was still waiting —
+        // proceed now with whoever's here instead of stalling for 15s.
+        if (u.length && u.length >= squad.members.length) processSquadBuf(squadId);
+      }
     }
     io.emit('online-count', onlineUsers.size);
   });
