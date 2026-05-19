@@ -94,28 +94,15 @@ function FloatingChat({ messages, messagesEndRef, onSend, status }) {
     <>
       <div style={{ overflowY: 'auto', padding: '10px 12px 4px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
         {messages.map((msg, i) => (
-          msg.type === 'gift' ? (
-            <div key={i} style={{ display: 'flex', justifyContent: 'center', margin: '2px 0' }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '5px 12px', fontSize: 12, fontWeight: 600, lineHeight: 1.4,
-                color: '#7df0ff', textAlign: 'center', maxWidth: '88%', wordBreak: 'break-word',
-                background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 14,
-              }}>
-                <Gift size={12} style={{ flexShrink: 0, color: '#00D4FF' }} />{msg.text}
-              </div>
-            </div>
-          ) : (
-            <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
-              <div style={{
-                padding: '7px 11px', fontSize: 13, lineHeight: 1.45, color: 'white', maxWidth: '75%', wordBreak: 'break-word',
-                ...(msg.from === 'me'
-                  ? { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '18px 18px 4px 18px' }
-                  : { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px 18px 18px 4px' }
-                ),
-              }}>{msg.text}</div>
-            </div>
-          )
+          <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
+            <div style={{
+              padding: '7px 11px', fontSize: 13, lineHeight: 1.45, color: 'white', maxWidth: '75%', wordBreak: 'break-word',
+              ...(msg.from === 'me'
+                ? { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '18px 18px 4px 18px' }
+                : { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px 18px 18px 4px' }
+              ),
+            }}>{msg.text}</div>
+          </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
@@ -331,6 +318,7 @@ export default function ChatPage() {
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
   const [tipFeedback,    setTipFeedback]      = useState(null) // shared feedback toast (errors etc.)
+  const [giftPopup,      setGiftPopup]        = useState(null) // brief gift card over the chat panel
   const [boostLoading,   setBoostLoading]     = useState(false)
   const [boostActive,    setBoostActive]      = useState(false)
   const [skipQueueLoading, setSkipQueueLoading] = useState(false)
@@ -361,6 +349,7 @@ export default function ChatPage() {
   const searchTextTimer  = useRef(null)
   const reconnectTimer   = useRef(null)
   const matchFlashTimer  = useRef(null)
+  const giftPopupTimer   = useRef(null)
   const statusRef        = useRef(status)
 
   const SEARCH_TEXTS = [
@@ -844,18 +833,15 @@ export default function ChatPage() {
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
           setCashableCoins((c) => c + giftCoins)
         }
-        // Announce the gift as a message in the chat panel.
+        // Brief gift popup over the chat panel — not kept in chat history.
         const iAmSender   = String(senderId) === String(user?.id)
         const senderLabel = iAmSender ? 'You' : (senderUsername || 'Someone')
         let recipientLabel = 'a stranger'
         if (recipientSocketId === socketRef.current?.id)            recipientLabel = 'you'
         else if (squadMatesRef.current.includes(recipientSocketId)) recipientLabel = 'your partner'
-        setMessages((prev) => [...prev, {
-          type: 'gift',
-          text: `${senderLabel} sent ${recipientLabel} ${giftName} · ${Number(giftCoins || 0).toLocaleString()} coins`,
-          timestamp: Date.now(),
-        }])
-        setUnread((n) => n + 1)
+        setGiftPopup({ id, giftId, who: `${senderLabel} sent ${recipientLabel}`, giftName, coins: Number(giftCoins || 0) })
+        clearTimeout(giftPopupTimer.current)
+        giftPopupTimer.current = setTimeout(() => setGiftPopup(null), 4200)
       })
 
 
@@ -2475,6 +2461,38 @@ export default function ChatPage() {
               }}
             >
               <FloatingChat messages={messages} messagesEndRef={messagesEndRef} onSend={handleSend} status={status} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Gift popup — a brief card over the chat panel area, then it fades */}
+        <AnimatePresence>
+          {giftPopup && (
+            <motion.div
+              key={giftPopup.id}
+              className="lg:hidden fixed flex items-center gap-3"
+              initial={{ opacity: 0, y: 14, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.97 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 320 }}
+              style={{
+                position: 'fixed', bottom: 80, left: 16, right: 16, zIndex: 44,
+                padding: '12px 14px', borderRadius: 18,
+                background: 'rgba(8,12,24,0.94)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(0,212,255,0.4)',
+                boxShadow: '0 12px 38px rgba(0,0,0,0.6), 0 0 28px rgba(0,212,255,0.18)',
+              }}
+            >
+              <div style={{ flexShrink: 0, width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <GiftIcon id={giftPopup.giftId} size={42} />
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ color: '#8a90a6', fontSize: 11, fontWeight: 600, lineHeight: 1.3 }}>{giftPopup.who}</p>
+                <p style={{ color: '#fff', fontSize: 14, fontWeight: 800, lineHeight: 1.3 }}>{giftPopup.giftName}</p>
+                <p style={{ color: '#00D4FF', fontSize: 12, fontWeight: 700, lineHeight: 1.3, textShadow: '0 0 8px rgba(0,212,255,0.5)' }}>
+                  {giftPopup.coins.toLocaleString()} coins
+                </p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
