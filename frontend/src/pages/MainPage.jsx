@@ -1017,7 +1017,6 @@ export default function MainPage() {
           document.body
         )}
 
-        <p className="text-center text-[11px]" style={{ color: 'rgba(75,85,99,0.4)' }}>Free forever · No sign-up required</p>
       </div>
 
 
