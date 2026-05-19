@@ -166,17 +166,23 @@ function CameraOffView({ user }) {
 
 // Centered avatar placeholder for any grid tile without a video stream —
 // used for the camera-off self tile and for camera-off strangers/partner.
-function TilePlaceholder({ avatarUrl, name, label = 'Camera off' }) {
+function TilePlaceholder({ avatarUrl, name, label = 'Camera off', size = 52, hideLabel = false }) {
+  // Bigger sizes get the cyan glow ring to match the user's own camera-off look.
+  const big       = size >= 80
+  const initial   = name?.[0]?.toUpperCase() || '?'
+  const ringStyle = big
+    ? { border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }
+    : { border: '2px solid rgba(0,212,255,0.35)' }
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ zIndex: 5 }}>
       {avatarUrl ? (
-        <img src={avatarUrl} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)' }} />
+        <img src={avatarUrl} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', ...ringStyle }} />
       ) : (
-        <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#00D4FF' }}>
-          {name?.[0]?.toUpperCase() || '?'}
+        <div style={{ width: size, height: size, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: Math.max(14, Math.round(size * 0.4)), fontWeight: 900, color: '#00D4FF', ...ringStyle }}>
+          {initial}
         </div>
       )}
-      <p className="text-[10px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>{label}</p>
+      {!hideLabel && <p className="text-[10px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>{label}</p>}
     </div>
   )
 }
@@ -2196,6 +2202,8 @@ export default function ChatPage() {
                           <TilePlaceholder
                             avatarUrl={idx === 0 ? partnerAvatar : null}
                             name={idx === 0 ? (partnerUsername || 'Stranger') : 'Stranger'}
+                            size={88}
+                            hideLabel
                           />
                         )}
                       </div>
