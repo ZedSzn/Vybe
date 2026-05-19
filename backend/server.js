@@ -2858,6 +2858,55 @@ function cancelBotTimer(socketId) {
   if (t) { clearTimeout(t); botTimers.delete(socketId); }
 }
 
+// Bot opponents for a REAL squad (2 real members) that can't find a real
+// opponent duo — fills the 2 stranger slots with bots so the duo can chat.
+// Keyed by squadId (not a socket id) so re-searching the same squad resets it.
+function spawnSquadBotMatch(squadId, mySocketIds) {
+  if (!IS_DEV) return;
+  cancelBotTimer(squadId);
+  const timer = setTimeout(() => {
+    botTimers.delete(squadId);
+    // Only fire if this squad is still waiting in the queue.
+    const idx = waitingQueue.findIndex((e) => e.squadId === squadId);
+    if (idx === -1) return;
+    waitingQueue.splice(idx, 1);
+    const stamp     = Date.now();
+    const room      = `bot_room_${stamp}`;
+    const strangerA = `dev_bot_s1_${stamp}`;
+    const strangerB = `dev_bot_s2_${stamp}`;
+    for (const sid of mySocketIds) {
+      const sock = io.sockets.sockets.get(sid);
+      if (!sock) continue;
+      sock.join(room);
+      const mates = mySocketIds.filter((x) => x !== sid);
+      activePairs.set(sid, [...mates, strangerA, strangerB]);
+      if (mates.length > 0) liveSquadPairs.set(sid, mates);
+      io.to(sid).emit('match-found', {
+        room,
+        peers: [
+          ...mates.map((m) => ({ socketId: m, isInitiator: sid > m })),
+          { socketId: strangerA, isInitiator: true },
+          { socketId: strangerB, isInitiator: true },
+        ],
+        squadMates:           mates,
+        isInitiator:          true,
+        partnerId:            strangerA,
+        partnerUsername:      'TestBot',
+        partnerUserId:        null,
+        partnerAvatar:        null,
+        partnerIsPremium:     false,
+        partnerIsVip:         false,
+        partnerEmailVerified: false,
+        partnerCountry:       'US',
+      });
+    }
+    setTimeout(() => {
+      io.to(room).emit('chat-message', { message: 'Hello! This is a 2v2 test connection.', timestamp: Date.now() });
+    }, 1500);
+  }, 4000);
+  botTimers.set(squadId, timer);
+}
+
 function genSquadCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars (0/O, 1/I)
   let suffix = '';
@@ -3161,6 +3210,7 @@ io.on('connection', (socket) => {
     if (prefs.squadId) {
       const squad = squads.get(prefs.squadId);
       if (!squad) { socket.emit('squad-error', { message: 'Squad expired or not found.' }); return; }
+      cancelBotTimer(prefs.squadId); // reset any pending bot timer on re-search
       const buf = squadMatchBuf.get(prefs.squadId) || [];
       if (!buf.some((b) => b.socketId === socket.id)) {
         buf.push({ socketId: socket.id, fg: prefs.filterGender || null, fc: prefs.filterCountry || '', canFilter });
@@ -3195,6 +3245,8 @@ io.on('connection', (socket) => {
         if (existing !== -1) waitingQueue.splice(existing, 1);
         waitingQueue.push({ type: 'squad', socketIds: mySocketIds, squadId: prefs.squadId, mode: 'squad', filterGender: squadFG, filterCountry: squadFC });
         for (const sid of mySocketIds) io.to(sid).emit('waiting');
+        // Dev: fill the stranger slots with bots if no real opponent shows up.
+        spawnSquadBotMatch(prefs.squadId, mySocketIds);
       }
       return;
     }
