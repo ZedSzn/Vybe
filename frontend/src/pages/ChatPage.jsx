@@ -1583,6 +1583,20 @@ export default function ChatPage() {
                     )}
                   </div>
                 )}
+                {/* Your profile pill — top-left of your half */}
+                <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
+                  <ProfilePill
+                    username={user ? user.username : 'You'}
+                    avatarUrl={user?.avatar}
+                    isOnline
+                    isVerified={!!user?.emailVerified}
+                    isVip={!!user?.isVip}
+                    country={myCountry}
+                    accentColor={user?.accentColor}
+                    bannerGradient={user?.bannerGradient}
+                    friendStatus="self"
+                  />
+                </div>
               </div>
             </>
           )}
