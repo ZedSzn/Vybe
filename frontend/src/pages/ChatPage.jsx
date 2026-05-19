@@ -94,15 +94,28 @@ function FloatingChat({ messages, messagesEndRef, onSend, status }) {
     <>
       <div style={{ overflowY: 'auto', padding: '10px 12px 4px', display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
         {messages.map((msg, i) => (
-          <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
-            <div style={{
-              padding: '7px 11px', fontSize: 13, lineHeight: 1.45, color: 'white', maxWidth: '75%', wordBreak: 'break-word',
-              ...(msg.from === 'me'
-                ? { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '18px 18px 4px 18px' }
-                : { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px 18px 18px 4px' }
-              ),
-            }}>{msg.text}</div>
-          </div>
+          msg.type === 'gift' ? (
+            <div key={i} style={{ display: 'flex', justifyContent: 'center', margin: '2px 0' }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '5px 12px', fontSize: 12, fontWeight: 600, lineHeight: 1.4,
+                color: '#7df0ff', textAlign: 'center', maxWidth: '88%', wordBreak: 'break-word',
+                background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 14,
+              }}>
+                <Gift size={12} style={{ flexShrink: 0, color: '#00D4FF' }} />{msg.text}
+              </div>
+            </div>
+          ) : (
+            <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
+              <div style={{
+                padding: '7px 11px', fontSize: 13, lineHeight: 1.45, color: 'white', maxWidth: '75%', wordBreak: 'break-word',
+                ...(msg.from === 'me'
+                  ? { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '18px 18px 4px 18px' }
+                  : { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '18px 18px 18px 4px' }
+                ),
+              }}>{msg.text}</div>
+            </div>
+          )
         ))}
         <div ref={messagesEndRef} />
       </div>
@@ -329,7 +342,9 @@ export default function ChatPage() {
   const [duoPipExpanded,   setDuoPipExpanded]   = useState(false)
   const [tipIdx,           setTipIdx]           = useState(0)
   const [giftAnimations,   setGiftAnimations]   = useState([])   // [{ id, giftId, target: 'stranger'|'partner' }]
-  const [giftedBySocket,   setGiftedBySocket]   = useState({})   // socketId -> coins I've gifted them this chat
+  // Gift events now surface as chat messages instead of per-tile chips,
+  // so this stays empty — the chip JSX is kept dormant for easy revival.
+  const [giftedBySocket]   = useState({})
   const [showGift,         setShowGift]         = useState(false) // "Send Coins" modal open
   const [giftRecipient,    setGiftRecipient]    = useState(null) // socketId of the chosen gift recipient
   const [selectedGiftId,   setSelectedGiftId]   = useState(null)
@@ -829,11 +844,18 @@ export default function ChatPage() {
         if (recipientSocketId === socketRef.current?.id && giftCoins) {
           setCashableCoins((c) => c + giftCoins)
         }
-        // Tally coins I've gifted to each person this chat — drives the gift chip.
-        // Keyed by recipient socket so duo partner + both strangers each get their own chip.
-        if (recipientSocketId && giftCoins && String(senderId) === String(user?.id)) {
-          setGiftedBySocket((m) => ({ ...m, [recipientSocketId]: (m[recipientSocketId] || 0) + giftCoins }))
-        }
+        // Announce the gift as a message in the chat panel.
+        const iAmSender   = String(senderId) === String(user?.id)
+        const senderLabel = iAmSender ? 'You' : (senderUsername || 'Someone')
+        let recipientLabel = 'a stranger'
+        if (recipientSocketId === socketRef.current?.id)            recipientLabel = 'you'
+        else if (squadMatesRef.current.includes(recipientSocketId)) recipientLabel = 'your partner'
+        setMessages((prev) => [...prev, {
+          type: 'gift',
+          text: `${senderLabel} sent ${recipientLabel} ${giftName} · ${Number(giftCoins || 0).toLocaleString()} coins`,
+          timestamp: Date.now(),
+        }])
+        setUnread((n) => n + 1)
       })
 
 
