@@ -9,6 +9,14 @@ import axios from 'axios'
 import { VybeCoin } from './VybeCoin'
 import EmptyStateIllustration from './EmptyStateIllustration'
 
+// Coin balance — exact under 100k, compact above so it never overflows the chip.
+function fmtCoins(n) {
+  const num = Number(n) || 0
+  if (num < 100000) return num.toLocaleString()
+  if (num < 1_000_000) return Math.round(num / 1000) + 'K'
+  return (Math.round(num / 100000) / 10) + 'M'
+}
+
 const NAV_LINK_DEFS = [
   { key: 'nav_home',        path: '/' },
   { key: 'nav_community',   path: '/guidelines' },
@@ -368,12 +376,17 @@ export default function Navbar({ onPremiumClick }) {
                       </div>
                     </div>
                     <Link to="/wallet" onClick={() => setShowUserMenu(false)}
-                      className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-cyan-500/10 border border-yellow-500/20 hover:bg-cyan-500/20 transition-colors">
-                      <div className="flex items-center gap-1.5">
+                      className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500/15 transition-colors">
+                      <div className="flex items-center gap-2 min-w-0">
                         <CoinIcon />
-                        <span className="text-cyan-300 text-xs font-black">{coins.toLocaleString()} {t('coins')}</span>
+                        <div className="min-w-0 leading-none">
+                          <p className="text-white text-sm font-black truncate">{fmtCoins(coins)}</p>
+                          <p className="text-cyan-400/55 text-[9px] font-bold uppercase tracking-[0.14em] mt-1">{t('coins')}</p>
+                        </div>
                       </div>
-                      <span className="text-cyan-400/50 text-[10px] ml-2">Wallet →</span>
+                      <span className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold text-cyan-300 whitespace-nowrap">
+                        Wallet <span aria-hidden>→</span>
+                      </span>
                     </Link>
                   </motion.div>
 
