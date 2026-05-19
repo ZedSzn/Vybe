@@ -1035,14 +1035,14 @@ export default function ChatPage() {
   }, [roomId, status])
 
   const toggleMute = () => {
-    const stream = localStreamRef.current
-    if (!stream) return
     const newMuted = !isMuted
-    stream.getAudioTracks().forEach((t) => { t.enabled = !newMuted })
+    // Mute the local mic track if we have one
+    localStreamRef.current?.getAudioTracks().forEach((t) => { t.enabled = !newMuted })
     // Also update any peer connection senders directly (stays in sync after camera flips)
     Object.values(peersRef.current).forEach((peer) => {
       peer._pc?.getSenders().forEach((s) => { if (s.track?.kind === 'audio') s.track.enabled = !newMuted })
     })
+    // Always reflect the state so the button gives feedback even without a mic
     setIsMuted(newMuted)
   }
 
@@ -1165,14 +1165,16 @@ export default function ChatPage() {
         {/* Admin warning */}
         <AnimatePresence>
           {adminWarning && (
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-              className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-sm w-full px-4">
-              <div className="bg-cyan-500/15 border border-yellow-500/40 rounded-2xl px-5 py-4 flex items-start gap-3 backdrop-blur-sm">
-                <Shield size={16} className="text-cyan-400 mt-0.5 flex-shrink-0" />
-                <div><p className="text-cyan-300 text-xs font-black uppercase tracking-wider mb-1">Admin Warning</p><p className="text-white text-sm">{adminWarning}</p></div>
-                <button onClick={() => setAdminWarning('')} className="text-white/40 hover:text-white ml-auto"><X size={14} /></button>
-              </div>
-            </motion.div>
+            <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+              <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+                className="max-w-sm w-full pointer-events-auto">
+                <div className="bg-cyan-500/15 border border-yellow-500/40 rounded-2xl px-5 py-4 flex items-start gap-3 backdrop-blur-sm">
+                  <Shield size={16} className="text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <div><p className="text-cyan-300 text-xs font-black uppercase tracking-wider mb-1">Admin Warning</p><p className="text-white text-sm">{adminWarning}</p></div>
+                  <button onClick={() => setAdminWarning('')} className="text-white/40 hover:text-white ml-auto"><X size={14} /></button>
+                </div>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
 
@@ -1212,11 +1214,13 @@ export default function ChatPage() {
         {/* Tip/gift feedback toast */}
         <AnimatePresence>
           {tipFeedback && (
-            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
-              className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-semibold backdrop-blur-sm whitespace-nowrap"
-              style={{ background: tipFeedback.type === 'success' ? 'rgba(0,212,255,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${tipFeedback.type === 'success' ? 'rgba(0,212,255,0.3)' : 'rgba(239,68,68,0.3)'}`, color: tipFeedback.type === 'success' ? '#4ade80' : '#f87171' }}>
-              {tipFeedback.msg}
-            </motion.div>
+            <div className="fixed top-16 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+              <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
+                className="px-5 py-3 rounded-2xl text-sm font-semibold backdrop-blur-sm whitespace-nowrap pointer-events-auto max-w-[calc(100vw-32px)]"
+                style={{ background: tipFeedback.type === 'success' ? 'rgba(0,212,255,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${tipFeedback.type === 'success' ? 'rgba(0,212,255,0.3)' : 'rgba(239,68,68,0.3)'}`, color: tipFeedback.type === 'success' ? '#4ade80' : '#f87171' }}>
+                {tipFeedback.msg}
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
 
@@ -2397,8 +2401,10 @@ export default function ChatPage() {
           {showReport && (
             <>
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/65 z-[45]" onClick={() => setShowReport(false)} />
+              <div className="fixed inset-0 z-[50] flex items-center justify-center p-4 pointer-events-none">
               <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }} transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[50] w-[min(320px,90vw)] bg-vybe-bg2 border border-vybe-border rounded-2xl p-5 shadow-purple">
+                onClick={(e) => e.stopPropagation()}
+                className="pointer-events-auto w-[min(320px,90vw)] bg-vybe-bg2 border border-vybe-border rounded-2xl p-5 shadow-purple">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/25 flex items-center justify-center flex-shrink-0"><Shield size={16} className="text-red-400" /></div>
                   <div><h3 className="font-black text-white text-sm">Report User</h3><p className="text-vybe-muted text-[11px]">Select a reason — you will not be identified</p></div>
@@ -2413,6 +2419,7 @@ export default function ChatPage() {
                 </div>
                 <button onClick={() => setShowReport(false)} className="w-full mt-3 py-3 rounded-xl border border-vybe-border text-vybe-muted hover:text-white text-[13px] transition-colors">Cancel</button>
               </motion.div>
+              </div>
             </>
           )}
         </AnimatePresence>
