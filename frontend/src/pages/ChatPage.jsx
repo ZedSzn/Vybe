@@ -1387,20 +1387,35 @@ export default function ChatPage() {
               {/* TOP LEFT: Stranger 1 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)', borderRight: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
-                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
-                    <span className="text-white/80 font-semibold text-[9px]">{partnerUsername || 'Stranger'}</span>
-                  </div>
+                <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                  <ProfilePill
+                    username={partnerUsername || 'Stranger'}
+                    avatarUrl={partnerAvatar}
+                    isOnline
+                    isVerified={!!partnerEmailVerified}
+                    isVip={!!partnerIsVip}
+                    country={partnerCountry}
+                    friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
+                    onAddFriend={handleAddFriend}
+                  />
                 </div>
+                {giftedBySocket[opponentSocketIds[0]] > 0 && (
+                  <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
+                    <GiftChip key={giftedBySocket[opponentSocketIds[0]]} amount={giftedBySocket[opponentSocketIds[0]]} />
+                  </div>
+                )}
               </div>
               {/* TOP RIGHT: Stranger 2 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
-                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
-                    <span className="text-white/80 font-semibold text-[9px]">Stranger</span>
-                  </div>
+                <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                  <ProfilePill username="Stranger" isOnline isVerified={false} friendStatus="self" />
                 </div>
+                {giftedBySocket[opponentSocketIds[1]] > 0 && (
+                  <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
+                    <GiftChip key={giftedBySocket[opponentSocketIds[1]]} amount={giftedBySocket[opponentSocketIds[1]]} />
+                  </div>
+                )}
               </div>
               {/* BOTTOM LEFT: Your camera */}
               <div className="relative overflow-hidden" style={{ borderRight: '1px solid rgba(0,212,255,0.2)' }}>
@@ -1417,10 +1432,18 @@ export default function ChatPage() {
                   ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   : <div className="absolute inset-0 bg-[#0a0a14]" />)}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
-                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
-                    <span className="text-white/75 font-semibold text-[9px]">{user ? user.username : 'You'}</span>
-                  </div>
+                <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                  <ProfilePill
+                    username={user ? user.username : 'You'}
+                    avatarUrl={user?.avatar}
+                    isOnline
+                    isVerified={!!user?.emailVerified}
+                    isVip={!!user?.isVip}
+                    country={myCountry}
+                    accentColor={user?.accentColor}
+                    bannerGradient={user?.bannerGradient}
+                    friendStatus="self"
+                  />
                 </div>
               </div>
               {/* BOTTOM RIGHT: Duo partner */}
@@ -1428,21 +1451,21 @@ export default function ChatPage() {
                 {mateSocketIds[0] ? (
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                    <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                      <ProfilePill username="Partner" isOnline isVerified={false} friendStatus="self" />
+                    </div>
                     {giftedBySocket[mateSocketIds[0]] > 0 && (
-                      <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
+                      <div className="absolute" style={{ top: 46, left: 8, zIndex: 10 }}>
                         <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} />
                       </div>
                     )}
-                    <div className="absolute bottom-2 inset-x-0 flex items-center justify-center pointer-events-none">
-                      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
-                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
-                        <span className="text-white/80 font-semibold text-[9px]">Duo</span>
-                      </div>
-                    </div>
                   </>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="loading-dots flex"><span /><span /><span /></div>
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 px-3 text-center">
+                    <div className="rounded-full flex items-center justify-center" style={{ width: 40, height: 40, background: 'rgba(0,212,255,0.07)', border: '1.5px dashed rgba(0,212,255,0.3)' }}>
+                      <Loader2 size={15} className="animate-spin" style={{ color: 'rgba(0,184,224,0.7)' }} />
+                    </div>
+                    <p className="text-[10px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>Partner connecting…</p>
                   </div>
                 )}
               </div>
@@ -1614,9 +1637,9 @@ export default function ChatPage() {
           {/* Bottom gradient overlay */}
           <div className="absolute inset-x-0 bottom-0 h-52 pointer-events-none z-[3]" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }} />
 
-          {/* Partner info — top left */}
+          {/* Partner info — top left (2v2 tiles carry their own pills) */}
           <AnimatePresence>
-            {status === 'matched' && (
+            {status === 'matched' && !is2v2 && (
               <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}
                 className="absolute z-[6] flex items-center gap-2"
                 style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', left: 12 }}>
