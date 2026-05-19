@@ -273,6 +273,7 @@ export default function ChatPage() {
   const [partnerUid,       setPartnerUid]       = useState(null)
   const [remoteStreams,    setRemoteStreams]     = useState({})   // socketId → MediaStream
   const [squadMates,       setSquadMates]       = useState([])   // socket IDs of own squad (not opponents)
+  const [botPeerIds,       setBotPeerIds]       = useState(null) // dev-bot match: { mates, opponents } — bots have no streams
   const [persistentMateId, setPersistentMateId] = useState(null) // squad mate socket ID, persists through re-searches
   // Searching / loading UX
   const [searchElapsed,    setSearchElapsed]    = useState(0)   // seconds spent searching
@@ -692,6 +693,12 @@ export default function ChatPage() {
           setPartnerUid(partnerUserId || null)
         }
 
+        // Dev-bot matches produce no WebRTC streams, so the grid (which is
+        // stream-derived) would render empty. Track the bot peer IDs directly
+        // so the layout still fills — real matches leave this null.
+        const isBotMatch = peersToCreate.some((p) => String(p.socketId).startsWith('dev_bot_'))
+        setBotPeerIds(isBotMatch ? { mates: newMates, opponents: opponents.map((o) => o.socketId) } : null)
+
         for (const { socketId: peerId, isInitiator: init } of peersToCreate) {
           // Skip squad mate peers that already have an established connection
           if (newMates.includes(peerId) && peersRef.current[peerId]) continue
@@ -1034,8 +1041,8 @@ export default function ChatPage() {
   // Derive opponent vs squad-mate video entries
   const isSquadSession     = prefs.mode === 'squad' && !!prefs.squadId
   const allRemoteEntries   = Object.keys(remoteStreams)
-  const opponentSocketIds  = allRemoteEntries.filter((sid) => !squadMates.includes(sid))
-  const mateSocketIds      = allRemoteEntries.filter((sid) => squadMates.includes(sid))
+  const opponentSocketIds  = botPeerIds ? botPeerIds.opponents : allRemoteEntries.filter((sid) => !squadMates.includes(sid))
+  const mateSocketIds      = botPeerIds ? botPeerIds.mates     : allRemoteEntries.filter((sid) => squadMates.includes(sid))
   // isDuoMode is true for the entire squad session so the 3-panel layout shows during searching too
   const isDuoMode          = isSquadSession || mateSocketIds.length > 0
   const is2v2              = isDuoMode && opponentSocketIds.length >= 2

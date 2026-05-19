@@ -2782,7 +2782,7 @@ const liveSquadPairs = new Map(); // socketId → [squadMateSocketId, ...]
 const IS_DEV     = process.env.NODE_ENV !== 'production';
 const botTimers  = new Map(); // socketId → timeoutId
 
-function spawnBotMatch(socket) {
+function spawnBotMatch(socket, mode) {
   if (!IS_DEV) return;
   cancelBotTimer(socket.id);
   const timer = setTimeout(() => {
@@ -2795,10 +2795,43 @@ function spawnBotMatch(socket) {
       const e = waitingQueue[i];
       if (e.socketId === socket.id || (e.socketIds && e.socketIds.includes(socket.id))) waitingQueue.splice(i, 1);
     }
-    const botId = `dev_bot_${Date.now()}`;
-    const room  = `bot_room_${Date.now()}`;
-    activePairs.set(socket.id, [botId]);
+    const stamp = Date.now();
+    const room  = `bot_room_${stamp}`;
     socket.join(room);
+
+    // Duo / 2v2: a bot duo partner + two bot strangers → fills the 2×2 grid.
+    if (mode === 'squad') {
+      const partnerBot = `dev_bot_partner_${stamp}`;
+      const strangerA  = `dev_bot_s1_${stamp}`;
+      const strangerB  = `dev_bot_s2_${stamp}`;
+      activePairs.set(socket.id, [partnerBot, strangerA, strangerB]);
+      socket.emit('match-found', {
+        room,
+        peers: [
+          { socketId: partnerBot, isInitiator: true },
+          { socketId: strangerA,  isInitiator: true },
+          { socketId: strangerB,  isInitiator: true },
+        ],
+        squadMates:           [partnerBot],
+        isInitiator:          true,
+        partnerId:            strangerA,
+        partnerUsername:      'TestBot',
+        partnerUserId:        null,
+        partnerAvatar:        null,
+        partnerIsPremium:     false,
+        partnerIsVip:         false,
+        partnerEmailVerified: false,
+        partnerCountry:       'US',
+      });
+      setTimeout(() => {
+        socket.emit('chat-message', { message: 'Hello! This is a 2v2 test connection.', timestamp: Date.now() });
+      }, 1500);
+      return;
+    }
+
+    // Solo: a single bot stranger.
+    const botId = `dev_bot_${stamp}`;
+    activePairs.set(socket.id, [botId]);
     socket.emit('match-found', {
       room,
       peers:                [{ socketId: botId, isInitiator: true }],
@@ -3171,7 +3204,7 @@ io.on('connection', (socket) => {
       if (isBoosted) waitingQueue.unshift(queueEntry); else waitingQueue.push(queueEntry);
       socket.emit('waiting');
       // The duo-test bot opts out so the server's dev bot can't hijack its stranger.
-      if (!prefs.noDevBot) spawnBotMatch(socket);
+      if (!prefs.noDevBot) spawnBotMatch(socket, prefs.mode);
     }
   });
 
