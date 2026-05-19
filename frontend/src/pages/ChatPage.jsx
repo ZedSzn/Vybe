@@ -894,6 +894,7 @@ export default function ChatPage() {
     }
     setMessages([])
     setReportSent(false)
+    setBotPeerIds(null)
     setStatus('searching')
     socketRef.current?.emit('skip')
     if (socketRef.current?.connected) findMatch(socketRef.current)
@@ -1072,7 +1073,9 @@ export default function ChatPage() {
   const mateSocketIds      = botPeerIds ? botPeerIds.mates     : allRemoteEntries.filter((sid) => squadMates.includes(sid))
   // isDuoMode is true for the entire squad session so the 3-panel layout shows during searching too
   const isDuoMode          = isSquadSession || mateSocketIds.length > 0
-  const is2v2              = isDuoMode && opponentSocketIds.length >= 2
+  // 2v2 only applies to a live match — while searching we fall back to the
+  // 3-panel duo layout so you + your partner stay on screen.
+  const is2v2              = isDuoMode && status === 'matched' && opponentSocketIds.length >= 2
 
   const handleUnbanPurchase = async () => {
     setUnbanLoading(true)
@@ -1414,7 +1417,7 @@ export default function ChatPage() {
             </div>
           ) : is2v2 ? (
             /* 2V2 MOBILE: Full-screen 2×2 grid */
-            <div className="absolute inset-0" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', background: '#0a0a14' }}>
+            <div className="absolute inset-0" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
               {/* TOP LEFT: Stranger 1 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)', borderRight: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
@@ -1463,7 +1466,7 @@ export default function ChatPage() {
                 />
                 {!hasCamera && (camBgImage
                   ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                  : <div className="absolute inset-0 bg-[#0a0a14]" />)}
+                  : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
                 {(!hasCamera || videoOff) && <CameraOffView user={user} />}
                 <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
