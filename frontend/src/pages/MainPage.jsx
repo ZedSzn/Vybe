@@ -359,15 +359,22 @@ export default function MainPage() {
       navigate('/chat', { state: { mode: 'squad', squadId, filterGender: null, filterCountry: '' } })
     }
     // After leaving a duo chat, re-hydrate the squad so the duo stays
-    // intact on the home page instead of resetting to solo.
+    // intact on the home page. Only force the mode switch when the user
+    // actually came from a duo chat — otherwise just load the squad data
+    // quietly so it's there if they pick Duo themselves.
+    const cameFromDuoChat = !!location.state?.fromDuoChat
     let restored = false
-    const onRestored = (data) => { restored = true; setSquad(data); setMode('squad') }
+    const onRestored = (data) => {
+      restored = true
+      setSquad(data)
+      if (cameFromDuoChat) setMode('squad')
+    }
     // If we optimistically opened in Duo mode but the squad no longer
     // exists (e.g. it expired during the chat), fall back to solo.
-    const fallbackTimer = location.state?.fromDuoChat
+    const fallbackTimer = cameFromDuoChat
       ? setTimeout(() => { if (!restored) setMode('solo') }, 4000)
       : null
-    if (location.state?.fromDuoChat) window.history.replaceState({}, '')
+    if (cameFromDuoChat) window.history.replaceState({}, '')
     socket.on('squad-created',       onCreated)
     socket.on('squad-updated',       onUpdated)
     socket.on('squad-joined',        onJoined)
