@@ -2346,7 +2346,7 @@ export default function ChatPage() {
                 bottom: 80,
                 left: 16,
                 right: 16,
-                maxHeight: 400,
+                height: 300,
                 background: 'rgba(0,0,0,0.3)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
