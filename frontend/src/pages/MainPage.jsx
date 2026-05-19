@@ -902,8 +902,6 @@ export default function MainPage() {
           <motion.div
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.35 }}
             style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, background: 'linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(124,58,237,0.05) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', padding: '16px' }}>
-            {/* VIP watermark */}
-            <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 64, fontWeight: 900, color: 'rgba(255,255,255,0.03)', letterSpacing: -3, pointerEvents: 'none', zIndex: 0, userSelect: 'none', lineHeight: 1 }}>VIP</span>
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div style={{ marginBottom: 8 }}>
                 <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'white', background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', borderRadius: 20, padding: '3px 10px', display: 'inline-block' }}>LIMITED OFFER</span>
