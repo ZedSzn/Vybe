@@ -133,16 +133,22 @@ function FloatingChat({ messages, messagesEndRef, onSend, status }) {
 // "Camera off" placeholder — your own tile when the camera is off or absent.
 // Mirrors the partner tile's connecting state so the two read as siblings.
 function CameraOffView({ user }) {
+  return <TilePlaceholder avatarUrl={user?.avatar} name={user?.username || 'Y'} />
+}
+
+// Centered avatar placeholder for any grid tile without a video stream —
+// used for the camera-off self tile and for camera-off strangers/partner.
+function TilePlaceholder({ avatarUrl, name, label = 'Camera off' }) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ zIndex: 5 }}>
-      {user?.avatar ? (
-        <img src={user.avatar} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)' }} />
+      {avatarUrl ? (
+        <img src={avatarUrl} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)' }} />
       ) : (
         <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#00D4FF' }}>
-          {user?.username?.[0]?.toUpperCase() || 'Y'}
+          {name?.[0]?.toUpperCase() || '?'}
         </div>
       )}
-      <p className="text-[10px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>Camera off</p>
+      <p className="text-[10px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>{label}</p>
     </div>
   )
 }
@@ -1408,10 +1414,11 @@ export default function ChatPage() {
             </div>
           ) : is2v2 ? (
             /* 2V2 MOBILE: Full-screen 2×2 grid */
-            <div className="absolute inset-0" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
+            <div className="absolute inset-0" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', background: '#0a0a14' }}>
               {/* TOP LEFT: Stranger 1 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)', borderRight: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                {!remoteStreams[opponentSocketIds[0]] && <TilePlaceholder avatarUrl={partnerAvatar} name={partnerUsername || 'Stranger'} />}
                 <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                   <ProfilePill
                     username={partnerUsername || 'Stranger'}
@@ -1433,6 +1440,7 @@ export default function ChatPage() {
               {/* TOP RIGHT: Stranger 2 */}
               <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(0,212,255,0.2)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                {!remoteStreams[opponentSocketIds[1]] && <TilePlaceholder name="Stranger" />}
                 <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                   <ProfilePill username="Stranger" isOnline isVerified={false} friendStatus="self" />
                 </div>
@@ -1473,10 +1481,11 @@ export default function ChatPage() {
                 </div>
               </div>
               {/* BOTTOM RIGHT: Duo partner */}
-              <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+              <div className="relative overflow-hidden">
                 {mateSocketIds[0] ? (
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                    {!remoteStreams[mateSocketIds[0]] && <TilePlaceholder name="Partner" />}
                     <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                       <ProfilePill username="Partner" isOnline isVerified={false} friendStatus="self" />
                     </div>
