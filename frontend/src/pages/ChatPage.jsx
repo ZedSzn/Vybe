@@ -1614,18 +1614,10 @@ export default function ChatPage() {
           {/* Timer — shifted left for the Leave button */}
           {status === 'matched' && (
             <div className="absolute z-[6] px-2.5 py-1.5 rounded-xl font-mono text-[11px] font-bold"
-              style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 100, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+              style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
               {fmt(elapsed)}
             </div>
           )}
-
-          {/* Mobile Leave — top right, kept apart from Skip to avoid mis-taps */}
-          <motion.button
-            onClick={handleEnd}
-            whileTap={{ scale: 0.92 }}
-            style={{ position: 'absolute', top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, zIndex: 7, background: 'rgba(239,68,68,0.16)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(239,68,68,0.38)', borderRadius: 50, padding: '8px 16px', color: '#f87171', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <PhoneOff size={13} /> Leave
-          </motion.button>
 
           {/* Mobile control bar — one row, Skip dominant */}
           {status === 'matched' && (
@@ -1645,11 +1637,11 @@ export default function ChatPage() {
                 style={{ width: 42, height: 42, borderRadius: '50%', background: isMuted ? 'rgba(239,68,68,0.85)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: isMuted ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.12)', color: 'white' }}>
                 {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
               </motion.button>
-              {/* Camera */}
-              <motion.button onClick={toggleVideo} whileTap={{ scale: 0.9 }}
+              {/* Leave */}
+              <motion.button onClick={handleEnd} whileTap={{ scale: 0.9 }}
                 className="flex-shrink-0 flex items-center justify-center"
-                style={{ width: 42, height: 42, borderRadius: '50%', background: videoOff ? 'rgba(239,68,68,0.85)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: videoOff ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.12)', color: 'white' }}>
-                {videoOff ? <VideoOff size={16} /> : <Video size={16} />}
+                style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(239,68,68,0.16)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }}>
+                <PhoneOff size={16} />
               </motion.button>
               {/* Skip — primary */}
               <motion.button
