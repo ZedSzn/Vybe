@@ -3109,6 +3109,18 @@ io.on('connection', (socket) => {
     io.to(squadId).emit('squad-navigate', { squadId, code: squad.code });
   });
 
+  // Re-fetch the caller's squad — used by the home page after leaving a duo
+  // chat so the duo stays intact instead of resetting to solo.
+  socket.on('my-squad', () => {
+    for (const [squadId, squad] of squads.entries()) {
+      if (squad.members.some((m) => m.socketId === socket.id)) {
+        socket.join(squadId);
+        socket.emit('squad-restored', { squadId, code: squad.code, members: squad.members, leaderId: squad.leaderId, expiresAt: squad.expiresAt });
+        return;
+      }
+    }
+  });
+
   // Friend invite to squad via socket
   socket.on('invite-friend-to-squad', ({ friendUserId, squadCode }) => {
     for (const [socketId, data] of onlineUsers.entries()) {

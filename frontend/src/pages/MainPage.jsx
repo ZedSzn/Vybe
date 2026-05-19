@@ -356,6 +356,9 @@ export default function MainPage() {
       streamRef.current?.getTracks().forEach((t) => t.stop())
       navigate('/chat', { state: { mode: 'squad', squadId, filterGender: null, filterCountry: '' } })
     }
+    // After leaving a duo chat, re-hydrate the squad so the duo stays
+    // intact on the home page instead of resetting to solo.
+    const onRestored = (data) => { setSquad(data); setMode('squad') }
     socket.on('squad-created',       onCreated)
     socket.on('squad-updated',       onUpdated)
     socket.on('squad-joined',        onJoined)
@@ -363,6 +366,8 @@ export default function MainPage() {
     socket.on('squad-kicked',        onKicked)
     socket.on('squad-error',         onError)
     socket.on('squad-navigate',      onNavigate)
+    socket.on('squad-restored',      onRestored)
+    socket.emit('my-squad')
     return () => {
       socket.off('squad-created',       onCreated)
       socket.off('squad-updated',       onUpdated)
@@ -371,6 +376,7 @@ export default function MainPage() {
       socket.off('squad-kicked',        onKicked)
       socket.off('squad-error',         onError)
       socket.off('squad-navigate',      onNavigate)
+      socket.off('squad-restored',      onRestored)
     }
   }, [socket, navigate])
 
