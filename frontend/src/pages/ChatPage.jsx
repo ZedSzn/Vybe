@@ -2119,11 +2119,7 @@ export default function ChatPage() {
               </div>
             </motion.div>
           ) : (
-          // Desktop solo / duo layout. When the user is solo but matched with
-          // two opponents, stack the panels vertically so the strangers share
-          // the top half and the user's camera fills the bottom half — a
-          // clear "me vs them" framing instead of the previous 25/25/50 mess.
-          <div className={`flex-1 flex min-h-0 ${!isDuoMode && opponentSocketIds.length > 1 ? 'flex-col' : ''}`} style={{ padding: 8, gap: 8 }}>
+          <div className="flex-1 flex min-h-0" style={{ padding: 8, gap: 8 }}>
 
               {/* Stranger video */}
               <div className="flex-1 min-h-0 min-w-0" style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -2181,29 +2177,37 @@ export default function ChatPage() {
                       </>
                     ) : null}
                   </div>
-                ) : (
-                  <motion.div
-                    key={opponentSocketIds.join(',')}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4, ease: 'easeOut' }}
-                    className="w-full h-full flex"
-                  >
-                    {opponentSocketIds.map((sid, idx) => (
-                      <div key={sid} className={`relative flex-1 overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
-                        <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                        {!remoteStreams[sid] && (
-                          <TilePlaceholder
-                            avatarUrl={idx === 0 ? partnerAvatar : null}
-                            name={idx === 0 ? (partnerUsername || 'Stranger') : 'Stranger'}
-                            size={88}
-                            hideLabel
-                          />
-                        )}
-                      </div>
-                    ))}
-                  </motion.div>
-                )}
+                ) : (() => {
+                  // Solo + 2 opponents → stack strangers vertically (top/bottom)
+                  // so the user's camera on the right gets the full height too.
+                  const stackVertical = opponentSocketIds.length > 1
+                  return (
+                    <motion.div
+                      key={opponentSocketIds.join(',')}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.4, ease: 'easeOut' }}
+                      className={`w-full h-full flex ${stackVertical ? 'flex-col' : ''}`}
+                    >
+                      {opponentSocketIds.map((sid, idx) => {
+                        const divider = idx > 0 && (stackVertical ? 'border-t border-white/10' : 'border-l border-white/10')
+                        return (
+                          <div key={sid} className={`relative flex-1 overflow-hidden ${divider || ''}`}>
+                            <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                            {!remoteStreams[sid] && (
+                              <TilePlaceholder
+                                avatarUrl={idx === 0 ? partnerAvatar : null}
+                                name={idx === 0 ? (partnerUsername || 'Stranger') : 'Stranger'}
+                                size={88}
+                                hideLabel
+                              />
+                            )}
+                          </div>
+                        )
+                      })}
+                    </motion.div>
+                  )
+                })()}
 
                 {/* Partner identity overlay — top left */}
                 <AnimatePresence>
