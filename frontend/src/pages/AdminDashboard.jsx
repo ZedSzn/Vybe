@@ -849,6 +849,21 @@ export default function AdminDashboard() {
       finally { setSaving(false) }
     }
 
+    // Immediate-persist for toggles — saves the moment you flip the switch
+    // so users don't have to remember to hit the global Save button.
+    const persistImmediate = async (patch, successMsg) => {
+      const next = { ...settings, ...patch }
+      setSettings(next)
+      try {
+        await axios.post('/api/admin-secure/settings', next, ah(token))
+        if (successMsg) showToast(successMsg)
+      } catch (e) {
+        showToast(e.response?.data?.error || 'Failed to save', 'error')
+        // Roll back on failure so the UI matches the server.
+        setSettings(settings)
+      }
+    }
+
     const changePassword = async () => {
       if (pwForm.new !== pwForm.confirm) { showToast('Passwords do not match', 'error'); return }
       if (pwForm.new.length < 8) { showToast('Min 8 characters', 'error'); return }
@@ -883,7 +898,7 @@ export default function AdminDashboard() {
               <p className="text-white text-sm font-semibold">Enable Maintenance</p>
               <p className="text-vybe-muted text-xs">Shows a maintenance page to all users</p>
             </div>
-            <button onClick={() => setSettings({ ...settings, maintenanceMode: !settings.maintenanceMode })} className="text-cyan-300 hover:opacity-80 transition-opacity">
+            <button onClick={() => persistImmediate({ maintenanceMode: !settings.maintenanceMode }, !settings.maintenanceMode ? 'Maintenance enabled — users see the maintenance page' : 'Maintenance disabled')} className="text-cyan-300 hover:opacity-80 transition-opacity">
               {settings.maintenanceMode ? <ToggleRight size={32} /> : <ToggleLeft size={32} className="opacity-40" />}
             </button>
           </div>
@@ -937,7 +952,7 @@ export default function AdminDashboard() {
               <p className="text-white text-sm font-semibold">Show Announcement</p>
               <p className="text-vybe-muted text-xs">Displays banner to all users on home page</p>
             </div>
-            <button onClick={() => setSettings({ ...settings, announcementActive: !settings.announcementActive })} className="text-cyan-300 hover:opacity-80 transition-opacity">
+            <button onClick={() => persistImmediate({ announcementActive: !settings.announcementActive }, !settings.announcementActive ? 'Announcement live' : 'Announcement hidden')} className="text-cyan-300 hover:opacity-80 transition-opacity">
               {settings.announcementActive ? <ToggleRight size={32} /> : <ToggleLeft size={32} className="opacity-40" />}
             </button>
           </div>
