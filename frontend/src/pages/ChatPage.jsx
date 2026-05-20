@@ -1743,15 +1743,15 @@ export default function ChatPage() {
                       className="w-full h-full object-cover"
                     />
                     {!remoteStreams[sid] && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                         {fallbackAvatar ? (
-                          <img src={fallbackAvatar} style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 40px rgba(0,212,255,0.12)' }} />
+                          <img src={fallbackAvatar} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)' }} />
                         ) : (
-                          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 900, color: '#00D4FF' }}>
+                          <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#00D4FF' }}>
                             {fallbackName[0].toUpperCase()}
                           </div>
                         )}
-                        <p style={{ color: 'white', fontWeight: 700, fontSize: 15, lineHeight: 1 }}>{fallbackName}</p>
+                        <p style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 700, fontSize: 12, lineHeight: 1 }}>{fallbackName}</p>
                       </div>
                     )}
                     {showInlinePill && (
