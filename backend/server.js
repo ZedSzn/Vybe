@@ -517,14 +517,19 @@ const appSettingsSchema = new mongoose.Schema({
 const SEVERE_REPORT_REASONS = ['nudity', 'underage'];
 
 const cashOutSchema = new mongoose.Schema({
-  userId:      { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  coinsAmount: { type: Number, required: true },
-  gbpAmount:   { type: Number, required: true },
-  paypalEmail: { type: String, required: true },
-  status:      { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-  adminNote:   { type: String, default: '' },
-  createdAt:   { type: Date, default: Date.now },
-  processedAt: { type: Date },
+  userId:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  coinsAmount:  { type: Number, required: true },
+  gbpAmount:    { type: Number, required: true },
+  paypalEmail:  { type: String, required: true },
+  // Workflow: pending → approved → paid (or pending → rejected)
+  // 'approved' = admin OK'd it, money not yet sent
+  // 'paid'     = admin has actually sent the PayPal payment
+  status:       { type: String, enum: ['pending', 'approved', 'paid', 'rejected'], default: 'pending' },
+  adminNote:    { type: String, default: '' },
+  paymentRef:   { type: String, default: '' }, // PayPal/Stripe transaction reference
+  createdAt:    { type: Date, default: Date.now },
+  processedAt:  { type: Date }, // when status moved from pending
+  paidAt:       { type: Date }, // when admin marked it as actually paid
 });
 
 const coinPurchaseSchema = new mongoose.Schema({
@@ -1515,7 +1520,7 @@ app.post('/api/admin/resolve-report/:id', adminMiddleware, async (req, res) => {
 // Stats overview
 app.get('/api/admin-secure/stats', adminSecureMiddleware, async (req, res) => {
   try {
-    const [totalUsers, bannedUsers, totalReports, pendingReports, unbanData, totalFriendships, onlineFriends, coinPurchaseData, cashoutPendingData, cashoutApprovedData, tipsData, subBasic, subVip, userOwedAgg] = await Promise.all([
+    const [totalUsers, bannedUsers, totalReports, pendingReports, unbanData, totalFriendships, onlineFriends, coinPurchaseData, cashoutPendingData, cashoutApprovedData, cashoutPaidData, tipsData, subBasic, subVip, userOwedAgg] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ isBanned: true }),
       Report.countDocuments(),
@@ -1526,6 +1531,7 @@ app.get('/api/admin-secure/stats', adminSecureMiddleware, async (req, res) => {
       CoinPurchase.aggregate([{ $match: { status: 'completed' } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, coins: { $sum: '$coinsAmount' }, count: { $sum: 1 } } }]),
       CashOutRequest.aggregate([{ $match: { status: 'pending' } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
       CashOutRequest.aggregate([{ $match: { status: 'approved' } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
+      CashOutRequest.aggregate([{ $match: { status: 'paid'     } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
       User.aggregate([{ $group: { _id: null, totalTipsEarned: { $sum: '$tipsEarned' } } }]),
       Subscription.countDocuments({ status: 'active', plan: 'basic' }),
       Subscription.countDocuments({ status: 'active', plan: 'vip' }),
@@ -1543,7 +1549,10 @@ app.get('/api/admin-secure/stats', adminSecureMiddleware, async (req, res) => {
       coinPurchaseCount:coinPurchaseData[0]?.count  || 0,
       pendingCashouts:  cashoutPendingData[0]?.count || 0,
       pendingCashoutGbp:cashoutPendingData[0]?.total || 0,
-      approvedCashoutGbp: cashoutApprovedData[0]?.total || 0,
+      approvedCashoutGbp: cashoutApprovedData[0]?.total || 0,   // approved but NOT yet paid
+      approvedCashoutCount: cashoutApprovedData[0]?.count || 0,
+      paidCashoutGbp:     cashoutPaidData[0]?.total     || 0,   // actually paid via PayPal
+      paidCashoutCount:   cashoutPaidData[0]?.count     || 0,
       subscriptionRevenue: subMrr,
       subscriptionBasic: subBasic,
       subscriptionVip:   subVip,
@@ -1789,7 +1798,7 @@ app.get('/api/admin-secure/users/:id/coin-history', adminSecureMiddleware, async
 // Revenue
 app.get('/api/admin-secure/revenue', adminSecureMiddleware, async (req, res) => {
   try {
-    const [unbanTotal, unbanMonthly, recentUnbans, coinTotal, coinMonthly, recentCoinPurchases, subBasic, subVip, tipStats, cashoutApproved, cashoutPending, userOwedAgg] = await Promise.all([
+    const [unbanTotal, unbanMonthly, recentUnbans, coinTotal, coinMonthly, recentCoinPurchases, subBasic, subVip, tipStats, cashoutApproved, cashoutPending, cashoutPaid, userOwedAgg] = await Promise.all([
       UnbanPurchase.aggregate([{ $match: { status: 'completed' } }, { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } }]),
       UnbanPurchase.aggregate([
         { $match: { status: 'completed' } },
@@ -1811,16 +1820,18 @@ app.get('/api/admin-secure/revenue', adminSecureMiddleware, async (req, res) => 
       User.aggregate([{ $group: { _id: null, totalTipsEarned: { $sum: '$tipsEarned' } } }]),
       CashOutRequest.aggregate([{ $match: { status: 'approved' } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
       CashOutRequest.aggregate([{ $match: { status: 'pending'  } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
+      CashOutRequest.aggregate([{ $match: { status: 'paid'     } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
       User.aggregate([{ $group: { _id: null, total: { $sum: '$earningsCoins' } } }]),
     ]);
     const subMrr             = (subBasic * 6.99) + (subVip * 12.99);
     const vybeTipCut         = (tipStats[0]?.totalTipsEarned || 0) * (0.30 / 0.70);
-    const approvedPayouts    = cashoutApproved[0]?.total || 0;
+    const approvedPayouts    = cashoutApproved[0]?.total || 0;   // approved, not yet paid
     const pendingPayouts     = cashoutPending[0]?.total  || 0;
+    const paidPayouts        = cashoutPaid[0]?.total     || 0;   // actually sent via PayPal
     const userOwedCoins      = userOwedAgg[0]?.total || 0;
     const userOwedGbp        = (userOwedCoins / 1000) * 4.20; // outstanding earnings users can still cash out
     const grossRevenue       = (unbanTotal[0]?.total || 0) + (coinTotal[0]?.total || 0) + subMrr;
-    const netKept            = grossRevenue - approvedPayouts;
+    const netKept            = grossRevenue - paidPayouts;       // only the money you ACTUALLY sent counts
     res.json({
       unbanRevenue:        unbanTotal[0]?.total  || 0,
       unbanCount:          unbanTotal[0]?.count  || 0,
@@ -1837,6 +1848,8 @@ app.get('/api/admin-secure/revenue', adminSecureMiddleware, async (req, res) => 
       approvedPayoutCount: cashoutApproved[0]?.count || 0,
       pendingPayouts,
       pendingPayoutCount:  cashoutPending[0]?.count  || 0,
+      paidPayouts,
+      paidPayoutCount:     cashoutPaid[0]?.count     || 0,
       userOwedGbp,
       grossRevenue,
       netKept,
@@ -2539,6 +2552,38 @@ app.post('/api/admin-secure/cashout/:id/approve', adminSecureMiddleware, async (
     res.json({ success: true, request });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
+// Mark an approved cashout as actually paid. Only callable on 'approved' rows
+// (you can't pay something that was rejected, and you can't pay before you've
+// approved). Records paidAt + optional paymentRef so you have an audit trail.
+app.post('/api/admin-secure/cashout/:id/mark-paid', adminSecureMiddleware, async (req, res) => {
+  try {
+    const { paymentRef = '' } = req.body;
+    const existing = await CashOutRequest.findById(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    if (existing.status !== 'approved') return res.status(400).json({ error: `Can only mark approved cashouts as paid (currently: ${existing.status})` });
+    const request = await CashOutRequest.findByIdAndUpdate(req.params.id,
+      { status: 'paid', paidAt: new Date(), paymentRef: String(paymentRef).slice(0, 200) }, { new: true }
+    ).populate('userId', '_id username email');
+    await createNotification(request.userId._id, 'coin_reward', '💸 Payment sent!',
+      `Your £${request.gbpAmount.toFixed(2)} cash out has been paid to ${request.paypalEmail}. ${paymentRef ? `Ref: ${paymentRef}` : 'Check your PayPal account.'}`);
+    res.json({ success: true, request });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Undo a "paid" marker if you clicked it by mistake. Reverts the row back to
+// 'approved' and clears paidAt/paymentRef.
+app.post('/api/admin-secure/cashout/:id/unmark-paid', adminSecureMiddleware, async (req, res) => {
+  try {
+    const existing = await CashOutRequest.findById(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    if (existing.status !== 'paid') return res.status(400).json({ error: `Only paid cashouts can be unmarked (currently: ${existing.status})` });
+    await CashOutRequest.findByIdAndUpdate(req.params.id,
+      { status: 'approved', $unset: { paidAt: '' }, paymentRef: '' }
+    );
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.post('/api/admin-secure/cashout/:id/reject', adminSecureMiddleware, async (req, res) => {
   try {
     const { note = '' } = req.body;
@@ -2566,8 +2611,9 @@ app.delete('/api/admin-secure/cashout/test-data', adminSecureMiddleware, async (
     let filter;
     if      (scope === 'approved') filter = { status: 'approved' };
     else if (scope === 'rejected') filter = { status: 'rejected' };
+    else if (scope === 'paid')     filter = { status: 'paid' };
     else if (scope === 'all')      filter = {}; // nuke everything including pending
-    else                           filter = { status: { $in: ['approved', 'rejected'] } }; // default: 'completed'
+    else                           filter = { status: { $in: ['approved', 'paid', 'rejected'] } }; // default: 'completed'
     const result = await CashOutRequest.deleteMany(filter);
     res.json({ success: true, deleted: result.deletedCount, scope });
   } catch (err) { res.status(500).json({ error: err.message }); }

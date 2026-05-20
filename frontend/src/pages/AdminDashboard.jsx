@@ -700,10 +700,11 @@ export default function AdminDashboard() {
     if (!data) return null
 
     const total          = (data.unbanRevenue || 0) + (data.coinRevenue || 0) + (data.subscriptionRevenue || 0)
-    const approvedPaid   = data.approvedPayouts || 0
+    const approvedQueue  = data.approvedPayouts || 0  // approved, not yet paid
     const pendingPaid    = data.pendingPayouts  || 0
+    const paidOut        = data.paidPayouts     || 0  // actually sent
     const userOwed       = data.userOwedGbp     || 0
-    const usersGet       = approvedPaid + pendingPaid + userOwed
+    const usersGet       = paidOut + approvedQueue + pendingPaid + userOwed
     const youKeep        = Math.max(0, total - usersGet)
     const youOweMore     = Math.max(0, usersGet - total)
     const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -766,12 +767,17 @@ export default function AdminDashboard() {
               <div className="relative">
                 <p className="text-rose-300 text-[11px] font-black uppercase tracking-[0.18em] mb-2">Users get</p>
                 <p className="text-rose-300 font-black leading-none" style={{ fontSize: '44px', fontFeatureSettings: '"tnum"', letterSpacing: '-0.02em' }}>£{usersGet.toFixed(2)}</p>
-                <p className="text-rose-300/70 text-xs mt-3">Already paid (£{approvedPaid.toFixed(2)}) + waiting in queue (£{pendingPaid.toFixed(2)}) + sitting in user balances (£{userOwed.toFixed(2)}).</p>
+                <div className="text-rose-300/70 text-[11px] mt-3 space-y-0.5">
+                  <p>✓ Actually paid via PayPal: <span className="text-emerald-300 font-semibold">£{paidOut.toFixed(2)}</span></p>
+                  <p>● Approved, you still need to send: <span className="text-cyan-300 font-semibold">£{approvedQueue.toFixed(2)}</span></p>
+                  <p>● Pending requests in queue: <span className="text-amber-300 font-semibold">£{pendingPaid.toFixed(2)}</span></p>
+                  <p>● Sitting in user balances: <span className="text-white/80 font-semibold">£{userOwed.toFixed(2)}</span></p>
+                </div>
               </div>
             </div>
           </div>
           <p className="text-vybe-muted text-[11px] mt-3 leading-relaxed">
-            Example: a user buys £10 of coins and tips them all → you keep £3 (your 30% cut), they get £7. Above is the all-time total. Gross revenue: <span className="text-white font-semibold">£{total.toFixed(2)}</span>.
+            Example: a user buys £10 of coins and tips them all → you keep £3 (your 30% cut), they get £7. Gross revenue: <span className="text-white font-semibold">£{total.toFixed(2)}</span>. {approvedQueue > 0 && <span className="text-cyan-300">You have <span className="font-bold">£{approvedQueue.toFixed(2)}</span> approved cashouts waiting for you to PayPal — open Cash Outs → Approved and hit Mark Paid after sending.</span>}
           </p>
           {youOweMore > 0 && (
             <div className="mt-3 px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
@@ -1165,6 +1171,32 @@ export default function AdminDashboard() {
       } catch (e) { showToast(e.response?.data?.error || 'Failed', 'error') }
     }
 
+    const markPaid = async (id, currentRef = '') => {
+      const paymentRef = window.prompt(
+        'Mark this cashout as PAID?\n\n' +
+        'Only do this after you have actually sent the PayPal payment. ' +
+        'Enter the PayPal transaction reference below (or leave blank).',
+        currentRef
+      )
+      if (paymentRef === null) return // cancelled
+      try {
+        await axios.post(`/api/admin-secure/cashout/${id}/mark-paid`, { paymentRef }, ah(token))
+        showToast('Marked as paid — user notified')
+        fetchRequests(filter)
+        fetchStats()
+      } catch (e) { showToast(e.response?.data?.error || 'Failed', 'error') }
+    }
+
+    const unmarkPaid = async (id) => {
+      if (!window.confirm('Undo paid marker? The cashout will go back to "approved" (queued).')) return
+      try {
+        await axios.post(`/api/admin-secure/cashout/${id}/unmark-paid`, {}, ah(token))
+        showToast('Reverted to approved')
+        fetchRequests(filter)
+        fetchStats()
+      } catch (e) { showToast(e.response?.data?.error || 'Failed', 'error') }
+    }
+
     const openReview = async (req) => {
       setReviewId(req._id)
       setReviewData(null)
@@ -1198,7 +1230,7 @@ export default function AdminDashboard() {
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div className="flex gap-1 bg-vybe-card2 p-1 rounded-xl w-fit">
-            {[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All']].map(([f, label]) => (
+            {[['pending','Pending'],['approved','Approved'],['paid','Paid'],['rejected','Rejected'],['all','All']].map(([f, label]) => (
               <button key={f} onClick={() => { setFilter(f); fetchRequests(f) }}
                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-cyan-400 text-[#06121b]' : 'text-vybe-muted hover:text-white'}`}>
                 {label}
@@ -1237,19 +1269,35 @@ export default function AdminDashboard() {
                       <span className="text-vybe-muted">Spend bal: <span className="text-cyan-400 font-semibold">{(r.userId?.coins ?? '?').toLocaleString()}</span></span>
                       <span className="text-vybe-muted">Tips total: <span className="text-white">{(r.userId?.tipsEarned ?? '?').toLocaleString()}</span></span>
                     </div>
-                    <p className="text-vybe-muted text-[11px]">{new Date(r.createdAt).toLocaleString()}</p>
+                    <p className="text-vybe-muted text-[11px]">Requested {new Date(r.createdAt).toLocaleString()}</p>
+                    {r.paidAt && <p className="text-emerald-300 text-[11px] mt-0.5">💸 Paid {new Date(r.paidAt).toLocaleString()}{r.paymentRef ? ` · Ref: ${r.paymentRef}` : ''}</p>}
                     {r.adminNote && <p className="text-white/40 text-xs mt-1">Note: {r.adminNote}</p>}
                   </div>
                   <div className="flex flex-col gap-2 flex-shrink-0">
                     <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border capitalize text-center ${
-                      r.status === 'pending' ? 'bg-cyan-500/15 text-cyan-400 border-yellow-500/25' :
+                      r.status === 'pending'  ? 'bg-amber-500/15 text-amber-300 border-amber-500/25' :
                       r.status === 'approved' ? 'bg-cyan-500/15 text-cyan-400 border-cyan-400/25' :
+                      r.status === 'paid'     ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' :
                       'bg-red-500/15 text-red-400 border-red-500/25'
-                    }`}>{r.status}</span>
+                    }`}>{r.status === 'paid' ? '✓ Paid' : r.status}</span>
                     {r.status === 'pending' && (
                       <button onClick={() => openReview(r)}
                         className="px-3 py-1.5 rounded-lg bg-cyan-400/15 border border-cyan-400/30 text-cyan-400 text-xs font-bold hover:bg-cyan-400/25 transition-all flex items-center gap-1">
                         <Eye size={11} /> Review
+                      </button>
+                    )}
+                    {r.status === 'approved' && (
+                      <button onClick={() => markPaid(r._id, r.paymentRef)}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold hover:bg-emerald-500/25 transition-all flex items-center gap-1"
+                        title="Mark as actually paid via PayPal">
+                        💸 Mark Paid
+                      </button>
+                    )}
+                    {r.status === 'paid' && (
+                      <button onClick={() => unmarkPaid(r._id)}
+                        className="px-3 py-1.5 rounded-lg bg-vybe-card2 border border-vybe-border text-vybe-muted text-xs font-bold hover:text-white transition-all flex items-center gap-1"
+                        title="Undo paid marker">
+                        ↺ Undo
                       </button>
                     )}
                   </div>
@@ -1531,10 +1579,11 @@ export default function AdminDashboard() {
 
           {section === 'overview' && stats && (() => {
             const grossRev      = (stats.unbanRevenue || 0) + (stats.coinRevenue || 0) + (stats.subscriptionRevenue || 0)
-            const approvedPaid  = stats.approvedCashoutGbp || 0
+            const approvedQueue = stats.approvedCashoutGbp || 0  // approved, not yet paid
             const pendingPaid   = stats.pendingCashoutGbp  || 0
+            const paidOut       = stats.paidCashoutGbp     || 0  // actually sent
             const userOwed      = stats.userOwedGbp || 0
-            const usersGet      = approvedPaid + pendingPaid + userOwed
+            const usersGet      = paidOut + approvedQueue + pendingPaid + userOwed
             const youKeep       = Math.max(0, grossRev - usersGet)
             const youOweMore    = Math.max(0, usersGet - grossRev) // dev-data sanity check
             return (
@@ -1571,12 +1620,17 @@ export default function AdminDashboard() {
                     <div className="relative">
                       <p className="text-rose-300 text-[11px] font-black uppercase tracking-[0.18em] mb-2">Users get</p>
                       <p className="text-rose-300 font-black leading-none" style={{ fontSize: '44px', fontFeatureSettings: '"tnum"', letterSpacing: '-0.02em' }}>£{usersGet.toFixed(2)}</p>
-                      <p className="text-rose-300/70 text-xs mt-3">Already paid (£{approvedPaid.toFixed(2)}) + waiting in queue (£{pendingPaid.toFixed(2)}) + sitting in user balances (£{userOwed.toFixed(2)}).</p>
+                      <div className="text-rose-300/70 text-[11px] mt-3 space-y-0.5">
+                        <p>✓ Actually paid via PayPal: <span className="text-emerald-300 font-semibold">£{paidOut.toFixed(2)}</span></p>
+                        <p>● Approved, you still need to send: <span className="text-cyan-300 font-semibold">£{approvedQueue.toFixed(2)}</span></p>
+                        <p>● Pending requests in queue: <span className="text-amber-300 font-semibold">£{pendingPaid.toFixed(2)}</span></p>
+                        <p>● Sitting in user balances: <span className="text-white/80 font-semibold">£{userOwed.toFixed(2)}</span></p>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <p className="text-vybe-muted text-[11px] mt-3 leading-relaxed">
-                  Example: a user buys £10 of coins and tips them all → you keep £3 (your 30% cut), they get £7. Above is the all-time total. Gross revenue: <span className="text-white font-semibold">£{grossRev.toFixed(2)}</span>.
+                  Example: a user buys £10 of coins and tips them all → you keep £3 (your 30% cut), they get £7. Gross revenue: <span className="text-white font-semibold">£{grossRev.toFixed(2)}</span>. {approvedQueue > 0 && <span className="text-cyan-300">You have <span className="font-bold">£{approvedQueue.toFixed(2)}</span> approved cashouts waiting for you to PayPal — open Cash Outs → Approved and hit Mark Paid after sending.</span>}
                 </p>
                 {youOweMore > 0 && (
                   <div className="mt-3 px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
