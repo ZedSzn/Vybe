@@ -465,12 +465,26 @@ export default function MainPage() {
     twitter:  `https://twitter.com/intent/tweet?text=${encodeURIComponent('Join my duo on Vybe!')}&url=${encodeURIComponent(inviteUrl)}`,
   }
 
-  const squadReady = squad?.members?.length >= 2
+  // In dev, a solo "Duo" with no partner can still start — it routes to a
+  // bot-filled duo session for previewing the layout. Treat that as "ready"
+  // so the Start button isn't disabled.
+  const squadReady = squad?.members?.length >= 2 || (mode === 'squad' && !!squad && import.meta.env.DEV)
 
   const startVybing = () => {
     if (mode === 'squad') {
       if (!squad) { setSquadError('Create a duo room first.'); return }
-      if (squad.members.length < 2) { setSquadError('Waiting for your friend to join…'); return }
+      if (squad.members.length < 2) {
+        // Dev shortcut — when running locally, tapping Start in Duo mode
+        // without a real partner enters the chat as a bot duo (partner bot
+        // + 2 stranger bots) so the duo layout can be previewed solo.
+        if (import.meta.env.DEV) {
+          streamRef.current?.getTracks().forEach((t) => t.stop())
+          navigate('/chat', { state: { mode: 'squad', filterGender: null, filterCountry: '' } })
+          return
+        }
+        setSquadError('Waiting for your friend to join…')
+        return
+      }
       socket.emit('squad-start-match', { squadId: squad.squadId })
       return
     }
