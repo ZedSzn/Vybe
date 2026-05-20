@@ -1762,7 +1762,7 @@ export default function ChatPage() {
                           isOnline
                           isVerified={isFirst ? !!partnerEmailVerified : false}
                           isVip={isFirst ? !!partnerIsVip : false}
-                          country={isFirst ? partnerCountry : null}
+                          country={isFirst ? partnerCountry : (partnerCountry || 'US')}
                           friendStatus="self"
                         />
                       </div>
@@ -1909,10 +1909,25 @@ export default function ChatPage() {
             )}
           </AnimatePresence>
 
-          {/* Timer — shifted left for the Leave button */}
+          {/* Timer — small chip tucked above the control bar so it doesn't
+              compete with the top opponent pills. Tracks the hide-UI toggle
+              so it slides away with everything else. */}
           {status === 'matched' && (
-            <div className="absolute z-[6] px-2.5 py-1.5 rounded-xl font-mono text-[11px] font-bold"
-              style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', right: 12, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+            <div className="absolute z-[6] px-2 py-1 rounded-lg font-mono text-[10px] font-bold pointer-events-none"
+              style={{
+                right: 12,
+                bottom: uiHidden
+                  ? 'max(48px, calc(env(safe-area-inset-bottom, 0px) + 44px))'
+                  : 'max(112px, calc(env(safe-area-inset-bottom, 0px) + 108px))',
+                background: 'rgba(0,0,0,0.55)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(0,212,255,0.22)',
+                color: '#7df0ff',
+                transition: 'bottom 300ms cubic-bezier(0.22,1,0.36,1)',
+                fontVariantNumeric: 'tabular-nums',
+                letterSpacing: '0.04em',
+              }}>
               {fmt(elapsed)}
             </div>
           )}
