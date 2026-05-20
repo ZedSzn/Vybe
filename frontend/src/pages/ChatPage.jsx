@@ -158,99 +158,15 @@ function FloatingChat({ messages, partnerMessages, messagesEndRef, onSend, statu
   )
 }
 
-// Reads the RMS mic level from a stream every frame and returns a 0..1
-// number. Lets the UI show a "I can hear you" pulse so users can verify
-// their microphone actually works.
-function useMicLevel(streamRef, enabled) {
-  const [level, setLevel] = useState(0)
-  useEffect(() => {
-    if (!enabled) { setLevel(0); return }
-    let audioCtx, source, analyser, raf
-    let cancelled = false
-    let retries = 0
-    const setup = () => {
-      if (cancelled) return
-      const stream = streamRef.current
-      const track  = stream?.getAudioTracks?.()[0]
-      if (!track) {
-        // Stream may not be ready yet — try again shortly.
-        if (retries++ < 30) setTimeout(setup, 200)
-        return
-      }
-      try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-        if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {})
-        source   = audioCtx.createMediaStreamSource(stream)
-        analyser = audioCtx.createAnalyser()
-        analyser.fftSize = 256
-        analyser.smoothingTimeConstant = 0.55
-        source.connect(analyser)
-        const buf = new Uint8Array(analyser.frequencyBinCount)
-        const tick = () => {
-          if (cancelled) return
-          analyser.getByteTimeDomainData(buf)
-          let sum = 0
-          for (let i = 0; i < buf.length; i++) {
-            const v = (buf[i] - 128) / 128
-            sum += v * v
-          }
-          // Boost the RMS a little so normal-voice volume gives a clear visual
-          setLevel(Math.min(1, Math.sqrt(sum / buf.length) * 5))
-          raf = requestAnimationFrame(tick)
-        }
-        tick()
-      } catch {}
-    }
-    setup()
-    return () => {
-      cancelled = true
-      cancelAnimationFrame(raf)
-      try { source?.disconnect() } catch {}
-      try { audioCtx?.close()    } catch {}
-    }
-  }, [enabled]) // streamRef is stable from useRef
-  return level
-}
-
-// Concentric cyan rings that expand from the avatar as the mic picks up
-// audio — gives an obvious visual confirmation that the mic works.
-function MicSpikes({ level = 0, size = 52 }) {
-  if (level < 0.03) return null
-  return (
-    <>
-      {[0, 1, 2].map((i) => {
-        const baseScale = 1 + i * 0.18
-        const grow      = level * (0.5 + i * 0.4)
-        return (
-          <div
-            key={i}
-            style={{
-              position: 'absolute', inset: 0,
-              width: size, height: size,
-              borderRadius: '50%',
-              border: '2px solid rgba(0,212,255,0.6)',
-              transform: `scale(${baseScale + grow})`,
-              opacity: Math.max(0, 0.6 - i * 0.18),
-              transition: 'transform 75ms linear, opacity 160ms ease-out',
-              willChange: 'transform, opacity',
-              pointerEvents: 'none',
-            }}
-          />
-        )
-      })}
-    </>
-  )
-}
-
 // "Camera off" placeholder — your own tile when the camera is off or absent.
 // Mirrors the partner tile's connecting state so the two read as siblings.
-function CameraOffView({ user, micLevel = 0 }) {
-  return <TilePlaceholder avatarUrl={user?.avatar} name={user?.username || 'Y'} micLevel={micLevel} />
+function CameraOffView({ user }) {
+  return <TilePlaceholder avatarUrl={user?.avatar} name={user?.username || 'Y'} />
 }
 
 // Centered avatar placeholder for any grid tile without a video stream —
 // used for the camera-off self tile and for camera-off strangers/partner.
-function TilePlaceholder({ avatarUrl, name, label = 'Camera off', size = 52, hideLabel = false, micLevel = 0 }) {
+function TilePlaceholder({ avatarUrl, name, label = 'Camera off', size = 52, hideLabel = false }) {
   // Bigger sizes get the cyan glow ring to match the user's own camera-off look.
   const big       = size >= 80
   const initial   = name?.[0]?.toUpperCase() || '?'
@@ -259,16 +175,13 @@ function TilePlaceholder({ avatarUrl, name, label = 'Camera off', size = 52, hid
     : { border: '2px solid rgba(0,212,255,0.35)' }
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ zIndex: 5 }}>
-      <div style={{ position: 'relative', width: size, height: size }}>
-        <MicSpikes level={micLevel} size={size} />
-        {avatarUrl ? (
-          <img src={avatarUrl} alt="" style={{ position: 'relative', width: size, height: size, borderRadius: '50%', objectFit: 'cover', ...ringStyle }} />
-        ) : (
-          <div style={{ position: 'relative', width: size, height: size, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: Math.max(14, Math.round(size * 0.4)), fontWeight: 900, color: '#00D4FF', ...ringStyle }}>
-            {initial}
-          </div>
-        )}
-      </div>
+      {avatarUrl ? (
+        <img src={avatarUrl} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', ...ringStyle }} />
+      ) : (
+        <div style={{ width: size, height: size, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: Math.max(14, Math.round(size * 0.4)), fontWeight: 900, color: '#00D4FF', ...ringStyle }}>
+          {initial}
+        </div>
+      )}
       {!hideLabel && <p className="text-[10px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>{label}</p>}
     </div>
   )
@@ -1235,11 +1148,6 @@ export default function ChatPage() {
     if (track) { track.enabled = !track.enabled; setVideoOff(!track.enabled) }
   }
 
-  // Mic-level visualizer for the user's avatar — only runs while the camera
-  // is off (that's when the avatar is shown). Lets the user confirm the mic
-  // works by speaking and seeing pulses ripple out of their avatar.
-  const micLevel = useMicLevel(localStreamRef, (!hasCamera || videoOff) && !isMuted && status !== 'init')
-
   const toggleChat = () => {
     setShowChat((v) => {
       if (!v) {
@@ -1673,7 +1581,7 @@ export default function ChatPage() {
                   ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                {(!hasCamera || videoOff) && <CameraOffView user={user} micLevel={micLevel} />}
+                {(!hasCamera || videoOff) && <CameraOffView user={user} />}
                 <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                   <ProfilePill
                     username={user ? user.username : 'You'}
@@ -1779,7 +1687,7 @@ export default function ChatPage() {
                   ? <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
-                  {(!hasCamera || videoOff) && <CameraOffView user={user} micLevel={micLevel} />}
+                  {(!hasCamera || videoOff) && <CameraOffView user={user} />}
                   <div className="absolute" style={{ top: 8, left: 8, zIndex: 10 }}>
                     <ProfilePill
                       username={user ? user.username : 'You'}
@@ -2432,16 +2340,13 @@ export default function ChatPage() {
 
                   {(!hasCamera || videoOff) && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
-                      <div style={{ position: 'relative', width: 88, height: 88 }}>
-                        <MicSpikes level={micLevel} size={88} />
-                        {user?.avatar ? (
-                          <img src={user.avatar} alt="" style={{ position: 'relative', width: 88, height: 88, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />
-                        ) : (
-                          <div style={{ position: 'relative', width: 88, height: 88, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 34, fontWeight: 900, color: '#00D4FF', boxShadow: '0 0 40px rgba(0,212,255,0.1)' }}>
-                            {user?.username ? user.username[0].toUpperCase() : 'Y'}
-                          </div>
-                        )}
-                      </div>
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" style={{ width: 88, height: 88, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />
+                      ) : (
+                        <div style={{ width: 88, height: 88, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 34, fontWeight: 900, color: '#00D4FF', boxShadow: '0 0 40px rgba(0,212,255,0.1)' }}>
+                          {user?.username ? user.username[0].toUpperCase() : 'Y'}
+                        </div>
+                      )}
                       {user?.country && (
                         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, lineHeight: 1, textAlign: 'center' }}>{user.country}</p>
                       )}
