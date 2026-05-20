@@ -1723,39 +1723,36 @@ export default function ChatPage() {
               />
             </motion.div>
           ) : (
-            /* SOLO MODE: stranger fills the top half (your camera fills the bottom half below) */
-            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
-              {/* Primary opponent */}
-              <video
-                ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }}
-                autoPlay playsInline
-                className="w-full h-full object-cover"
-              />
-              {/* No stream yet — show the dark surface + avatar instead of a black box */}
-              {!remoteStreams[opponentSocketIds[0]] && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
-                  {partnerAvatar ? (
-                    <img src={partnerAvatar} style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 40px rgba(0,212,255,0.12)' }} />
-                  ) : (
-                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 900, color: '#00D4FF' }}>
-                      {(partnerUsername || 'S')[0].toUpperCase()}
-                    </div>
-                  )}
-                  <p style={{ color: 'white', fontWeight: 700, fontSize: 15, lineHeight: 1 }}>{partnerUsername || 'Stranger'}</p>
-                </div>
-              )}
-              {/* Secondary opponent PiP — only when 2 opponents */}
-              {opponentSocketIds.length > 1 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: 'spring', damping: 26, stiffness: 300 }}
-                  className="absolute z-[8] overflow-hidden"
-                  style={{ top: 'max(72px, env(safe-area-inset-top, 0px) + 62px)', right: 12, width: 96, height: 128, borderRadius: 14, border: '1.5px solid rgba(255,255,255,0.12)', boxShadow: '0 8px 28px rgba(0,0,0,0.55)' }}
-                >
-                  <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                </motion.div>
-              )}
+            /* SOLO MODE: stranger(s) fill the top half. When matched against
+                a duo (2 opponents), they sit side-by-side instead of one
+                big + one PiP — clearer "me vs them as a pair" framing. */
+            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden flex" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+              {opponentSocketIds.map((sid, idx) => {
+                const isFirst = idx === 0
+                const fallbackName = isFirst ? (partnerUsername || 'Stranger') : 'Stranger'
+                const fallbackAvatar = isFirst ? partnerAvatar : null
+                return (
+                  <div key={sid} className={`relative flex-1 overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
+                    <video
+                      ref={(el) => { remoteVideoRefs.current[sid] = el }}
+                      autoPlay playsInline
+                      className="w-full h-full object-cover"
+                    />
+                    {!remoteStreams[sid] && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+                        {fallbackAvatar ? (
+                          <img src={fallbackAvatar} style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06), 0 0 40px rgba(0,212,255,0.12)' }} />
+                        ) : (
+                          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 900, color: '#00D4FF' }}>
+                            {fallbackName[0].toUpperCase()}
+                          </div>
+                        )}
+                        <p style={{ color: 'white', fontWeight: 700, fontSize: 15, lineHeight: 1 }}>{fallbackName}</p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </motion.div>
           )}
 
