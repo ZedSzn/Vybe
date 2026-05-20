@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { AuthProvider } from './context/AuthContext'
 import { SocketProvider, useSocket } from './context/SocketContext'
 import { LangProvider } from './context/LangContext'
@@ -30,6 +31,30 @@ class ErrorBoundary extends Component {
 // Eager — only the landing page and auth need to render immediately
 import MainPage  from './pages/MainPage'
 import AuthPage  from './pages/AuthPage'
+
+/* ─── Page-transition helpers ─────────────────────────────────────────────
+ * AnimatePresence diffs by `key`. We want a fade ONLY when the actual page
+ * changes — not when nested state changes the URL (e.g. /admin-vybe-2024/
+ * dashboard switching its internal section, or /chat re-rendering on match).
+ * `pageTransitionKey` collapses those paths to a single stable key so they
+ * don't re-trigger the fade.
+ *
+ * `PageFallback` is what shows while a lazy route's JS chunk is loading.
+ * Keeping it minimal (just the app bg) feels smoother than a spinner —
+ * combined with the parent fade, it reads as a single seamless transition.
+ */
+function pageTransitionKey(pathname) {
+  if (pathname === '/chat')                       return 'chat'
+  if (pathname.startsWith('/admin-vybe-2024'))    return 'admin-dashboard'
+  if (pathname.startsWith('/admin'))              return 'admin'
+  if (pathname.startsWith('/profile/'))           return 'profile'
+  if (pathname.startsWith('/duo/'))               return 'duo'
+  return pathname
+}
+
+function PageFallback() {
+  return <div style={{ minHeight: '100vh', background: '#07090f' }} />
+}
 
 // Chat is heavy (SimplePeer, socket.io, WebRTC) — lazy-split it
 const ChatPage = lazy(() => import('./pages/ChatPage'))
@@ -379,38 +404,59 @@ function AppRoutes() {
         <BanModal info={bannedInfo} onDismiss={handleBanDismiss} />
       )}
 
-      <Suspense fallback={null}>
-        <Routes>
-          {/* Eager routes */}
-          <Route path="/"     element={<MainPage />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/chat" element={<ChatPage />} />
+      {/*
+        Routes are wrapped in AnimatePresence with a short cross-fade so navigating
+        between pages (Community, Wallet, Profile, etc.) feels smooth instead of
+        hard-snapping. Two routes opt out by being keyed on their bare path so they
+        don't re-mount on every nested-state change:
+        - /chat   → live WebRTC, fade-out would tear down the call
+        - /admin… → admin needs to feel instant + dashboard manages its own tabs
 
-          {/* Lazy routes */}
-          <Route path="/admin"                      element={<AdminPage />} />
-          <Route path="/admin-vybe-2024"            element={<AdminLoginPage />} />
-          <Route path="/admin-vybe-2024/dashboard"  element={<AdminDashboard />} />
-          <Route path="/terms"                      element={<TermsPage />} />
-          <Route path="/guidelines"                 element={<GuidelinesPage />} />
-          <Route path="/privacy"                    element={<PrivacyPage />} />
-          <Route path="/duo/:code"                  element={<SquadJoinPage />} />
-          <Route path="/unban/success"              element={<UnbanSuccessPage />} />
-          <Route path="/verify-email"               element={<VerifyEmailPage />} />
-          <Route path="/forgot-password"            element={<ForgotPasswordPage />} />
-          <Route path="/reset-password"             element={<ResetPasswordPage />} />
-          <Route path="/profile/:id"                element={<ProfilePage />} />
-          <Route path="/profile" element={<OwnProfileRedirect />} />
-          <Route path="/pill-demo"                  element={<ProfilePillDemo />} />
-          <Route path="/leaderboard"                element={<LeaderboardPage />} />
-          <Route path="/settings"                   element={<SettingsPage />} />
-          <Route path="/wallet"                     element={<WalletPage />} />
-          <Route path="/coins"                      element={<CoinsPage />} />
-          <Route path="/subscription"               element={<SubscriptionPage />} />
-          <Route path="/friends"                    element={<FriendsPage />} />
-          <Route path="/earn"                       element={<EarnPage />} />
-          <Route path="*" element={<MainPage />} />
-        </Routes>
-      </Suspense>
+        Suspense lives INSIDE the motion.div so lazy-chunk loads only hide the
+        animating container, never the whole page tree.
+      */}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={pageTransitionKey(location.pathname)}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -2 }}
+          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Suspense fallback={<PageFallback />}>
+            <Routes location={location}>
+              {/* Eager routes */}
+              <Route path="/"     element={<MainPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/chat" element={<ChatPage />} />
+
+              {/* Lazy routes */}
+              <Route path="/admin"                      element={<AdminPage />} />
+              <Route path="/admin-vybe-2024"            element={<AdminLoginPage />} />
+              <Route path="/admin-vybe-2024/dashboard"  element={<AdminDashboard />} />
+              <Route path="/terms"                      element={<TermsPage />} />
+              <Route path="/guidelines"                 element={<GuidelinesPage />} />
+              <Route path="/privacy"                    element={<PrivacyPage />} />
+              <Route path="/duo/:code"                  element={<SquadJoinPage />} />
+              <Route path="/unban/success"              element={<UnbanSuccessPage />} />
+              <Route path="/verify-email"               element={<VerifyEmailPage />} />
+              <Route path="/forgot-password"            element={<ForgotPasswordPage />} />
+              <Route path="/reset-password"             element={<ResetPasswordPage />} />
+              <Route path="/profile/:id"                element={<ProfilePage />} />
+              <Route path="/profile" element={<OwnProfileRedirect />} />
+              <Route path="/pill-demo"                  element={<ProfilePillDemo />} />
+              <Route path="/leaderboard"                element={<LeaderboardPage />} />
+              <Route path="/settings"                   element={<SettingsPage />} />
+              <Route path="/wallet"                     element={<WalletPage />} />
+              <Route path="/coins"                      element={<CoinsPage />} />
+              <Route path="/subscription"               element={<SubscriptionPage />} />
+              <Route path="/friends"                    element={<FriendsPage />} />
+              <Route path="/earn"                       element={<EarnPage />} />
+              <Route path="*" element={<MainPage />} />
+            </Routes>
+          </Suspense>
+        </motion.div>
+      </AnimatePresence>
     </>
   )
 }
