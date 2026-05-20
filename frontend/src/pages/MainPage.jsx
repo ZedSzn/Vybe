@@ -465,10 +465,16 @@ export default function MainPage() {
     twitter:  `https://twitter.com/intent/tweet?text=${encodeURIComponent('Join my duo on Vybe!')}&url=${encodeURIComponent(inviteUrl)}`,
   }
 
-  // In dev, a solo "Duo" with no partner can still start — it routes to a
-  // bot-filled duo session for previewing the layout. Treat that as "ready"
-  // so the Start button isn't disabled.
-  const squadReady = squad?.members?.length >= 2 || (mode === 'squad' && !!squad && import.meta.env.DEV)
+  // hasRealPartner reflects the actual squad — drives every "Friend connected!"
+  // / "Connected & ready" status display so the UI never lies.
+  // canStartDuo also lets the Start button work in dev with no real partner
+  // (it routes to a bot-filled duo session for previewing the layout). Splitting
+  // the two stops the status panel from saying 'Friend connected!' when only the
+  // local user is in the squad.
+  const hasRealPartner = squad?.members?.length >= 2
+  const canStartDuo    = hasRealPartner || (mode === 'squad' && !!squad && import.meta.env.DEV)
+  // Backwards-compat alias used by the Start CTA logic below.
+  const squadReady     = canStartDuo
 
   const startVybing = () => {
     if (mode === 'squad') {
@@ -670,7 +676,7 @@ export default function MainPage() {
               transition={{ delay: 0.14, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 38%, rgba(0,212,255,0.1) 0%, transparent 70%)' }} />
-              {squadReady && partner ? (
+              {hasRealPartner && partner ? (
                 <>
                   <div className="relative z-10 flex flex-col items-center gap-2.5">
                     <div className="rounded-full flex items-center justify-center" style={{ width: 64, height: 64, background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: '#0a0a0f', fontWeight: 900, fontSize: 26 }}>
@@ -940,7 +946,7 @@ export default function MainPage() {
                             <Loader2 size={11} className="animate-spin flex-shrink-0" style={{ color: '#00D4FF' }} />
                             <p className="text-[11px]" style={{ color: 'rgba(200,210,255,0.6)' }}>Setting up room<WaitingDots /></p>
                           </motion.div>
-                        ) : !squadReady ? (
+                        ) : !hasRealPartner ? (
                           <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                             <Loader2 size={11} className="animate-spin flex-shrink-0" style={{ color: '#00D4FF' }} />
                             <p className="text-[11px]" style={{ color: 'rgba(200,210,255,0.6)' }}>Waiting for friend to join<WaitingDots /></p>
@@ -1500,7 +1506,7 @@ export default function MainPage() {
                 {/* BOTTOM HALF: Invite UI or partner joined */}
                 <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, bottom: 0, overflow: 'hidden', borderRadius: '0 0 28px 28px', zIndex: 1 }}>
                   <AnimatePresence mode="wait">
-                    {!squadReady ? (
+                    {!hasRealPartner ? (
                       <motion.div key="invite-panel"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
