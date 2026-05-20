@@ -2902,14 +2902,18 @@ function spawnBotMatch(socket, mode) {
     }
 
     // Solo: a single bot stranger.
-    const botId = `dev_bot_${stamp}`;
-    activePairs.set(socket.id, [botId]);
+    // Solo mode: two bot strangers presented as a duo against the solo user.
+    // Lets you test the "I'm solo, matched against a duo" experience — main
+    // bot fills the top half, the second appears as a secondary PiP.
+    const botA = `dev_bot_a_${stamp}`;
+    const botB = `dev_bot_b_${stamp}`;
+    activePairs.set(socket.id, [botA, botB]);
     socket.emit('match-found', {
       room,
-      peers:                [{ socketId: botId, isInitiator: true }],
+      peers:                [{ socketId: botA, isInitiator: true }, { socketId: botB, isInitiator: true }],
       squadMates:           [],
       isInitiator:          true,
-      partnerId:            botId,
+      partnerId:            botA,
       partnerUsername:      'TestBot',
       partnerUserId:        null,
       partnerAvatar:        null,
