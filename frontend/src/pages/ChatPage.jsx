@@ -1272,8 +1272,12 @@ export default function ChatPage() {
   const allRemoteEntries   = Object.keys(remoteStreams)
   const opponentSocketIds  = botPeerIds ? botPeerIds.opponents : allRemoteEntries.filter((sid) => !squadMates.includes(sid))
   const mateSocketIds      = botPeerIds ? botPeerIds.mates     : allRemoteEntries.filter((sid) => squadMates.includes(sid))
-  // isDuoMode is true for the entire squad session so the 3-panel layout shows during searching too
-  const isDuoMode          = isSquadSession || mateSocketIds.length > 0
+  // isDuoMode is sticky across skips — once you're in a duo session it stays
+  // duo until you fully leave. Without `persistentMateId` in this OR, the
+  // moment after a skip (when mateSocketIds briefly empties, or in dev-bot mode
+  // where mates never produce a real stream) would collapse the layout back to
+  // solo and the duo partner tile would visibly disappear until the next match.
+  const isDuoMode          = isSquadSession || mateSocketIds.length > 0 || !!persistentMateId
   // 2v2 only applies to a live match — while searching we fall back to the
   // 3-panel duo layout so you + your partner stay on screen.
   const is2v2              = isDuoMode && status === 'matched' && opponentSocketIds.length >= 2
