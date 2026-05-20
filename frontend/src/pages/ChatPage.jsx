@@ -1731,6 +1731,10 @@ export default function ChatPage() {
                 const isFirst = idx === 0
                 const fallbackName = isFirst ? (partnerUsername || 'Stranger') : 'Stranger'
                 const fallbackAvatar = isFirst ? partnerAvatar : null
+                // When matched against a duo (2 strangers), each tile carries
+                // its own pill — the global "Partner info" overlay is suppressed
+                // for this case so we don't end up with one labelled and one bare.
+                const showInlinePill = status === 'matched' && opponentSocketIds.length > 1
                 return (
                   <div key={sid} className={`relative flex-1 overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
                     <video
@@ -1748,6 +1752,19 @@ export default function ChatPage() {
                           </div>
                         )}
                         <p style={{ color: 'white', fontWeight: 700, fontSize: 15, lineHeight: 1 }}>{fallbackName}</p>
+                      </div>
+                    )}
+                    {showInlinePill && (
+                      <div className="absolute" style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', left: 12, zIndex: 10 }}>
+                        <ProfilePill
+                          username={fallbackName}
+                          avatarUrl={fallbackAvatar}
+                          isOnline
+                          isVerified={isFirst ? !!partnerEmailVerified : false}
+                          isVip={isFirst ? !!partnerIsVip : false}
+                          country={isFirst ? partnerCountry : null}
+                          friendStatus="self"
+                        />
                       </div>
                     )}
                   </div>
@@ -1871,7 +1888,7 @@ export default function ChatPage() {
               Uses the shared ProfilePill so the bot/stranger gets the same
               avatar + verified + VIP crown treatment as your own pill. */}
           <AnimatePresence>
-            {status === 'matched' && !is2v2 && (
+            {status === 'matched' && !is2v2 && opponentSocketIds.length <= 1 && (
               <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}
                 className="absolute z-[6] flex items-center gap-2"
                 style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', left: 12 }}>
