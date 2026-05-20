@@ -1427,7 +1427,7 @@ export default function ChatPage() {
         <AnimatePresence>
           {showGift && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-end justify-center"
+              className="fixed inset-0 z-[55] flex items-end justify-center"
               style={{ background: 'rgba(0,0,0,0.72)' }} onClick={() => setShowGift(false)}>
               <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                 transition={{ type: 'spring', damping: 32, stiffness: 340 }}
@@ -2745,8 +2745,8 @@ export default function ChatPage() {
         <AnimatePresence>
           {showReport && (
             <>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/65 z-[45]" onClick={() => setShowReport(false)} />
-              <div className="fixed inset-0 z-[50] flex items-center justify-center p-4 pointer-events-none">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/65 z-[54]" onClick={() => setShowReport(false)} />
+              <div className="fixed inset-0 z-[56] flex items-center justify-center p-4 pointer-events-none">
               <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }} transition={{ type: 'spring', damping: 26, stiffness: 320 }}
                 onClick={(e) => e.stopPropagation()}
                 className="pointer-events-auto w-[min(320px,90vw)] bg-vybe-bg2 border border-vybe-border rounded-2xl p-5 shadow-purple">
