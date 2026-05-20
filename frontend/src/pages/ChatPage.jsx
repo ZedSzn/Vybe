@@ -2089,43 +2089,24 @@ export default function ChatPage() {
               transition={{ duration: 0.35 }}
               style={{ flex: 1, display: 'grid', padding: 8, gap: 8, gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', minHeight: 0 }}
             >
-              {/* TOP LEFT: Stranger 1 */}
+              {/* TOP LEFT: Stranger 1 — full ProfilePill, label-less center avatar */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {!remoteStreams[opponentSocketIds[0]] && status === 'matched' && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                    {partnerAvatar ? (
-                      <img src={partnerAvatar} style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06)' }} />
-                    ) : (
-                      <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, color: '#00D4FF' }}>
-                        {(partnerUsername || 'S')[0].toUpperCase()}
-                      </div>
-                    )}
-                    <div style={{ textAlign: 'center' }}>
-                      <p style={{ color: 'white', fontWeight: 700, fontSize: 14, marginBottom: 3, lineHeight: 1 }}>{partnerUsername || 'Stranger'}</p>
-                      {partnerCountry && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4, lineHeight: 1 }}>{partnerCountry}</p>}
-                    </div>
-                  </div>
+                  <TilePlaceholder avatarUrl={partnerAvatar} name={partnerUsername || 'Stranger'} size={88} hideLabel />
                 )}
                 {status === 'matched' && (
                   <div className="absolute flex items-center gap-2" style={{ top: 12, left: 12, zIndex: 10 }}>
-                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                      {partnerAvatar ? (
-                        <img src={partnerAvatar} alt="" className="rounded-full object-cover flex-shrink-0" style={{ width: 22, height: 22, border: '1.5px solid rgba(255,255,255,0.2)' }} />
-                      ) : (
-                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>
-                          {(partnerUsername || 'S')[0].toUpperCase()}
-                        </div>
-                      )}
-                      <div className="flex flex-col" style={{ gap: 1 }}>
-                        <div className="flex items-center gap-1">
-                          <span className="text-white font-bold text-[11px] leading-none">{partnerUsername || 'Stranger'}</span>
-                          {partnerEmailVerified && <ShieldCheck size={9} style={{ color: '#00B8E0', flexShrink: 0 }} />}
-                          {partnerIsVip && <span className="flex items-center gap-0.5 px-1 py-0.5 rounded-full text-[7px] font-black" style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.3), rgba(124,58,237,0.3))', color: '#e0f0ff', border: '1px solid rgba(0,212,255,0.3)' }}><Crown size={6} />VIP</span>}
-                        </div>
-                        {partnerCountry && <span className="text-[9px] leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>{partnerCountry}</span>}
-                      </div>
-                    </div>
+                    <ProfilePill
+                      username={partnerUsername || 'Stranger'}
+                      avatarUrl={partnerAvatar}
+                      isOnline
+                      isVerified={!!partnerEmailVerified}
+                      isVip={!!partnerIsVip}
+                      country={partnerCountry}
+                      friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
+                      onAddFriend={handleAddFriend}
+                    />
                     {giftedBySocket[opponentSocketIds[0]] > 0 && (
                       <GiftChip key={giftedBySocket[opponentSocketIds[0]]} amount={giftedBySocket[opponentSocketIds[0]]} />
                     )}
@@ -2134,22 +2115,15 @@ export default function ChatPage() {
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
               </div>
 
-              {/* TOP RIGHT: Stranger 2 */}
+              {/* TOP RIGHT: Stranger 2 — generic ProfilePill (server doesn't send #2's profile yet) */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {!remoteStreams[opponentSocketIds[1]] && status === 'matched' && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                    <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, color: '#00D4FF' }}>S</div>
-                    <p style={{ color: 'white', fontWeight: 700, fontSize: 14, marginBottom: 3, lineHeight: 1 }}>Stranger</p>
-                  </div>
+                  <TilePlaceholder name="Stranger" size={88} hideLabel />
                 )}
                 {status === 'matched' && (
                   <div className="absolute flex items-center gap-2" style={{ top: 12, left: 12, zIndex: 10 }}>
-                    <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                      <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>S</div>
-                      <span className="text-white font-bold text-[11px] leading-none">Stranger</span>
-                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#00D4FF' }} />
-                    </div>
+                    <ProfilePill username="Stranger" isOnline isVerified={false} friendStatus="self" />
                     {giftedBySocket[opponentSocketIds[1]] > 0 && (
                       <GiftChip key={giftedBySocket[opponentSocketIds[1]]} amount={giftedBySocket[opponentSocketIds[1]]} />
                     )}
@@ -2158,7 +2132,7 @@ export default function ChatPage() {
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
               </div>
 
-              {/* BOTTOM LEFT: Your camera */}
+              {/* BOTTOM LEFT: Your camera — label-less center, ProfilePill already shared */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={localVideoDesktopRef} autoPlay muted playsInline className="w-full h-full object-cover" />
                 {!hasCamera && (camBgImage
@@ -2166,18 +2140,7 @@ export default function ChatPage() {
                   : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
                 {(!hasCamera || videoOff) && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
-                    {user?.avatar ? (
-                      <img src={user.avatar} alt="" style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06)' }} />
-                    ) : (
-                      <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, color: '#00D4FF' }}>
-                        {user?.username?.[0]?.toUpperCase() || 'Y'}
-                      </div>
-                    )}
-                    {user?.country && (
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, lineHeight: 1, textAlign: 'center' }}>{user.country}</p>
-                    )}
-                  </div>
+                  <TilePlaceholder avatarUrl={user?.avatar} name={user?.username || 'Y'} size={88} hideLabel micLevel={micLevel} />
                 )}
                 <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
                   <ProfilePill
@@ -2195,17 +2158,16 @@ export default function ChatPage() {
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
               </div>
 
-              {/* BOTTOM RIGHT: Duo partner camera */}
+              {/* BOTTOM RIGHT: Duo partner camera — placeholder fills the centre until their stream arrives */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 {mateSocketIds[0] ? (
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
+                    {!remoteStreams[mateSocketIds[0]] && (
+                      <TilePlaceholder name="Partner" size={88} hideLabel />
+                    )}
                     <div className="absolute flex items-center gap-2" style={{ top: 12, left: 12, zIndex: 10 }}>
-                      <div className="flex items-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.3)', borderRadius: 50, padding: '6px 12px 6px 6px', gap: 8 }}>
-                        <div className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]" style={{ width: 22, height: 22, background: 'linear-gradient(135deg, #00D4FF, #7C3AED)' }}>D</div>
-                        <span className="text-white font-bold text-[11px] leading-none">Duo Partner</span>
-                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
-                      </div>
+                      <ProfilePill username="Partner" isOnline isVerified={false} friendStatus="self" />
                       {giftedBySocket[mateSocketIds[0]] > 0 && (
                         <GiftChip key={giftedBySocket[mateSocketIds[0]]} amount={giftedBySocket[mateSocketIds[0]]} />
                       )}
