@@ -474,7 +474,6 @@ export default function ChatPage() {
   const searchTextTimer  = useRef(null)
   const reconnectTimer   = useRef(null)
   const matchFlashTimer  = useRef(null)
-  const giftPopupTimer   = useRef(null)
   const statusRef        = useRef(status)
   const chatTabRef       = useRef('all')
   const showChatRef      = useRef(false)
@@ -549,6 +548,18 @@ export default function ChatPage() {
   useEffect(() => { squadMatesRef.current = squadMates }, [squadMates])
   useEffect(() => { chatTabRef.current = chatTab }, [chatTab])
   useEffect(() => { showChatRef.current = showChat }, [showChat])
+
+  // Gift popup auto-dismiss — owned by React so the timer is bound to the
+  // popup state itself. If the popup is shown, this fires after 4.2s; if the
+  // component unmounts, hot-reloads, or a new gift arrives mid-display, the
+  // cleanup clears the timer. Previously this lived inside the socket handler
+  // and could leak (StrictMode double-mount, background-tab throttling), so a
+  // sender's popup would sometimes stick on screen indefinitely.
+  useEffect(() => {
+    if (!giftPopup) return
+    const t = setTimeout(() => setGiftPopup(null), 4200)
+    return () => clearTimeout(t)
+  }, [giftPopup])
 
   // Sync remote streams → video elements (stream objects don't trigger re-renders on srcObject change)
   useEffect(() => {
@@ -835,6 +846,7 @@ export default function ChatPage() {
         setPartnerCountry(pCountry || null)
         setGiftAnimations([])
         setGiftsReceived(0)
+        setGiftPopup(null) // belt-and-braces: never carry an old popup into a new match
         setFriendReqSent(false)
         setMatchFlash(true)
         clearTimeout(matchFlashTimer.current)
@@ -984,8 +996,9 @@ export default function ChatPage() {
         if (recipientSocketId === socketRef.current?.id)            recipientLabel = 'you'
         else if (squadMatesRef.current.includes(recipientSocketId)) recipientLabel = 'your partner'
         setGiftPopup({ id, giftId, who: `${senderLabel} sent ${recipientLabel}`, giftName, coins: Number(giftCoins || 0) })
-        clearTimeout(giftPopupTimer.current)
-        giftPopupTimer.current = setTimeout(() => setGiftPopup(null), 4200)
+        // Dismissal is owned by a useEffect on giftPopup (see below) so the
+        // timer can't leak across StrictMode re-mounts, HMR, or background-tab
+        // throttling — every popup is guaranteed to clear itself.
       })
 
 
@@ -1048,6 +1061,7 @@ export default function ChatPage() {
     setMessages([])
     setReportSent(false)
     setBotPeerIds(null)
+    setGiftPopup(null) // never leave a stale gift popup on screen across matches
     setStatus('searching')
     socketRef.current?.emit('skip')
     if (socketRef.current?.connected) findMatch(socketRef.current)
@@ -2708,7 +2722,8 @@ export default function ChatPage() {
               }}>
             <motion.div
               key={giftPopup.id}
-              className="flex items-center gap-3 pointer-events-auto w-full max-w-sm"
+              className="flex items-center gap-3 pointer-events-auto w-full max-w-sm cursor-pointer"
+              onClick={() => setGiftPopup(null)} // tap/click to dismiss as a manual escape hatch
               initial={{ opacity: 0, y: 14, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.97 }}
