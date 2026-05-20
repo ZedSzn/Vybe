@@ -337,6 +337,37 @@ function AppRoutes() {
     return () => clearInterval(interval)
   }, []) // eslint-disable-line
 
+  // ── Idle-time route prefetch ────────────────────────────────────────────
+  // Every page in the app is code-split (React.lazy), so the FIRST time a
+  // user clicks Wallet/Friends/Earn/etc the browser has to download that
+  // route's JS chunk before it can render — that's what feels "slow".
+  // Once the user is idle on the landing/auth page, we silently fetch the
+  // chunks for the pages they're most likely to hit next. They land in the
+  // browser cache, so the actual click later renders instantly.
+  // Heavy or rare routes (ChatPage, Admin, Terms, etc.) are skipped.
+  useEffect(() => {
+    const prefetch = () => {
+      const loaders = [
+        () => import('./pages/WalletPage'),
+        () => import('./pages/FriendsPage'),
+        () => import('./pages/EarnPage'),
+        () => import('./pages/CoinsPage'),
+        () => import('./pages/SettingsPage'),
+        () => import('./pages/ProfilePage'),
+        () => import('./pages/SubscriptionPage'),
+        () => import('./pages/LeaderboardPage'),
+      ]
+      loaders.forEach(load => load().catch(() => {}))
+    }
+    const idle = 'requestIdleCallback' in window
+      ? window.requestIdleCallback(prefetch, { timeout: 4000 })
+      : setTimeout(prefetch, 1500)
+    return () => {
+      if ('cancelIdleCallback' in window && typeof idle === 'number') window.cancelIdleCallback(idle)
+      else clearTimeout(idle)
+    }
+  }, [])
+
   // Re-check on every page navigation — catches it within 1 click for active users
   useEffect(() => {
     const adminToken = localStorage.getItem('vybe_admin_token') || ''
