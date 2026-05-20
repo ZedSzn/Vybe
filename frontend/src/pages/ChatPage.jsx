@@ -1267,8 +1267,15 @@ export default function ChatPage() {
     })
   }
 
-  // Derive opponent vs squad-mate video entries
-  const isSquadSession     = prefs.mode === 'squad' && !!prefs.squadId
+  // Derive opponent vs squad-mate video entries.
+  // Layout-wise, we treat any mode==='squad' navigation as a duo session so the
+  // 3-panel grid shows during the very first search — before the server has
+  // returned the squad mate. In production the MainPage Start CTA always
+  // forwards prefs.squadId; in dev the bot-duo shortcut omits it, so we also
+  // accept mode==='squad' alone in DEV. (The stricter inDuo check used by
+  // handleEnd still requires a real squadId so we don't navigate back into
+  // duo mode after a solo-bot session.)
+  const isSquadSession     = prefs.mode === 'squad' && (!!prefs.squadId || import.meta.env.DEV)
   const allRemoteEntries   = Object.keys(remoteStreams)
   const opponentSocketIds  = botPeerIds ? botPeerIds.opponents : allRemoteEntries.filter((sid) => !squadMates.includes(sid))
   const mateSocketIds      = botPeerIds ? botPeerIds.mates     : allRemoteEntries.filter((sid) => squadMates.includes(sid))
