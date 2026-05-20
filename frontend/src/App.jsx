@@ -424,7 +424,10 @@ function AppRoutes() {
           key={pageTransitionKey(location.pathname)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.14, ease: 'easeOut' }}
+          // 280ms with a soft cubic ease-out — slow enough that the fade reads as
+          // an intentional transition rather than a flash, fast enough that it
+          // doesn't feel like the app is dragging. Was 140ms (too snappy).
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           style={{ minHeight: '100vh', background: '#07090f' }}
         >
           <Routes location={location}>
