@@ -499,14 +499,21 @@ const notificationSchema = new mongoose.Schema({
 });
 
 const appSettingsSchema = new mongoose.Schema({
-  maintenanceMode:     { type: Boolean, default: false },
-  maintenanceMessage:  { type: String, default: 'Vybe is temporarily down for maintenance. Be back soon! 🚀' },
-  reportThreshold:     { type: Number, default: 3 },
-  announcement:        { type: String, default: '' },
-  announcementActive:  { type: Boolean, default: false },
-  adminPasswordHash:   { type: String, default: null },
-  updatedAt:           { type: Date, default: Date.now },
+  maintenanceMode:        { type: Boolean, default: false },
+  maintenanceMessage:     { type: String,  default: 'Vybe is temporarily down for maintenance. Be back soon! 🚀' },
+  // Moderation thresholds — counted as UNIQUE reporters within 24h.
+  warnThreshold:          { type: Number,  default: 3 }, // auto-send a warning at N unique reports
+  reportThreshold:        { type: Number,  default: 5 }, // auto-ban at N unique reports (general)
+  severeReportThreshold:  { type: Number,  default: 2 }, // auto-ban at N unique reports for severe reasons
+  announcement:           { type: String,  default: '' },
+  announcementActive:     { type: Boolean, default: false },
+  adminPasswordHash:      { type: String,  default: null },
+  updatedAt:              { type: Date,    default: Date.now },
 });
+
+// Severe report reasons get a lower auto-ban threshold — the harm is too
+// high to wait for the general threshold to be reached.
+const SEVERE_REPORT_REASONS = ['nudity', 'underage'];
 
 const cashOutSchema = new mongoose.Schema({
   userId:      { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -1025,30 +1032,89 @@ app.post('/api/reports', async (req, res) => {
 
     await Report.create({ reportedSocketId, reportedUserId: reportedUserId || null, reporterSocketId, reporterUserId: reporterUserId || null, reason });
 
-    const settings = await getSettings();
-    const threshold = settings.reportThreshold || 3;
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const recentCount = await Report.countDocuments({ reportedSocketId, createdAt: { $gte: since } });
+    const settings  = await getSettings();
+    const warnAt    = Math.max(1, settings.warnThreshold         || 3);
+    const banAt     = Math.max(1, settings.reportThreshold       || 5);
+    const severeAt  = Math.max(1, settings.severeReportThreshold || 2);
+    const since     = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    // Match by EITHER user id (preferred — survives reconnects) or socket id
+    // (for guest reports), to make 24h counts robust.
+    const matchTarget = reportedUserId
+      ? { $or: [{ reportedUserId }, { reportedSocketId }], createdAt: { $gte: since } }
+      : { reportedSocketId, createdAt: { $gte: since } };
+
+    // Unique reporters within the window — what actually signals a problem.
+    // Falls back to socket id for guest reporters who have no user id.
+    const reporters = await Report.aggregate([
+      { $match: matchTarget },
+      { $group: { _id: { $ifNull: ['$reporterUserId', '$reporterSocketId'] } } },
+    ]);
+    const uniqueReporters = reporters.length;
+
+    // Same again, but only severe reasons.
+    const severeReporters = await Report.aggregate([
+      { $match: { ...matchTarget, reason: { $in: SEVERE_REPORT_REASONS } } },
+      { $group: { _id: { $ifNull: ['$reporterUserId', '$reporterSocketId'] } } },
+    ]);
+    const uniqueSevereReporters = severeReporters.length;
 
     let autoSuspended = false;
-    if (recentCount >= threshold && reportedUserId) {
-      autoSuspended = true;
+    let autoWarned    = false;
+
+    if (reportedUserId) {
       const targetUser = await User.findById(reportedUserId);
-      if (targetUser && !targetUser.isBanned && !targetUser.isAdmin) {
+      const eligible   = targetUser && !targetUser.isBanned && !targetUser.isAdmin;
+
+      // Tier 1 — severe override: auto-ban faster for nudity/underage.
+      if (eligible && uniqueSevereReporters >= severeAt) {
+        autoSuspended = true;
         const newCount = (targetUser.violationCount || 0) + 1;
         const { banType, banExpiresAt } = getBanDuration(newCount - 1);
         const banReason = banType === 'permanent'
-          ? 'Permanently banned: repeated violations of community guidelines.'
-          : `Auto-suspended for ${banType}: ${threshold}+ reports in 24 hours. Pending admin review.`;
+          ? 'Permanently banned: repeated severe community guideline violations.'
+          : `Auto-suspended for ${banType}: ${severeAt}+ reports for severe behaviour in 24 hours. Pending admin review.`;
         await User.findByIdAndUpdate(reportedUserId, {
           isBanned: true, banReason, banType, banExpiresAt, bannedAt: new Date(), violationCount: newCount,
           $push: { banHistory: { action: 'ban', banType, reason: banReason, timestamp: new Date() } },
         });
         kickBannedUser(reportedUserId, banReason, banType, banExpiresAt);
       }
+      // Tier 2 — general threshold ban.
+      else if (eligible && uniqueReporters >= banAt) {
+        autoSuspended = true;
+        const newCount = (targetUser.violationCount || 0) + 1;
+        const { banType, banExpiresAt } = getBanDuration(newCount - 1);
+        const banReason = banType === 'permanent'
+          ? 'Permanently banned: repeated violations of community guidelines.'
+          : `Auto-suspended for ${banType}: ${banAt}+ reports in 24 hours. Pending admin review.`;
+        await User.findByIdAndUpdate(reportedUserId, {
+          isBanned: true, banReason, banType, banExpiresAt, bannedAt: new Date(), violationCount: newCount,
+          $push: { banHistory: { action: 'ban', banType, reason: banReason, timestamp: new Date() } },
+        });
+        kickBannedUser(reportedUserId, banReason, banType, banExpiresAt);
+      }
+      // Tier 3 — warning. Only sent once per 24h window (we check the most
+      // recent warning to avoid spamming a user with one per report).
+      else if (eligible && uniqueReporters >= warnAt) {
+        const lastWarn = targetUser.warnings?.length ? targetUser.warnings[targetUser.warnings.length - 1] : null;
+        const recentlyWarned = lastWarn?.issuedAt && (Date.now() - new Date(lastWarn.issuedAt).getTime() < 24 * 60 * 60 * 1000);
+        if (!recentlyWarned) {
+          autoWarned = true;
+          const warnMsg = `You've been reported by multiple users in the last 24 hours. Please review our community guidelines — continuing the same behaviour may lead to a temporary suspension.`;
+          await User.findByIdAndUpdate(reportedUserId, {
+            $push: { warnings: { message: warnMsg, issuedAt: new Date() } },
+          });
+          for (const [socketId, data] of onlineUsers.entries()) {
+            if (String(data.userId) === String(reportedUserId)) {
+              io.to(socketId).emit('admin-warning', { message: warnMsg });
+            }
+          }
+        }
+      }
     }
 
-    res.json({ success: true, autoSuspended });
+    res.json({ success: true, autoSuspended, autoWarned, uniqueReporters });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -1759,24 +1825,28 @@ app.get('/api/admin-secure/settings', adminSecureMiddleware, async (req, res) =>
   try {
     const settings = await AppSettings.findOne() || {};
     res.json({
-      maintenanceMode:    settings.maintenanceMode    || false,
-      maintenanceMessage: settings.maintenanceMessage || '',
-      reportThreshold:    settings.reportThreshold    || 3,
-      announcement:       settings.announcement       || '',
-      announcementActive: settings.announcementActive || false,
+      maintenanceMode:       settings.maintenanceMode       || false,
+      maintenanceMessage:    settings.maintenanceMessage    || '',
+      warnThreshold:         settings.warnThreshold         || 3,
+      reportThreshold:       settings.reportThreshold       || 5,
+      severeReportThreshold: settings.severeReportThreshold || 2,
+      announcement:          settings.announcement          || '',
+      announcementActive:    settings.announcementActive    || false,
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post('/api/admin-secure/settings', adminSecureMiddleware, async (req, res) => {
   try {
-    const { maintenanceMode, maintenanceMessage, reportThreshold, announcement, announcementActive } = req.body;
+    const { maintenanceMode, maintenanceMessage, warnThreshold, reportThreshold, severeReportThreshold, announcement, announcementActive } = req.body;
     const update = { updatedAt: new Date() };
-    if (maintenanceMode    !== undefined) update.maintenanceMode    = maintenanceMode;
-    if (maintenanceMessage !== undefined) update.maintenanceMessage = maintenanceMessage;
-    if (reportThreshold    !== undefined) update.reportThreshold    = reportThreshold;
-    if (announcement       !== undefined) update.announcement       = announcement;
-    if (announcementActive !== undefined) update.announcementActive = announcementActive;
+    if (maintenanceMode       !== undefined) update.maintenanceMode       = maintenanceMode;
+    if (maintenanceMessage    !== undefined) update.maintenanceMessage    = maintenanceMessage;
+    if (warnThreshold         !== undefined) update.warnThreshold         = Math.max(1, parseInt(warnThreshold, 10) || 3);
+    if (reportThreshold       !== undefined) update.reportThreshold       = Math.max(1, parseInt(reportThreshold, 10) || 5);
+    if (severeReportThreshold !== undefined) update.severeReportThreshold = Math.max(1, parseInt(severeReportThreshold, 10) || 2);
+    if (announcement          !== undefined) update.announcement          = announcement;
+    if (announcementActive    !== undefined) update.announcementActive    = announcementActive;
 
     await AppSettings.findOneAndUpdate({}, update, { upsert: true, new: true });
     invalidateSettings();

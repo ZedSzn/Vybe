@@ -897,11 +897,36 @@ export default function AdminDashboard() {
           <input value={settings.maintenanceMessage} onChange={(e) => setSettings({ ...settings, maintenanceMessage: e.target.value })} className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-cyan-400 focus:outline-none" />
         </div>
 
-        {/* Report threshold */}
+        {/* Moderation thresholds */}
         <div className="bg-vybe-card border border-vybe-border rounded-2xl p-5">
-          <h3 className="font-black text-white mb-4">Moderation Settings</h3>
-          <label className="block text-xs font-bold text-vybe-muted uppercase tracking-wider mb-1.5">Auto-ban threshold (reports within 24h)</label>
-          <input type="number" min={1} max={20} value={settings.reportThreshold} onChange={(e) => setSettings({ ...settings, reportThreshold: parseInt(e.target.value) || 3 })} className="w-32 px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm focus:border-cyan-400 focus:outline-none" />
+          <h3 className="font-black text-white mb-2">Moderation Thresholds</h3>
+          <p className="text-vybe-muted text-xs mb-4">
+            Counted as <span className="text-cyan-300 font-bold">unique reporters</span> within 24 hours — duplicate reports from the same person don&apos;t stack.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { key: 'warnThreshold',         label: 'Auto-warn',                 hint: 'Send a warning notification',                    default: 3 },
+              { key: 'reportThreshold',       label: 'Auto-ban (general)',        hint: 'Temp ban for normal reports',                    default: 5 },
+              { key: 'severeReportThreshold', label: 'Auto-ban (severe override)', hint: 'Nudity / underage — faster trigger',             default: 2 },
+            ].map(({ key, label, hint, default: dflt }) => (
+              <div key={key} className="bg-vybe-bg border border-vybe-border rounded-xl p-3.5">
+                <label className="block text-[10px] font-black text-cyan-400/70 uppercase tracking-[0.14em] mb-1">{label}</label>
+                <input
+                  type="number" min={1} max={20}
+                  value={settings[key] ?? dflt}
+                  onChange={(e) => setSettings({ ...settings, [key]: parseInt(e.target.value) || dflt })}
+                  className="w-full px-3 py-2 bg-vybe-card border border-vybe-border rounded-lg text-white text-lg font-black focus:border-cyan-400 focus:outline-none"
+                  style={{ fontFeatureSettings: '"tnum"' }}
+                />
+                <p className="text-vybe-muted text-[11px] mt-1.5 leading-snug">{hint}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 px-3 py-2.5 rounded-lg" style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.18)' }}>
+            <p className="text-[11px] text-cyan-300/85 leading-relaxed">
+              <span className="font-bold">Recommended:</span> 3 / 5 / 2 — warn at 3 to give users a chance to course-correct, ban at 5 for normal reports, ban faster (2) for nudity or underage reports.
+            </p>
+          </div>
         </div>
 
         {/* Announcement */}
