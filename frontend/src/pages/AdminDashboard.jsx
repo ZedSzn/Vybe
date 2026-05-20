@@ -699,57 +699,127 @@ export default function AdminDashboard() {
     if (loading) return <Spinner />
     if (!data) return null
 
+    const total = (data.unbanRevenue || 0) + (data.coinRevenue || 0) + (data.subscriptionRevenue || 0)
+    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+    const MonthlyChart = ({ title, rows, accent = 'emerald' }) => {
+      if (!rows?.length) return null
+      const max = Math.max(...rows.map((x) => x.total))
+      return (
+        <div className="bg-vybe-card border border-vybe-border rounded-2xl p-5">
+          <h3 className="font-black text-white mb-4 text-sm">{title}</h3>
+          <div className="space-y-2">
+            {rows.map((m) => {
+              const pct = max ? (m.total / max) * 100 : 0
+              return (
+                <div key={`${m._id.year}-${m._id.month}`} className="flex items-center gap-3">
+                  <span className="text-vybe-muted text-xs w-16 flex-shrink-0">{months[m._id.month]} {m._id.year}</span>
+                  <div className="flex-1 bg-vybe-bg rounded-full h-2 overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${accent === 'emerald' ? 'bg-emerald-400' : 'bg-cyan-400'}`}
+                      style={{ width: `${pct}%`, boxShadow: accent === 'emerald' ? '0 0 8px rgba(52,211,153,0.5)' : '0 0 8px rgba(0,212,255,0.5)' }} />
+                  </div>
+                  <span className={`text-xs font-bold w-20 text-right ${accent === 'emerald' ? 'text-emerald-400' : 'text-cyan-300'}`} style={{ fontFeatureSettings: '"tnum"' }}>£{m.total.toFixed(2)}</span>
+                  <span className="text-vybe-muted text-[11px] w-10">{m.count}x</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard label="Unban Revenue"   value={`$${(data.unbanRevenue || 0).toFixed(2)}`}  color="text-emerald-400"  bg="bg-emerald-500/10"  border="border-emerald-500/20" icon={DollarSign} />
-          <StatCard label="Unban Sales"     value={data.unbanCount || 0}    color="text-emerald-300"  bg="bg-emerald-500/10"  border="border-emerald-500/20" icon={TrendingUp} />
-          <StatCard label="Subscription Rev" value={`$${(data.subscriptionRevenue || 0).toFixed(2)}`} color="text-cyan-400" bg="bg-cyan-400/10" border="border-cyan-400/20" icon={DollarSign} />
-          <StatCard label="Total Revenue"   value={`$${((data.unbanRevenue || 0) + (data.subscriptionRevenue || 0)).toFixed(2)}`} color="text-cyan-400" bg="bg-cyan-400/10" border="border-cyan-400/20" icon={TrendingUp} />
+        {/* Top: headline revenue */}
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Revenue (all-time)</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <StatCard label="Total Revenue"     value={`£${total.toFixed(2)}`}                          color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/25" icon={TrendingUp} />
+            <StatCard label="Coin Sales"        value={`£${(data.coinRevenue || 0).toFixed(2)}`}        color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+            <StatCard label="Unban Sales"       value={`£${(data.unbanRevenue || 0).toFixed(2)}`}       color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+            <StatCard label="Membership MRR"    value={`£${(data.subscriptionRevenue || 0).toFixed(2)}`} color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+          </div>
         </div>
 
-        {data.monthlyBreakdown?.length > 0 && (
-          <div className="bg-vybe-card border border-vybe-border rounded-2xl p-5">
-            <h3 className="font-black text-white mb-4">Monthly Breakdown</h3>
-            <div className="space-y-2">
-              {data.monthlyBreakdown.map((m) => {
-                const max = Math.max(...data.monthlyBreakdown.map((x) => x.total))
-                const pct = max ? (m.total / max) * 100 : 0
-                const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-                return (
-                  <div key={`${m._id.year}-${m._id.month}`} className="flex items-center gap-3">
-                    <span className="text-vybe-muted text-xs w-12 flex-shrink-0">{months[m._id.month]} {m._id.year}</span>
-                    <div className="flex-1 bg-vybe-bg rounded-full h-2 overflow-hidden">
-                      <div className="h-full bg-cyan-400 rounded-full transition-all" style={{ width: `${pct}%` }} />
-                    </div>
-                    <span className="text-emerald-400 text-xs font-bold w-16 text-right">${m.total.toFixed(2)}</span>
-                    <span className="text-vybe-muted text-[11px] w-10">{m.count}x</span>
-                  </div>
-                )
-              })}
-            </div>
+        {/* Coin sales detail */}
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Coin sales</p>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+            <StatCard label="Revenue"      value={`£${(data.coinRevenue || 0).toFixed(2)}`}    color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+            <StatCard label="Orders"       value={data.coinCount || 0}                          color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"   icon={TrendingUp} />
+            <StatCard label="Coins Sold"   value={(data.coinsSold || 0).toLocaleString()}       color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"   icon={TrendingUp} />
           </div>
-        )}
+        </div>
 
-        {data.recentTransactions?.length > 0 && (
-          <div className="bg-vybe-card border border-vybe-border rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-vybe-border">
-              <h3 className="font-black text-white">Recent Transactions</h3>
-            </div>
-            <div className="divide-y divide-vybe-border">
-              {data.recentTransactions.map((t) => (
-                <div key={t._id} className="px-5 py-3.5 flex items-center justify-between">
-                  <div>
-                    <p className="text-white text-sm font-semibold">{t.userId?.username || '—'}</p>
-                    <p className="text-vybe-muted text-[11px]">Unban purchase · {t.banType || '—'}</p>
-                    <p className="text-vybe-muted text-[11px]">{t.completedAt ? new Date(t.completedAt).toLocaleString() : '—'}</p>
-                  </div>
-                  <span className="text-emerald-400 font-black text-base">${(t.amount || 4.99).toFixed(2)}</span>
-                </div>
-              ))}
-            </div>
+        {/* Memberships detail */}
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Memberships (active subscriptions)</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <StatCard label="MRR"             value={`£${(data.subscriptionRevenue || 0).toFixed(2)}`} color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+            <StatCard label="Active Total"    value={data.subscriptionCount || 0}                       color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Users} />
+            <StatCard label="Basic Active"    value={data.subscriptionBasic || 0}                       color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Users} />
+            <StatCard label="VIP Active"      value={data.subscriptionVip || 0}                         color="text-amber-300"   bg="bg-amber-500/8"   border="border-amber-500/25" icon={Users} />
           </div>
-        )}
+        </div>
+
+        {/* Unban detail */}
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Unban purchases</p>
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard label="Revenue" value={`£${(data.unbanRevenue || 0).toFixed(2)}`} color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+            <StatCard label="Sales"   value={data.unbanCount || 0}                       color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"   icon={TrendingUp} />
+          </div>
+        </div>
+
+        {/* Monthly breakdowns side-by-side */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+          <MonthlyChart title="Unban — monthly"     rows={data.monthlyBreakdown} accent="emerald" />
+          <MonthlyChart title="Coin sales — monthly" rows={data.coinMonthly}      accent="cyan" />
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+          {data.recentCoinTransactions?.length > 0 && (
+            <div className="bg-vybe-card border border-vybe-border rounded-2xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-vybe-border flex items-center justify-between">
+                <h3 className="font-black text-white text-sm">Recent coin purchases</h3>
+                <span className="text-vybe-muted text-[11px]">{data.recentCoinTransactions.length}</span>
+              </div>
+              <div className="divide-y divide-vybe-border max-h-[420px] overflow-y-auto">
+                {data.recentCoinTransactions.map((t) => (
+                  <div key={t._id} className="px-5 py-3.5 flex items-center justify-between">
+                    <div className="min-w-0">
+                      <p className="text-white text-sm font-semibold truncate">{t.userId?.username || '—'}</p>
+                      <p className="text-vybe-muted text-[11px]">Coins · {(t.coinsAmount || 0).toLocaleString()}</p>
+                      <p className="text-vybe-muted text-[11px]">{t.completedAt ? new Date(t.completedAt).toLocaleString() : '—'}</p>
+                    </div>
+                    <span className="text-emerald-400 font-black text-base flex-shrink-0 ml-3" style={{ fontFeatureSettings: '"tnum"' }}>£{(t.gbpAmount || 0).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {data.recentTransactions?.length > 0 && (
+            <div className="bg-vybe-card border border-vybe-border rounded-2xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-vybe-border flex items-center justify-between">
+                <h3 className="font-black text-white text-sm">Recent unban purchases</h3>
+                <span className="text-vybe-muted text-[11px]">{data.recentTransactions.length}</span>
+              </div>
+              <div className="divide-y divide-vybe-border max-h-[420px] overflow-y-auto">
+                {data.recentTransactions.map((t) => (
+                  <div key={t._id} className="px-5 py-3.5 flex items-center justify-between">
+                    <div className="min-w-0">
+                      <p className="text-white text-sm font-semibold truncate">{t.userId?.username || '—'}</p>
+                      <p className="text-vybe-muted text-[11px]">Unban · {t.banType || '—'}</p>
+                      <p className="text-vybe-muted text-[11px]">{t.completedAt ? new Date(t.completedAt).toLocaleString() : '—'}</p>
+                    </div>
+                    <span className="text-emerald-400 font-black text-base flex-shrink-0 ml-3" style={{ fontFeatureSettings: '"tnum"' }}>£{(t.amount || 4.99).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     )
   }
@@ -1327,29 +1397,46 @@ export default function AdminDashboard() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
 
-          {section === 'overview' && stats && (
+          {section === 'overview' && stats && (() => {
+            const totalRev = (stats.unbanRevenue || 0) + (stats.coinRevenue || 0)
+            return (
             <div className="space-y-7">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">At a glance</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Community</p>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <StatCard label="Total Users"     value={stats.totalUsers}                              color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Users} />
-                  <StatCard label="Online Now"      value={stats.online}                                  color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Wifi} />
-                  <StatCard label="Banned"          value={stats.bannedUsers}                             color="text-red-400"     bg="bg-red-500/8"     border="border-red-500/20"   icon={UserX} />
-                  <StatCard label="Friendships"     value={stats.totalFriendships}                        color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Heart} />
-                  <StatCard label="Total Reports"   value={stats.totalReports}                            color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Flag} />
-                  <StatCard label="Pending Reports" value={stats.pendingReports}                          color="text-amber-300"   bg="bg-amber-500/8"   border="border-amber-500/25" icon={AlertTriangle} />
-                  <StatCard label="Unban Revenue"   value={`$${(stats.unbanRevenue || 0).toFixed(2)}`}    color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
-                  <StatCard label="Unban Sales"     value={stats.unbanCount}                              color="text-emerald-300" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={TrendingUp} />
+                  <StatCard label="Total Users"     value={stats.totalUsers}       color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Users} />
+                  <StatCard label="Online Now"      value={stats.online}           color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Wifi} />
+                  <StatCard label="Banned"          value={stats.bannedUsers}      color="text-red-400"     bg="bg-red-500/8"     border="border-red-500/20"   icon={UserX} />
+                  <StatCard label="Friendships"     value={stats.totalFriendships} color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Heart} />
+                  <StatCard label="Total Reports"   value={stats.totalReports}     color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Flag} />
+                  <StatCard label="Pending Reports" value={stats.pendingReports}   color="text-amber-300"   bg="bg-amber-500/8"   border="border-amber-500/25" icon={AlertTriangle} />
+                  <StatCard label="Pending Cashouts" value={stats.pendingCashouts || 0} color="text-amber-300" bg="bg-amber-500/8" border="border-amber-500/25" icon={DollarSign} />
+                  <StatCard label="Tips Earned"     value={(stats.totalTipsEarned || 0).toLocaleString()} color="text-cyan-300" bg="bg-cyan-500/8" border="border-cyan-400/20" icon={TrendingUp} />
                 </div>
               </div>
+
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Sales &amp; Revenue</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <StatCard label="Total Revenue"   value={`£${totalRev.toFixed(2)}`}                       color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/25" icon={TrendingUp} />
+                  <StatCard label="Coin Sales"      value={`£${(stats.coinRevenue || 0).toFixed(2)}`}      color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+                  <StatCard label="Coins Sold"      value={(stats.coinsPurchased || 0).toLocaleString()}    color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={TrendingUp} />
+                  <StatCard label="Coin Orders"     value={stats.coinPurchaseCount || 0}                    color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={DollarSign} />
+                  <StatCard label="Unban Revenue"   value={`£${(stats.unbanRevenue || 0).toFixed(2)}`}     color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+                  <StatCard label="Unban Sales"     value={stats.unbanCount || 0}                           color="text-emerald-300" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={TrendingUp} />
+                  <StatCard label="Approved Payouts" value={`£${(stats.approvedCashoutGbp || 0).toFixed(2)}`} color="text-emerald-300" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+                  <StatCard label="Pending Payouts" value={`£${(stats.pendingCashoutGbp || 0).toFixed(2)}`}  color="text-amber-300"   bg="bg-amber-500/8"   border="border-amber-500/25" icon={DollarSign} />
+                </div>
+              </div>
+
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Jump to</p>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   {[
                     ['Users',    'users',    Users],
-                    ['Bans',     'bans',     Ban],
+                    ['Revenue',  'revenue',  TrendingUp],
                     ['Reports',  'reports',  Flag],
-                    ['Settings', 'settings', Settings],
+                    ['Cash Outs', 'cashouts', DollarSign],
                   ].map(([label, id, Icon]) => (
                     <button key={id} onClick={() => setSection(id)} className="group relative overflow-hidden bg-vybe-card border border-vybe-border rounded-2xl px-4 py-3.5 text-left hover:border-cyan-400/40 hover:bg-vybe-card2 transition-all">
                       <div className="pointer-events-none absolute -bottom-12 -right-10 w-24 h-24 rounded-full opacity-0 group-hover:opacity-70 transition-opacity" style={{ background: 'radial-gradient(circle, rgba(0,212,255,0.35), transparent 70%)' }} />
@@ -1365,7 +1452,8 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-          )}
+            )
+          })()}
 
           {section === 'users'    && <UsersSection />}
           {section === 'bans'     && <BansSection />}

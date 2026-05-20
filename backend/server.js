@@ -1711,7 +1711,7 @@ app.get('/api/admin-secure/users/:id/coin-history', adminSecureMiddleware, async
 // Revenue
 app.get('/api/admin-secure/revenue', adminSecureMiddleware, async (req, res) => {
   try {
-    const [unbanTotal, unbanMonthly, recentUnbans, coinTotal, coinMonthly, subBasic, subVip, tipStats] = await Promise.all([
+    const [unbanTotal, unbanMonthly, recentUnbans, coinTotal, coinMonthly, recentCoinPurchases, subBasic, subVip, tipStats] = await Promise.all([
       UnbanPurchase.aggregate([{ $match: { status: 'completed' } }, { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } }]),
       UnbanPurchase.aggregate([
         { $match: { status: 'completed' } },
@@ -1727,6 +1727,7 @@ app.get('/api/admin-secure/revenue', adminSecureMiddleware, async (req, res) => 
         { $sort: { '_id.year': -1, '_id.month': -1 } },
         { $limit: 12 },
       ]),
+      CoinPurchase.find({ status: 'completed' }).sort({ completedAt: -1 }).limit(20).populate('userId', 'username email'),
       Subscription.countDocuments({ status: 'active', plan: 'basic' }),
       Subscription.countDocuments({ status: 'active', plan: 'vip' }),
       User.aggregate([{ $group: { _id: null, totalTipsEarned: { $sum: '$tipsEarned' } } }]),
@@ -1748,6 +1749,7 @@ app.get('/api/admin-secure/revenue', adminSecureMiddleware, async (req, res) => 
       monthlyBreakdown:    unbanMonthly,
       coinMonthly,
       recentTransactions:  recentUnbans,
+      recentCoinTransactions: recentCoinPurchases,
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
