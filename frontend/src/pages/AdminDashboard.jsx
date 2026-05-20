@@ -496,10 +496,14 @@ export default function AdminDashboard() {
                   <p className="text-vybe-muted text-xs mt-0.5 truncate">{u.banReason}</p>
                   {u.banExpiresAt && <p className="text-vybe-muted/60 text-[11px] mt-0.5">Expires: {new Date(u.banExpiresAt).toLocaleString()}</p>}
                 </div>
-                {u.banType !== 'permanent' && (
+                {u.isBanned && u.banType !== 'permanent' ? (
                   <button onClick={() => doUnban(u._id)} className="px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/25 text-xs font-bold transition-all flex items-center gap-1">
                     <UserCheck size={12} /> Unban
                   </button>
+                ) : !u.isBanned && (
+                  <span className="px-3 py-1.5 rounded-lg bg-green-500/12 border border-green-500/25 text-green-400 text-xs font-bold flex items-center gap-1">
+                    <UserCheck size={12} /> Unbanned
+                  </span>
                 )}
               </div>
             ))}
