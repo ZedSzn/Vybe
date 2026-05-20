@@ -1657,6 +1657,7 @@ export default function ChatPage() {
                     isOnline
                     isVerified={!!partnerEmailVerified}
                     isVip={!!partnerIsVip}
+                    isPremium={!!partnerIsPremium}
                     country={partnerCountry}
                     friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
                     onAddFriend={handleAddFriend}
@@ -1704,6 +1705,7 @@ export default function ChatPage() {
                     isOnline
                     isVerified={!!user?.emailVerified}
                     isVip={!!user?.isVip}
+                    isPremium={!!user?.isPremium}
                     country={myCountry}
                     accentColor={user?.accentColor}
                     bannerGradient={user?.bannerGradient}
@@ -1823,6 +1825,7 @@ export default function ChatPage() {
                       isOnline
                       isVerified={!!user?.emailVerified}
                       isVip={!!user?.isVip}
+                      isPremium={!!user?.isPremium}
                       country={myCountry}
                       accentColor={user?.accentColor}
                       bannerGradient={user?.bannerGradient}
@@ -1891,6 +1894,7 @@ export default function ChatPage() {
                     isOnline
                     isVerified={!!user?.emailVerified}
                     isVip={!!user?.isVip}
+                    isPremium={!!user?.isPremium}
                     country={myCountry}
                     accentColor={user?.accentColor}
                     bannerGradient={user?.bannerGradient}
@@ -1920,6 +1924,7 @@ export default function ChatPage() {
                   isOnline
                   isVerified={!!partnerEmailVerified}
                   isVip={!!partnerIsVip}
+                  isPremium={!!partnerIsPremium}
                   country={partnerCountry}
                   friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
                   onAddFriend={handleAddFriend}
@@ -2116,6 +2121,7 @@ export default function ChatPage() {
                       isOnline
                       isVerified={!!partnerEmailVerified}
                       isVip={!!partnerIsVip}
+                      isPremium={!!partnerIsPremium}
                       country={partnerCountry}
                       friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
                       onAddFriend={handleAddFriend}
@@ -2162,6 +2168,7 @@ export default function ChatPage() {
                     isOnline
                     isVerified={!!user?.emailVerified}
                     isVip={!!user?.isVip}
+                    isPremium={!!user?.isPremium}
                     country={myCountry}
                     accentColor={user?.accentColor}
                     bannerGradient={user?.bannerGradient}
@@ -2326,6 +2333,7 @@ export default function ChatPage() {
                         isOnline
                         isVerified={!!partnerEmailVerified}
                         isVip={!!partnerIsVip}
+                        isPremium={!!partnerIsPremium}
                         country={partnerCountry}
                         friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
                         onAddFriend={handleAddFriend}
@@ -2369,6 +2377,7 @@ export default function ChatPage() {
                         isOnline
                         isVerified={!!user?.emailVerified}
                         isVip={!!user?.isVip}
+                        isPremium={!!user?.isPremium}
                         country={myCountry}
                         accentColor={user?.accentColor}
                         bannerGradient={user?.bannerGradient}
@@ -2457,6 +2466,7 @@ export default function ChatPage() {
                       isOnline
                       isVerified={!!user?.emailVerified}
                       isVip={!!user?.isVip}
+                      isPremium={!!user?.isPremium}
                       country={myCountry}
                       accentColor={user?.accentColor}
                       bannerGradient={user?.bannerGradient}

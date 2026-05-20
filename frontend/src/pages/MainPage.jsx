@@ -655,6 +655,7 @@ export default function MainPage() {
                 isOnline
                 isVerified={!!user?.emailVerified}
                 isVip={!!user?.isVip}
+                isPremium={!!user?.isPremium}
                 country={myCountry}
                 accentColor={user?.accentColor}
                 bannerGradient={user?.bannerGradient}
@@ -1412,6 +1413,8 @@ export default function MainPage() {
                 avatarUrl={user?.avatar}
                 isOnline
                 isVerified={!!user?.emailVerified}
+                isVip={!!user?.isVip}
+                isPremium={!!user?.isPremium}
                 country={myCountry}
                 accentColor={user?.accentColor}
                 bannerGradient={user?.bannerGradient}

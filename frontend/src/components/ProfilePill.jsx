@@ -15,7 +15,8 @@
  *   avatarUrl    : string  (optional — falls back to gradient initials)
  *   isOnline     : boolean
  *   isVerified   : boolean (badge renders ONLY when this is true)
- *   isVip        : boolean (optional — shows a crown badge)
+ *   isVip        : boolean (optional — shows a star badge for VIP tier)
+ *   isPremium    : boolean (optional — shows a bolt badge for Basic tier; ignored when isVip is true)
  *   country      : string  (optional — shown under the username)
  *   friendStatus : 'none' | 'pending' | 'friends' | 'self'
  *                  ('self' = no + button — used for your own pill and your duo partner)
@@ -46,6 +47,16 @@ function VipBadge() {
   )
 }
 
+// Lightning bolt — same shape as the Zap icon used on ProfilePage's Basic
+// badge, so users see a consistent visual across the app.
+function BasicBadge() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" role="img" aria-label="Basic" style={{ flexShrink: 0 }}>
+      <path d="M13 2 L3 14 L12 14 L11 22 L21 10 L12 10 Z" fill={ACCENT} opacity="0.85" />
+    </svg>
+  )
+}
+
 // friendStatus → friend-request button look
 const FRIEND_BTN = {
   none:    { background: ACCENT,                color: PAGE_BG,   glyph: '+' },
@@ -59,6 +70,7 @@ export default function ProfilePill({
   isOnline = false,
   isVerified = false,
   isVip = false,
+  isPremium = false,
   country = '',
   accentColor = '',
   bannerGradient = '',
@@ -133,8 +145,8 @@ export default function ProfilePill({
       {/* Verified badge — only when isVerified === true */}
       {isVerified && <VerifiedBadge />}
 
-      {/* VIP badge */}
-      {isVip && <VipBadge />}
+      {/* Membership badge — VIP takes precedence over Basic */}
+      {isVip ? <VipBadge /> : isPremium ? <BasicBadge /> : null}
 
       {/* Friend-request button */}
       {showButton && (
