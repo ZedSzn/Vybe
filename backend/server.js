@@ -2898,10 +2898,6 @@ function spawnBotMatch(socket, mode) {
       setTimeout(() => {
         socket.emit('chat-message', { message: 'Hello! This is a 2v2 test connection.', timestamp: Date.now() });
       }, 1500);
-      // Dev: the bot gifts you so the gift-in-chat UI can be previewed.
-      setTimeout(() => {
-        socket.emit('gift_received', { giftId: 'legendary-vybe', giftName: 'Legendary Vybe', coins: 5000, senderId: 'bot', senderUsername: 'TestBot', recipientSocketId: socket.id });
-      }, 3500);
       return;
     }
 
@@ -2925,10 +2921,6 @@ function spawnBotMatch(socket, mode) {
     setTimeout(() => {
       socket.emit('chat-message', { message: 'Hello! This is a test connection.', timestamp: Date.now() });
     }, 1500);
-    // Dev: the bot gifts you so the gift-in-chat UI can be previewed.
-    setTimeout(() => {
-      socket.emit('gift_received', { giftId: 'legendary-vybe', giftName: 'Legendary Vybe', coins: 5000, senderId: 'bot', senderUsername: 'TestBot', recipientSocketId: socket.id });
-    }, 3500);
   }, 3000);
   botTimers.set(socket.id, timer);
 }
@@ -2983,10 +2975,6 @@ function spawnSquadBotMatch(squadId, mySocketIds) {
     setTimeout(() => {
       io.to(room).emit('chat-message', { message: 'Hello! This is a 2v2 test connection.', timestamp: Date.now() });
     }, 1500);
-    // Dev: a bot gifts the first member so the gift-in-chat UI can be previewed.
-    setTimeout(() => {
-      io.to(room).emit('gift_received', { giftId: 'legendary-vybe', giftName: 'Legendary Vybe', coins: 5000, senderId: 'bot', senderUsername: 'TestBot', recipientSocketId: mySocketIds[0] });
-    }, 3500);
   }, 4000);
   botTimers.set(squadId, timer);
 }
