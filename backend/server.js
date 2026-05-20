@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const { Resend } = require('resend');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
 const geoip = require('geoip-lite');
 require('dotenv').config();
 
@@ -64,6 +65,10 @@ async function sendEmail({ to, subject, html }) {
 }
 
 const app = express();
+// One proxy hop in front of us on Render — without this, express-rate-limit
+// would key every request to Render's edge IP and rate-limit all users together.
+// '1' = trust only the first X-Forwarded-For entry, which is the real client IP.
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 
 const allowedOrigins = [
@@ -291,6 +296,12 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
 
 // Raised limit: avatar, banner, and camera-background images are sent as base64.
 app.use(express.json({ limit: '12mb' }));
+// Strip any `$`-prefixed keys or dots from req.body / req.query / req.params.
+// Stops MongoDB operator injection like POST /api/auth/login {"email":{"$ne":null}}
+// — which would otherwise let an attacker match the first user in the DB.
+// Critical for the password-reset endpoint: without this, a token of {"$ne":null}
+// would match any user with an active reset token → full account takeover.
+app.use(mongoSanitize({ replaceWith: '_' }));
 
 // ─── MongoDB — retry connection ────────────────────────────────────────────────
 let dbConnected = false;
@@ -738,13 +749,32 @@ function kickBannedUser(userId, reason, banType, banExpiresAt) {
   }
 }
 
-// ─── Auth Rate Limiters ───────────────────────────────────────────────────────
+// ─── Rate Limiters ────────────────────────────────────────────────────────────
+// Strict auth limiter — blocks brute-force login / reset-token guessing.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many attempts. Please try again in 15 minutes.' },
+});
+// General API limiter — applied to mutating /api endpoints that aren't already
+// limited elsewhere. 120 req/min/IP is plenty for normal use, kills scraping
+// and burst abuse. Read-only endpoints (GET) are intentionally NOT limited
+// here so polling the UI stays responsive.
+const apiWriteLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'GET' || req.method === 'OPTIONS',
+  message: { error: 'Too many requests — slow down.' },
+});
+// Stripe webhook MUST bypass the limiter — Stripe can burst a lot of events.
+// Admin routes are dashboard-internal and have their own protections.
+app.use('/api', (req, res, next) => {
+  if (req.path === '/stripe/webhook' || req.path.startsWith('/admin-secure')) return next();
+  return apiWriteLimiter(req, res, next);
 });
 
 // ─── Auth Routes ───────────────────────────────────────────────────────────────
@@ -753,6 +783,7 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
   try {
     const { username, email, password, referralCode: refCode, gender } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'All fields required' });
+    if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string') return res.status(400).json({ error: 'Invalid input' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
     if (!['male', 'female'].includes(gender)) return res.status(400).json({ error: 'Please select your gender' });
     const exists = await User.findOne({ $or: [{ email }, { username }] });
@@ -842,10 +873,10 @@ app.get('/api/auth/verify-email', async (req, res) => {
 });
 
 // Resend verification email
-app.post('/api/auth/resend-verification', async (req, res) => {
+app.post('/api/auth/resend-verification', authLimiter, async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email required' });
+    if (!email || typeof email !== 'string') return res.status(400).json({ error: 'Email required' });
     const user = await User.findOne({ email });
     if (!user) return res.json({ success: true }); // silent no-op for security
     if (user.emailVerified) return res.status(400).json({ error: 'Email already verified' });
@@ -877,10 +908,10 @@ app.post('/api/auth/resend-verification', async (req, res) => {
 });
 
 // Forgot password — sends reset link
-app.post('/api/auth/forgot-password', async (req, res) => {
+app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email required' });
+    if (!email || typeof email !== 'string') return res.status(400).json({ error: 'Email required' });
     const user = await User.findOne({ email });
     if (!user) return res.json({ success: true }); // silent no-op
 
@@ -911,10 +942,11 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 });
 
 // Reset password with token
-app.post('/api/auth/reset-password', async (req, res) => {
+app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
   try {
     const { token, password } = req.body;
     if (!token || !password) return res.status(400).json({ error: 'Token and password required' });
+    if (typeof token !== 'string' || typeof password !== 'string') return res.status(400).json({ error: 'Invalid input' });
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
     const user = await User.findOne({ passwordResetToken: token, passwordResetExpires: { $gt: new Date() } });
@@ -953,6 +985,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
   if (!dbConnected) return res.status(503).json({ error: 'Database not connected. Check MONGODB_URI in your .env file.' });
   try {
     const { email, password } = req.body;
+    if (typeof email !== 'string' || typeof password !== 'string') return res.status(400).json({ error: 'Invalid credentials' });
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: 'No account found with that email' });
     if (!await bcrypt.compare(password, user.password)) return res.status(400).json({ error: 'Incorrect password' });

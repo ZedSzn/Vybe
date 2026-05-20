@@ -1,5 +1,16 @@
 node_modules/
+
+# Secrets — never commit any .env variant except the public templates
 .env
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+.env.test.local
+
 dist/
 .DS_Store
 *.log
+
+# Vercel
+.vercel
