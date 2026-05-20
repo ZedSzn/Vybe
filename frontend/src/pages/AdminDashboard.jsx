@@ -1157,15 +1157,38 @@ export default function AdminDashboard() {
 
     const selectedReq = requests.find(r => r._id === reviewId)
 
+    const clearTestHistory = async () => {
+      const confirmed = window.confirm(
+        'Delete ALL approved + rejected cashout history?\n\n' +
+        'This wipes the historical records so the "Net Kept" metric isn\'t dragged down by dev/test approvals. ' +
+        'Pending requests are NOT touched. User balances are NOT touched.\n\n' +
+        'This cannot be undone without a Mongo backup.'
+      )
+      if (!confirmed) return
+      try {
+        const { data } = await axios.delete('/api/admin-secure/cashout/test-data?scope=completed', ah(token))
+        showToast(`Cleared ${data.deleted} historical cashout records`)
+        fetchRequests(filter)
+        fetchStats()
+      } catch (e) { showToast(e.response?.data?.error || 'Failed', 'error') }
+    }
+
     return (
       <div>
-        <div className="flex gap-1 bg-vybe-card2 p-1 rounded-xl w-fit mb-5">
-          {[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All']].map(([f, label]) => (
-            <button key={f} onClick={() => { setFilter(f); fetchRequests(f) }}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-cyan-400 text-[#06121b]' : 'text-vybe-muted hover:text-white'}`}>
-              {label}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <div className="flex gap-1 bg-vybe-card2 p-1 rounded-xl w-fit">
+            {[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All']].map(([f, label]) => (
+              <button key={f} onClick={() => { setFilter(f); fetchRequests(f) }}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-cyan-400 text-[#06121b]' : 'text-vybe-muted hover:text-white'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <button onClick={clearTestHistory}
+            className="px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-bold hover:bg-red-500/20 hover:border-red-500/50 transition-all flex items-center gap-1.5"
+            title="Wipe approved + rejected cashout history (dev/test data). Pending requests untouched.">
+            <Trash2 size={12} /> Clear test history
+          </button>
         </div>
 
         {loading ? <Spinner /> : requests.length === 0 ? (

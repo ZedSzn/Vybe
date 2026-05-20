@@ -2556,6 +2556,23 @@ app.post('/api/admin-secure/cashout/:id/reject', adminSecureMiddleware, async (r
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// One-shot cleanup: wipe historical cashout records that are dev/test data.
+// Does NOT touch user balances or pending requests — only purges approved/
+// rejected history so the Net Kept metric isn't dragged down by test approvals.
+// Accepts optional ?scope=approved|rejected|completed (default: completed).
+app.delete('/api/admin-secure/cashout/test-data', adminSecureMiddleware, async (req, res) => {
+  try {
+    const scope = String(req.query.scope || 'completed');
+    let filter;
+    if      (scope === 'approved') filter = { status: 'approved' };
+    else if (scope === 'rejected') filter = { status: 'rejected' };
+    else if (scope === 'all')      filter = {}; // nuke everything including pending
+    else                           filter = { status: { $in: ['approved', 'rejected'] } }; // default: 'completed'
+    const result = await CashOutRequest.deleteMany(filter);
+    res.json({ success: true, deleted: result.deletedCount, scope });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ─── Subscription Routes ──────────────────────────────────────────────────────
 const SUBSCRIPTION_PLANS = {
   basic: { name: 'Vybe Basic', amount: 699,  gbp: 6.99  },
