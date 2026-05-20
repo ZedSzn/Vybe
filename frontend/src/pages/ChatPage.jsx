@@ -2295,16 +2295,38 @@ export default function ChatPage() {
                     >
                       {opponentSocketIds.map((sid, idx) => {
                         const divider = idx > 0 && (stackVertical ? 'border-t border-white/10' : 'border-l border-white/10')
+                        const isFirst = idx === 0
                         return (
                           <div key={sid} className={`relative flex-1 overflow-hidden ${divider || ''}`}>
                             <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                             {!remoteStreams[sid] && (
                               <TilePlaceholder
-                                avatarUrl={idx === 0 ? partnerAvatar : null}
-                                name={idx === 0 ? (partnerUsername || 'Stranger') : 'Stranger'}
+                                avatarUrl={isFirst ? partnerAvatar : null}
+                                name={isFirst ? (partnerUsername || 'Stranger') : 'Stranger'}
                                 size={88}
                                 hideLabel
                               />
+                            )}
+                            {/* Per-tile pill when stacked, so the second opponent in a
+                                solo-vs-duo match isn't left identity-less. The server
+                                only sends one partner's profile data, so opponent #2
+                                gets a generic 'Stranger' pill. */}
+                            {stackVertical && status === 'matched' && (
+                              <div className="absolute flex items-center gap-2" style={{ top: 16, left: 16, zIndex: 10 }}>
+                                <ProfilePill
+                                  username={isFirst ? (partnerUsername || 'Stranger') : 'Stranger'}
+                                  avatarUrl={isFirst ? partnerAvatar : undefined}
+                                  isOnline={!!remoteStreams[sid] || isFirst}
+                                  isVerified={isFirst ? !!partnerEmailVerified : false}
+                                  isVip={isFirst ? !!partnerIsVip : false}
+                                  country={isFirst ? partnerCountry : undefined}
+                                  friendStatus={isFirst && user && partnerUid ? (friendReqSent ? 'pending' : 'none') : 'self'}
+                                  onAddFriend={isFirst ? handleAddFriend : undefined}
+                                />
+                                {giftedBySocket[sid] > 0 && (
+                                  <GiftChip key={giftedBySocket[sid]} amount={giftedBySocket[sid]} />
+                                )}
+                              </div>
                             )}
                           </div>
                         )
@@ -2313,9 +2335,10 @@ export default function ChatPage() {
                   )
                 })()}
 
-                {/* Partner identity overlay — top left */}
+                {/* Partner identity overlay — only when there's a single opponent.
+                    Stacked-duo layout renders its own per-tile pills above. */}
                 <AnimatePresence>
-                  {status === 'matched' && (
+                  {status === 'matched' && opponentSocketIds.length <= 1 && (
                     <motion.div
                       initial={{ opacity: 0, y: -6, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
