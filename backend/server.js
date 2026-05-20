@@ -505,7 +505,7 @@ const appSettingsSchema = new mongoose.Schema({
   warnThreshold:          { type: Number,  default: 3 }, // auto-send a warning at N unique reports
   reportThreshold:        { type: Number,  default: 5 }, // auto-ban at N unique reports (general)
   severeReportThreshold:  { type: Number,  default: 2 }, // auto-ban at N unique reports for severe reasons
-  minCashoutGbp:          { type: Number,  default: 5 }, // minimum cash-out amount in GBP
+  minCashoutGbp:          { type: Number,  default: 4.20 }, // minimum cash-out amount in GBP (matches 1,000-coin rate)
   announcement:           { type: String,  default: '' },
   announcementActive:     { type: Boolean, default: false },
   adminPasswordHash:      { type: String,  default: null },
@@ -1014,7 +1014,7 @@ app.get('/api/settings', async (req, res) => {
       maintenanceMessage: settings.maintenanceMessage,
       announcementActive: settings.announcementActive,
       announcement:       settings.announcementActive ? settings.announcement : '',
-      minCashoutGbp:      settings.minCashoutGbp || 5,
+      minCashoutGbp:      settings.minCashoutGbp || 4.20,
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -1858,7 +1858,7 @@ app.get('/api/admin-secure/settings', adminSecureMiddleware, async (req, res) =>
       warnThreshold:         settings.warnThreshold         || 3,
       reportThreshold:       settings.reportThreshold       || 5,
       severeReportThreshold: settings.severeReportThreshold || 2,
-      minCashoutGbp:         settings.minCashoutGbp         || 5,
+      minCashoutGbp:         settings.minCashoutGbp         || 4.20,
       announcement:          settings.announcement          || '',
       announcementActive:    settings.announcementActive    || false,
     });
@@ -1874,7 +1874,7 @@ app.post('/api/admin-secure/settings', adminSecureMiddleware, async (req, res) =
     if (warnThreshold         !== undefined) update.warnThreshold         = Math.max(1, parseInt(warnThreshold, 10) || 3);
     if (reportThreshold       !== undefined) update.reportThreshold       = Math.max(1, parseInt(reportThreshold, 10) || 5);
     if (severeReportThreshold !== undefined) update.severeReportThreshold = Math.max(1, parseInt(severeReportThreshold, 10) || 2);
-    if (minCashoutGbp         !== undefined) update.minCashoutGbp         = Math.max(1, parseFloat(minCashoutGbp) || 5);
+    if (minCashoutGbp         !== undefined) update.minCashoutGbp         = Math.max(1, parseFloat(minCashoutGbp) || 4.20);
     if (announcement          !== undefined) update.announcement          = announcement;
     if (announcementActive    !== undefined) update.announcementActive    = announcementActive;
 
@@ -2479,7 +2479,7 @@ app.post('/api/cashout/request', authMiddleware, async (req, res) => {
     const amount = Math.floor(Number(coinsAmount));
     // Minimum is configurable in admin settings (default £5).
     const settings  = await getSettings();
-    const minGbp    = Math.max(1, settings.minCashoutGbp || 5);
+    const minGbp    = Math.max(1, settings.minCashoutGbp || 4.20);
     const minCoins  = Math.ceil((minGbp / GBP_PER_1K_COINS) * 1000);
     if (!amount || amount < minCoins) return res.status(400).json({ error: `Minimum cash out is £${minGbp.toFixed(2)} (${minCoins.toLocaleString()} coins)` });
     const user = await User.findById(req.user._id).select('coins cashableCoins tipsEarned paypalEmail');

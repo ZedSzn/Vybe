@@ -72,7 +72,7 @@ export default function WalletPage() {
   const [cashouts, setCashouts]           = useState([])
   const [paypalEmail, setPaypalEmail]     = useState('')
   const [cashoutAmount, setCashoutAmount] = useState('')
-  const [minCashoutGbp, setMinCashoutGbp] = useState(5) // hydrated from /api/settings
+  const [minCashoutGbp, setMinCashoutGbp] = useState(4.20) // hydrated from /api/settings
   const [cashoutLoading, setCashoutLoading] = useState(false)
   const [buyLoading, setBuyLoading]       = useState(null)
   const [successMsg, setSuccessMsg]       = useState('')

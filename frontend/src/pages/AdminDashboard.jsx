@@ -975,19 +975,19 @@ export default function AdminDashboard() {
               <label className="block text-[10px] font-black text-cyan-400/70 uppercase tracking-[0.14em] mb-1">Minimum Cashout (£)</label>
               <input
                 type="number" min={1} max={500} step={1}
-                value={settings.minCashoutGbp ?? 5}
-                onChange={(e) => setSettings({ ...settings, minCashoutGbp: parseFloat(e.target.value) || 5 })}
+                value={settings.minCashoutGbp ?? 4.20}
+                onChange={(e) => setSettings({ ...settings, minCashoutGbp: parseFloat(e.target.value) || 4.20 })}
                 className="w-full px-3 py-2 bg-vybe-card border border-vybe-border rounded-lg text-white text-lg font-black focus:border-cyan-400 focus:outline-none"
                 style={{ fontFeatureSettings: '"tnum"' }}
               />
               <p className="text-vybe-muted text-[11px] mt-1.5 leading-snug">
-                ≈ {Math.ceil(((settings.minCashoutGbp ?? 5) / 4.20) * 1000).toLocaleString()} coins
+                ≈ {Math.ceil(((settings.minCashoutGbp ?? 4.20) / 4.20) * 1000).toLocaleString()} coins
               </p>
             </div>
           </div>
           <div className="mt-3 px-3 py-2.5 rounded-lg" style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.18)' }}>
             <p className="text-[11px] text-cyan-300/85 leading-relaxed">
-              <span className="font-bold">Recommended:</span> £5 — Stripe charges roughly £0.25 per payout, so a £5 minimum keeps fees under 5% per cashout. Lower this only if you want to be more user-friendly.
+              <span className="font-bold">Recommended:</span> £4.20 — matches the 1,000-coin payout rate exactly, so users can cash out as soon as they hit a clean coin number. Stripe charges ~£0.25 per payout (≈6% fee at this size); raise the minimum if that bites.
             </p>
           </div>
         </div>
