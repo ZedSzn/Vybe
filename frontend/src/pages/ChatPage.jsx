@@ -2060,7 +2060,8 @@ export default function ChatPage() {
         ══════════════════════════════════════════════════════════ */}
         <div className="hidden lg:block" style={{ width: '100%', background: '#0a0a0f' }}>
           <Navbar onPremiumClick={() => {}} />
-          <div className="flex" style={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 64, overflow: 'hidden' }}>
+          {/* Chat area expands to fill the whole space when the UI is hidden. */}
+          <div className="flex" style={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: uiHidden ? 0 : 64, overflow: 'hidden', transition: 'bottom 300ms cubic-bezier(0.22,1,0.36,1)' }}>
           {is2v2 ? (
             /* ── 2V2: 2×2 CSS Grid — fills the chat area so there's no
                   dead space on the sides. ── */
@@ -2537,10 +2538,32 @@ export default function ChatPage() {
             )}
           </AnimatePresence>
 
-          {/* Desktop bottom bar */}
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 64, background: 'rgba(10,10,20,0.9)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50 }}>
+          {/* Desktop hide/show UI toggle — sits above the bar, stays put when
+              the bar slides away so you can always bring it back. */}
+          <button
+            onClick={() => setUiHidden((v) => !v)}
+            style={{
+              position: 'fixed',
+              left: '50%', transform: 'translateX(-50%)',
+              bottom: uiHidden ? 16 : 76,
+              height: 28, padding: '0 14px',
+              borderRadius: 14,
+              background: 'rgba(10,10,20,0.85)',
+              backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.14)',
+              color: 'rgba(255,255,255,0.7)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'bottom 300ms cubic-bezier(0.22,1,0.36,1)',
+              zIndex: 52,
+            }}>
+            {uiHidden ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+          </button>
 
-            {/* Far left: Report + transient gift indicator */}
+          {/* Desktop bottom bar */}
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 64, background: 'rgba(10,10,20,0.9)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 50, transform: `translateY(${uiHidden ? '100%' : '0'})`, opacity: uiHidden ? 0 : 1, transition: 'transform 300ms cubic-bezier(0.22,1,0.36,1), opacity 250ms ease', pointerEvents: uiHidden ? 'none' : 'auto' }}>
+
+            {/* Far left: Report + mute + transient gift indicator */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <motion.button
                 onClick={() => status === 'matched' && !reportSent && setShowReport(true)}
@@ -2548,6 +2571,15 @@ export default function ChatPage() {
                 whileTap={!reportSent && status === 'matched' ? { scale: 0.93 } : {}}
                 style={{ height: 40, display: 'flex', alignItems: 'center', gap: 6, padding: '0 18px', borderRadius: 50, background: reportSent ? 'rgba(0,212,255,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: reportSent ? '1px solid rgba(0,212,255,0.2)' : '1px solid rgba(255,255,255,0.10)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, cursor: !reportSent && status === 'matched' ? 'pointer' : 'default', transition: 'all 150ms ease', flexShrink: 0 }}>
                 {reportSent ? <><ShieldCheck size={13} style={{ marginRight: 4 }} />Reported</> : <><Flag size={13} />Report</>}
+              </motion.button>
+              {/* Mute toggle — matches the mobile one. Red fill while muted. */}
+              <motion.button
+                onClick={toggleMute}
+                whileHover={{ background: isMuted ? 'rgba(239,68,68,0.95)' : 'rgba(255,255,255,0.12)' }}
+                whileTap={{ scale: 0.93 }}
+                title={isMuted ? 'Unmute' : 'Mute'}
+                style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 50, background: isMuted ? 'rgba(239,68,68,0.85)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: isMuted ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.10)', color: 'white', cursor: 'pointer', transition: 'background 150ms ease', flexShrink: 0 }}>
+                {isMuted ? <MicOff size={15} /> : <Mic size={15} />}
               </motion.button>
               {/* Inline running total — coins gifted to you this match. Stays
                   visible while you're in the chat, animates on each new gift. */}
