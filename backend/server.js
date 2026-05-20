@@ -505,6 +505,7 @@ const appSettingsSchema = new mongoose.Schema({
   warnThreshold:          { type: Number,  default: 3 }, // auto-send a warning at N unique reports
   reportThreshold:        { type: Number,  default: 5 }, // auto-ban at N unique reports (general)
   severeReportThreshold:  { type: Number,  default: 2 }, // auto-ban at N unique reports for severe reasons
+  minCashoutGbp:          { type: Number,  default: 5 }, // minimum cash-out amount in GBP
   announcement:           { type: String,  default: '' },
   announcementActive:     { type: Boolean, default: false },
   adminPasswordHash:      { type: String,  default: null },
@@ -1013,6 +1014,7 @@ app.get('/api/settings', async (req, res) => {
       maintenanceMessage: settings.maintenanceMessage,
       announcementActive: settings.announcementActive,
       announcement:       settings.announcementActive ? settings.announcement : '',
+      minCashoutGbp:      settings.minCashoutGbp || 5,
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -1513,7 +1515,7 @@ app.post('/api/admin/resolve-report/:id', adminMiddleware, async (req, res) => {
 // Stats overview
 app.get('/api/admin-secure/stats', adminSecureMiddleware, async (req, res) => {
   try {
-    const [totalUsers, bannedUsers, totalReports, pendingReports, unbanData, totalFriendships, onlineFriends, coinPurchaseData, cashoutPendingData, cashoutApprovedData, tipsData] = await Promise.all([
+    const [totalUsers, bannedUsers, totalReports, pendingReports, unbanData, totalFriendships, onlineFriends, coinPurchaseData, cashoutPendingData, cashoutApprovedData, tipsData, subBasic, subVip, userOwedAgg] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ isBanned: true }),
       Report.countDocuments(),
@@ -1525,7 +1527,12 @@ app.get('/api/admin-secure/stats', adminSecureMiddleware, async (req, res) => {
       CashOutRequest.aggregate([{ $match: { status: 'pending' } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
       CashOutRequest.aggregate([{ $match: { status: 'approved' } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
       User.aggregate([{ $group: { _id: null, totalTipsEarned: { $sum: '$tipsEarned' } } }]),
+      Subscription.countDocuments({ status: 'active', plan: 'basic' }),
+      Subscription.countDocuments({ status: 'active', plan: 'vip' }),
+      User.aggregate([{ $group: { _id: null, total: { $sum: '$earningsCoins' } } }]),
     ]);
+    const subMrr      = (subBasic * 6.99) + (subVip * 12.99);
+    const userOwedGbp = ((userOwedAgg[0]?.total || 0) / 1000) * 4.20;
     res.json({
       totalUsers, bannedUsers, totalReports, pendingReports,
       unbanRevenue: unbanData[0]?.total || 0,
@@ -1537,6 +1544,11 @@ app.get('/api/admin-secure/stats', adminSecureMiddleware, async (req, res) => {
       pendingCashouts:  cashoutPendingData[0]?.count || 0,
       pendingCashoutGbp:cashoutPendingData[0]?.total || 0,
       approvedCashoutGbp: cashoutApprovedData[0]?.total || 0,
+      subscriptionRevenue: subMrr,
+      subscriptionBasic: subBasic,
+      subscriptionVip:   subVip,
+      subscriptionCount: subBasic + subVip,
+      userOwedGbp,
       totalTipsEarned:  tipsData[0]?.totalTipsEarned || 0,
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -1777,7 +1789,7 @@ app.get('/api/admin-secure/users/:id/coin-history', adminSecureMiddleware, async
 // Revenue
 app.get('/api/admin-secure/revenue', adminSecureMiddleware, async (req, res) => {
   try {
-    const [unbanTotal, unbanMonthly, recentUnbans, coinTotal, coinMonthly, recentCoinPurchases, subBasic, subVip, tipStats] = await Promise.all([
+    const [unbanTotal, unbanMonthly, recentUnbans, coinTotal, coinMonthly, recentCoinPurchases, subBasic, subVip, tipStats, cashoutApproved, cashoutPending, userOwedAgg] = await Promise.all([
       UnbanPurchase.aggregate([{ $match: { status: 'completed' } }, { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } }]),
       UnbanPurchase.aggregate([
         { $match: { status: 'completed' } },
@@ -1797,9 +1809,18 @@ app.get('/api/admin-secure/revenue', adminSecureMiddleware, async (req, res) => 
       Subscription.countDocuments({ status: 'active', plan: 'basic' }),
       Subscription.countDocuments({ status: 'active', plan: 'vip' }),
       User.aggregate([{ $group: { _id: null, totalTipsEarned: { $sum: '$tipsEarned' } } }]),
+      CashOutRequest.aggregate([{ $match: { status: 'approved' } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
+      CashOutRequest.aggregate([{ $match: { status: 'pending'  } }, { $group: { _id: null, total: { $sum: '$gbpAmount' }, count: { $sum: 1 } } }]),
+      User.aggregate([{ $group: { _id: null, total: { $sum: '$earningsCoins' } } }]),
     ]);
-    const subMrr            = (subBasic * 6.99) + (subVip * 12.99);
-    const vybeTipCut        = (tipStats[0]?.totalTipsEarned || 0) * (0.30 / 0.70);
+    const subMrr             = (subBasic * 6.99) + (subVip * 12.99);
+    const vybeTipCut         = (tipStats[0]?.totalTipsEarned || 0) * (0.30 / 0.70);
+    const approvedPayouts    = cashoutApproved[0]?.total || 0;
+    const pendingPayouts     = cashoutPending[0]?.total  || 0;
+    const userOwedCoins      = userOwedAgg[0]?.total || 0;
+    const userOwedGbp        = (userOwedCoins / 1000) * 4.20; // outstanding earnings users can still cash out
+    const grossRevenue       = (unbanTotal[0]?.total || 0) + (coinTotal[0]?.total || 0) + subMrr;
+    const netKept            = grossRevenue - approvedPayouts;
     res.json({
       unbanRevenue:        unbanTotal[0]?.total  || 0,
       unbanCount:          unbanTotal[0]?.count  || 0,
@@ -1812,6 +1833,13 @@ app.get('/api/admin-secure/revenue', adminSecureMiddleware, async (req, res) => 
       subscriptionCount:   subBasic + subVip,
       subscriptionMrr:     subMrr.toFixed(2),
       tipCutRevenue:       vybeTipCut.toFixed(2),
+      approvedPayouts,
+      approvedPayoutCount: cashoutApproved[0]?.count || 0,
+      pendingPayouts,
+      pendingPayoutCount:  cashoutPending[0]?.count  || 0,
+      userOwedGbp,
+      grossRevenue,
+      netKept,
       monthlyBreakdown:    unbanMonthly,
       coinMonthly,
       recentTransactions:  recentUnbans,
@@ -1830,6 +1858,7 @@ app.get('/api/admin-secure/settings', adminSecureMiddleware, async (req, res) =>
       warnThreshold:         settings.warnThreshold         || 3,
       reportThreshold:       settings.reportThreshold       || 5,
       severeReportThreshold: settings.severeReportThreshold || 2,
+      minCashoutGbp:         settings.minCashoutGbp         || 5,
       announcement:          settings.announcement          || '',
       announcementActive:    settings.announcementActive    || false,
     });
@@ -1838,13 +1867,14 @@ app.get('/api/admin-secure/settings', adminSecureMiddleware, async (req, res) =>
 
 app.post('/api/admin-secure/settings', adminSecureMiddleware, async (req, res) => {
   try {
-    const { maintenanceMode, maintenanceMessage, warnThreshold, reportThreshold, severeReportThreshold, announcement, announcementActive } = req.body;
+    const { maintenanceMode, maintenanceMessage, warnThreshold, reportThreshold, severeReportThreshold, minCashoutGbp, announcement, announcementActive } = req.body;
     const update = { updatedAt: new Date() };
     if (maintenanceMode       !== undefined) update.maintenanceMode       = maintenanceMode;
     if (maintenanceMessage    !== undefined) update.maintenanceMessage    = maintenanceMessage;
     if (warnThreshold         !== undefined) update.warnThreshold         = Math.max(1, parseInt(warnThreshold, 10) || 3);
     if (reportThreshold       !== undefined) update.reportThreshold       = Math.max(1, parseInt(reportThreshold, 10) || 5);
     if (severeReportThreshold !== undefined) update.severeReportThreshold = Math.max(1, parseInt(severeReportThreshold, 10) || 2);
+    if (minCashoutGbp         !== undefined) update.minCashoutGbp         = Math.max(1, parseFloat(minCashoutGbp) || 5);
     if (announcement          !== undefined) update.announcement          = announcement;
     if (announcementActive    !== undefined) update.announcementActive    = announcementActive;
 
@@ -2442,17 +2472,20 @@ app.put('/api/user/paypal-email', authMiddleware, async (req, res) => {
 });
 
 // ─── Cash Out ─────────────────────────────────────────────────────────────────
-const CASHOUT_MIN      = 1000;
 const GBP_PER_1K_COINS = 4.20; // £6 internal value × 70% after 30% platform fee
 app.post('/api/cashout/request', authMiddleware, async (req, res) => {
   try {
     const { coinsAmount } = req.body;
     const amount = Math.floor(Number(coinsAmount));
-    if (!amount || amount < CASHOUT_MIN) return res.status(400).json({ error: `Minimum cash out is ${CASHOUT_MIN} coins` });
+    // Minimum is configurable in admin settings (default £5).
+    const settings  = await getSettings();
+    const minGbp    = Math.max(1, settings.minCashoutGbp || 5);
+    const minCoins  = Math.ceil((minGbp / GBP_PER_1K_COINS) * 1000);
+    if (!amount || amount < minCoins) return res.status(400).json({ error: `Minimum cash out is £${minGbp.toFixed(2)} (${minCoins.toLocaleString()} coins)` });
     const user = await User.findById(req.user._id).select('coins cashableCoins tipsEarned paypalEmail');
     if (!user) return res.status(404).json({ error: 'User not found' });
     if (!user.paypalEmail) return res.status(400).json({ error: 'Set your PayPal email in wallet settings first' });
-    if ((user.cashableCoins || 0) < CASHOUT_MIN) return res.status(400).json({ error: `You need at least ${CASHOUT_MIN} cashable coins (tips received) to cash out. You have ${user.cashableCoins || 0}.` });
+    if ((user.cashableCoins || 0) < minCoins) return res.status(400).json({ error: `You need at least ${minCoins.toLocaleString()} cashable coins (£${minGbp.toFixed(2)}) to cash out. You have ${(user.cashableCoins || 0).toLocaleString()}.` });
     if ((user.cashableCoins || 0) < amount) return res.status(400).json({ error: `You only have ${user.cashableCoins || 0} cashable coins — not enough for this amount` });
     const pending = await CashOutRequest.findOne({ userId: req.user._id, status: 'pending' });
     if (pending) return res.status(400).json({ error: 'You already have a pending cash out request' });

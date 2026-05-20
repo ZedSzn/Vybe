@@ -699,7 +699,11 @@ export default function AdminDashboard() {
     if (loading) return <Spinner />
     if (!data) return null
 
-    const total = (data.unbanRevenue || 0) + (data.coinRevenue || 0) + (data.subscriptionRevenue || 0)
+    const total          = (data.unbanRevenue || 0) + (data.coinRevenue || 0) + (data.subscriptionRevenue || 0)
+    const approvedPaid   = data.approvedPayouts || 0
+    const pendingPaid    = data.pendingPayouts  || 0
+    const userOwed       = data.userOwedGbp     || 0
+    const netKept        = total - approvedPaid
     const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
     const MonthlyChart = ({ title, rows, accent = 'emerald' }) => {
@@ -734,11 +738,27 @@ export default function AdminDashboard() {
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Revenue (all-time)</p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatCard label="Total Revenue"     value={`£${total.toFixed(2)}`}                          color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/25" icon={TrendingUp} />
+            <StatCard label="Gross Revenue"     value={`£${total.toFixed(2)}`}                          color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/25" icon={TrendingUp} />
             <StatCard label="Coin Sales"        value={`£${(data.coinRevenue || 0).toFixed(2)}`}        color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
             <StatCard label="Unban Sales"       value={`£${(data.unbanRevenue || 0).toFixed(2)}`}       color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
             <StatCard label="Membership MRR"    value={`£${(data.subscriptionRevenue || 0).toFixed(2)}`} color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
           </div>
+        </div>
+
+        {/* Money kept vs paid out */}
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">What I keep vs what I pay out</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <StatCard label="Net Kept"          value={`£${netKept.toFixed(2)}`}      color="text-emerald-400" bg="bg-emerald-500/12" border="border-emerald-500/35" icon={TrendingUp} />
+            <StatCard label="Approved Payouts"  value={`£${approvedPaid.toFixed(2)}`} color="text-emerald-300" bg="bg-emerald-500/8"  border="border-emerald-500/20" icon={DollarSign} />
+            <StatCard label="Pending Payouts"   value={`£${pendingPaid.toFixed(2)}`}  color="text-amber-300"   bg="bg-amber-500/8"    border="border-amber-500/25"   icon={DollarSign} />
+            <StatCard label="Owed to Users"     value={`£${userOwed.toFixed(2)}`}     color="text-rose-300"    bg="bg-rose-500/8"     border="border-rose-500/25"    icon={DollarSign} />
+          </div>
+          <p className="text-vybe-muted text-[11px] mt-2 leading-relaxed">
+            <span className="text-emerald-300 font-semibold">Net Kept</span> = Gross Revenue − Approved Payouts.
+            {' '}<span className="text-amber-300 font-semibold">Pending Payouts</span> are cashout requests waiting to be approved.
+            {' '}<span className="text-rose-300 font-semibold">Owed to Users</span> is the total cashable earnings balance across all users (potential future payout).
+          </p>
         </div>
 
         {/* Coin sales detail */}
@@ -940,6 +960,34 @@ export default function AdminDashboard() {
           <div className="mt-3 px-3 py-2.5 rounded-lg" style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.18)' }}>
             <p className="text-[11px] text-cyan-300/85 leading-relaxed">
               <span className="font-bold">Recommended:</span> 3 / 5 / 2 — warn at 3 to give users a chance to course-correct, ban at 5 for normal reports, ban faster (2) for nudity or underage reports.
+            </p>
+          </div>
+        </div>
+
+        {/* Cashout settings */}
+        <div className="bg-vybe-card border border-vybe-border rounded-2xl p-5">
+          <h3 className="font-black text-white mb-2">Cashout Settings</h3>
+          <p className="text-vybe-muted text-xs mb-4">
+            The minimum £ amount a user can request to cash out. Enforced server-side. Coins needed updates automatically based on the £4.20 per 1,000 coins rate.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-vybe-bg border border-vybe-border rounded-xl p-3.5">
+              <label className="block text-[10px] font-black text-cyan-400/70 uppercase tracking-[0.14em] mb-1">Minimum Cashout (£)</label>
+              <input
+                type="number" min={1} max={500} step={1}
+                value={settings.minCashoutGbp ?? 5}
+                onChange={(e) => setSettings({ ...settings, minCashoutGbp: parseFloat(e.target.value) || 5 })}
+                className="w-full px-3 py-2 bg-vybe-card border border-vybe-border rounded-lg text-white text-lg font-black focus:border-cyan-400 focus:outline-none"
+                style={{ fontFeatureSettings: '"tnum"' }}
+              />
+              <p className="text-vybe-muted text-[11px] mt-1.5 leading-snug">
+                ≈ {Math.ceil(((settings.minCashoutGbp ?? 5) / 4.20) * 1000).toLocaleString()} coins
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 px-3 py-2.5 rounded-lg" style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.18)' }}>
+            <p className="text-[11px] text-cyan-300/85 leading-relaxed">
+              <span className="font-bold">Recommended:</span> £5 — Stripe charges roughly £0.25 per payout, so a £5 minimum keeps fees under 5% per cashout. Lower this only if you want to be more user-friendly.
             </p>
           </div>
         </div>
@@ -1438,7 +1486,11 @@ export default function AdminDashboard() {
         <div className="flex-1 overflow-y-auto p-6">
 
           {section === 'overview' && stats && (() => {
-            const totalRev = (stats.unbanRevenue || 0) + (stats.coinRevenue || 0)
+            const grossRev      = (stats.unbanRevenue || 0) + (stats.coinRevenue || 0) + (stats.subscriptionRevenue || 0)
+            const approvedPaid  = stats.approvedCashoutGbp || 0
+            const pendingPaid   = stats.pendingCashoutGbp  || 0
+            const userOwed      = stats.userOwedGbp || 0
+            const netKept       = grossRev - approvedPaid
             return (
             <div className="space-y-7">
               <div>
@@ -1456,16 +1508,29 @@ export default function AdminDashboard() {
               </div>
 
               <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">What I keep vs what I pay out</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <StatCard label="Net Kept"         value={`£${netKept.toFixed(2)}`}      color="text-emerald-400" bg="bg-emerald-500/12" border="border-emerald-500/35" icon={TrendingUp} />
+                  <StatCard label="Gross Revenue"    value={`£${grossRev.toFixed(2)}`}     color="text-emerald-300" bg="bg-emerald-500/8"  border="border-emerald-500/20" icon={DollarSign} />
+                  <StatCard label="Approved Payouts" value={`£${approvedPaid.toFixed(2)}`} color="text-emerald-300" bg="bg-emerald-500/8"  border="border-emerald-500/20" icon={DollarSign} />
+                  <StatCard label="Pending Payouts"  value={`£${pendingPaid.toFixed(2)}`}  color="text-amber-300"   bg="bg-amber-500/8"    border="border-amber-500/25"   icon={DollarSign} />
+                  <StatCard label="Owed to Users"    value={`£${userOwed.toFixed(2)}`}     color="text-rose-300"    bg="bg-rose-500/8"     border="border-rose-500/25"    icon={DollarSign} />
+                </div>
+                <p className="text-vybe-muted text-[11px] mt-2 leading-relaxed">
+                  <span className="text-emerald-300 font-semibold">Net Kept</span> = Gross Revenue (coins + memberships + unbans) − Approved Payouts.
+                  {' '}<span className="text-rose-300 font-semibold">Owed to Users</span> is total cashable earnings — a potential future payout, not booked yet.
+                </p>
+              </div>
+
+              <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Sales &amp; Revenue</p>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <StatCard label="Total Revenue"   value={`£${totalRev.toFixed(2)}`}                       color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/25" icon={TrendingUp} />
                   <StatCard label="Coin Sales"      value={`£${(stats.coinRevenue || 0).toFixed(2)}`}      color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
                   <StatCard label="Coins Sold"      value={(stats.coinsPurchased || 0).toLocaleString()}    color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={TrendingUp} />
                   <StatCard label="Coin Orders"     value={stats.coinPurchaseCount || 0}                    color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={DollarSign} />
+                  <StatCard label="Membership MRR"  value={`£${(stats.subscriptionRevenue || 0).toFixed(2)}`} color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
                   <StatCard label="Unban Revenue"   value={`£${(stats.unbanRevenue || 0).toFixed(2)}`}     color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
                   <StatCard label="Unban Sales"     value={stats.unbanCount || 0}                           color="text-emerald-300" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={TrendingUp} />
-                  <StatCard label="Approved Payouts" value={`£${(stats.approvedCashoutGbp || 0).toFixed(2)}`} color="text-emerald-300" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
-                  <StatCard label="Pending Payouts" value={`£${(stats.pendingCashoutGbp || 0).toFixed(2)}`}  color="text-amber-300"   bg="bg-amber-500/8"   border="border-amber-500/25" icon={DollarSign} />
                 </div>
               </div>
 

@@ -31,7 +31,7 @@ const HOW_IT_WORKS = [
 const COMPARE_ROWS = [
   { feature: 'Min. followers to earn',   vybe: '0',        twitch: '25',       tiktok: '10,000',   youtube: '1,000',   vybeWins: true  },
   { feature: 'Revenue share',            vybe: '70%',      twitch: '50%',      tiktok: '50%',      youtube: '55%',     vybeWins: true  },
-  { feature: 'Minimum cash out',         vybe: '£4.20',    twitch: '$100',     tiktok: '$100',     youtube: '$100',    vybeWins: true  },
+  { feature: 'Minimum cash out',         vybe: '£5',       twitch: '$100',     tiktok: '$100',     youtube: '$100',    vybeWins: true  },
   { feature: 'Time to cash out',         vybe: '3–5 days', twitch: '45 days',  tiktok: '30 days',  youtube: 'Monthly', vybeWins: true  },
   { feature: 'No application needed',    vybe: true,       twitch: false,      tiktok: false,      youtube: false,     vybeWins: true  },
   { feature: 'Random audience matching', vybe: true,       twitch: false,      tiktok: false,      youtube: false,     vybeWins: true  },

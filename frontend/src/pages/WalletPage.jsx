@@ -72,6 +72,7 @@ export default function WalletPage() {
   const [cashouts, setCashouts]           = useState([])
   const [paypalEmail, setPaypalEmail]     = useState('')
   const [cashoutAmount, setCashoutAmount] = useState('')
+  const [minCashoutGbp, setMinCashoutGbp] = useState(5) // hydrated from /api/settings
   const [cashoutLoading, setCashoutLoading] = useState(false)
   const [buyLoading, setBuyLoading]       = useState(null)
   const [successMsg, setSuccessMsg]       = useState('')
@@ -98,6 +99,16 @@ export default function WalletPage() {
   }, [])
 
   useEffect(() => { refreshCoins() }, [refreshCoins])
+
+  // Pull the configurable cashout minimum from the public settings endpoint.
+  useEffect(() => {
+    axios.get('/api/settings')
+      .then(({ data }) => { if (data?.minCashoutGbp) setMinCashoutGbp(data.minCashoutGbp) })
+      .catch(() => {})
+  }, [])
+
+  // 1,000 coins = £4.20 (matches GBP_PER_1K_COINS on the server).
+  const minCoins = Math.ceil((minCashoutGbp / 4.20) * 1000)
 
   const loadHistory = useCallback(async () => {
     setHistLoading(true)
@@ -145,7 +156,7 @@ export default function WalletPage() {
 
   const handleCashout = async () => {
     const amount = parseInt(cashoutAmount, 10)
-    if (!amount || amount < 1000) { setErrorMsg('Minimum cash out is 1,000 earnings coins'); return }
+    if (!amount || amount < minCoins) { setErrorMsg(`Minimum cash out is £${minCashoutGbp.toFixed(2)} (${minCoins.toLocaleString()} earnings coins)`); return }
     if (amount > earnings) { setErrorMsg(`You only have ${earnings.toLocaleString()} earnings coins`); return }
     if (!paypalEmail) { setErrorMsg('Enter your PayPal email above'); return }
     setCashoutLoading(true)
@@ -181,7 +192,7 @@ export default function WalletPage() {
   const cardStyle = { background: 'linear-gradient(160deg, #0d0d1c 0%, #09091a 100%)' }
   const inputCls  = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/30 transition-colors'
 
-  const canCashout = earnings >= 1000
+  const canCashout = earnings >= minCoins
 
   return (
     <div className="min-h-screen bg-vybe-bg flex flex-col font-space">
@@ -306,7 +317,7 @@ export default function WalletPage() {
                 <p className="text-cyan-400 font-bold text-sm">How Earnings Work</p>
               </div>
               <p className="text-vybe-muted text-xs leading-relaxed">
-                When someone sends you a gift in chat, 70% goes straight to your Earnings balance. Once you reach 1,000 earnings coins (≈ £4.20), you can request a PayPal payout in the <button className="text-white font-semibold underline" onClick={() => switchTab('cashout')}>Cash Out</button> tab.
+                When someone sends you a gift in chat, 70% goes straight to your Earnings balance. Once you reach the £{minCashoutGbp.toFixed(2)} minimum ({minCoins.toLocaleString()} earnings coins), you can request a PayPal payout in the <button className="text-white font-semibold underline" onClick={() => switchTab('cashout')}>Cash Out</button> tab.
               </p>
             </div>
           </div>
@@ -458,7 +469,7 @@ export default function WalletPage() {
             <div className={cardCls} style={cardStyle}>
               <h2 className="text-white font-bold text-base mb-1">Cash Out via PayPal</h2>
               <p className="text-vybe-muted text-sm mb-4">
-                Minimum 1,000 earnings coins to request a payout. Rate: 1,000 coins = £4.20.
+                Minimum £{minCashoutGbp.toFixed(2)} ({minCoins.toLocaleString()} earnings coins) to request a payout. Rate: 1,000 coins = £4.20.
               </p>
 
               <div className="mb-4">
@@ -482,14 +493,18 @@ export default function WalletPage() {
                       type="number"
                       value={cashoutAmount}
                       onChange={(e) => setCashoutAmount(e.target.value)}
-                      placeholder="1000"
-                      min="1000"
+                      placeholder={String(minCoins)}
+                      min={minCoins}
                       max={earnings}
                       step="100"
                       className={inputCls}
                     />
-                    {cashoutAmount && parseInt(cashoutAmount) >= 1000 && parseInt(cashoutAmount) <= earnings && (
+                    <p className="text-vybe-muted text-[11px] mt-1.5">Minimum cash out: £{minCashoutGbp.toFixed(2)} ({minCoins.toLocaleString()} coins).</p>
+                    {cashoutAmount && parseInt(cashoutAmount) >= minCoins && parseInt(cashoutAmount) <= earnings && (
                       <p className="text-cyan-400 text-xs mt-1">≈ £{((parseInt(cashoutAmount) / 1000) * 4.20).toFixed(2)} to your PayPal</p>
+                    )}
+                    {cashoutAmount && parseInt(cashoutAmount) > 0 && parseInt(cashoutAmount) < minCoins && (
+                      <p className="text-amber-400 text-xs mt-1">Below the £{minCashoutGbp.toFixed(2)} minimum.</p>
                     )}
                     {cashoutAmount && parseInt(cashoutAmount) > earnings && (
                       <p className="text-red-400 text-xs mt-1">Exceeds your earnings of {earnings.toLocaleString()} coins</p>
@@ -497,7 +512,7 @@ export default function WalletPage() {
                   </div>
                   <button
                     onClick={handleCashout}
-                    disabled={cashoutLoading || !cashoutAmount || parseInt(cashoutAmount) < 1000 || parseInt(cashoutAmount) > earnings || !paypalEmail}
+                    disabled={cashoutLoading || !cashoutAmount || parseInt(cashoutAmount) < minCoins || parseInt(cashoutAmount) > earnings || !paypalEmail}
                     className="w-full py-3 rounded-xl text-sm font-extrabold text-white transition-all disabled:opacity-50"
                     style={{ background: 'linear-gradient(135deg,#00D4FF,#00B8E0)', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}
                   >
@@ -507,7 +522,7 @@ export default function WalletPage() {
                 </div>
               ) : (
                 <div className="px-4 py-5 rounded-xl text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <p className="text-white/50 text-sm mb-1">Earn {Math.max(0, 1000 - earnings).toLocaleString()} more coins from tips to unlock cash out</p>
+                  <p className="text-white/50 text-sm mb-1">Earn {Math.max(0, minCoins - earnings).toLocaleString()} more coins from tips to unlock cash out (£{minCashoutGbp.toFixed(2)} minimum)</p>
                   <p className="text-vybe-muted text-xs">When someone sends you a gift in chat, it goes to your earnings balance</p>
                 </div>
               )}
