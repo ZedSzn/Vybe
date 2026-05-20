@@ -1491,13 +1491,6 @@ export default function ChatPage() {
                     <AnimatedDots />
                   </motion.p>
                 </AnimatePresence>
-                {onlineCount > 0 && (
-                  <p className="text-sm flex items-center justify-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: '#00D4FF' }} />
-                    <span className="text-white font-medium">{onlineCount.toLocaleString()}</span>
-                    <span style={{ color: '#666677' }}>{onlineCount === 1 ? 'person' : 'people'} online now</span>
-                  </p>
-                )}
                 <AnimatePresence mode="wait">
                   <motion.p key={tipIdx} initial={{ opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: 0.4 }} className="text-[11px]" style={{ color: '#555566' }}>
                     {TIPS[tipIdx % TIPS.length]}
@@ -2147,13 +2140,6 @@ export default function ChatPage() {
                           </p>
                         </motion.div>
                       </AnimatePresence>
-                      {onlineCount > 0 && (
-                        <p className="text-sm flex items-center justify-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: '#00D4FF' }} />
-                          <span className="text-white font-medium">{onlineCount.toLocaleString()}</span>
-                          <span style={{ color: '#666677' }}>{onlineCount === 1 ? 'person' : 'people'} online now</span>
-                        </p>
-                      )}
                       <AnimatePresence mode="wait">
                         <motion.p key={tipIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.4 }} className="text-[12px]" style={{ color: '#555566' }}>
                           {TIPS[tipIdx % TIPS.length]}
