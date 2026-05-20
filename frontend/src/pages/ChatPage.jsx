@@ -1977,14 +1977,16 @@ export default function ChatPage() {
           <Navbar onPremiumClick={() => {}} />
           <div className="flex" style={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 64, overflow: 'hidden' }}>
           {is2v2 ? (
-            /* ── 2V2: 2×2 CSS Grid ── */
+            /* ── 2V2: 2×2 CSS Grid — capped width + centered so each tile
+                  reads as a proper 4:3-ish video tile (matches the monkey
+                  layout) instead of stretching to ultra-wide on big screens. ── */
             <motion.div
               key="2v2-grid"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35 }}
-              style={{ flex: 1, display: 'grid', padding: 8, gap: 8, gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', minHeight: 0 }}
+              style={{ flex: 1, display: 'grid', padding: 12, gap: 10, gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', minHeight: 0, width: '100%', maxWidth: 1180, marginInline: 'auto' }}
             >
               {/* TOP LEFT: Stranger 1 */}
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
