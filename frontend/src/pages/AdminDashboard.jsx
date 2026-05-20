@@ -14,24 +14,36 @@ const ah = (token) => ({ headers: { 'x-admin-token': token } })
 
 function Toast({ toast }) {
   if (!toast) return null
+  const isErr = toast.type === 'error'
   return (
-    <div className={`fixed top-4 right-4 z-[100] px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl flex items-center gap-2 border ${
-      toast.type === 'error' ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-cyan-500/20 border-cyan-400/40 text-cyan-400'
-    }`}>
-      {toast.type === 'error' ? <AlertTriangle size={14} /> : <CheckCircle size={14} />}
+    <div className={`fixed top-5 right-5 z-[100] px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2.5 border backdrop-blur-xl ${
+      isErr ? 'bg-red-500/15 border-red-500/40 text-red-300' : 'bg-cyan-500/15 border-cyan-400/45 text-cyan-300'
+    }`}
+      style={{ boxShadow: isErr ? '0 18px 50px rgba(0,0,0,0.5), 0 0 24px rgba(239,68,68,0.25)' : '0 18px 50px rgba(0,0,0,0.5), 0 0 24px rgba(0,212,255,0.3)' }}>
+      {isErr ? <AlertTriangle size={14} /> : <CheckCircle size={14} />}
       {toast.msg}
     </div>
   )
 }
 
 function StatCard({ label, value, icon: Icon, color, bg, border }) {
+  // Pick an ambient halo colour that matches the stat accent so the cards
+  // feel like they're emitting light from their corner.
+  const halo = color?.includes('emerald') ? 'rgba(52,211,153,0.35)'
+    : color?.includes('red')              ? 'rgba(248,113,113,0.3)'
+    : color?.includes('pink')             ? 'rgba(244,114,182,0.3)'
+    : 'rgba(0,212,255,0.42)'
   return (
-    <div className={`${bg} border ${border} rounded-xl p-4`}>
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-vybe-muted text-[11px] font-bold uppercase tracking-wider">{label}</p>
-        {Icon && <Icon size={14} className={`${color} opacity-60`} />}
+    <div className={`relative ${bg} border ${border} rounded-2xl px-5 py-4 overflow-hidden group transition-all duration-300 hover:border-cyan-400/45 hover:translate-y-[-1px]`}>
+      <div className="pointer-events-none absolute -top-12 -right-10 w-28 h-28 rounded-full opacity-50 group-hover:opacity-75 transition-opacity"
+        style={{ background: `radial-gradient(circle, ${halo}, transparent 70%)` }} />
+      <div className="relative">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-vybe-muted text-[10px] font-black uppercase tracking-[0.16em]">{label}</p>
+          {Icon && <Icon size={14} className={`${color} opacity-75`} />}
+        </div>
+        <p className={`text-[28px] font-black leading-none ${color}`} style={{ fontFeatureSettings: '"tnum"', letterSpacing: '-0.02em' }}>{value ?? '—'}</p>
       </div>
-      <p className={`text-2xl font-black ${color}`}>{value ?? '—'}</p>
     </div>
   )
 }
@@ -84,7 +96,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
 
   if (loading) return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <Loader2 size={36} className="text-vybe-purple animate-spin" />
+      <Loader2 size={36} className="text-cyan-400 animate-spin" />
     </div>
   )
   if (!profile) return null
@@ -103,7 +115,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
           {/* Basic info */}
           <div className="bg-vybe-card border border-vybe-border rounded-xl p-4">
             <div className="flex items-start gap-4 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-vybe-purple/20 border border-vybe-purple/30 flex items-center justify-center text-vybe-purple-light font-black text-xl flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-cyan-400/20 border border-cyan-400/30 flex items-center justify-center text-cyan-300 font-black text-xl flex-shrink-0">
                 {user.username?.[0]?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
@@ -226,10 +238,10 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
             <div className="absolute inset-0 bg-black/50" onClick={() => setBanModal(false)} />
             <div className="relative w-[340px] bg-vybe-bg2 border border-vybe-border rounded-2xl p-5 shadow-2xl">
               <h3 className="font-black text-white mb-4">Ban {user.username}</h3>
-              <select value={banType} onChange={(e) => setBanType(e.target.value)} className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm mb-3 focus:border-vybe-purple focus:outline-none">
+              <select value={banType} onChange={(e) => setBanType(e.target.value)} className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm mb-3 focus:border-cyan-400 focus:outline-none">
                 {BAN_DURATION_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
-              <textarea value={banReason} onChange={(e) => setBanReason(e.target.value)} placeholder="Ban reason (shown to user)…" rows={3} className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none resize-none mb-4" />
+              <textarea value={banReason} onChange={(e) => setBanReason(e.target.value)} placeholder="Ban reason (shown to user)…" rows={3} className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-cyan-400 focus:outline-none resize-none mb-4" />
               <div className="flex gap-2">
                 <button onClick={() => setBanModal(false)} className="flex-1 py-2.5 rounded-xl border border-vybe-border text-vybe-muted text-sm">Cancel</button>
                 <button onClick={() => { onBan(user._id, banReason || 'Banned by admin', banType); setBanModal(false) }} className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-bold">Confirm Ban</button>
@@ -244,7 +256,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
             <div className="absolute inset-0 bg-black/50" onClick={() => setUnbanModal(false)} />
             <div className="relative w-[340px] bg-vybe-bg2 border border-vybe-border rounded-2xl p-5 shadow-2xl">
               <h3 className="font-black text-white mb-4">Unban {user.username}</h3>
-              <input value={unbanNote} onChange={(e) => setUnbanNote(e.target.value)} placeholder="Unban note, e.g. false ban…" className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none mb-4" />
+              <input value={unbanNote} onChange={(e) => setUnbanNote(e.target.value)} placeholder="Unban note, e.g. false ban…" className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-cyan-400 focus:outline-none mb-4" />
               <div className="flex gap-2">
                 <button onClick={() => setUnbanModal(false)} className="flex-1 py-2.5 rounded-xl border border-vybe-border text-vybe-muted text-sm">Cancel</button>
                 <button onClick={() => { onUnban(user._id, unbanNote); setUnbanModal(false) }} className="flex-1 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-500 text-white text-sm font-bold">Unban</button>
@@ -259,7 +271,7 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
             <div className="absolute inset-0 bg-black/50" onClick={() => setWarnModal(false)} />
             <div className="relative w-[340px] bg-vybe-bg2 border border-vybe-border rounded-2xl p-5 shadow-2xl">
               <h3 className="font-black text-white mb-4">Send Warning to {user.username}</h3>
-              <textarea value={warnMsg} onChange={(e) => setWarnMsg(e.target.value)} placeholder="Warning message…" rows={3} className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none resize-none mb-4" />
+              <textarea value={warnMsg} onChange={(e) => setWarnMsg(e.target.value)} placeholder="Warning message…" rows={3} className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-cyan-400 focus:outline-none resize-none mb-4" />
               <div className="flex gap-2">
                 <button onClick={() => setWarnModal(false)} className="flex-1 py-2.5 rounded-xl border border-vybe-border text-vybe-muted text-sm">Cancel</button>
                 <button onClick={() => { if (warnMsg) { onWarn(user._id, warnMsg); setWarnModal(false) } }} className="flex-1 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold">Send Warning</button>
@@ -385,9 +397,9 @@ export default function AdminDashboard() {
         <div className="flex gap-2 mb-5">
           <div className="relative flex-1">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-vybe-muted" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { setPage(1); fetchUsers(search, 1) } }} placeholder="Search username or email…" className="w-full pl-9 pr-4 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-sm text-white placeholder-vybe-muted focus:border-vybe-purple focus:outline-none transition-all" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { setPage(1); fetchUsers(search, 1) } }} placeholder="Search username or email…" className="w-full pl-9 pr-4 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-sm text-white placeholder-vybe-muted focus:border-cyan-400 focus:outline-none transition-all" />
           </div>
-          <button onClick={() => { setPage(1); fetchUsers(search, 1) }} className="px-4 py-2.5 rounded-xl bg-vybe-purple text-white text-sm font-bold hover:bg-vybe-purple-light transition-all">Search</button>
+          <button onClick={() => { setPage(1); fetchUsers(search, 1) }} className="px-4 py-2.5 rounded-xl bg-cyan-400 text-[#06121b] text-sm font-bold hover:bg-cyan-300 transition-all">Search</button>
           <button onClick={() => { setSearch(''); setPage(1); fetchUsers('', 1) }} className="p-2.5 rounded-xl border border-vybe-border text-vybe-muted hover:text-white transition-colors"><RefreshCw size={14} /></button>
         </div>
 
@@ -426,7 +438,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3.5 text-vybe-muted text-sm">{u.violationCount || 0}</td>
                         <td className="px-4 py-3.5 text-vybe-muted text-[12px]">{new Date(u.createdAt).toLocaleDateString()}</td>
                         <td className="px-4 py-3.5">
-                          <button onClick={() => setProfileId(u._id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-vybe-purple/15 border border-vybe-purple/30 text-vybe-purple text-xs font-bold hover:bg-vybe-purple/25 transition-all">
+                          <button onClick={() => setProfileId(u._id)} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-cyan-400/15 border border-cyan-400/30 text-cyan-400 text-xs font-bold hover:bg-cyan-400/25 transition-all">
                             <Eye size={11} /> View
                           </button>
                         </td>
@@ -478,7 +490,7 @@ export default function AdminDashboard() {
       <div>
         <div className="flex gap-1 bg-vybe-card2 p-1 rounded-xl w-fit mb-5 flex-wrap">
           {[['active', 'Active Bans'], ['permanent', 'Permanent'], ['temporary', 'Temporary'], ['paid-unban', 'Paid Unbans']].map(([f, label]) => (
-            <button key={f} onClick={() => { setFilter(f); setPage(1); fetchBans(f, 1) }} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'}`}>{label}</button>
+            <button key={f} onClick={() => { setFilter(f); setPage(1); fetchBans(f, 1) }} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-cyan-400 text-[#06121b]' : 'text-vybe-muted hover:text-white'}`}>{label}</button>
           ))}
         </div>
 
@@ -552,7 +564,7 @@ export default function AdminDashboard() {
       <div>
         <div className="flex gap-1 bg-vybe-card2 p-1 rounded-xl w-fit mb-5">
           {[['pending', 'Pending'], ['resolved', 'Resolved'], ['dismissed', 'Dismissed'], ['all', 'All']].map(([f, label]) => (
-            <button key={f} onClick={() => { setFilter(f); setPage(1); fetchReports(f, 1) }} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'}`}>{label}</button>
+            <button key={f} onClick={() => { setFilter(f); setPage(1); fetchReports(f, 1) }} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-cyan-400 text-[#06121b]' : 'text-vybe-muted hover:text-white'}`}>{label}</button>
           ))}
         </div>
 
@@ -639,9 +651,9 @@ export default function AdminDashboard() {
         <div className="flex gap-2 mb-6">
           <div className="relative flex-1">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-vybe-muted" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && findUser()} placeholder="Search user by username or email…" className="w-full pl-9 pr-4 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-sm text-white placeholder-vybe-muted focus:border-vybe-purple focus:outline-none" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && findUser()} placeholder="Search user by username or email…" className="w-full pl-9 pr-4 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-sm text-white placeholder-vybe-muted focus:border-cyan-400 focus:outline-none" />
           </div>
-          <button onClick={findUser} className="px-4 py-2.5 rounded-xl bg-vybe-purple text-white text-sm font-bold hover:bg-vybe-purple-light">View Friends</button>
+          <button onClick={findUser} className="px-4 py-2.5 rounded-xl bg-cyan-400 text-[#06121b] text-sm font-bold hover:bg-cyan-300">View Friends</button>
         </div>
 
         {loading ? <Spinner /> : !searched ? (
@@ -653,7 +665,7 @@ export default function AdminDashboard() {
             {friends.map((f) => (
               <div key={f._id} className="bg-vybe-card border border-vybe-border rounded-xl p-4 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-vybe-purple/20 flex items-center justify-center text-vybe-purple-light font-bold text-sm flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-cyan-400/20 flex items-center justify-center text-cyan-300 font-bold text-sm flex-shrink-0">
                     {f.requester.username?.[0]?.toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -693,7 +705,7 @@ export default function AdminDashboard() {
           <StatCard label="Unban Revenue"   value={`$${(data.unbanRevenue || 0).toFixed(2)}`}  color="text-emerald-400"  bg="bg-emerald-500/10"  border="border-emerald-500/20" icon={DollarSign} />
           <StatCard label="Unban Sales"     value={data.unbanCount || 0}    color="text-emerald-300"  bg="bg-emerald-500/10"  border="border-emerald-500/20" icon={TrendingUp} />
           <StatCard label="Subscription Rev" value={`$${(data.subscriptionRevenue || 0).toFixed(2)}`} color="text-cyan-400" bg="bg-cyan-400/10" border="border-cyan-400/20" icon={DollarSign} />
-          <StatCard label="Total Revenue"   value={`$${((data.unbanRevenue || 0) + (data.subscriptionRevenue || 0)).toFixed(2)}`} color="text-vybe-purple" bg="bg-vybe-purple/10" border="border-vybe-purple/20" icon={TrendingUp} />
+          <StatCard label="Total Revenue"   value={`$${((data.unbanRevenue || 0) + (data.subscriptionRevenue || 0)).toFixed(2)}`} color="text-cyan-400" bg="bg-cyan-400/10" border="border-cyan-400/20" icon={TrendingUp} />
         </div>
 
         {data.monthlyBreakdown?.length > 0 && (
@@ -708,7 +720,7 @@ export default function AdminDashboard() {
                   <div key={`${m._id.year}-${m._id.month}`} className="flex items-center gap-3">
                     <span className="text-vybe-muted text-xs w-12 flex-shrink-0">{months[m._id.month]} {m._id.year}</span>
                     <div className="flex-1 bg-vybe-bg rounded-full h-2 overflow-hidden">
-                      <div className="h-full bg-vybe-purple rounded-full transition-all" style={{ width: `${pct}%` }} />
+                      <div className="h-full bg-cyan-400 rounded-full transition-all" style={{ width: `${pct}%` }} />
                     </div>
                     <span className="text-emerald-400 text-xs font-bold w-16 text-right">${m.total.toFixed(2)}</span>
                     <span className="text-vybe-muted text-[11px] w-10">{m.count}x</span>
@@ -801,7 +813,7 @@ export default function AdminDashboard() {
               <p className="text-white text-sm font-semibold">Enable Maintenance</p>
               <p className="text-vybe-muted text-xs">Shows a maintenance page to all users</p>
             </div>
-            <button onClick={() => setSettings({ ...settings, maintenanceMode: !settings.maintenanceMode })} className="text-vybe-purple-light hover:opacity-80 transition-opacity">
+            <button onClick={() => setSettings({ ...settings, maintenanceMode: !settings.maintenanceMode })} className="text-cyan-300 hover:opacity-80 transition-opacity">
               {settings.maintenanceMode ? <ToggleRight size={32} /> : <ToggleLeft size={32} className="opacity-40" />}
             </button>
           </div>
@@ -812,14 +824,14 @@ export default function AdminDashboard() {
             </div>
           )}
           <label className="block text-xs font-bold text-vybe-muted uppercase tracking-wider mb-1.5">Maintenance Message</label>
-          <input value={settings.maintenanceMessage} onChange={(e) => setSettings({ ...settings, maintenanceMessage: e.target.value })} className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none" />
+          <input value={settings.maintenanceMessage} onChange={(e) => setSettings({ ...settings, maintenanceMessage: e.target.value })} className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-cyan-400 focus:outline-none" />
         </div>
 
         {/* Report threshold */}
         <div className="bg-vybe-card border border-vybe-border rounded-2xl p-5">
           <h3 className="font-black text-white mb-4">Moderation Settings</h3>
           <label className="block text-xs font-bold text-vybe-muted uppercase tracking-wider mb-1.5">Auto-ban threshold (reports within 24h)</label>
-          <input type="number" min={1} max={20} value={settings.reportThreshold} onChange={(e) => setSettings({ ...settings, reportThreshold: parseInt(e.target.value) || 3 })} className="w-32 px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm focus:border-vybe-purple focus:outline-none" />
+          <input type="number" min={1} max={20} value={settings.reportThreshold} onChange={(e) => setSettings({ ...settings, reportThreshold: parseInt(e.target.value) || 3 })} className="w-32 px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm focus:border-cyan-400 focus:outline-none" />
         </div>
 
         {/* Announcement */}
@@ -830,12 +842,12 @@ export default function AdminDashboard() {
               <p className="text-white text-sm font-semibold">Show Announcement</p>
               <p className="text-vybe-muted text-xs">Displays banner to all users on home page</p>
             </div>
-            <button onClick={() => setSettings({ ...settings, announcementActive: !settings.announcementActive })} className="text-vybe-purple-light hover:opacity-80 transition-opacity">
+            <button onClick={() => setSettings({ ...settings, announcementActive: !settings.announcementActive })} className="text-cyan-300 hover:opacity-80 transition-opacity">
               {settings.announcementActive ? <ToggleRight size={32} /> : <ToggleLeft size={32} className="opacity-40" />}
             </button>
           </div>
           <label className="block text-xs font-bold text-vybe-muted uppercase tracking-wider mb-1.5">Announcement Text</label>
-          <textarea value={settings.announcement} onChange={(e) => setSettings({ ...settings, announcement: e.target.value })} rows={2} className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none resize-none mb-4" placeholder="e.g. New features dropping this weekend! 🎉" />
+          <textarea value={settings.announcement} onChange={(e) => setSettings({ ...settings, announcement: e.target.value })} rows={2} className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-cyan-400 focus:outline-none resize-none mb-4" placeholder="e.g. New features dropping this weekend! 🎉" />
         </div>
 
         <button onClick={save} disabled={saving} className="px-6 py-3 rounded-xl btn-purple text-white font-black text-sm disabled:opacity-60">
@@ -847,8 +859,8 @@ export default function AdminDashboard() {
           <h3 className="font-black text-white mb-1">Live Broadcast</h3>
           <p className="text-vybe-muted text-xs mb-4">Sends a one-time notification to all currently online users</p>
           <div className="flex gap-2">
-            <input value={broadcast} onChange={(e) => setBroadcast(e.target.value)} placeholder="Message to broadcast…" className="flex-1 px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none" />
-            <button onClick={sendBroadcast} disabled={bcLoading || !broadcast} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-vybe-purple text-white text-sm font-bold hover:bg-vybe-purple-light disabled:opacity-50 transition-all">
+            <input value={broadcast} onChange={(e) => setBroadcast(e.target.value)} placeholder="Message to broadcast…" className="flex-1 px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-cyan-400 focus:outline-none" />
+            <button onClick={sendBroadcast} disabled={bcLoading || !broadcast} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-400 text-[#06121b] text-sm font-bold hover:bg-cyan-300 disabled:opacity-50 transition-all">
               {bcLoading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Send
             </button>
           </div>
@@ -861,10 +873,10 @@ export default function AdminDashboard() {
             {[['current', 'Current Password', pwForm.current], ['new', 'New Password', pwForm.new], ['confirm', 'Confirm New Password', pwForm.confirm]].map(([field, label, value]) => (
               <div key={field}>
                 <label className="block text-xs font-bold text-vybe-muted uppercase tracking-wider mb-1.5">{label}</label>
-                <input type="password" value={value} onChange={(e) => setPwForm({ ...pwForm, [field]: e.target.value })} className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm focus:border-vybe-purple focus:outline-none" />
+                <input type="password" value={value} onChange={(e) => setPwForm({ ...pwForm, [field]: e.target.value })} className="w-full px-3 py-2.5 bg-vybe-bg border border-vybe-border rounded-xl text-white text-sm focus:border-cyan-400 focus:outline-none" />
               </div>
             ))}
-            <button onClick={changePassword} disabled={pwLoading} className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-vybe-purple/20 border border-vybe-purple/30 text-vybe-purple text-sm font-bold hover:bg-vybe-purple/30 transition-all disabled:opacity-50">
+            <button onClick={changePassword} disabled={pwLoading} className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-cyan-400/20 border border-cyan-400/30 text-cyan-400 text-sm font-bold hover:bg-cyan-400/30 transition-all disabled:opacity-50">
               <Lock size={14} /> {pwLoading ? 'Updating…' : 'Update Password'}
             </button>
           </div>
@@ -893,7 +905,7 @@ export default function AdminDashboard() {
 
     const ACTION_COLORS = {
       ban: 'text-red-400', unban: 'text-cyan-400', warn: 'text-cyan-400',
-      delete: 'text-red-500', broadcast: 'text-vybe-purple', 'change-admin-password': 'text-cyan-400',
+      delete: 'text-red-500', broadcast: 'text-cyan-400', 'change-admin-password': 'text-cyan-400',
       'update-settings': 'text-gray-400', 'remove-friendship': 'text-orange-400',
     }
 
@@ -992,7 +1004,7 @@ export default function AdminDashboard() {
         <div className="flex gap-1 bg-vybe-card2 p-1 rounded-xl w-fit mb-5">
           {[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All']].map(([f, label]) => (
             <button key={f} onClick={() => { setFilter(f); fetchRequests(f) }}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'}`}>
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-cyan-400 text-[#06121b]' : 'text-vybe-muted hover:text-white'}`}>
               {label}
             </button>
           ))}
@@ -1034,7 +1046,7 @@ export default function AdminDashboard() {
                     }`}>{r.status}</span>
                     {r.status === 'pending' && (
                       <button onClick={() => openReview(r)}
-                        className="px-3 py-1.5 rounded-lg bg-vybe-purple/15 border border-vybe-purple/30 text-vybe-purple text-xs font-bold hover:bg-vybe-purple/25 transition-all flex items-center gap-1">
+                        className="px-3 py-1.5 rounded-lg bg-cyan-400/15 border border-cyan-400/30 text-cyan-400 text-xs font-bold hover:bg-cyan-400/25 transition-all flex items-center gap-1">
                         <Eye size={11} /> Review
                       </button>
                     )}
@@ -1096,7 +1108,7 @@ export default function AdminDashboard() {
               <div className="mb-4">
                 <label className="text-vybe-muted text-xs font-bold block mb-1.5">Admin note (shown to user)</label>
                 <input value={noteMap[reviewId] || ''} onChange={(e) => setNoteMap(m => ({ ...m, [reviewId]: e.target.value }))}
-                  placeholder="Reason for decision…" className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-vybe-purple focus:outline-none" />
+                  placeholder="Reason for decision…" className="w-full px-3 py-2.5 bg-vybe-card border border-vybe-border rounded-xl text-white text-sm placeholder-vybe-muted focus:border-cyan-400 focus:outline-none" />
               </div>
 
               <div className="flex gap-2">
@@ -1160,7 +1172,7 @@ export default function AdminDashboard() {
         <div className="flex gap-1 bg-vybe-card2 p-1 rounded-xl w-fit mb-5">
           {[['pending','Pending'],['resolved','Resolved'],['all','All']].map(([f, label]) => (
             <button key={f} onClick={() => { setFilter(f); fetchAppeals(f) }}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-vybe-purple text-white' : 'text-vybe-muted hover:text-white'}`}>
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-cyan-400 text-[#06121b]' : 'text-vybe-muted hover:text-white'}`}>
               {label}
             </button>
           ))}
@@ -1198,7 +1210,7 @@ export default function AdminDashboard() {
                         <textarea value={noteMap[a._id] || ''} onChange={(e) => setNoteMap(m => ({ ...m, [a._id]: e.target.value }))}
                           placeholder="Reply to the user (optional) — they'll get it as a notification"
                           rows={2}
-                          className="w-full px-3 py-2 bg-vybe-card2 border border-vybe-border rounded-lg text-white text-xs placeholder-vybe-muted focus:border-vybe-purple focus:outline-none resize-none" />
+                          className="w-full px-3 py-2 bg-vybe-card2 border border-vybe-border rounded-lg text-white text-xs placeholder-vybe-muted focus:border-cyan-400 focus:outline-none resize-none" />
                         {a.userId?.isBanned && (
                           <button onClick={() => unbanUser(a)}
                             className="px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold hover:bg-emerald-500/25 transition-all">
@@ -1236,45 +1248,62 @@ export default function AdminDashboard() {
   ]
 
   // ─── Render ────────────────────────────────────────────────────────────────
+  const sectionLabel = NAV.find((n) => n.id === section)?.label || section
+
   return (
-    <div className="min-h-screen bg-vybe-bg font-space flex">
+    <div className="min-h-screen bg-vybe-bg font-space flex relative">
+      {/* Ambient cyan gradient haze — never moves, sets the mood. */}
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 12% 10%, rgba(0,212,255,0.07), transparent 45%), radial-gradient(circle at 88% 90%, rgba(0,184,224,0.05), transparent 50%)', zIndex: 0 }} />
       <Toast toast={toast} />
 
       {/* Sidebar */}
-      <div className="w-56 flex-shrink-0 bg-vybe-bg2 border-r border-vybe-border flex flex-col sticky top-0 h-screen">
-        <div className="px-5 py-5 border-b border-vybe-border">
+      <div className="w-56 flex-shrink-0 bg-vybe-bg2/85 backdrop-blur-xl border-r border-cyan-400/10 flex flex-col sticky top-0 h-screen relative z-10">
+        <div className="px-5 py-5 border-b border-cyan-400/10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-vybe-purple/20 border border-vybe-purple/30 flex items-center justify-center flex-shrink-0">
-              <Shield size={16} className="text-vybe-purple" />
+            <div className="relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.25), rgba(0,184,224,0.12))', border: '1px solid rgba(0,212,255,0.45)', boxShadow: '0 0 0 1px rgba(0,212,255,0.08) inset, 0 0 20px rgba(0,212,255,0.18)' }}>
+              <Shield size={16} className="text-cyan-300" style={{ filter: 'drop-shadow(0 0 6px rgba(0,212,255,0.6))' }} />
             </div>
             <div>
-              <p className="text-white font-black text-sm leading-none">Vybe Admin</p>
-              <p className="text-vybe-muted text-[10px] mt-0.5">Secure Dashboard</p>
+              <p className="text-white font-black text-sm leading-none" style={{ letterSpacing: '-0.01em' }}>Vybe Admin</p>
+              <p className="text-cyan-400/55 text-[10px] mt-1 font-bold uppercase tracking-[0.18em]">Secure</p>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 py-3 overflow-y-auto">
-          {NAV.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setSection(id)}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-all ${
-                section === id
-                  ? 'bg-vybe-purple/15 text-white border-r-2 border-vybe-purple'
-                  : 'text-vybe-muted hover:text-white hover:bg-vybe-card/50'
-              }`}
-            >
-              <Icon size={15} />
-              {label}
-            </button>
-          ))}
+        <nav className="flex-1 py-3 overflow-y-auto px-2">
+          {NAV.map(({ id, label, icon: Icon }) => {
+            const active = section === id
+            return (
+              <button
+                key={id}
+                onClick={() => setSection(id)}
+                className={`w-full relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all mb-0.5 ${
+                  active
+                    ? 'text-white'
+                    : 'text-vybe-muted hover:text-white hover:bg-white/[0.03]'
+                }`}
+                style={active ? { background: 'linear-gradient(90deg, rgba(0,212,255,0.18), rgba(0,212,255,0.04))', boxShadow: 'inset 0 0 0 1px rgba(0,212,255,0.25)' } : {}}
+              >
+                {active && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r"
+                    style={{ background: '#00D4FF', boxShadow: '0 0 8px rgba(0,212,255,0.7)' }} />
+                )}
+                <Icon size={15} className={active ? 'text-cyan-300' : ''} />
+                {label}
+              </button>
+            )
+          })}
         </nav>
 
-        <div className="px-4 py-4 border-t border-vybe-border">
-          <div className="flex items-center gap-1.5 text-xs text-cyan-400 mb-3">
-            <Wifi size={11} />
-            {stats?.online ?? 0} online
+        <div className="px-4 py-4 border-t border-cyan-400/10">
+          <div className="flex items-center gap-2 text-[11px] text-cyan-300 mb-3">
+            <span className="relative flex items-center justify-center w-2 h-2">
+              <span className="absolute inset-0 rounded-full bg-cyan-400 animate-ping opacity-60" />
+              <span className="relative w-2 h-2 rounded-full bg-cyan-400" />
+            </span>
+            <span className="font-bold">{stats?.online ?? 0}</span>
+            <span className="text-vybe-muted">online</span>
           </div>
           <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-vybe-muted hover:text-red-400 hover:bg-red-500/10 text-sm transition-all">
             <LogOut size={14} /> Logout
@@ -1283,11 +1312,14 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         {/* Top bar */}
-        <div className="border-b border-vybe-border bg-vybe-bg/80 backdrop-blur-sm px-6 py-4 flex items-center justify-between sticky top-0 z-20">
-          <h1 className="text-base font-black text-white capitalize">{section}</h1>
-          <button onClick={fetchStats} className="p-2 rounded-lg text-vybe-muted hover:text-white hover:bg-vybe-card transition-all">
+        <div className="border-b border-cyan-400/10 bg-vybe-bg/70 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <span className="w-1 h-6 rounded-full" style={{ background: 'linear-gradient(180deg, #00D4FF, #00B8E0)', boxShadow: '0 0 10px rgba(0,212,255,0.55)' }} />
+            <h1 className="text-base font-black text-white" style={{ letterSpacing: '-0.01em' }}>{sectionLabel}</h1>
+          </div>
+          <button onClick={fetchStats} className="p-2 rounded-lg text-vybe-muted hover:text-cyan-300 hover:bg-cyan-400/10 transition-all">
             <RefreshCw size={14} />
           </button>
         </div>
@@ -1296,23 +1328,41 @@ export default function AdminDashboard() {
         <div className="flex-1 overflow-y-auto p-6">
 
           {section === 'overview' && stats && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <StatCard label="Total Users"    value={stats.totalUsers}     color="text-cyan-400"    bg="bg-cyan-500/10"    border="border-cyan-400/20"   icon={Users} />
-                <StatCard label="Online Now"     value={stats.online}         color="text-cyan-400"     bg="bg-cyan-400/10"     border="border-cyan-400/20"    icon={Wifi} />
-                <StatCard label="Banned Users"   value={stats.bannedUsers}    color="text-red-400"      bg="bg-red-500/10"      border="border-red-500/20"     icon={UserX} />
-                <StatCard label="Friendships"    value={stats.totalFriendships} color="text-pink-400"   bg="bg-pink-500/10"     border="border-pink-500/20"    icon={Heart} />
-                <StatCard label="Total Reports"  value={stats.totalReports}   color="text-vybe-purple"  bg="bg-vybe-purple/10"  border="border-vybe-purple/20" icon={Flag} />
-                <StatCard label="Pending Reports" value={stats.pendingReports} color="text-cyan-400"  bg="bg-cyan-500/10"   border="border-yellow-500/20"  icon={AlertTriangle} />
-                <StatCard label="Unban Revenue"  value={`$${(stats.unbanRevenue || 0).toFixed(2)}`} color="text-emerald-400" bg="bg-emerald-500/10" border="border-emerald-500/20" icon={DollarSign} />
-                <StatCard label="Unban Sales"    value={stats.unbanCount}     color="text-emerald-300"  bg="bg-emerald-500/10"  border="border-emerald-500/20" icon={TrendingUp} />
+            <div className="space-y-7">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">At a glance</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <StatCard label="Total Users"     value={stats.totalUsers}                              color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Users} />
+                  <StatCard label="Online Now"      value={stats.online}                                  color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Wifi} />
+                  <StatCard label="Banned"          value={stats.bannedUsers}                             color="text-red-400"     bg="bg-red-500/8"     border="border-red-500/20"   icon={UserX} />
+                  <StatCard label="Friendships"     value={stats.totalFriendships}                        color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Heart} />
+                  <StatCard label="Total Reports"   value={stats.totalReports}                            color="text-cyan-300"    bg="bg-cyan-500/8"    border="border-cyan-400/20"  icon={Flag} />
+                  <StatCard label="Pending Reports" value={stats.pendingReports}                          color="text-amber-300"   bg="bg-amber-500/8"   border="border-amber-500/25" icon={AlertTriangle} />
+                  <StatCard label="Unban Revenue"   value={`$${(stats.unbanRevenue || 0).toFixed(2)}`}    color="text-emerald-400" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={DollarSign} />
+                  <StatCard label="Unban Sales"     value={stats.unbanCount}                              color="text-emerald-300" bg="bg-emerald-500/8" border="border-emerald-500/20" icon={TrendingUp} />
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {[['Users', 'users'], ['Bans', 'bans'], ['Reports', 'reports'], ['Settings', 'settings']].map(([label, id]) => (
-                  <button key={id} onClick={() => setSection(id)} className="bg-vybe-card border border-vybe-border rounded-xl p-4 text-left hover:border-vybe-purple/40 hover:bg-vybe-card2 transition-all">
-                    <p className="text-white font-bold text-sm">{label} →</p>
-                  </button>
-                ))}
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Jump to</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  {[
+                    ['Users',    'users',    Users],
+                    ['Bans',     'bans',     Ban],
+                    ['Reports',  'reports',  Flag],
+                    ['Settings', 'settings', Settings],
+                  ].map(([label, id, Icon]) => (
+                    <button key={id} onClick={() => setSection(id)} className="group relative overflow-hidden bg-vybe-card border border-vybe-border rounded-2xl px-4 py-3.5 text-left hover:border-cyan-400/40 hover:bg-vybe-card2 transition-all">
+                      <div className="pointer-events-none absolute -bottom-12 -right-10 w-24 h-24 rounded-full opacity-0 group-hover:opacity-70 transition-opacity" style={{ background: 'radial-gradient(circle, rgba(0,212,255,0.35), transparent 70%)' }} />
+                      <div className="relative flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <Icon size={14} className="text-cyan-300/80" />
+                          <p className="text-white font-bold text-sm">{label}</p>
+                        </div>
+                        <ChevronRight size={14} className="text-vybe-muted group-hover:text-cyan-300 group-hover:translate-x-0.5 transition-all" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
