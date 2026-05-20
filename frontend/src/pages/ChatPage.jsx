@@ -252,7 +252,7 @@ function CameraOffView({ user, micLevel = 0 }) {
 // used for the camera-off self tile and for camera-off strangers/partner.
 // Default size 64 matches the user's own avatar preview on MainPage so the
 // avatar feels consistent everywhere in the app.
-function TilePlaceholder({ avatarUrl, name, label = 'Camera off', size = 64, hideLabel = false, micLevel = 0 }) {
+function TilePlaceholder({ avatarUrl, name, label = 'Camera off', size = 64, hideLabel = true, micLevel = 0 }) {
   // Anything 60px+ gets the layered cyan glow ring to match MainPage's preview.
   const big       = size >= 60
   const initial   = name?.[0]?.toUpperCase() || '?'
