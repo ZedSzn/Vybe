@@ -1154,9 +1154,14 @@ export default function MainPage() {
                 animate={{ opacity: [1, 0.35, 1], scale: [1, 1.3, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }} />
               <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>
-                <span style={{ color: '#00D4FF', fontWeight: 800 }}>
-                  {onlineCount >= 20 ? onlineCount.toLocaleString() : '12,846'}
-                </span>{' '}people online right now
+                {onlineCount >= 5 ? (
+                  <>
+                    <span style={{ color: '#00D4FF', fontWeight: 800 }}>{onlineCount.toLocaleString()}</span>
+                    {' '}people online right now
+                  </>
+                ) : (
+                  <span style={{ color: '#00D4FF', fontWeight: 800, letterSpacing: '0.02em' }}>Live · matching now</span>
+                )}
               </span>
             </div>
 
