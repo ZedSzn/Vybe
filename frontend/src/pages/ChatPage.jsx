@@ -2119,7 +2119,11 @@ export default function ChatPage() {
               </div>
             </motion.div>
           ) : (
-          <div className="flex-1 flex min-h-0" style={{ padding: 8, gap: 8 }}>
+          // Desktop solo / duo layout. When the user is solo but matched with
+          // two opponents, stack the panels vertically so the strangers share
+          // the top half and the user's camera fills the bottom half — a
+          // clear "me vs them" framing instead of the previous 25/25/50 mess.
+          <div className={`flex-1 flex min-h-0 ${!isDuoMode && opponentSocketIds.length > 1 ? 'flex-col' : ''}`} style={{ padding: 8, gap: 8 }}>
 
               {/* Stranger video */}
               <div className="flex-1 min-h-0 min-w-0" style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
