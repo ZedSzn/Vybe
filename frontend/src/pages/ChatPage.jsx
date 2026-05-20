@@ -2711,7 +2711,7 @@ export default function ChatPage() {
         <AnimatePresence>
           {giftPopup && (
             <div className="fixed inset-x-0 flex justify-center px-4 pointer-events-none"
-              style={{ bottom: 'max(80px, calc(env(safe-area-inset-bottom, 0px) + 76px))', zIndex: 44 }}>
+              style={{ bottom: 'max(112px, calc(env(safe-area-inset-bottom, 0px) + 108px))', zIndex: 44 }}>
             <motion.div
               key={giftPopup.id}
               className="flex items-center gap-3 pointer-events-auto w-full max-w-sm"
