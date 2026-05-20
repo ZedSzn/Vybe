@@ -1909,28 +1909,6 @@ export default function ChatPage() {
             )}
           </AnimatePresence>
 
-          {/* Timer — small chip tucked above the control bar so it doesn't
-              compete with the top opponent pills. Tracks the hide-UI toggle
-              so it slides away with everything else. */}
-          {status === 'matched' && (
-            <div className="absolute z-[6] px-2 py-1 rounded-lg font-mono text-[10px] font-bold pointer-events-none"
-              style={{
-                right: 12,
-                bottom: uiHidden
-                  ? 'max(48px, calc(env(safe-area-inset-bottom, 0px) + 44px))'
-                  : 'max(112px, calc(env(safe-area-inset-bottom, 0px) + 108px))',
-                background: 'rgba(0,0,0,0.55)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: '1px solid rgba(0,212,255,0.22)',
-                color: '#7df0ff',
-                transition: 'bottom 300ms cubic-bezier(0.22,1,0.36,1)',
-                fontVariantNumeric: 'tabular-nums',
-                letterSpacing: '0.04em',
-              }}>
-              {fmt(elapsed)}
-            </div>
-          )}
 
           {/* Mobile — Leave button while searching (no full control bar yet) */}
           {status === 'searching' && (
@@ -2144,11 +2122,6 @@ export default function ChatPage() {
                     )}
                   </div>
                 )}
-                {status === 'matched' && (
-                  <div className="absolute right-3 top-3 z-10 px-2 py-0.5 rounded-full font-mono text-[10px] font-bold pointer-events-none" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
-                    {fmt(elapsed)}
-                  </div>
-                )}
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 60, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
               </div>
 
@@ -2356,15 +2329,6 @@ export default function ChatPage() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                {/* Timer — top right */}
-                {status === 'matched' && (
-                  <div className="absolute z-10 px-2.5 py-1 rounded-full font-mono text-[11px] font-bold pointer-events-none"
-                    style={{ top: 16, right: 16, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
-                    {fmt(elapsed)}
-                  </div>
-                )}
-
 
                 {/* Bottom fade */}
                 <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[5]" style={{ height: 80, background: 'linear-gradient(to top, rgba(0,0,0,0.25) 0%, transparent 100%)' }} />
