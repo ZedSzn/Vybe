@@ -686,11 +686,46 @@ export default function MainPage() {
                   </div>
                 </>
               ) : (
-                <div className="relative z-10 flex flex-col items-center gap-2.5 px-4 text-center">
-                  <div className="rounded-full flex items-center justify-center" style={{ width: 48, height: 48, background: 'rgba(0,212,255,0.07)', border: '1.5px dashed rgba(0,212,255,0.3)' }}>
-                    <Loader2 size={18} className="animate-spin" style={{ color: 'rgba(0,184,224,0.7)' }} />
+                <div className="relative z-10 flex flex-col items-center gap-2.5 px-4 text-center w-full" style={{ maxWidth: 320 }}>
+                  <div className="rounded-full flex items-center justify-center" style={{ width: 44, height: 44, background: 'rgba(0,212,255,0.07)', border: '1.5px dashed rgba(0,212,255,0.3)' }}>
+                    <Loader2 size={17} className="animate-spin" style={{ color: 'rgba(0,184,224,0.7)' }} />
                   </div>
-                  <p className="text-[12px] font-semibold" style={{ color: 'rgba(160,170,190,0.7)' }}>Waiting for your friend to join…</p>
+                  <p className="text-[12px] font-semibold" style={{ color: 'rgba(160,170,190,0.85)' }}>Waiting for your friend to join…</p>
+                  {duoDisplayCode && (
+                    <>
+                      <p className="text-[10px] font-medium" style={{ color: 'rgba(160,170,190,0.5)' }}>
+                        Share this link so they can join you:
+                      </p>
+                      <div className="flex gap-1.5 w-full">
+                        <button
+                          onClick={copyLink}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold"
+                          style={copied
+                            ? { background: 'rgba(34,197,94,0.18)', border: '1px solid rgba(34,197,94,0.4)', color: '#4ade80' }
+                            : { background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF' }}
+                        >
+                          {copied ? <Check size={12} /> : <Copy size={12} />}
+                          {copied ? 'Copied!' : 'Copy link'}
+                        </button>
+                        <a
+                          href={shareUrls.whatsapp}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold"
+                          style={{ background: '#25D366', color: 'white' }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg viewBox="0 0 24 24" style={{ width: 12, height: 12, fill: 'white' }}>
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347" />
+                          </svg>
+                          WhatsApp
+                        </a>
+                      </div>
+                      <p className="text-[9px]" style={{ color: 'rgba(160,170,190,0.4)' }}>
+                        Or use code <span style={{ color: '#00D4FF', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.15em', fontWeight: 700 }}>{duoDisplayCode}</span>
+                      </p>
+                    </>
+                  )}
                 </div>
               )}
             </motion.div>
