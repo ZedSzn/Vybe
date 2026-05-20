@@ -531,6 +531,14 @@ const cashOutSchema = new mongoose.Schema({
   processedAt:  { type: Date }, // when status moved from pending
   paidAt:       { type: Date }, // when admin marked it as actually paid
 });
+// One pending cashout per user — partial unique index guarantees the
+// constraint even under race conditions. If two requests arrive at the same
+// instant and both pass the application-layer "any pending?" check, the
+// second insert hits a Mongo duplicate-key error and we refund the coins.
+cashOutSchema.index(
+  { userId: 1 },
+  { unique: true, partialFilterExpression: { status: 'pending' } },
+);
 
 const coinPurchaseSchema = new mongoose.Schema({
   userId:          { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -2512,7 +2520,21 @@ app.post('/api/cashout/request', authMiddleware, async (req, res) => {
       },
     );
     if (!updated) return res.status(400).json({ error: 'Insufficient cashable coins' });
-    const request = await CashOutRequest.create({ userId: req.user._id, coinsAmount: amount, gbpAmount, paypalEmail: user.paypalEmail });
+    let request;
+    try {
+      request = await CashOutRequest.create({ userId: req.user._id, coinsAmount: amount, gbpAmount, paypalEmail: user.paypalEmail });
+    } catch (createErr) {
+      // Hit the partial-unique index — another pending request snuck in via a
+      // concurrent call. Refund the coins we just deducted and report it.
+      if (createErr && createErr.code === 11000) {
+        await User.findByIdAndUpdate(req.user._id, {
+          $inc: { cashableCoins: amount },
+          $push: { coinHistory: { $each: [{ amount, reason: 'Refund — duplicate cash out blocked', type: 'cashout_refund', timestamp: new Date() }], $slice: -200 } },
+        });
+        return res.status(400).json({ error: 'You already have a pending cash out request' });
+      }
+      throw createErr;
+    }
     res.json({ success: true, request });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -2649,14 +2671,33 @@ app.get('/api/subscription/status', authMiddleware, async (req, res) => {
 });
 
 // Start 7-day VIP trial
+//
+// Atomic reservation: we flip trialUsed=true via findOneAndUpdate BEFORE we
+// hit Stripe. Two rapid clicks → only the first read sees trialUsed=false and
+// gets to claim it; the second hits null and returns early. Without this, a
+// double-click could open two Stripe checkouts and bill the user twice.
+// If the Stripe call later fails, we roll trialUsed back so the user can retry.
 app.post('/api/subscription/trial', authMiddleware, async (req, res) => {
   if (!stripe) return res.status(503).json({ error: 'Payments unavailable' });
   try {
-    const user = await User.findById(req.user._id).select('email username stripeCustomerId trialUsed isPremium isVip');
-    if (user.trialUsed)         return res.status(400).json({ error: 'You have already used your free trial.' });
-    if (user.isVip || user.isPremium) return res.status(400).json({ error: 'You already have an active subscription.' });
+    // Belt-and-braces — also reject if they already have an active sub.
     const existing = await Subscription.findOne({ userId: req.user._id, status: { $in: ['active', 'trialing', 'past_due'] } });
-    if (existing)               return res.status(400).json({ error: 'You already have an active subscription.' });
+    if (existing) return res.status(400).json({ error: 'You already have an active subscription.' });
+
+    // Atomic claim — succeeds for exactly one concurrent caller.
+    const reserved = await User.findOneAndUpdate(
+      {
+        _id: req.user._id,
+        trialUsed:  { $ne: true },
+        isVip:      { $ne: true },
+        isPremium:  { $ne: true },
+      },
+      { $set: { trialUsed: true } },
+      { new: true, projection: 'email username stripeCustomerId' },
+    );
+    if (!reserved) {
+      return res.status(400).json({ error: 'You have already used your free trial or have an active subscription.' });
+    }
 
     const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
     const sessionParams = {
@@ -2675,27 +2716,53 @@ app.post('/api/subscription/trial', authMiddleware, async (req, res) => {
       }],
       subscription_data: { trial_period_days: 7 },
       payment_method_collection: 'always',
-      metadata: { userId: String(user._id), purchaseType: 'subscription', plan: 'vip', isTrial: 'true' },
+      metadata: { userId: String(reserved._id), purchaseType: 'subscription', plan: 'vip', isTrial: 'true' },
       success_url: `${CLIENT_URL}/subscription?trial_success=true`,
       cancel_url:  `${CLIENT_URL}/`,
     };
-    if (user.stripeCustomerId) sessionParams.customer = user.stripeCustomerId;
-    else sessionParams.customer_email = user.email;
+    if (reserved.stripeCustomerId) sessionParams.customer = reserved.stripeCustomerId;
+    else sessionParams.customer_email = reserved.email;
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
-    res.json({ url: session.url });
+    try {
+      const session = await stripe.checkout.sessions.create(sessionParams);
+      res.json({ url: session.url });
+    } catch (stripeErr) {
+      // Roll back the trial reservation so the user can retry.
+      await User.findByIdAndUpdate(reserved._id, { $set: { trialUsed: false } });
+      throw stripeErr;
+    }
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Create Stripe checkout session for subscription
+// Create Stripe checkout session for subscription.
+// Race-protected: the Subscription model has a unique index on userId, so a
+// duplicate active sub can't be inserted by the webhook. We also guard at the
+// API layer with a short-lived per-user lock so a double-click can't open two
+// Stripe checkouts before the first webhook lands.
+const subCheckoutLocks = new Map(); // userId → timestamp
+// Stale-lock sweep — anything older than 60s is definitely orphaned (Stripe
+// session creation timed out or the process crashed mid-flight). Keeps the
+// map small over time.
+setInterval(() => {
+  const cutoff = Date.now() - 60_000;
+  for (const [uid, ts] of subCheckoutLocks) if (ts < cutoff) subCheckoutLocks.delete(uid);
+}, 60_000).unref?.();
 app.post('/api/subscription/create', authMiddleware, async (req, res) => {
   if (!stripe) return res.status(503).json({ error: 'Payments unavailable' });
   try {
     const { plan } = req.body;
     if (!SUBSCRIPTION_PLANS[plan]) return res.status(400).json({ error: 'Invalid plan' });
 
-    const existing = await Subscription.findOne({ userId: req.user._id, status: { $in: ['active', 'past_due'] } });
-    if (existing) return res.status(400).json({ error: 'You already have an active subscription' });
+    const uid = String(req.user._id);
+    const now = Date.now();
+    const lockedAt = subCheckoutLocks.get(uid);
+    if (lockedAt && now - lockedAt < 30_000) {
+      return res.status(429).json({ error: 'A checkout session is already being created. Please wait a moment.' });
+    }
+    subCheckoutLocks.set(uid, now);
+
+    const existing = await Subscription.findOne({ userId: req.user._id, status: { $in: ['active', 'trialing', 'past_due'] } });
+    if (existing) { subCheckoutLocks.delete(uid); return res.status(400).json({ error: 'You already have an active subscription' }); }
 
     const user     = await User.findById(req.user._id).select('email username stripeCustomerId');
     const planInfo = SUBSCRIPTION_PLANS[plan];
@@ -2726,9 +2793,16 @@ app.post('/api/subscription/create', authMiddleware, async (req, res) => {
       sessionParams.customer_email = user.email;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
-    res.json({ url: session.url, sessionId: session.id });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+    try {
+      const session = await stripe.checkout.sessions.create(sessionParams);
+      res.json({ url: session.url, sessionId: session.id });
+    } finally {
+      subCheckoutLocks.delete(String(req.user._id));
+    }
+  } catch (err) {
+    subCheckoutLocks.delete(String(req.user._id));
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Cancel subscription — immediately revokes access
