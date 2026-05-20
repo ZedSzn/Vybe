@@ -702,19 +702,6 @@ export default function MainPage() {
           </p>
         </motion.div>
 
-        {/* Online count */}
-        <div className="flex items-center justify-center gap-2.5">
-          <motion.span
-            style={{ width: 9, height: 9, borderRadius: '50%', background: '#4ade80', flexShrink: 0, display: 'block' }}
-            animate={{ opacity: [1, 0.35, 1], scale: [1, 1.3, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }} />
-          <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>
-            <span style={{ color: '#00D4FF', fontWeight: 800, letterSpacing: '0.02em' }}>Live</span>
-            {' · Random video chat · '}
-            <span style={{ color: 'rgba(255,255,255,0.4)' }}>no signup needed</span>
-          </span>
-        </div>
-
         {/* Start Chatting Now — dominant CTA */}
         <motion.button
           onClick={mode === 'squad' && !squadReady ? undefined : startVybing}
@@ -1141,19 +1128,6 @@ export default function MainPage() {
             <p style={{ fontSize: 18, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)', fontWeight: 400, maxWidth: 400, marginBottom: 28 }}>
               Random video chat with real people.<br />Connect instantly. No sign up needed.
             </p>
-
-            {/* Online count */}
-            <div className="flex items-center gap-2.5" style={{ marginBottom: 32 }}>
-              <motion.span
-                style={{ width: 9, height: 9, borderRadius: '50%', background: '#4ade80', flexShrink: 0, display: 'block' }}
-                animate={{ opacity: [1, 0.35, 1], scale: [1, 1.3, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }} />
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>
-                <span style={{ color: '#00D4FF', fontWeight: 800, letterSpacing: '0.02em' }}>Live</span>
-                {' · Random video chat · '}
-                <span style={{ color: 'rgba(255,255,255,0.4)' }}>no signup needed</span>
-              </span>
-            </div>
 
             {/* CTA buttons */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 12 }}>
