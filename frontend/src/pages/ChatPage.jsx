@@ -250,9 +250,11 @@ function CameraOffView({ user, micLevel = 0 }) {
 
 // Centered avatar placeholder for any grid tile without a video stream —
 // used for the camera-off self tile and for camera-off strangers/partner.
-function TilePlaceholder({ avatarUrl, name, label = 'Camera off', size = 52, hideLabel = false, micLevel = 0 }) {
-  // Bigger sizes get the cyan glow ring to match the user's own camera-off look.
-  const big       = size >= 80
+// Default size 64 matches the user's own avatar preview on MainPage so the
+// avatar feels consistent everywhere in the app.
+function TilePlaceholder({ avatarUrl, name, label = 'Camera off', size = 64, hideLabel = false, micLevel = 0 }) {
+  // Anything 60px+ gets the layered cyan glow ring to match MainPage's preview.
+  const big       = size >= 60
   const initial   = name?.[0]?.toUpperCase() || '?'
   const ringStyle = big
     ? { border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }
@@ -2093,7 +2095,7 @@ export default function ChatPage() {
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {!remoteStreams[opponentSocketIds[0]] && status === 'matched' && (
-                  <TilePlaceholder avatarUrl={partnerAvatar} name={partnerUsername || 'Stranger'} size={88} hideLabel />
+                  <TilePlaceholder avatarUrl={partnerAvatar} name={partnerUsername || 'Stranger'} hideLabel />
                 )}
                 {status === 'matched' && (
                   <div className="absolute flex items-center gap-2" style={{ top: 12, left: 12, zIndex: 10 }}>
@@ -2119,7 +2121,7 @@ export default function ChatPage() {
               <div className="relative overflow-hidden" style={{ borderRadius: 20, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <video ref={(el) => { remoteVideoRefs.current[opponentSocketIds[1]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                 {!remoteStreams[opponentSocketIds[1]] && status === 'matched' && (
-                  <TilePlaceholder name="Stranger" size={88} hideLabel />
+                  <TilePlaceholder name="Stranger" hideLabel />
                 )}
                 {status === 'matched' && (
                   <div className="absolute flex items-center gap-2" style={{ top: 12, left: 12, zIndex: 10 }}>
@@ -2140,7 +2142,7 @@ export default function ChatPage() {
                   : <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }} />)}
                 {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
                 {(!hasCamera || videoOff) && (
-                  <TilePlaceholder avatarUrl={user?.avatar} name={user?.username || 'Y'} size={88} hideLabel micLevel={micLevel} />
+                  <TilePlaceholder avatarUrl={user?.avatar} name={user?.username || 'Y'} hideLabel micLevel={micLevel} />
                 )}
                 <div className="absolute" style={{ top: 12, left: 12, zIndex: 10 }}>
                   <ProfilePill
@@ -2164,7 +2166,7 @@ export default function ChatPage() {
                   <>
                     <video ref={(el) => { remoteVideoRefs.current[mateSocketIds[0]] = el }} autoPlay playsInline className="w-full h-full object-cover" />
                     {!remoteStreams[mateSocketIds[0]] && (
-                      <TilePlaceholder name="Partner" size={88} hideLabel />
+                      <TilePlaceholder name="Partner" hideLabel />
                     )}
                     <div className="absolute flex items-center gap-2" style={{ top: 12, left: 12, zIndex: 10 }}>
                       <ProfilePill username="Partner" isOnline isVerified={false} friendStatus="self" />
@@ -2265,7 +2267,7 @@ export default function ChatPage() {
                               <TilePlaceholder
                                 avatarUrl={isFirst ? partnerAvatar : null}
                                 name={isFirst ? (partnerUsername || 'Stranger') : 'Stranger'}
-                                size={88}
+                               
                                 hideLabel
                               />
                             )}
