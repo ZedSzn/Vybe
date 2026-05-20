@@ -405,23 +405,33 @@ function AppRoutes() {
       )}
 
       {/*
-        Routes are wrapped in AnimatePresence with a short cross-fade so navigating
-        between pages (Community, Wallet, Profile, etc.) feels smooth instead of
-        hard-snapping. Two routes opt out by being keyed on their bare path so they
-        don't re-mount on every nested-state change:
+        Routes are wrapped in AnimatePresence with a short opacity-only cross-fade
+        so navigating between pages (Community, Wallet, Profile, etc.) feels smooth
+        instead of hard-snapping.
+
+        Earlier this used a 4px y-slide + 180ms duration + mode="wait" — that
+        caused visible layout jumps (each page has its own header/scroll position,
+        so translating Y shifted everything) and a brief empty-middle frame
+        between exit and enter. Both are gone now:
+        - opacity only, no Y transform → no layout shift
+        - duration shortened to 120ms → barely perceptible gap
+        - mode="popLayout" → exiting page is removed from layout flow but stays
+          painted, so the new page mounts immediately without an empty frame
+        - motion.div is positioned (relative + min-height 100vh + app bg) so it
+          always covers the viewport even if a child page is shorter
+
+        Routes that share a transition key skip the fade entirely:
         - /chat   → live WebRTC, fade-out would tear down the call
         - /admin… → admin needs to feel instant + dashboard manages its own tabs
-
-        Suspense lives INSIDE the motion.div so lazy-chunk loads only hide the
-        animating container, never the whole page tree.
       */}
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={pageTransitionKey(location.pathname)}
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -2 }}
-          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12, ease: 'linear' }}
+          style={{ minHeight: '100vh', background: '#07090f' }}
         >
           <Suspense fallback={<PageFallback />}>
             <Routes location={location}>
