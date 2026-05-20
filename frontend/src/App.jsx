@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { AuthProvider } from './context/AuthContext'
 import { SocketProvider, useSocket } from './context/SocketContext'
 import { LangProvider } from './context/LangContext'
@@ -405,36 +405,29 @@ function AppRoutes() {
       )}
 
       {/*
-        Routes are wrapped in AnimatePresence with a short opacity-only cross-fade
-        so navigating between pages (Community, Wallet, Profile, etc.) feels smooth
-        instead of hard-snapping.
+        Page transitions: fade IN the new page only. No exit animation.
 
-        Earlier this used a 4px y-slide + 180ms duration + mode="wait" — that
-        caused visible layout jumps (each page has its own header/scroll position,
-        so translating Y shifted everything) and a brief empty-middle frame
-        between exit and enter. Both are gone now:
-        - opacity only, no Y transform → no layout shift
-        - duration shortened to 120ms → barely perceptible gap
-        - mode="popLayout" → exiting page is removed from layout flow but stays
-          painted, so the new page mounts immediately without an empty frame
-        - motion.div is positioned (relative + min-height 100vh + app bg) so it
-          always covers the viewport even if a child page is shorter
+        Earlier attempts used AnimatePresence with mode="wait" (empty middle
+        frame) and mode="popLayout" (exiting page got position: absolute, which
+        floated at the captured scrollY offset and visibly "jumped down" for one
+        frame after ScrollToTop fired). Both had visible jank.
 
-        Routes that share a transition key skip the fade entirely:
-        - /chat   → live WebRTC, fade-out would tear down the call
-        - /admin… → admin needs to feel instant + dashboard manages its own tabs
+        Now: when the route changes, React unmounts the old page instantly,
+        ScrollToTop runs, the new page mounts and fades from opacity 0 → 1 over
+        140ms. No overlap, no captured-offset glitch, no double-mount. The motion
+        component's `key` (collapsed via pageTransitionKey) re-triggers the fade
+        only when the actual page changes — not on internal sub-route shuffles
+        (admin tabs, /chat re-renders mid-match, /profile/:id swaps).
       */}
-      <AnimatePresence mode="popLayout" initial={false}>
+      <Suspense fallback={<PageFallback />}>
         <motion.div
           key={pageTransitionKey(location.pathname)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.12, ease: 'linear' }}
+          transition={{ duration: 0.14, ease: 'easeOut' }}
           style={{ minHeight: '100vh', background: '#07090f' }}
         >
-          <Suspense fallback={<PageFallback />}>
-            <Routes location={location}>
+          <Routes location={location}>
               {/* Eager routes */}
               <Route path="/"     element={<MainPage />} />
               <Route path="/auth" element={<AuthPage />} />
@@ -463,10 +456,9 @@ function AppRoutes() {
               <Route path="/friends"                    element={<FriendsPage />} />
               <Route path="/earn"                       element={<EarnPage />} />
               <Route path="*" element={<MainPage />} />
-            </Routes>
-          </Suspense>
+          </Routes>
         </motion.div>
-      </AnimatePresence>
+      </Suspense>
     </>
   )
 }
