@@ -703,7 +703,9 @@ export default function AdminDashboard() {
     const approvedPaid   = data.approvedPayouts || 0
     const pendingPaid    = data.pendingPayouts  || 0
     const userOwed       = data.userOwedGbp     || 0
-    const netKept        = total - approvedPaid
+    const usersGet       = approvedPaid + pendingPaid + userOwed
+    const youKeep        = Math.max(0, total - usersGet)
+    const youOweMore     = Math.max(0, usersGet - total)
     const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
     const MonthlyChart = ({ title, rows, accent = 'emerald' }) => {
@@ -745,20 +747,39 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Money kept vs paid out */}
+        {/* Money kept vs paid out — simple two-card view */}
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">What I keep vs what I pay out</p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatCard label="Net Kept"          value={`£${netKept.toFixed(2)}`}      color="text-emerald-400" bg="bg-emerald-500/12" border="border-emerald-500/35" icon={TrendingUp} />
-            <StatCard label="Approved Payouts"  value={`£${approvedPaid.toFixed(2)}`} color="text-emerald-300" bg="bg-emerald-500/8"  border="border-emerald-500/20" icon={DollarSign} />
-            <StatCard label="Pending Payouts"   value={`£${pendingPaid.toFixed(2)}`}  color="text-amber-300"   bg="bg-amber-500/8"    border="border-amber-500/25"   icon={DollarSign} />
-            <StatCard label="Owed to Users"     value={`£${userOwed.toFixed(2)}`}     color="text-rose-300"    bg="bg-rose-500/8"     border="border-rose-500/25"    icon={DollarSign} />
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Money</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="relative bg-emerald-500/10 border-2 border-emerald-500/40 rounded-2xl p-6 overflow-hidden">
+              <div className="pointer-events-none absolute -top-12 -right-10 w-40 h-40 rounded-full opacity-60"
+                style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.45), transparent 70%)' }} />
+              <div className="relative">
+                <p className="text-emerald-300 text-[11px] font-black uppercase tracking-[0.18em] mb-2">You keep</p>
+                <p className="text-emerald-400 font-black leading-none" style={{ fontSize: '44px', fontFeatureSettings: '"tnum"', letterSpacing: '-0.02em' }}>£{youKeep.toFixed(2)}</p>
+                <p className="text-emerald-300/70 text-xs mt-3">Money that&apos;s yours after users get their share.</p>
+              </div>
+            </div>
+            <div className="relative bg-rose-500/10 border-2 border-rose-500/40 rounded-2xl p-6 overflow-hidden">
+              <div className="pointer-events-none absolute -top-12 -right-10 w-40 h-40 rounded-full opacity-60"
+                style={{ background: 'radial-gradient(circle, rgba(244,114,182,0.35), transparent 70%)' }} />
+              <div className="relative">
+                <p className="text-rose-300 text-[11px] font-black uppercase tracking-[0.18em] mb-2">Users get</p>
+                <p className="text-rose-300 font-black leading-none" style={{ fontSize: '44px', fontFeatureSettings: '"tnum"', letterSpacing: '-0.02em' }}>£{usersGet.toFixed(2)}</p>
+                <p className="text-rose-300/70 text-xs mt-3">Already paid (£{approvedPaid.toFixed(2)}) + waiting in queue (£{pendingPaid.toFixed(2)}) + sitting in user balances (£{userOwed.toFixed(2)}).</p>
+              </div>
+            </div>
           </div>
-          <p className="text-vybe-muted text-[11px] mt-2 leading-relaxed">
-            <span className="text-emerald-300 font-semibold">Net Kept</span> = Gross Revenue − Approved Payouts.
-            {' '}<span className="text-amber-300 font-semibold">Pending Payouts</span> are cashout requests waiting to be approved.
-            {' '}<span className="text-rose-300 font-semibold">Owed to Users</span> is the total cashable earnings balance across all users (potential future payout).
+          <p className="text-vybe-muted text-[11px] mt-3 leading-relaxed">
+            Example: a user buys £10 of coins and tips them all → you keep £3 (your 30% cut), they get £7. Above is the all-time total. Gross revenue: <span className="text-white font-semibold">£{total.toFixed(2)}</span>.
           </p>
+          {youOweMore > 0 && (
+            <div className="mt-3 px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
+              <p className="text-amber-300 text-[11px] leading-relaxed">
+                <span className="font-bold">Heads up:</span> users have been paid £{youOweMore.toFixed(2)} more than you&apos;ve actually earned. Almost certainly old dev/test cashouts from bot tips. Go to <span className="font-bold">Cash Outs → Clear test history</span> to reset.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Coin sales detail */}
@@ -1513,7 +1534,9 @@ export default function AdminDashboard() {
             const approvedPaid  = stats.approvedCashoutGbp || 0
             const pendingPaid   = stats.pendingCashoutGbp  || 0
             const userOwed      = stats.userOwedGbp || 0
-            const netKept       = grossRev - approvedPaid
+            const usersGet      = approvedPaid + pendingPaid + userOwed
+            const youKeep       = Math.max(0, grossRev - usersGet)
+            const youOweMore    = Math.max(0, usersGet - grossRev) // dev-data sanity check
             return (
             <div className="space-y-7">
               <div>
@@ -1531,18 +1554,37 @@ export default function AdminDashboard() {
               </div>
 
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">What I keep vs what I pay out</p>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <StatCard label="Net Kept"         value={`£${netKept.toFixed(2)}`}      color="text-emerald-400" bg="bg-emerald-500/12" border="border-emerald-500/35" icon={TrendingUp} />
-                  <StatCard label="Gross Revenue"    value={`£${grossRev.toFixed(2)}`}     color="text-emerald-300" bg="bg-emerald-500/8"  border="border-emerald-500/20" icon={DollarSign} />
-                  <StatCard label="Approved Payouts" value={`£${approvedPaid.toFixed(2)}`} color="text-emerald-300" bg="bg-emerald-500/8"  border="border-emerald-500/20" icon={DollarSign} />
-                  <StatCard label="Pending Payouts"  value={`£${pendingPaid.toFixed(2)}`}  color="text-amber-300"   bg="bg-amber-500/8"    border="border-amber-500/25"   icon={DollarSign} />
-                  <StatCard label="Owed to Users"    value={`£${userOwed.toFixed(2)}`}     color="text-rose-300"    bg="bg-rose-500/8"     border="border-rose-500/25"    icon={DollarSign} />
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-400/55 mb-3">Money</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="relative bg-emerald-500/10 border-2 border-emerald-500/40 rounded-2xl p-6 overflow-hidden">
+                    <div className="pointer-events-none absolute -top-12 -right-10 w-40 h-40 rounded-full opacity-60"
+                      style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.45), transparent 70%)' }} />
+                    <div className="relative">
+                      <p className="text-emerald-300 text-[11px] font-black uppercase tracking-[0.18em] mb-2">You keep</p>
+                      <p className="text-emerald-400 font-black leading-none" style={{ fontSize: '44px', fontFeatureSettings: '"tnum"', letterSpacing: '-0.02em' }}>£{youKeep.toFixed(2)}</p>
+                      <p className="text-emerald-300/70 text-xs mt-3">Money that&apos;s yours after users get their share.</p>
+                    </div>
+                  </div>
+                  <div className="relative bg-rose-500/10 border-2 border-rose-500/40 rounded-2xl p-6 overflow-hidden">
+                    <div className="pointer-events-none absolute -top-12 -right-10 w-40 h-40 rounded-full opacity-60"
+                      style={{ background: 'radial-gradient(circle, rgba(244,114,182,0.35), transparent 70%)' }} />
+                    <div className="relative">
+                      <p className="text-rose-300 text-[11px] font-black uppercase tracking-[0.18em] mb-2">Users get</p>
+                      <p className="text-rose-300 font-black leading-none" style={{ fontSize: '44px', fontFeatureSettings: '"tnum"', letterSpacing: '-0.02em' }}>£{usersGet.toFixed(2)}</p>
+                      <p className="text-rose-300/70 text-xs mt-3">Already paid (£{approvedPaid.toFixed(2)}) + waiting in queue (£{pendingPaid.toFixed(2)}) + sitting in user balances (£{userOwed.toFixed(2)}).</p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-vybe-muted text-[11px] mt-2 leading-relaxed">
-                  <span className="text-emerald-300 font-semibold">Net Kept</span> = Gross Revenue (coins + memberships + unbans) − Approved Payouts.
-                  {' '}<span className="text-rose-300 font-semibold">Owed to Users</span> is total cashable earnings — a potential future payout, not booked yet.
+                <p className="text-vybe-muted text-[11px] mt-3 leading-relaxed">
+                  Example: a user buys £10 of coins and tips them all → you keep £3 (your 30% cut), they get £7. Above is the all-time total. Gross revenue: <span className="text-white font-semibold">£{grossRev.toFixed(2)}</span>.
                 </p>
+                {youOweMore > 0 && (
+                  <div className="mt-3 px-3 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                    <p className="text-amber-300 text-[11px] leading-relaxed">
+                      <span className="font-bold">Heads up:</span> users have been paid £{youOweMore.toFixed(2)} more than you&apos;ve actually earned. This is almost certainly old dev/test cashouts from bot tips. Go to <span className="font-bold">Cash Outs → Clear test history</span> to reset.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
