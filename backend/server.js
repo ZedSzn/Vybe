@@ -2103,30 +2103,6 @@ app.get('/api/user/coins/history', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-const adWatchLog = new Map();
-// Clean up stale entries daily — prevents unbounded memory growth
-setInterval(() => {
-  const today = new Date().toDateString();
-  for (const [uid, entry] of adWatchLog.entries()) {
-    if (entry.date !== today) adWatchLog.delete(uid);
-  }
-}, 24 * 60 * 60 * 1000);
-
-app.post('/api/user/watch-ad', authMiddleware, async (req, res) => {
-  try {
-    const uid   = String(req.user._id);
-    const today = new Date().toDateString();
-    const entry = adWatchLog.get(uid) || { count: 0, date: today };
-    if (entry.date !== today) { entry.count = 0; entry.date = today; }
-    if (entry.count >= 10) return res.status(429).json({ error: 'Daily ad limit reached (10/day)' });
-    entry.count++;
-    adWatchLog.set(uid, entry);
-    await addCoins(req.user._id, 5, 'Watched an ad', 'ad');
-    const user = await User.findById(req.user._id).select('coins');
-    res.json({ success: true, coins: user.coins, watched: entry.count });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
 const GIFTS = {
   'small-vybe':     { name: 'Small Vybe',     coins: 50,   tier: 'Starter' },
   'vybe':           { name: 'Vybe',           coins: 100,  tier: 'Starter' },
