@@ -772,10 +772,12 @@ export default function ChatPage() {
         localStreamRef.current = stream
         if (localVideoRef.current)        { localVideoRef.current.srcObject = stream;        localVideoRef.current.play().catch(() => {}) }
         if (localVideoDesktopRef.current) { localVideoDesktopRef.current.srcObject = stream; localVideoDesktopRef.current.play().catch(() => {}) }
+        // If a match already happened before the camera was ready, the peer
+        // was created without our stream — push it to any live peers now so
+        // the partner starts receiving our video/audio.
+        Object.values(peersRef.current).forEach((p) => { try { p.addStream(stream) } catch {} })
       }
       mediaReadyRef.current = true
-      // Camera finished — if the socket is already up, start matching now.
-      if (socketRef.current?.connected) findMatch(socketRef.current)
     }
 
     const init = async () => {
@@ -807,10 +809,12 @@ export default function ChatPage() {
           emailVerified: user?.emailVerified || false,
         })
         if (mounted) setStatus('searching')
-        // Only enter the queue once the camera has settled (WebRTC needs the
-        // local stream). If the camera is already ready, match immediately;
-        // otherwise acquireMedia() will findMatch when it finishes.
-        if (mediaReadyRef.current) findMatch(socket)
+        // Enter the queue IMMEDIATELY — don't wait for the camera. If the
+        // camera isn't ready yet and a match happens, the peer is created
+        // without our stream and acquireMedia() pushes it in via addStream
+        // the moment the camera resolves. Waiting for the camera here was
+        // delaying the queue on both devices when getUserMedia was slow.
+        findMatch(socket)
       })
 
       socket.on('you-are-banned', ({ reason, banType: bt, banExpiresAt: bea }) => {
