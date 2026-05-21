@@ -558,7 +558,22 @@ export default function MainPage() {
             <div className="smoke-3" />
             <div className="smoke-4" />
           </div>
-          <video ref={videoRef} autoPlay muted playsInline className={`w-full h-full object-cover ${cameraOn && !cameraErr ? 'block' : 'hidden'}`} />
+          {/* Absolutely-positioned + inline-sized so iOS Safari can't render
+              this at the stream's intrinsic resolution between toggles. Hidden
+              via opacity (not display:none / hidden class) so the element
+              stays in layout and the new stream attaches without a flash. */}
+          <video
+            ref={videoRef}
+            autoPlay muted playsInline
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover',
+              opacity: cameraOn && !cameraErr ? 1 : 0,
+              transition: 'opacity 200ms ease',
+              pointerEvents: cameraOn && !cameraErr ? 'auto' : 'none',
+            }}
+          />
           {noCameraDevice && camBgImage && (
             <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 15 }}>
               <img src={camBgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -628,6 +643,12 @@ export default function MainPage() {
                 onClick={() => {
                   streamRef.current?.getTracks().forEach((t) => t.stop())
                   streamRef.current = null
+                  // Detach the (now-stopped) stream from both video elements
+                  // — otherwise iOS keeps a frozen last frame that briefly
+                  // shows at the stream's intrinsic dimensions next time the
+                  // camera turns on.
+                  if (videoRef.current) videoRef.current.srcObject = null
+                  if (videoRefDesktop.current) videoRefDesktop.current.srcObject = null
                   setCameraOn(false)
                   // Without this the off-state UI thinks we're still asking for
                   // browser permission and shows a spinner + 'Waiting for
