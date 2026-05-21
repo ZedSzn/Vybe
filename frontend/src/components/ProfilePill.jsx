@@ -130,17 +130,13 @@ export default function ProfilePill({
         )}
       </div>
 
-      {/* Username (+ country) */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
-        <span style={{ color: '#fff', fontWeight: 700, fontSize: 11, lineHeight: 1, whiteSpace: 'nowrap' }}>
-          {username || 'User'}
-        </span>
-        {country && (
-          <span style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 600, fontSize: 9, lineHeight: 1, whiteSpace: 'nowrap' }}>
-            {country}
-          </span>
-        )}
-      </div>
+      {/* Username only — country deliberately omitted so the pill stays compact
+          and consistent across every surface (main page, chat tiles, etc.).
+          The `country` prop is still accepted to avoid touching every call site,
+          but it isn't rendered. */}
+      <span style={{ color: '#fff', fontWeight: 700, fontSize: 11, lineHeight: 1, whiteSpace: 'nowrap', minWidth: 0 }}>
+        {username || 'User'}
+      </span>
 
       {/* Verified badge — only when isVerified === true */}
       {isVerified && <VerifiedBadge />}
