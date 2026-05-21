@@ -829,6 +829,9 @@ export default function ChatPage() {
           isPremium:     user?.isPremium     || false,
           isVip:         user?.isVip         || false,
           emailVerified: user?.emailVerified || false,
+          // Diagnostic: ms from tapping Start (on MainPage) to this register —
+          // the TRUE end-to-end time including page-load + chat-chunk + mount.
+          msSinceStart:  (() => { const t = Number(sessionStorage.getItem('vybeStart')); return t ? Date.now() - t : null })(),
         })
         if (mounted) setStatus('searching')
         // Enter the queue IMMEDIATELY — don't wait for the camera. If the
