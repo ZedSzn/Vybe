@@ -1784,7 +1784,7 @@ export default function ChatPage() {
                 autoPlay playsInline
                 style={{
                   position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-                  opacity: remoteStreams[opponentSocketIds[0]] ? 1 : 0,
+                  opacity: (remoteStreams[opponentSocketIds[0]]?.getVideoTracks?.().length > 0) ? 1 : 0,
                   transition: 'opacity 250ms ease',
                 }}
               />
@@ -1821,7 +1821,7 @@ export default function ChatPage() {
                       autoPlay playsInline
                       style={{
                         position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-                        opacity: remoteStreams[sid] ? 1 : 0,
+                        opacity: (remoteStreams[sid]?.getVideoTracks?.().length > 0) ? 1 : 0,
                         transition: 'opacity 250ms ease',
                       }}
                     />
@@ -2325,17 +2325,28 @@ export default function ChatPage() {
                       {opponentSocketIds.map((sid, idx) => {
                         const divider = idx > 0 && (stackVertical ? 'border-t border-white/10' : 'border-l border-white/10')
                         const isFirst = idx === 0
+                        // Only show the video once the stream actually carries a
+                        // video track. A camera-off partner sends audio-only, so
+                        // remoteStreams[sid] is truthy but there's nothing to
+                        // show — keep the avatar up instead of a black tile.
+                        const hasVideo = !!remoteStreams[sid] && remoteStreams[sid].getVideoTracks?.().length > 0
                         return (
                           <div key={sid} className={`relative flex-1 overflow-hidden ${divider || ''}`}>
-                            <video ref={(el) => { remoteVideoRefs.current[sid] = el }} autoPlay playsInline className="w-full h-full object-cover" />
-                            {!remoteStreams[sid] && (
-                              <TilePlaceholder
-                                avatarUrl={isFirst ? partnerAvatar : null}
-                                name={isFirst ? (partnerUsername || 'Stranger') : 'Stranger'}
-                               
-                                hideLabel
-                              />
-                            )}
+                            {/* Avatar painted underneath; video fades in on top only when it has frames */}
+                            <TilePlaceholder
+                              avatarUrl={isFirst ? partnerAvatar : null}
+                              name={isFirst ? (partnerUsername || 'Stranger') : 'Stranger'}
+                              hideLabel
+                            />
+                            <video
+                              ref={(el) => { remoteVideoRefs.current[sid] = el }}
+                              autoPlay playsInline
+                              style={{
+                                position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                                opacity: hasVideo ? 1 : 0,
+                                transition: 'opacity 250ms ease',
+                              }}
+                            />
                             {/* Per-tile pill when stacked, so the second opponent in a
                                 solo-vs-duo match isn't left identity-less. The server
                                 only sends one partner's profile data, so opponent #2

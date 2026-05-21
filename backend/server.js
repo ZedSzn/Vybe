@@ -3337,6 +3337,23 @@ io.on('connection', (socket) => {
     const claimedUserId = data.userId ? String(data.userId) : null;
     const resolvedUserId = verifiedUserId || (token ? null : claimedUserId);
 
+    // Write the online entry IMMEDIATELY with the client-supplied identity
+    // (username, avatar, gender, country). Socket.io does NOT pause other
+    // events while this handler awaits the ban-check DB call below, so if we
+    // waited until after that await to populate onlineUsers, a near-instant
+    // find-match from the partner could resolve a match before our entry
+    // exists — making the partner show as 'Stranger' with no avatar/country.
+    // The async block further down enriches this entry with geo country +
+    // boostedUntil once the DB work completes.
+    const earlyGeo = geoCountry(socket);
+    onlineUsers.set(socket.id, {
+      ...data,
+      userId: resolvedUserId,
+      socketId: socket.id,
+      country: earlyGeo || data.country || '',
+      boostedUntil: null,
+    });
+
     if (resolvedUserId && dbConnected) {
       try {
         const u = await User.findById(resolvedUserId).select('isBanned banReason banType banExpiresAt warnings isAdmin email boostedUntil');
@@ -3366,9 +3383,11 @@ io.on('connection', (socket) => {
     }
     // Auto-detect country from the connection IP — works for guests too.
     // Falls back to any country already on the profile when geo can't resolve.
-    const geo = geoCountry(socket);
+    const geo = earlyGeo;
     const country = geo || data.country || '';
-    onlineUsers.set(socket.id, { ...data, country, userId: resolvedUserId, socketId: socket.id, boostedUntil });
+    // Merge onto the early entry rather than replacing it, so we keep the
+    // identity we set above and just layer on boostedUntil + resolved country.
+    onlineUsers.set(socket.id, { ...(onlineUsers.get(socket.id) || {}), ...data, country, userId: resolvedUserId, socketId: socket.id, boostedUntil });
     socket.emit('geo-country', { country });
     // Persist the detected country so the profile reflects it too.
     if (geo && resolvedUserId && dbConnected) {
