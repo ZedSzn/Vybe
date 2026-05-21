@@ -1766,11 +1766,27 @@ export default function ChatPage() {
             </div>
           ) : isDuoMode ? (
             /* DUO MODE: Stranger in top half only */
-            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%' }}>
+            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+              {/* Partner avatar stays painted underneath the video — the video
+                  fades in on top once frames arrive, so there's never a blank
+                  tile between the match-found event and the first WebRTC frame. */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                {partnerAvatar ? (
+                  <img src={partnerAvatar} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06)' }} />
+                ) : (
+                  <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 900, color: '#00D4FF' }}>
+                    {(partnerUsername || 'S')[0].toUpperCase()}
+                  </div>
+                )}
+              </div>
               <video
                 ref={(el) => { remoteVideoRefs.current[opponentSocketIds[0]] = el }}
                 autoPlay playsInline
-                className="w-full h-full object-cover"
+                style={{
+                  position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                  opacity: remoteStreams[opponentSocketIds[0]] ? 1 : 0,
+                  transition: 'opacity 250ms ease',
+                }}
               />
             </motion.div>
           ) : (
@@ -1788,22 +1804,27 @@ export default function ChatPage() {
                 const showInlinePill = status === 'matched' && opponentSocketIds.length > 1
                 return (
                   <div key={sid} className={`relative flex-1 overflow-hidden ${idx > 0 ? 'border-l border-white/10' : ''}`}>
+                    {/* Avatar painted underneath the video — stays visible while
+                        WebRTC hands shake; the video fades in over it once the
+                        peer's first frame arrives, so the tile is never blank. */}
+                    <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+                      {fallbackAvatar ? (
+                        <img src={fallbackAvatar} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06)' }} />
+                      ) : (
+                        <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 900, color: '#00D4FF' }}>
+                          {fallbackName[0].toUpperCase()}
+                        </div>
+                      )}
+                    </div>
                     <video
                       ref={(el) => { remoteVideoRefs.current[sid] = el }}
                       autoPlay playsInline
-                      className="w-full h-full object-cover"
+                      style={{
+                        position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                        opacity: remoteStreams[sid] ? 1 : 0,
+                        transition: 'opacity 250ms ease',
+                      }}
                     />
-                    {!remoteStreams[sid] && (
-                      <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
-                        {fallbackAvatar ? (
-                          <img src={fallbackAvatar} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)' }} />
-                        ) : (
-                          <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#00D4FF' }}>
-                            {fallbackName[0].toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                    )}
                     {showInlinePill && (
                       <div className="absolute" style={{ top: 'max(12px, env(safe-area-inset-top, 0px) + 10px)', left: 12, zIndex: 10 }}>
                         <ProfilePill
