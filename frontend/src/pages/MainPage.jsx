@@ -522,19 +522,6 @@ export default function MainPage() {
       <div className="lg:hidden relative z-10 px-4 pt-4 pb-2 flex flex-col gap-5">
 
         {/* Live pill */}
-        <div className="flex justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-2"
-            style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 20, padding: '6px 14px' }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
-            <span className="text-[10px] tracking-[0.14em] uppercase" style={{ color: '#00B8E0', fontFamily: "'Sora', system-ui, sans-serif", fontWeight: 700 }}>Live · Random · Real</span>
-          </motion.div>
-        </div>
-
         {/* Earnings announcement — mirrors the desktop top banner */}
         <motion.button
           onClick={() => navigate('/earn')}
@@ -636,9 +623,25 @@ export default function MainPage() {
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.45) 100%)' }} />
           <div className="absolute bottom-0 left-0 right-0 h-14 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }} />
           {cameraOn && (
-            <motion.button onClick={flipCamera} whileTap={{ scale: 0.9 }} className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}>
-              <Camera size={16} className="text-white" />
-            </motion.button>
+            <div className="absolute top-3 right-3 flex items-center gap-2" style={{ zIndex: 11 }}>
+              <motion.button
+                onClick={() => {
+                  streamRef.current?.getTracks().forEach((t) => t.stop())
+                  streamRef.current = null
+                  setCameraOn(false)
+                }}
+                whileTap={{ scale: 0.9 }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}
+                aria-label="Turn camera off"
+                title="Turn camera off"
+              >
+                <VideoOff size={16} className="text-white" />
+              </motion.button>
+              <motion.button onClick={flipCamera} whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }} aria-label="Flip camera" title="Flip camera">
+                <Camera size={16} className="text-white" />
+              </motion.button>
+            </div>
           )}
           {/* Your profile pill — always shown (replaces the old LIVE badge) */}
           <div className="absolute" style={{ top: 12, left: 12, zIndex: 20 }}>
@@ -695,6 +698,22 @@ export default function MainPage() {
             </motion.div>
           )
         })()}
+        </div>
+
+        {/* Live · Random · Real — moved here so it sits below the camera and
+            above the 'Meet someone real' headline (was previously at the top
+            of the page). */}
+        <div className="flex justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2"
+            style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 20, padding: '6px 14px' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse" />
+            <span className="text-[10px] tracking-[0.14em] uppercase" style={{ color: '#00B8E0', fontFamily: "'Sora', system-ui, sans-serif", fontWeight: 700 }}>Live · Random · Real</span>
+          </motion.div>
         </div>
 
         {/* Headline — compact, centered */}
