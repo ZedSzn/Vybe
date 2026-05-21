@@ -1701,7 +1701,7 @@ export default function ChatPage() {
               <div className="relative overflow-hidden" style={{ borderRight: '1px solid rgba(0,212,255,0.2)' }}>
                 <video
                   ref={(el) => {
-                    if (el && localStreamRef.current) {
+                    if (el && localStreamRef.current && el.srcObject !== localStreamRef.current) {
                       el.srcObject = localStreamRef.current
                       el.play().catch(() => {})
                     }
@@ -1821,7 +1821,7 @@ export default function ChatPage() {
                 <div className="relative flex-1 overflow-hidden">
                   <video
                     ref={(el) => {
-                      if (el && localStreamRef.current) {
+                      if (el && localStreamRef.current && el.srcObject !== localStreamRef.current) {
                         el.srcObject = localStreamRef.current
                         el.play().catch(() => {})
                       }
@@ -1883,7 +1883,7 @@ export default function ChatPage() {
               <div className="absolute z-[4] inset-x-0" style={{ top: 'calc(50% - 0.5px)', height: 1, background: 'rgba(0,212,255,0.2)' }} />
               <div className="absolute z-[2] overflow-hidden" style={{ top: '50%', left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
                 <video
-                  ref={(el) => { if (el && localStreamRef.current) { el.srcObject = localStreamRef.current; el.play().catch(() => {}) } }}
+                  ref={(el) => { if (el && localStreamRef.current && el.srcObject !== localStreamRef.current) { el.srcObject = localStreamRef.current; el.play().catch(() => {}) } }}
                   autoPlay muted playsInline className="w-full h-full object-cover"
                 />
                 {!hasCamera && (camBgImage

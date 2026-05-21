@@ -636,33 +636,25 @@ export default function MainPage() {
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.45) 100%)' }} />
           <div className="absolute bottom-0 left-0 right-0 h-14 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }} />
           {cameraOn && (
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 online-pulse" />
-              <span className="text-white text-[9px] font-extrabold tracking-[0.2em]">LIVE</span>
-            </div>
-          )}
-          {cameraOn && (
             <motion.button onClick={flipCamera} whileTap={{ scale: 0.9 }} className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)' }}>
               <Camera size={16} className="text-white" />
             </motion.button>
           )}
-          {/* Your profile pill — shown in Duo so the two tiles read clearly */}
-          {mode === 'squad' && (
-            <div className="absolute" style={{ top: 12, left: 12, zIndex: 20 }}>
-              <ProfilePill
-                username={user ? user.username : 'You'}
-                avatarUrl={user?.avatar}
-                isOnline
-                isVerified={!!user?.emailVerified}
-                isVip={!!user?.isVip}
-                isPremium={!!user?.isPremium}
-                country={myCountry}
-                accentColor={user?.accentColor}
-                bannerGradient={user?.bannerGradient}
-                friendStatus="self"
-              />
-            </div>
-          )}
+          {/* Your profile pill — always shown (replaces the old LIVE badge) */}
+          <div className="absolute" style={{ top: 12, left: 12, zIndex: 20 }}>
+            <ProfilePill
+              username={user ? user.username : 'You'}
+              avatarUrl={user?.avatar}
+              isOnline
+              isVerified={!!user?.emailVerified}
+              isVip={!!user?.isVip}
+              isPremium={!!user?.isPremium}
+              country={myCountry}
+              accentColor={user?.accentColor}
+              bannerGradient={user?.bannerGradient}
+              friendStatus="self"
+            />
+          </div>
         </motion.div>
 
         {/* Duo partner tile — paired with your camera so Duo previews both */}
