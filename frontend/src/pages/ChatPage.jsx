@@ -849,7 +849,14 @@ export default function ChatPage() {
 
       socket.on('waiting', () => { if (mounted) setStatus('searching') })
 
-      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername, partnerAvatar: pAvatar, partnerIsPremium: pIsPremium, partnerIsVip: pIsVip, partnerEmailVerified: pEmailVerified, partnerCountry: pCountry, partnerIsFriend: pIsFriend }) => {
+      // Server resolves friendship asynchronously and sends this follow-up so
+      // the pill flips to the friend icon without delaying the match.
+      socket.on('partner-friend-status', ({ isFriend }) => {
+        if (!mounted) return
+        if (isFriend) setPartnerIsFriend(true)
+      })
+
+      socket.on('match-found', ({ room, peers, squadMates: mates, isInitiator, partnerId, partnerUserId, partnerUsername: pUsername, partnerAvatar: pAvatar, partnerIsPremium: pIsPremium, partnerIsVip: pIsVip, partnerEmailVerified: pEmailVerified, partnerCountry: pCountry }) => {
         if (!mounted) return
 
         // Destroy opponent peers only — preserve any existing squad mate peers
@@ -882,9 +889,9 @@ export default function ChatPage() {
         setGiftPopup(null) // belt-and-braces: never carry an old popup into a new match
         setFriendReqPopup(null) // clear any stale incoming-request popup too
         setFriendReqSent(false)
-        // Is this new partner already a friend? Prefer the server's authoritative
-        // flag from match-found; fall back to the cached friends list.
-        setPartnerIsFriend(pIsFriend != null ? !!pIsFriend : (!!partnerUserId && friendIdsRef.current.has(String(partnerUserId))))
+        // Initial guess from the cached friends list; the server's
+        // 'partner-friend-status' follow-up confirms it authoritatively.
+        setPartnerIsFriend(!!partnerUserId && friendIdsRef.current.has(String(partnerUserId)))
         setMatchFlash(true)
         clearTimeout(matchFlashTimer.current)
         matchFlashTimer.current = setTimeout(() => setMatchFlash(false), 1200)

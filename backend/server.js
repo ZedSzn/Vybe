@@ -3247,7 +3247,7 @@ function findSquadMatch(squadId, myFG, myFC, myMembers) {
   return null;
 }
 
-async function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds) {
+function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds) {
   for (const sid of allSocketIds) {
     const others     = allSocketIds.filter(x => x !== sid);
     const peers      = others.map(peerId => ({ socketId: peerId, isInitiator: sid > peerId }));
@@ -3258,25 +3258,7 @@ async function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSock
     const partnerSid = peers.find(p => !squadMates.includes(p.socketId))?.socketId ?? null;
     const partnerData = partnerSid ? onlineUsers.get(partnerSid) : null;
 
-    // Authoritative "already friends?" check from the DB so the partner pill
-    // shows the friend icon instead of the + button — no reliance on the
-    // client's cached friends list (which had timing/cache issues).
-    let partnerIsFriend = false;
-    const myUserId = onlineUsers.get(sid)?.userId;
-    const partnerUserId = partnerData?.userId;
-    if (myUserId && partnerUserId && dbConnected) {
-      try {
-        const f = await Friendship.findOne({
-          status: 'accepted',
-          $or: [
-            { requester: myUserId, recipient: partnerUserId },
-            { requester: partnerUserId, recipient: myUserId },
-          ],
-        }).select('_id');
-        partnerIsFriend = !!f;
-      } catch {}
-    }
-
+    // Emit the match IMMEDIATELY — no DB work blocks the connection.
     io.to(sid).emit('match-found', {
       room, peers, squadMates,
       isInitiator: peers[0]?.isInitiator ?? true,
@@ -3288,8 +3270,23 @@ async function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSock
       partnerIsVip: partnerData?.isVip || false,
       partnerEmailVerified: partnerData?.emailVerified || false,
       partnerCountry: partnerData?.country || null,
-      partnerIsFriend,
     });
+
+    // Then resolve "already friends?" in the background and tell the client —
+    // a follow-up event so the friend-icon check never delays the match itself.
+    const myUserId = onlineUsers.get(sid)?.userId;
+    const partnerUserId = partnerData?.userId;
+    if (myUserId && partnerUserId && dbConnected) {
+      Friendship.findOne({
+        status: 'accepted',
+        $or: [
+          { requester: myUserId, recipient: partnerUserId },
+          { requester: partnerUserId, recipient: myUserId },
+        ],
+      }).select('_id')
+        .then((f) => { if (f) io.to(sid).emit('partner-friend-status', { isFriend: true }); })
+        .catch(() => {});
+    }
   }
 }
 
@@ -3318,7 +3315,7 @@ setInterval(() => {
       const oppSocketIds = match.socketIds || [match.socketId];
       const allSocketIds = [...mySocketIds, ...oppSocketIds];
       for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter(x => x !== sid)); }
-      emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds).catch(() => {});
+      emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds);
       i--; // we removed `a`, adjust index
     }
   } catch (err) { console.error('[match] sweep error:', err.message); }
@@ -3354,7 +3351,7 @@ function processSquadBuf(squadId) {
     const allSocketIds = [...mySocketIds, ...opponentSocketIds];
     const room = `room_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter((x) => x !== sid)); }
-    emitMatchFound(allSocketIds, room, mySocketIds, opponentSocketIds).catch(() => {});
+    emitMatchFound(allSocketIds, room, mySocketIds, opponentSocketIds);
   } else {
     const existing = waitingQueue.findIndex((e) => e.squadId === squadId);
     if (existing !== -1) waitingQueue.splice(existing, 1);
@@ -3416,9 +3413,13 @@ io.on('connection', (socket) => {
       boostedUntil: null,
     });
 
+    let canFilter = false;   // gender/country filter perk — cached for find-match
+    let blockedIds = [];     // cached block list — cached for find-match
     if (resolvedUserId && dbConnected) {
       try {
-        const u = await User.findById(resolvedUserId).select('isBanned banReason banType banExpiresAt warnings isAdmin email boostedUntil');
+        const u = await User.findById(resolvedUserId).select('isBanned banReason banType banExpiresAt warnings isAdmin email boostedUntil blockedUsers isVip isPremium');
+        canFilter  = !!(u?.isVip || u?.isPremium);
+        blockedIds = (u?.blockedUsers || []).map(String);
         if (u?.isBanned) {
           if (u.banType !== 'permanent' && u.banExpiresAt && u.banExpiresAt < new Date()) {
             await User.findByIdAndUpdate(resolvedUserId, {
@@ -3449,7 +3450,9 @@ io.on('connection', (socket) => {
     const country = geo || data.country || '';
     // Merge onto the early entry rather than replacing it, so we keep the
     // identity we set above and just layer on boostedUntil + resolved country.
-    onlineUsers.set(socket.id, { ...(onlineUsers.get(socket.id) || {}), ...data, country, userId: resolvedUserId, socketId: socket.id, boostedUntil });
+    // canFilter + blockedIds are cached here so find-match doesn't repeat the
+    // DB query on the critical match path.
+    onlineUsers.set(socket.id, { ...(onlineUsers.get(socket.id) || {}), ...data, country, userId: resolvedUserId, socketId: socket.id, boostedUntil, canFilter, blockedIds });
     socket.emit('geo-country', { country });
     // Persist the detected country so the profile reflects it too.
     if (geo && resolvedUserId && dbConnected) {
@@ -3558,25 +3561,12 @@ io.on('connection', (socket) => {
 
   socket.on('find-match', async (prefs) => {
     const me = onlineUsers.get(socket.id);
-    let myBlockedIds = [];
-    let canFilter = false; // gender/country filters are a members-only perk
-    if (me?.userId && dbConnected) {
-      try {
-        const u = await User.findById(me.userId).select('isBanned banReason banType banExpiresAt blockedUsers isVip isPremium');
-        if (u?.isBanned) {
-          if (u.banType !== 'permanent' && u.banExpiresAt && u.banExpiresAt < new Date()) {
-            await User.findByIdAndUpdate(me.userId, { isBanned: false, banReason: '', banType: null, banExpiresAt: null, bannedAt: null });
-          } else {
-            socket.emit('you-are-banned', { reason: u.banReason, banType: u.banType, banExpiresAt: u.banExpiresAt });
-            return;
-          }
-        }
-        myBlockedIds = (u?.blockedUsers || []).map(String);
-        canFilter = !!(u?.isVip || u?.isPremium);
-      } catch {}
-    }
-    // Attach block list to onlineUsers entry for use in findSoloMatch
-    if (me) onlineUsers.set(socket.id, { ...me, blockedIds: myBlockedIds });
+    // Reuse the filter/block data the register handler already fetched — no
+    // extra DB query on the critical match path. (Bans are enforced in real
+    // time by kickBannedUser + the register-time check, so re-querying here
+    // just to re-check the ban added latency for no real safety gain.)
+    const canFilter    = !!me?.canFilter;
+    const myBlockedIds = me?.blockedIds || [];
 
     cancelBotTimer(socket.id);
     for (let i = waitingQueue.length - 1; i >= 0; i--) {
@@ -3621,7 +3611,7 @@ io.on('connection', (socket) => {
       const oppSocketIds = match.socketIds || [match.socketId];
       const allSocketIds = [...mySocketIds, ...oppSocketIds];
       for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter(x => x !== sid)); }
-      emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds).catch(() => {});
+      emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds);
     } else {
       const userData = onlineUsers.get(socket.id) || {};
       const isBoosted = userData.boostedUntil && userData.boostedUntil > new Date();
