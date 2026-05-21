@@ -752,22 +752,42 @@ export default function ChatPage() {
       },
     })
 
+    console.log('[webrtc] creating peer', peerId, 'initiator:', isInitiator, 'haveLocalStream:', !!localStreamRef.current)
+
     peer.on('signal', (data) => {
       if (!socket.connected) return
+      console.log('[webrtc] → send', data.type || 'ice-candidate', 'to', peerId)
       if      (data.type === 'offer')  socket.emit('webrtc-offer',         { offer:     data, to: peerId })
       else if (data.type === 'answer') socket.emit('webrtc-answer',        { answer:    data, to: peerId })
       else                             socket.emit('webrtc-ice-candidate', { candidate: data, to: peerId })
     })
 
+    peer.on('connect', () => console.log('[webrtc] ✅ CONNECTED (data channel open) to', peerId))
+
     peer.on('stream', (remoteStream) => {
+      console.log('[webrtc] 🎥 got remote stream from', peerId, '— tracks:', remoteStream.getTracks().map((t) => t.kind).join(','))
       setRemoteStreams((prev) => ({ ...prev, [peerId]: remoteStream }))
     })
 
-    peer.on('error', (err) => console.warn('Peer error:', err.message))
+    peer.on('error', (err) => console.warn('[webrtc] ❌ peer error', peerId, err.message))
     peer.on('close', () => {
+      console.log('[webrtc] 🔌 peer closed', peerId)
       delete peersRef.current[peerId]
       setRemoteStreams((prev) => { const n = { ...prev }; delete n[peerId]; return n })
     })
+
+    // ICE state visibility — the single most useful signal for "match connects
+    // but no video": tells us if it's failing at the network layer (ICE
+    // checking → failed = NAT/TURN problem) vs never starting (signaling never
+    // arrived). Temporary diagnostic.
+    try {
+      const pc = peer._pc
+      if (pc) {
+        pc.addEventListener('iceconnectionstatechange', () => console.log('[webrtc] ICE state', peerId, '→', pc.iceConnectionState))
+        pc.addEventListener('icegatheringstatechange',  () => console.log('[webrtc] ICE gathering', peerId, '→', pc.iceGatheringState))
+        pc.addEventListener('connectionstatechange',    () => console.log('[webrtc] PC state', peerId, '→', pc.connectionState))
+      }
+    } catch {}
 
     peersRef.current[peerId] = peer
   }
@@ -964,10 +984,15 @@ export default function ChatPage() {
         setTimeout(() => navigate('/', { state: { fromDuoChat: true } }), 2200)
       })
 
-      // Route WebRTC signals to the correct peer using `from`
-      socket.on('webrtc-offer',         ({ offer,     from }) => { if (peersRef.current[from]) try { peersRef.current[from].signal(offer)     } catch {} })
-      socket.on('webrtc-answer',        ({ answer,    from }) => { if (peersRef.current[from]) try { peersRef.current[from].signal(answer)    } catch {} })
-      socket.on('webrtc-ice-candidate', ({ candidate, from }) => { if (peersRef.current[from]) try { peersRef.current[from].signal(candidate) } catch {} })
+      // Route WebRTC signals to the correct peer using `from`. If a signal
+      // arrives before its peer exists (possible reordering), log it loudly —
+      // a silently-dropped offer/answer is a classic "connects but no video".
+      socket.on('webrtc-offer',         ({ offer,     from }) => { console.log('[webrtc] ← recv offer from', from, peersRef.current[from] ? '(peer ok)' : '⚠️ NO PEER — DROPPED');     if (peersRef.current[from]) try { peersRef.current[from].signal(offer)     } catch (e) { console.warn('[webrtc] signal(offer) threw', e.message) } })
+      socket.on('webrtc-answer',        ({ answer,    from }) => { console.log('[webrtc] ← recv answer from', from, peersRef.current[from] ? '(peer ok)' : '⚠️ NO PEER — DROPPED');    if (peersRef.current[from]) try { peersRef.current[from].signal(answer)    } catch (e) { console.warn('[webrtc] signal(answer) threw', e.message) } })
+      socket.on('webrtc-ice-candidate', ({ candidate, from }) => {
+        if (peersRef.current[from]) { try { peersRef.current[from].signal(candidate) } catch {} }
+        else console.log('[webrtc] ← ice from', from, '⚠️ NO PEER — DROPPED')
+      })
 
       socket.on('chat-message', ({ message, timestamp }) => {
         if (!mounted) return
