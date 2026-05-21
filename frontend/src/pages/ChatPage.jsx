@@ -745,25 +745,36 @@ export default function ChatPage() {
 
     const init = async () => {
       // Try video+audio with progressively simpler constraints, then audio-only, then nothing.
+      // If the user pressed "Start Without Camera" on MainPage (prefs.noCam),
+      // skip the video attempts and go straight to audio-only — otherwise the
+      // browser re-prompts for camera access and turns the camera on again.
       let stream = null
       const audioConstraints = { echoCancellation: true, noiseSuppression: true }
       if (navigator.mediaDevices?.getUserMedia) {
-        try {
-          // First try: facingMode only (avoids OverconstrainedError on older iOS)
-          stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user' },
-            audio: audioConstraints,
-          })
-        } catch {
+        if (prefs.noCam) {
           try {
-            // Second try: any video
-            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: audioConstraints })
+            stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
+          } catch {
+            // No media at all — still allow text-only chat
+          }
+        } else {
+          try {
+            // First try: facingMode only (avoids OverconstrainedError on older iOS)
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: 'user' },
+              audio: audioConstraints,
+            })
           } catch {
             try {
-              // Third try: audio only
-              stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
+              // Second try: any video
+              stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: audioConstraints })
             } catch {
-              // No media at all — still allow text-only chat
+              try {
+                // Third try: audio only
+                stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
+              } catch {
+                // No media at all — still allow text-only chat
+              }
             }
           }
         }
