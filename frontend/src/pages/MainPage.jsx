@@ -519,7 +519,7 @@ export default function MainPage() {
       <Navbar onPremiumClick={() => setShowPremium(true)} />
 
       {/* ══════════════ MOBILE LAYOUT ══════════════ */}
-      <div className="lg:hidden relative z-10 px-4 pt-4 pb-2 flex flex-col gap-5">
+      <div className="lg:hidden relative z-10 px-4 pt-20 pb-2 flex flex-col gap-5">
 
         {/* Live pill */}
         {/* Earnings announcement — mirrors the desktop top banner */}
