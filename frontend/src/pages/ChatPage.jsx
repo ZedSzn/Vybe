@@ -2500,17 +2500,10 @@ export default function ChatPage() {
                   {videoOff && hasCamera && <div className="absolute inset-0 bg-black/80" />}
 
                   {(!hasCamera || videoOff) && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
-                      <div style={{ position: 'relative', width: 88, height: 88 }}>
-                        {user?.avatar ? (
-                          <img src={user.avatar} alt="" style={{ position: 'relative', width: 88, height: 88, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />
-                        ) : (
-                          <div style={{ position: 'relative', width: 88, height: 88, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 34, fontWeight: 900, color: '#00D4FF', boxShadow: '0 0 40px rgba(0,212,255,0.1)' }}>
-                            {user?.username ? user.username[0].toUpperCase() : 'Y'}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    /* Same TilePlaceholder the partner tile uses, so your own
+                       camera-off avatar is identical in size + glow (was 88px
+                       inline, partner is 64px — now both 64). */
+                    <TilePlaceholder avatarUrl={user?.avatar} name={user?.username || 'Y'} hideLabel />
                   )}
 
                   {/* Your profile pill — top left, banner-styled, always shown */}
