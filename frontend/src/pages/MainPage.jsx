@@ -1609,7 +1609,7 @@ export default function MainPage() {
                             value={joinCode}
                             onChange={(e) => setJoinCode(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') joinByCode() }}
-                            placeholder=""
+                            placeholder="add code"
                             maxLength={8}
                             style={{ flex: 1, minWidth: 0, padding: '7px 10px', borderRadius: 12, fontSize: 12, fontFamily: 'ui-monospace, monospace', letterSpacing: '0.12em', textTransform: 'uppercase', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,212,255,0.18)', color: '#cfeaff', outline: 'none' }}
                           />
