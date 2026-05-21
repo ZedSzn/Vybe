@@ -1774,10 +1774,13 @@ export default function ChatPage() {
             <div className="absolute flex flex-col items-center justify-center gap-3" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
               {status === 'matched' ? (
                 <>
+                  {/* 64px to match the final video-tile avatar (and your own) so
+                      the avatar shows at full size instantly — no 52→64 grow
+                      when the opponent tile takes over. */}
                   {partnerAvatar ? (
-                    <img src={partnerAvatar} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)' }} />
+                    <img src={partnerAvatar} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06)' }} />
                   ) : (
-                    <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#00D4FF' }}>
+                    <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2))', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 8px rgba(0,212,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 900, color: '#00D4FF' }}>
                       {(partnerUsername || 'S')[0].toUpperCase()}
                     </div>
                   )}
