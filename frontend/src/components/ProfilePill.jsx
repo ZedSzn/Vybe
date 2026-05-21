@@ -130,13 +130,25 @@ export default function ProfilePill({
         )}
       </div>
 
-      {/* Username (+ country) */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
-        <span style={{ color: '#fff', fontWeight: 700, fontSize: 11, lineHeight: 1, whiteSpace: 'nowrap' }}>
+      {/* Username (+ country) — country bumped from 9px → 10.5px so the
+          subpixel rendering doesn't smear on glassy gradient backgrounds. */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+        <span style={{
+          color: '#fff', fontWeight: 700, fontSize: 11, lineHeight: 1,
+          whiteSpace: 'nowrap',
+          WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale',
+        }}>
           {username || 'User'}
         </span>
         {country && (
-          <span style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 600, fontSize: 9, lineHeight: 1, whiteSpace: 'nowrap' }}>
+          <span style={{
+            color: 'rgba(255,255,255,0.7)',
+            fontWeight: 500, fontSize: 10.5, lineHeight: 1,
+            letterSpacing: '0.02em',
+            whiteSpace: 'nowrap',
+            WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale',
+            textRendering: 'geometricPrecision',
+          }}>
             {country}
           </span>
         )}
