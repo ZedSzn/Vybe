@@ -3380,11 +3380,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('register', async (data) => {
-    // Diagnostic: TRUE time from tapping Start Chatting to being tracked/queued
-    // — includes page navigation, chat-chunk download, mount, AND socket connect.
-    if (data?.msSinceStart != null) {
-      console.log(`⏱️  ${socket.id} tracked ${data.msSinceStart}ms after tapping Start (transport: ${socket.conn.transport.name})`);
-    }
     let boostedUntil = null;
     // Verify JWT token if provided — prevents identity spoofing
     let verifiedUserId = null;

@@ -477,9 +477,6 @@ export default function MainPage() {
   const squadReady     = canStartDuo
 
   const startVybing = () => {
-    // Stamp the exact moment Start is tapped so the server can log the TRUE
-    // end-to-end time: tap → page-load → chat mount → socket connect → tracked.
-    try { sessionStorage.setItem('vybeStart', String(Date.now())) } catch {}
     if (mode === 'squad') {
       if (!squad) { setSquadError('Create a duo room first.'); return }
       if (squad.members.length < 2) {
@@ -791,7 +788,6 @@ export default function MainPage() {
 
         <motion.button
           onClick={() => {
-            try { sessionStorage.setItem('vybeStart', String(Date.now())) } catch {}
             streamRef.current?.getTracks().forEach((t) => t.stop())
             streamRef.current = null
             setCameraOn(false)

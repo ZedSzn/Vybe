@@ -821,14 +821,14 @@ export default function ChatPage() {
       // Connect the socket RIGHT AWAY — in parallel with the camera. Previously
       // the socket was created only AFTER getUserMedia resolved, so a slow iOS
       // camera prompt delayed the whole connection + queue by over a minute.
-      // POLLING FIRST, then upgrade to websocket. Cloudflare (in front of
-      // Render) kills the raw `wss://` upgrade — "WebSocket is closed before the
-      // connection is established" — and with websocket listed first the client
-      // just retried WS forever and NEVER connected (stuck on "Searching").
-      // Polling connects reliably, then engine.io transparently upgrades to
-      // websocket when the network allows; if it can't, it stays on polling and
-      // still works. Signaling/chat over polling is plenty fast (video is P2P).
-      const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['polling', 'websocket'] })
+      // POLLING ONLY. Cloudflare (in front of Render) kills the raw `wss://`
+      // upgrade — "WebSocket is closed before the connection is established" —
+      // so websocket never works here. With websocket enabled the client either
+      // retried WS forever and NEVER connected (stuck on "Searching"), or spammed
+      // failed upgrade probes in the console. Polling connects reliably over
+      // plain HTTP and is plenty fast for signaling/chat (video is P2P WebRTC,
+      // it never goes through this socket).
+      const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['polling'] })
       socketRef.current = socket
 
       socket.on('connect', () => {
@@ -842,9 +842,6 @@ export default function ChatPage() {
           isPremium:     user?.isPremium     || false,
           isVip:         user?.isVip         || false,
           emailVerified: user?.emailVerified || false,
-          // Diagnostic: ms from tapping Start (on MainPage) to this register —
-          // the TRUE end-to-end time including page-load + chat-chunk + mount.
-          msSinceStart:  (() => { const t = Number(sessionStorage.getItem('vybeStart')); return t ? Date.now() - t : null })(),
         })
         if (mounted) setStatus('searching')
         // Enter the queue IMMEDIATELY — don't wait for the camera. If the
