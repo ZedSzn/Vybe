@@ -2115,17 +2115,6 @@ export default function ChatPage() {
           </AnimatePresence>
 
 
-          {/* Mobile — Leave button while searching (no full control bar yet) */}
-          {status === 'searching' && (
-            <div className="absolute z-[7] flex justify-center" style={{ bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, right: 12 }}>
-              <motion.button onClick={handleEnd} whileTap={{ scale: 0.95 }}
-                className="flex items-center justify-center gap-2"
-                style={{ padding: '11px 30px', borderRadius: 24, background: 'rgba(239,68,68,0.16)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171', fontWeight: 700, fontSize: 14 }}>
-                <PhoneOff size={15} /> Leave
-              </motion.button>
-            </div>
-          )}
-
           {/* Hide / show UI toggle — sits just above the control bar.
               Lets the user clear the screen for a distraction-free view. */}
           {status === 'matched' && (
@@ -2147,59 +2136,67 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* Mobile control bar — one row, centered */}
-          {status === 'matched' && (
+          {/* Mobile control bar — one row, centered. Shown while searching too
+              so the controls (esp. Leave + Mic) are always with you; the
+              match-only actions (Report / Skip / Gift / Chat) are dimmed and
+              inert until you're connected, mirroring the desktop bar. */}
+          {(status === 'matched' || status === 'searching') && (() => {
+            const matched = status === 'matched'
+            return (
             <motion.div className="absolute z-[7] flex items-center justify-center gap-2"
               animate={{ y: uiHidden ? 96 : 0, opacity: uiHidden ? 0 : 1 }}
               transition={{ type: 'spring', damping: 30, stiffness: 320 }}
               style={{ bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 14px))', left: 12, right: 12, pointerEvents: uiHidden ? 'none' : 'auto' }}>
-              {/* Report */}
+              {/* Report — match only */}
               <motion.button
-                onClick={() => !reportSent && setShowReport(true)}
-                whileTap={!reportSent ? { scale: 0.9 } : {}}
+                onClick={() => matched && !reportSent && setShowReport(true)}
+                whileTap={matched && !reportSent ? { scale: 0.9 } : {}}
+                disabled={!matched}
                 className="flex-shrink-0 flex items-center justify-center"
-                style={{ width: 42, height: 42, borderRadius: '50%', background: reportSent ? 'rgba(0,212,255,0.12)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: reportSent ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.12)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.7)' }}>
+                style={{ width: 42, height: 42, borderRadius: '50%', background: reportSent ? 'rgba(0,212,255,0.12)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: reportSent ? '1px solid rgba(0,212,255,0.3)' : '1px solid rgba(255,255,255,0.12)', color: reportSent ? '#00D4FF' : 'rgba(255,255,255,0.7)', opacity: matched ? 1 : 0.4 }}>
                 {reportSent ? <ShieldCheck size={16} /> : <Flag size={16} />}
               </motion.button>
-              {/* Mic */}
+              {/* Mic — always available */}
               <motion.button onClick={toggleMute} whileTap={{ scale: 0.9 }}
                 className="flex-shrink-0 flex items-center justify-center"
                 style={{ width: 42, height: 42, borderRadius: '50%', background: isMuted ? 'rgba(239,68,68,0.85)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: isMuted ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.12)', color: 'white' }}>
                 {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
               </motion.button>
-              {/* Leave */}
+              {/* Leave — always available */}
               <motion.button onClick={handleEnd} whileTap={{ scale: 0.9 }}
                 className="flex-shrink-0 flex items-center justify-center"
                 style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(239,68,68,0.16)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }}>
                 <PhoneOff size={16} />
               </motion.button>
-              {/* Skip — primary */}
+              {/* Skip — primary, match only */}
               <motion.button
-                onClick={handleSkip}
-                whileTap={{ scale: 0.97 }}
+                onClick={() => matched && handleSkip()}
+                whileTap={matched ? { scale: 0.97 } : {}}
+                disabled={!matched}
                 className="flex-shrink-0 flex items-center justify-center gap-1.5"
-                style={{ width: 112, height: 42, borderRadius: 24, background: 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)', boxShadow: '0 0 18px rgba(0,212,255,0.35)', color: 'white', fontWeight: 800, fontSize: 15 }}>
+                style={{ width: 112, height: 42, borderRadius: 24, background: 'linear-gradient(140deg, #1a3a8f 0%, #00D4FF 55%, #00B8E0 100%)', boxShadow: '0 0 18px rgba(0,212,255,0.35)', color: 'white', fontWeight: 800, fontSize: 15, opacity: matched ? 1 : 0.4 }}>
                 <SkipForward size={16} /> Skip
               </motion.button>
-              {/* Gift */}
+              {/* Gift — match only */}
               {user && (
-                <motion.button onClick={openGiftFlow} whileTap={{ scale: 0.9 }}
+                <motion.button onClick={() => matched && openGiftFlow()} whileTap={matched ? { scale: 0.9 } : {}} disabled={!matched}
                   className="flex-shrink-0 flex items-center justify-center"
-                  style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(0,212,255,0.14)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF' }}>
+                  style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(0,212,255,0.14)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF', opacity: matched ? 1 : 0.4 }}>
                   <Gift size={17} />
                 </motion.button>
               )}
-              {/* Chat */}
-              <motion.button onClick={toggleChat} whileTap={{ scale: 0.9 }}
+              {/* Chat — match only */}
+              <motion.button onClick={() => matched && toggleChat()} whileTap={matched ? { scale: 0.9 } : {}} disabled={!matched}
                 className="flex-shrink-0 flex items-center justify-center relative"
-                style={{ width: 42, height: 42, borderRadius: '50%', background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.12)', color: showChat ? '#00D4FF' : 'white' }}>
+                style={{ width: 42, height: 42, borderRadius: '50%', background: showChat ? 'rgba(0,212,255,0.15)' : 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: showChat ? '1px solid rgba(0,212,255,0.35)' : '1px solid rgba(255,255,255,0.12)', color: showChat ? '#00D4FF' : 'white', opacity: matched ? 1 : 0.4 }}>
                 <MessageSquare size={16} />
                 {(unread + partnerUnread) > 0 && !showChat && (
                   <span style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, background: '#00D4FF', borderRadius: '50%' }} />
                 )}
               </motion.button>
             </motion.div>
-          )}
+            )
+          })()}
 
 
           {/* ── DUO MODE: squad-mate floating PiP — hidden in duo mode (partner shown in bottom panel) ── */}
