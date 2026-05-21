@@ -2345,6 +2345,7 @@ export default function ChatPage() {
                                 position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
                                 opacity: hasVideo ? 1 : 0,
                                 transition: 'opacity 250ms ease',
+                                zIndex: 6, // sit above the avatar (TilePlaceholder is z-5) so video covers it when present
                               }}
                             />
                             {/* Per-tile pill when stacked, so the second opponent in a
