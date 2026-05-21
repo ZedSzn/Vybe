@@ -612,11 +612,22 @@ export default function ChatPage() {
       const fetchCount = () => axios.get('/api/online-count').then(({ data }) => setOnlineCount(data.count)).catch(() => {})
       fetchCount()
       const countTimer = setInterval(fetchCount, 10000)
+      // Re-search watchdog: re-emit find-match every 8s while still searching.
+      // The very first search after entering chat can miss (sockets still
+      // settling / a partner queued a beat too early), and nothing would
+      // re-trigger it — the user had to manually Leave + re-enter. This
+      // re-queues automatically so a stuck search recovers on its own.
+      const researchTimer = setInterval(() => {
+        if (statusRef.current === 'searching' && socketRef.current?.connected) {
+          findMatch(socketRef.current)
+        }
+      }, 8000)
       return () => {
         clearInterval(searchTimerRef.current)
         clearInterval(searchTextTimer.current)
         clearInterval(tipTimer)
         clearInterval(countTimer)
+        clearInterval(researchTimer)
       }
     } else {
       clearInterval(searchTimerRef.current)
