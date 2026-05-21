@@ -440,6 +440,8 @@ export default function ChatPage() {
   const [blockLoading,   setBlockLoading]     = useState(false)
   const [friendReqSent,  setFriendReqSent]    = useState(false)
   const [friendReqLoad,  setFriendReqLoad]    = useState(false)
+  const [friendReqPopup,    setFriendReqPopup]    = useState(null) // incoming request: { friendshipId, from: {id, username} }
+  const [friendReqAccepting, setFriendReqAccepting] = useState(false)
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
   const [tipFeedback,    setTipFeedback]      = useState(null) // shared feedback toast (errors etc.)
@@ -562,6 +564,14 @@ export default function ChatPage() {
     const t = setTimeout(() => setGiftPopup(null), 4200)
     return () => clearTimeout(t)
   }, [giftPopup])
+
+  // Incoming friend-request popup auto-dismisses after 15s (longer than the
+  // gift popup since it needs an action). React owns the timer so it can't leak.
+  useEffect(() => {
+    if (!friendReqPopup) return
+    const t = setTimeout(() => setFriendReqPopup(null), 15000)
+    return () => clearTimeout(t)
+  }, [friendReqPopup])
 
   // Sync remote streams → video elements (stream objects don't trigger re-renders on srcObject change)
   useEffect(() => {
@@ -858,6 +868,7 @@ export default function ChatPage() {
         setGiftAnimations([])
         setGiftsReceived(0)
         setGiftPopup(null) // belt-and-braces: never carry an old popup into a new match
+        setFriendReqPopup(null) // clear any stale incoming-request popup too
         setFriendReqSent(false)
         setMatchFlash(true)
         clearTimeout(matchFlashTimer.current)
@@ -1016,6 +1027,19 @@ export default function ChatPage() {
       socket.on('coin-update', ({ coins: newCoins }) => {
         if (!mounted) return
         setCoins(newCoins)
+      })
+
+      // Incoming friend request — show the accept popup at the bottom.
+      socket.on('friend-request', ({ from, friendshipId }) => {
+        if (!mounted || !friendshipId) return
+        setFriendReqPopup({ friendshipId, from: from || {} })
+      })
+
+      // Our outgoing request got accepted by the partner.
+      socket.on('friend-accepted', ({ by }) => {
+        if (!mounted) return
+        setTipFeedback({ type: 'success', msg: `${by?.username || 'They'} accepted your friend request! 🎉` })
+        setTimeout(() => setTipFeedback(null), 3000)
       })
     }
 
@@ -1192,6 +1216,22 @@ export default function ChatPage() {
       setTimeout(() => setTipFeedback(null), 3000)
     }
     setFriendReqLoad(false)
+  }
+
+  // Accept an incoming friend request straight from the bottom popup.
+  const handleAcceptFriend = async () => {
+    if (!friendReqPopup || friendReqAccepting) return
+    setFriendReqAccepting(true)
+    try {
+      await axios.post(`/api/friends/respond/${friendReqPopup.friendshipId}`, { action: 'accept' })
+      setTipFeedback({ type: 'success', msg: `You're now friends with ${friendReqPopup.from?.username || 'them'}! 🎉` })
+      setTimeout(() => setTipFeedback(null), 3000)
+      setFriendReqPopup(null)
+    } catch (err) {
+      setTipFeedback({ type: 'error', msg: err.response?.data?.error || 'Could not accept request' })
+      setTimeout(() => setTipFeedback(null), 3000)
+    }
+    setFriendReqAccepting(false)
   }
 
   const handleBoost = async () => {
@@ -2793,6 +2833,61 @@ export default function ChatPage() {
                 </p>
               </div>
             </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Incoming friend-request popup — bottom card with an instant Accept,
+            mirroring the gift popup. Sits a little above the gift popup so the
+            two don't overlap if they appear together. */}
+        <AnimatePresence>
+          {friendReqPopup && (
+            <div className="fixed inset-x-0 flex justify-center px-4 pointer-events-none"
+              style={{
+                bottom: uiHidden
+                  ? 'max(124px, calc(env(safe-area-inset-bottom, 0px) + 120px))'
+                  : 'max(188px, calc(env(safe-area-inset-bottom, 0px) + 184px))',
+                zIndex: 45,
+                transition: 'bottom 300ms cubic-bezier(0.22,1,0.36,1)',
+              }}>
+              <motion.div
+                key={friendReqPopup.friendshipId}
+                className="flex items-center gap-3 pointer-events-auto w-full max-w-sm"
+                initial={{ opacity: 0, y: 14, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.97 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 320 }}
+                style={{
+                  padding: '12px 14px', borderRadius: 18,
+                  background: 'rgba(8,12,24,0.94)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(0,212,255,0.4)',
+                  boxShadow: '0 12px 38px rgba(0,0,0,0.6), 0 0 28px rgba(0,212,255,0.18)',
+                }}
+              >
+                <div style={{ flexShrink: 0, width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.25), rgba(124,58,237,0.25))', border: '1.5px solid rgba(0,212,255,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <UserPlus size={18} style={{ color: '#00D4FF' }} />
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <p style={{ color: '#8a90a6', fontSize: 11, fontWeight: 600, lineHeight: 1.3 }}>Friend request</p>
+                  <p style={{ color: '#fff', fontSize: 14, fontWeight: 800, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {friendReqPopup.from?.username || 'Someone'}
+                  </p>
+                </div>
+                <button
+                  onClick={handleAcceptFriend}
+                  disabled={friendReqAccepting}
+                  className="flex-shrink-0"
+                  style={{ padding: '8px 16px', borderRadius: 50, border: 'none', background: '#00D4FF', color: '#06121b', fontSize: 13, fontWeight: 800, cursor: friendReqAccepting ? 'default' : 'pointer', opacity: friendReqAccepting ? 0.6 : 1 }}>
+                  {friendReqAccepting ? '…' : 'Accept'}
+                </button>
+                <button
+                  onClick={() => setFriendReqPopup(null)}
+                  className="flex-shrink-0"
+                  aria-label="Dismiss"
+                  style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <X size={13} />
+                </button>
+              </motion.div>
             </div>
           )}
         </AnimatePresence>
