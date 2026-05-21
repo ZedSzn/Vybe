@@ -344,10 +344,14 @@ function AppRoutes() {
   // Once the user is idle on the landing/auth page, we silently fetch the
   // chunks for the pages they're most likely to hit next. They land in the
   // browser cache, so the actual click later renders instantly.
-  // Heavy or rare routes (ChatPage, Admin, Terms, etc.) are skipped.
+  // Rare routes (Admin, Terms, etc.) are skipped. ChatPage IS prefetched
+  // (despite being heavy) because it's the core flow — without it, tapping
+  // "Start Chatting" had to download the ~106KB chat chunk first, which on
+  // mobile delayed connecting to the matchmaker by seconds.
   useEffect(() => {
     const prefetch = () => {
       const loaders = [
+        () => import('./pages/ChatPage'),   // core flow — prefetch so Start Chatting is instant
         () => import('./pages/WalletPage'),
         () => import('./pages/FriendsPage'),
         () => import('./pages/EarnPage'),

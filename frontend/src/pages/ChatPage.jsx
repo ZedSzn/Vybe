@@ -542,6 +542,11 @@ export default function ChatPage() {
       // partner pill instead of the add-friend (+) button.
       axios.get('/api/friends').then(({ data }) => {
         friendIdsRef.current = new Set((data.friends || []).map((f) => String(f.friend?._id)))
+        // If we already matched before this list arrived, re-evaluate the
+        // current partner so the friend icon shows without needing a re-search.
+        if (partnerUidRef.current && friendIdsRef.current.has(String(partnerUidRef.current))) {
+          setPartnerIsFriend(true)
+        }
       }).catch(() => {})
     }
   }, []) // eslint-disable-line
