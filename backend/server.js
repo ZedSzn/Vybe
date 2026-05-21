@@ -91,6 +91,18 @@ const corsOptions = {
 
 const io = new Server(server, {
   cors: { origin: allowedOrigins, methods: ['GET', 'POST'], credentials: true },
+  // Render free tier sits behind a proxy that can briefly stall the heartbeat.
+  // The defaults (pingInterval 25s + pingTimeout 20s) were dropping sockets
+  // every ~45s, which removed users from the matchmaking queue before a
+  // partner could arrive. Longer windows tolerate proxy hiccups.
+  pingInterval: 25000,
+  pingTimeout:  60000,        // was 20s — survive a stalled heartbeat far longer
+  // Brief drops (≤2 min) restore the same session instead of churning a new
+  // socket id and losing the queue slot.
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
+  },
 });
 
 app.use(cors(corsOptions));
