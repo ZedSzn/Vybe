@@ -3281,6 +3281,15 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
 // as long as two compatible people are waiting, regardless of timing.
 setInterval(() => {
   try {
+    // Diagnostic: snapshot the queue each cycle when it's non-empty, so we can
+    // see whether two users are ever waiting at the same time. socketId(live?)
+    // shows whether each entry's socket is still actually connected.
+    if (waitingQueue.length > 0) {
+      const snapshot = waitingQueue.map(e =>
+        `${e.socketId}(${io.sockets.sockets.get(e.socketId) ? 'live' : 'DEAD'},u=${String(e.userId || '?').slice(-4)},${e.type})`
+      ).join(', ');
+      console.log(`[queue] depth=${waitingQueue.length} → ${snapshot}`);
+    }
     for (let i = 0; i < waitingQueue.length; i++) {
       const a = waitingQueue[i];
       if (!a || a.type !== 'solo') continue;
@@ -3610,7 +3619,7 @@ io.on('connection', (socket) => {
     } else {
       const userData = onlineUsers.get(socket.id) || {};
       const isBoosted = userData.boostedUntil && userData.boostedUntil > new Date();
-      const queueEntry = { type: 'solo', socketId: socket.id, socketIds: [socket.id], gender: userData.gender || 'other', country: userData.country || '', mode: prefs.mode || 'solo', filterGender: prefs.filterGender || null, filterCountry: prefs.filterCountry || '' };
+      const queueEntry = { type: 'solo', socketId: socket.id, socketIds: [socket.id], userId: userData.userId || null, gender: userData.gender || 'other', country: userData.country || '', mode: prefs.mode || 'solo', filterGender: prefs.filterGender || null, filterCountry: prefs.filterCountry || '' };
       if (isBoosted) waitingQueue.unshift(queueEntry); else waitingQueue.push(queueEntry);
       socket.emit('waiting');
       console.log(`[match] · queued ${socket.id} (userId=${userData.userId || 'guest'} gender=${queueEntry.gender} country=${queueEntry.country || '—'} mode=${queueEntry.mode} fG=${queueEntry.filterGender || '—'} fC=${queueEntry.filterCountry || '—'}) — queue now [${waitingQueue.map(e => e.socketId).join(', ')}]`);
