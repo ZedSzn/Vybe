@@ -629,6 +629,10 @@ export default function MainPage() {
                   streamRef.current?.getTracks().forEach((t) => t.stop())
                   streamRef.current = null
                   setCameraOn(false)
+                  // Without this the off-state UI thinks we're still asking for
+                  // browser permission and shows a spinner + 'Waiting for
+                  // permission…' instead of the avatar + 'Allow Camera' UI.
+                  setPermissionAsked(false)
                 }}
                 whileTap={{ scale: 0.9 }}
                 className="w-9 h-9 rounded-xl flex items-center justify-center"
