@@ -1402,7 +1402,20 @@ export default function ChatPage() {
   // duo mode after a solo-bot session.)
   const isSquadSession     = prefs.mode === 'squad' && (!!prefs.squadId || import.meta.env.DEV)
   const allRemoteEntries   = Object.keys(remoteStreams)
-  const opponentSocketIds  = botPeerIds ? botPeerIds.opponents : allRemoteEntries.filter((sid) => !squadMates.includes(sid))
+  const streamOpponents    = allRemoteEntries.filter((sid) => !squadMates.includes(sid))
+  // Include the known opponent socket from match-found (partnerSock) so the
+  // opponent tile mounts the INSTANT we match — before the WebRTC stream
+  // arrives — rather than swapping in a fresh tile when the stream lands. The
+  // old behaviour remounted the avatar element at stream-arrival, which is what
+  // made the partner avatar visibly blink right before the video turned on.
+  // Union with stream-derived ids so the solo-vs-duo (2 opponents) case still
+  // fills the second tile once its stream connects.
+  const opponentSocketIds  = botPeerIds
+    ? botPeerIds.opponents
+    : Array.from(new Set([
+        ...(partnerSock && !squadMates.includes(partnerSock) ? [partnerSock] : []),
+        ...streamOpponents,
+      ]))
   const mateSocketIds      = botPeerIds ? botPeerIds.mates     : allRemoteEntries.filter((sid) => squadMates.includes(sid))
   // isDuoMode is sticky across skips — once you're in a duo session it stays
   // duo until you fully leave. Without `persistentMateId` in this OR, the
