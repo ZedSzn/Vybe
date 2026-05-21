@@ -499,6 +499,7 @@ export default function ChatPage() {
   const remoteVideoRefs = useRef({})           // socketId → HTMLVideoElement
   const squadMatesRef   = useRef([])           // persists through re-renders for use in callbacks
   const localStreamRef      = useRef(null)
+  const mediaReadyRef       = useRef(false)  // true once camera/mic acquisition settles (or fails)
   const localVideoRef       = useRef(null)   // mobile PiP
   const localVideoDesktopRef = useRef(null)  // desktop panel
   const pipContainerRef     = useRef(null)
@@ -743,67 +744,54 @@ export default function ChatPage() {
   useEffect(() => {
     let mounted = true
 
-    const init = async () => {
-      // Try video+audio with progressively simpler constraints, then audio-only, then nothing.
-      // If the user pressed "Start Without Camera" on MainPage (prefs.noCam),
-      // skip the video attempts and go straight to audio-only — otherwise the
-      // browser re-prompts for camera access and turns the camera on again.
+    // Acquire camera/mic. Runs in PARALLEL with the socket connection (below)
+    // so a slow iOS permission prompt / getUserMedia never delays the socket
+    // and thus the matchmaking queue. Sets mediaReadyRef when done (success or
+    // not) and findMatches if the socket is already connected by then.
+    const acquireMedia = async () => {
       let stream = null
       const audioConstraints = { echoCancellation: true, noiseSuppression: true }
       if (navigator.mediaDevices?.getUserMedia) {
         if (prefs.noCam) {
-          try {
-            stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
-          } catch {
-            // No media at all — still allow text-only chat
-          }
+          try { stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints }) } catch {}
         } else {
           try {
-            // First try: facingMode only (avoids OverconstrainedError on older iOS)
-            stream = await navigator.mediaDevices.getUserMedia({
-              video: { facingMode: 'user' },
-              audio: audioConstraints,
-            })
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: audioConstraints })
           } catch {
             try {
-              // Second try: any video
               stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: audioConstraints })
             } catch {
-              try {
-                // Third try: audio only
-                stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
-              } catch {
-                // No media at all — still allow text-only chat
-              }
+              try { stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints }) } catch {}
             }
           }
         }
       }
       if (!mounted) { stream?.getTracks().forEach((t) => t.stop()); return }
-      const camAvailable = !!(stream?.getVideoTracks().length)
-      setHasCamera(camAvailable)
+      setHasCamera(!!(stream?.getVideoTracks().length))
       if (stream) {
         localStreamRef.current = stream
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream
-          localVideoRef.current.play().catch(() => {})
-        }
-        if (localVideoDesktopRef.current) {
-          localVideoDesktopRef.current.srcObject = stream
-          localVideoDesktopRef.current.play().catch(() => {})
-        }
+        if (localVideoRef.current)        { localVideoRef.current.srcObject = stream;        localVideoRef.current.play().catch(() => {}) }
+        if (localVideoDesktopRef.current) { localVideoDesktopRef.current.srcObject = stream; localVideoDesktopRef.current.play().catch(() => {}) }
       }
+      mediaReadyRef.current = true
+      // Camera finished — if the socket is already up, start matching now.
+      if (socketRef.current?.connected) findMatch(socketRef.current)
+    }
 
-      // Progress past 'init' immediately — don't wait for socket to connect.
-      // On Render free tier, the socket may take 50 s to wake; staying on
-      // "Starting camera…" the whole time is confusing.
+    const init = async () => {
+      // Show the searching UI immediately.
       if (mounted) setStatus('searching')
 
-      // websocket-only: long-polling's heartbeat gets stalled by Render's
-      // proxy and drops the socket every ~45s (the ping timeout), which kept
-      // booting users out of the matchmaking queue. A pure WebSocket holds a
-      // persistent connection that survives the proxy.
-      const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['websocket'] })
+      // Kick off camera acquisition in the background (does NOT block the socket).
+      acquireMedia()
+
+      // Connect the socket RIGHT AWAY — in parallel with the camera. Previously
+      // the socket was created only AFTER getUserMedia resolved, so a slow iOS
+      // camera prompt delayed the whole connection + queue by over a minute.
+      // websocket preferred (stable through Render's proxy) with a polling
+      // fallback so a cellular network that stalls the initial WS handshake
+      // still connects promptly instead of retrying WS for a minute+.
+      const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['websocket', 'polling'] })
       socketRef.current = socket
 
       socket.on('connect', () => {
@@ -819,7 +807,10 @@ export default function ChatPage() {
           emailVerified: user?.emailVerified || false,
         })
         if (mounted) setStatus('searching')
-        findMatch(socket)
+        // Only enter the queue once the camera has settled (WebRTC needs the
+        // local stream). If the camera is already ready, match immediately;
+        // otherwise acquireMedia() will findMatch when it finishes.
+        if (mediaReadyRef.current) findMatch(socket)
       })
 
       socket.on('you-are-banned', ({ reason, banType: bt, banExpiresAt: bea }) => {

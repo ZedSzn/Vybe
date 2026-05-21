@@ -41,10 +41,10 @@ export function SocketProvider({ children }) {
 
     const token = localStorage.getItem('vybe_token')
     const s = io(BACKEND, {
-      // websocket-only — long-polling's heartbeat gets stalled by Render's
-      // proxy and drops the connection ~every 45s. A persistent WebSocket
-      // is far more stable through the proxy.
-      transports: ['websocket'],
+      // websocket preferred (stable through Render's proxy — long-polling's
+      // heartbeat gets stalled and drops ~every 45s) with a polling fallback
+      // so a network that stalls the initial WS handshake still connects.
+      transports: ['websocket', 'polling'],
       withCredentials: true,
       reconnectionDelay: 2000,
       reconnectionDelayMax: 8000,
