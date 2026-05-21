@@ -3281,15 +3281,6 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
 // as long as two compatible people are waiting, regardless of timing.
 setInterval(() => {
   try {
-    // Diagnostic: snapshot the queue each cycle when it's non-empty, so we can
-    // see whether two users are ever waiting at the same time. socketId(live?)
-    // shows whether each entry's socket is still actually connected.
-    if (waitingQueue.length > 0) {
-      const snapshot = waitingQueue.map(e =>
-        `${e.socketId}(${io.sockets.sockets.get(e.socketId) ? 'live' : 'DEAD'},u=${String(e.userId || '?').slice(-4)},${e.type})`
-      ).join(', ');
-      console.log(`[queue] depth=${waitingQueue.length} → ${snapshot}`);
-    }
     for (let i = 0; i < waitingQueue.length; i++) {
       const a = waitingQueue[i];
       if (!a || a.type !== 'solo') continue;
@@ -3307,7 +3298,6 @@ setInterval(() => {
       const allSocketIds = [...mySocketIds, ...oppSocketIds];
       for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter(x => x !== sid)); }
       emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds);
-      console.log(`[match] ✓ SWEEP paired ${a.socketId} with ${oppSocketIds.join(',')}`);
       i--; // we removed `a`, adjust index
     }
   } catch (err) { console.error('[match] sweep error:', err.message); }
@@ -3356,10 +3346,6 @@ function processSquadBuf(squadId) {
 
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 io.on('connection', (socket) => {
-  console.log(`🔌 ${socket.id} — transport: ${socket.conn.transport.name}`);
-  // Log if/when the connection upgrades from polling → websocket.
-  socket.conn.on('upgrade', (t) => console.log(`⬆️  ${socket.id} upgraded to ${t.name}`));
-
   // User dismissed their warning modal — mark all their warnings read
   // so they don't reappear on the next login.
   socket.on('warnings-seen', async () => {
@@ -3376,12 +3362,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('register', async (data) => {
-    // Diagnostic: how long from the user tapping Start Chatting (chat screen
-    // mount) to this socket connecting. Big number here = the socket connection
-    // is the slow part. Small number = the delay is page-load/login BEFORE chat.
-    if (data?.msSinceEnter != null) {
-      console.log(`⏱️  ${socket.id} registered ${data.msSinceEnter}ms after entering chat (transport: ${socket.conn.transport.name})`);
-    }
     let boostedUntil = null;
     // Verify JWT token if provided — prevents identity spoofing
     let verifiedUserId = null;
@@ -3621,14 +3601,12 @@ io.on('connection', (socket) => {
       const allSocketIds = [...mySocketIds, ...oppSocketIds];
       for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter(x => x !== sid)); }
       emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds);
-      console.log(`[match] ✓ paired ${socket.id} with ${oppSocketIds.join(',')} (queue depth before=${waitingQueue.length})`);
     } else {
       const userData = onlineUsers.get(socket.id) || {};
       const isBoosted = userData.boostedUntil && userData.boostedUntil > new Date();
       const queueEntry = { type: 'solo', socketId: socket.id, socketIds: [socket.id], userId: userData.userId || null, gender: userData.gender || 'other', country: userData.country || '', mode: prefs.mode || 'solo', filterGender: prefs.filterGender || null, filterCountry: prefs.filterCountry || '' };
       if (isBoosted) waitingQueue.unshift(queueEntry); else waitingQueue.push(queueEntry);
       socket.emit('waiting');
-      console.log(`[match] · queued ${socket.id} (userId=${userData.userId || 'guest'} gender=${queueEntry.gender} country=${queueEntry.country || '—'} mode=${queueEntry.mode} fG=${queueEntry.filterGender || '—'} fC=${queueEntry.filterCountry || '—'}) — queue now [${waitingQueue.map(e => e.socketId).join(', ')}]`);
       // The duo-test bot opts out so the server's dev bot can't hijack its stranger.
       if (!prefs.noDevBot) spawnBotMatch(socket, prefs.mode);
     }
@@ -3790,15 +3768,8 @@ io.on('connection', (socket) => {
     socket.emit('search-cancelled');
   });
 
-  socket.on('disconnect', (reason) => {
+  socket.on('disconnect', () => {
     cancelBotTimer(socket.id);
-    // Log the disconnect REASON so we can see why sockets drop:
-    //   'ping timeout'        → heartbeat lost (proxy stalling pongs)
-    //   'transport close'     → TCP/WS connection dropped
-    //   'transport error'     → transport-level failure
-    //   'client namespace disconnect' → client called .disconnect()
-    //   'server namespace disconnect' → we disconnected them
-    console.log(`❌ ${socket.id} — reason: ${reason} — was in queue: ${waitingQueue.some(e => e.socketId === socket.id || e.socketIds?.includes(socket.id))}`);
     onlineUsers.delete(socket.id);
     for (let i = waitingQueue.length - 1; i >= 0; i--) {
       const e = waitingQueue[i];

@@ -765,10 +765,6 @@ export default function ChatPage() {
 
   useEffect(() => {
     let mounted = true
-    // Timestamp the moment the chat screen mounts (right after the user taps
-    // Start Chatting). We report the gap to socket-connect so the server log
-    // shows exactly how long the connection itself takes vs page/login time.
-    const enteredChatAt = Date.now()
 
     // Acquire camera/mic. Runs in PARALLEL with the socket connection (below)
     // so a slow iOS permission prompt / getUserMedia never delays the socket
@@ -833,7 +829,6 @@ export default function ChatPage() {
           isPremium:     user?.isPremium     || false,
           isVip:         user?.isVip         || false,
           emailVerified: user?.emailVerified || false,
-          msSinceEnter:  Date.now() - enteredChatAt, // diagnostic: ms from chat-screen mount to socket connect
         })
         if (mounted) setStatus('searching')
         // Enter the queue IMMEDIATELY — don't wait for the camera. If the
