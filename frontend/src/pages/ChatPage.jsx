@@ -2450,9 +2450,6 @@ export default function ChatPage() {
                           </div>
                         )}
                       </div>
-                      {user?.country && (
-                        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, lineHeight: 1, textAlign: 'center' }}>{user.country}</p>
-                      )}
                     </div>
                   )}
 
