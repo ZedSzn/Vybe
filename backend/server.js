@@ -3272,6 +3272,38 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
   }
 }
 
+// ── Background matchmaker sweep ──────────────────────────────────────────────
+// The find-match handler only attempts a pairing at the instant someone
+// searches. If two compatible users end up sitting in the queue at slightly
+// different times (very common once reconnects/re-queues are involved), nobody
+// re-scans and they both wait forever. This sweep runs every 3s, prunes dead
+// sockets, and pairs any two compatible solo waiters — so a match is guaranteed
+// as long as two compatible people are waiting, regardless of timing.
+setInterval(() => {
+  try {
+    for (let i = 0; i < waitingQueue.length; i++) {
+      const a = waitingQueue[i];
+      if (!a || a.type !== 'solo') continue;
+      // Prune entries whose socket has gone away (defensive — disconnect
+      // should already remove them, but a missed cleanup would stall the queue).
+      if (!io.sockets.sockets.get(a.socketId)) { waitingQueue.splice(i, 1); i--; continue; }
+      const match = findSoloMatch(a.socketId, { mode: a.mode, filterGender: a.filterGender, filterCountry: a.filterCountry });
+      if (!match) continue;
+      // findSoloMatch already spliced `match` out; remove `a` too.
+      const ai = waitingQueue.indexOf(a);
+      if (ai !== -1) waitingQueue.splice(ai, 1);
+      const room = `room_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const mySocketIds  = [a.socketId];
+      const oppSocketIds = match.socketIds || [match.socketId];
+      const allSocketIds = [...mySocketIds, ...oppSocketIds];
+      for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter(x => x !== sid)); }
+      emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds);
+      console.log(`[match] ✓ SWEEP paired ${a.socketId} with ${oppSocketIds.join(',')}`);
+      i--; // we removed `a`, adjust index
+    }
+  } catch (err) { console.error('[match] sweep error:', err.message); }
+}, 3000).unref?.();
+
 // Process a squad's buffered find-match requests as a group — match them
 // against a real opponent duo, or fall back to bot strangers. Called either
 // when every member has re-searched or after a short wait, so a slow or
