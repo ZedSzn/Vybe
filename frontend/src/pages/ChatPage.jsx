@@ -736,9 +736,18 @@ export default function ChatPage() {
       trickle:   true,
       config: {
         iceServers: [
+          // STUN — lets each peer discover its public IP so they can attempt a
+          // direct P2P link (no relay, lowest latency, free).
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:stun1.l.google.com:19302' },
           { urls: 'stun:global.stun.twilio.com:3478' },
+          // TURN — relays the media when a direct link is impossible (symmetric
+          // NAT, locked-down WiFi, cellular CGNAT). Without this, ~10-20% of
+          // matches "connect" but never show video. Free public relay
+          // (Metered Open Relay project — no account needed).
+          { urls: 'turn:openrelay.metered.ca:80',                username: 'openrelayproject', credential: 'openrelayproject' },
+          { urls: 'turn:openrelay.metered.ca:443',               username: 'openrelayproject', credential: 'openrelayproject' },
+          { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
         ],
       },
     })
