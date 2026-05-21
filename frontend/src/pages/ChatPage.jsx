@@ -799,7 +799,11 @@ export default function ChatPage() {
       // "Starting camera…" the whole time is confusing.
       if (mounted) setStatus('searching')
 
-      const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['websocket', 'polling'] })
+      // websocket-only: long-polling's heartbeat gets stalled by Render's
+      // proxy and drops the socket every ~45s (the ping timeout), which kept
+      // booting users out of the matchmaking queue. A pure WebSocket holds a
+      // persistent connection that survives the proxy.
+      const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['websocket'] })
       socketRef.current = socket
 
       socket.on('connect', () => {

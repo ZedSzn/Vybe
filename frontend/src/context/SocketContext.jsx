@@ -41,7 +41,10 @@ export function SocketProvider({ children }) {
 
     const token = localStorage.getItem('vybe_token')
     const s = io(BACKEND, {
-      transports: ['polling', 'websocket'],
+      // websocket-only — long-polling's heartbeat gets stalled by Render's
+      // proxy and drops the connection ~every 45s. A persistent WebSocket
+      // is far more stable through the proxy.
+      transports: ['websocket'],
       withCredentials: true,
       reconnectionDelay: 2000,
       reconnectionDelayMax: 8000,
