@@ -87,6 +87,17 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
     finally { setMembershipLoad(false) }
   }
 
+  const [trialLoad, setTrialLoad] = useState(false)
+  const handleResetTrial = async () => {
+    setTrialLoad(true)
+    try {
+      await axios.post(`/api/admin-secure/users/${userId}/reset-trial`, {}, ah(token))
+      setProfile(p => ({ ...p, user: { ...p.user, trialUsed: false, trialActive: false } }))
+      if (onGrantMembership) onGrantMembership('trial-reset')
+    } catch (e) { /* noop */ }
+    finally { setTrialLoad(false) }
+  }
+
   useEffect(() => {
     axios.get(`/api/admin-secure/users/${userId}/profile`, ah(token))
       .then(({ data }) => setProfile(data))
@@ -208,6 +219,25 @@ function UserProfileModal({ userId, token, onClose, onBan, onUnban, onWarn, onDe
                 style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
               >
                 {membershipLoad ? '…' : 'Revoke'}
+              </button>
+            </div>
+            {/* Free-trial eligibility — shows whether the user has used the 7-day
+                VIP trial, with a one-click reset so the trial (and its banner)
+                become available again. */}
+            <div className="mt-3 pt-3 border-t border-vybe-border flex items-center justify-between gap-2">
+              <span className="text-[11px] text-vybe-muted">
+                Free trial:{' '}
+                <span className={user.trialUsed ? 'text-amber-400 font-bold' : 'text-green-400 font-bold'}>
+                  {user.trialUsed ? 'Used' : 'Available'}
+                </span>
+              </span>
+              <button
+                onClick={handleResetTrial}
+                disabled={trialLoad || !user.trialUsed}
+                className="text-[11px] px-3 py-1.5 rounded-lg font-bold transition-all disabled:opacity-40"
+                style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', color: '#00B8E0' }}
+              >
+                {trialLoad ? '…' : 'Reset Trial'}
               </button>
             </div>
           </div>

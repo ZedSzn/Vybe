@@ -1715,6 +1715,27 @@ app.post('/api/admin-secure/users/:id/grant-membership', adminSecureMiddleware, 
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Reset a user's free-trial eligibility — clears trialUsed/trialActive so they
+// can claim the 7-day VIP trial again (and the trial banner re-appears).
+app.post('/api/admin-secure/users/:id/reset-trial', adminSecureMiddleware, async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { trialUsed: false, trialActive: false },
+      { new: true },
+    ).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    await logAdminAction('reset-trial', user._id, user.username, 'Reset free-trial eligibility');
+    // Nudge the live client to re-fetch its user so the banner updates without a manual reload.
+    for (const [socketId, data] of onlineUsers.entries()) {
+      if (String(data.userId) === String(user._id)) {
+        io.to(socketId).emit('membership-updated', { isPremium: user.isPremium, isVip: user.isVip });
+      }
+    }
+    res.json({ success: true, trialUsed: user.trialUsed });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // Warn user
 app.post('/api/admin-secure/users/:id/warn', adminSecureMiddleware, async (req, res) => {
   try {
