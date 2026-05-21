@@ -262,7 +262,6 @@ function TilePlaceholder({ avatarUrl, name, label = 'Camera off', size = 64, hid
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ zIndex: 5 }}>
       <div style={{ position: 'relative', width: size, height: size }}>
-        <MicSpikes level={micLevel} size={size} />
         {avatarUrl ? (
           <img src={avatarUrl} alt="" style={{ position: 'relative', width: size, height: size, borderRadius: '50%', objectFit: 'cover', ...ringStyle }} />
         ) : (
@@ -2443,7 +2442,6 @@ export default function ChatPage() {
                   {(!hasCamera || videoOff) && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 5 }}>
                       <div style={{ position: 'relative', width: 88, height: 88 }}>
-                        <MicSpikes level={micLevel} size={88} />
                         {user?.avatar ? (
                           <img src={user.avatar} alt="" style={{ position: 'relative', width: 88, height: 88, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />
                         ) : (
