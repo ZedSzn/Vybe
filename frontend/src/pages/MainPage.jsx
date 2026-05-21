@@ -974,7 +974,7 @@ export default function MainPage() {
                             value={joinCode}
                             onChange={(e) => setJoinCode(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') joinByCode() }}
-                            placeholder=""
+                            placeholder="add code"
                             maxLength={8}
                             className="flex-1 px-3 py-2 rounded-xl text-[13px] font-mono tracking-[0.14em] uppercase outline-none focus-visible:border-cyan-400/60 min-w-0"
                             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,212,255,0.18)', color: '#cfeaff', fontFamily: 'ui-monospace, monospace' }}
