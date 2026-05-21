@@ -1884,7 +1884,7 @@ export default function ChatPage() {
             </div>
           ) : isDuoMode ? (
             /* DUO MODE: Stranger in top half only */
-            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+            <motion.div key={opponentSocketIds.join(',')} initial={false} animate={{ opacity: 1 }} className="absolute overflow-hidden" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
               {/* Partner avatar stays painted underneath the video — the video
                   fades in on top once frames arrive, so there's never a blank
                   tile between the match-found event and the first WebRTC frame. */}
@@ -1911,7 +1911,7 @@ export default function ChatPage() {
             /* SOLO MODE: stranger(s) fill the top half. When matched against
                 a duo (2 opponents), they sit side-by-side instead of one
                 big + one PiP — clearer "me vs them as a pair" framing. */
-            <motion.div key={opponentSocketIds.join(',')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="absolute overflow-hidden flex" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
+            <motion.div key={opponentSocketIds.join(',')} initial={false} animate={{ opacity: 1 }} className="absolute overflow-hidden flex" style={{ top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
               {opponentSocketIds.map((sid, idx) => {
                 const isFirst = idx === 0
                 const fallbackName = isFirst ? (partnerUsername || 'Stranger') : 'Stranger'
@@ -2427,9 +2427,8 @@ export default function ChatPage() {
                   return (
                     <motion.div
                       key={opponentSocketIds.join(',')}
-                      initial={{ opacity: 0 }}
+                      initial={false}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 0.4, ease: 'easeOut' }}
                       className={`w-full h-full flex ${stackVertical ? 'flex-col' : ''}`}
                     >
                       {opponentSocketIds.map((sid, idx) => {
