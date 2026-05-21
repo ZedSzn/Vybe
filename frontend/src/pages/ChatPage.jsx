@@ -821,10 +821,14 @@ export default function ChatPage() {
       // Connect the socket RIGHT AWAY — in parallel with the camera. Previously
       // the socket was created only AFTER getUserMedia resolved, so a slow iOS
       // camera prompt delayed the whole connection + queue by over a minute.
-      // websocket preferred (stable through Render's proxy) with a polling
-      // fallback so a cellular network that stalls the initial WS handshake
-      // still connects promptly instead of retrying WS for a minute+.
-      const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['websocket', 'polling'] })
+      // POLLING FIRST, then upgrade to websocket. Cloudflare (in front of
+      // Render) kills the raw `wss://` upgrade — "WebSocket is closed before the
+      // connection is established" — and with websocket listed first the client
+      // just retried WS forever and NEVER connected (stuck on "Searching").
+      // Polling connects reliably, then engine.io transparently upgrades to
+      // websocket when the network allows; if it can't, it stays on polling and
+      // still works. Signaling/chat over polling is plenty fast (video is P2P).
+      const socket = io(import.meta.env.VITE_BACKEND_URL || '', { transports: ['polling', 'websocket'] })
       socketRef.current = socket
 
       socket.on('connect', () => {

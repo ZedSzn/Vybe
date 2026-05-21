@@ -41,10 +41,11 @@ export function SocketProvider({ children }) {
 
     const token = localStorage.getItem('vybe_token')
     const s = io(BACKEND, {
-      // websocket preferred (stable through Render's proxy — long-polling's
-      // heartbeat gets stalled and drops ~every 45s) with a polling fallback
-      // so a network that stalls the initial WS handshake still connects.
-      transports: ['websocket', 'polling'],
+      // POLLING FIRST, then upgrade to websocket. Cloudflare (in front of
+      // Render) kills the raw `wss://` upgrade ("closed before the connection
+      // is established"), so websocket-first never connected. Polling connects
+      // reliably and engine.io upgrades to websocket when the network allows.
+      transports: ['polling', 'websocket'],
       withCredentials: true,
       reconnectionDelay: 2000,
       reconnectionDelayMax: 8000,
