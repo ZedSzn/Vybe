@@ -2293,23 +2293,15 @@ export default function ChatPage() {
                     </div>
                   </div>
                 ) : opponentSocketIds.length === 0 ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-                    {status === 'matched' ? (
-                      <>
-                        {partnerAvatar ? (
-                          <img src={partnerAvatar} style={{ width: 88, height: 88, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(0,212,255,0.35)', boxShadow: '0 0 0 10px rgba(0,212,255,0.06), 0 0 48px rgba(0,212,255,0.12)' }} />
-                        ) : (
-                          <div style={{ width: 88, height: 88, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15))', border: '2px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 34, fontWeight: 900, color: '#00D4FF', boxShadow: '0 0 40px rgba(0,212,255,0.1)' }}>
-                            {(partnerUsername || 'S')[0].toUpperCase()}
-                          </div>
-                        )}
-                        <div style={{ textAlign: 'center' }}>
-                          <p style={{ color: 'white', fontWeight: 700, fontSize: 16, marginBottom: 3, lineHeight: 1 }}>{partnerUsername || 'Stranger'}</p>
-                          {partnerCountry && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 4, lineHeight: 1 }}>{partnerCountry}</p>}
-                        </div>
-                      </>
-                    ) : null}
-                  </div>
+                  /* Matched but the peer's stream hasn't arrived yet. Use the
+                     identical TilePlaceholder (64px, no label) the connected
+                     tile uses, so the avatar doesn't visibly shrink + lose its
+                     country line when the stream connects. The partner identity
+                     pill (rendered below, shows at length <= 1) carries the
+                     username + country in both states. */
+                  status === 'matched' ? (
+                    <TilePlaceholder avatarUrl={partnerAvatar} name={partnerUsername || 'Stranger'} hideLabel />
+                  ) : null
                 ) : (() => {
                   // Solo + 2 opponents → stack strangers vertically (top/bottom)
                   // so the user's camera on the right gets the full height too.
