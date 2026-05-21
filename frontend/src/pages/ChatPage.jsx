@@ -442,6 +442,7 @@ export default function ChatPage() {
   const [friendReqLoad,  setFriendReqLoad]    = useState(false)
   const [friendReqPopup,    setFriendReqPopup]    = useState(null) // incoming request: { friendshipId, from: {id, username} }
   const [friendReqAccepting, setFriendReqAccepting] = useState(false)
+  const [partnerIsFriend, setPartnerIsFriend]   = useState(false) // true when current partner is already a friend
   const [coins,          setCoins]            = useState(user?.coins ?? 0)
   const [cashableCoins,  setCashableCoins]    = useState(user?.cashableCoins ?? 0)
   const [tipFeedback,    setTipFeedback]      = useState(null) // shared feedback toast (errors etc.)
@@ -500,6 +501,7 @@ export default function ChatPage() {
   const peersRef        = useRef({})           // socketId → SimplePeer
   const remoteVideoRefs = useRef({})           // socketId → HTMLVideoElement
   const squadMatesRef   = useRef([])           // persists through re-renders for use in callbacks
+  const friendIdsRef    = useRef(new Set())    // userIds of accepted friends — for "already friends" detection
   const localStreamRef      = useRef(null)
   const mediaReadyRef       = useRef(false)  // true once camera/mic acquisition settles (or fails)
   const localVideoRef       = useRef(null)   // mobile PiP
@@ -536,6 +538,11 @@ export default function ChatPage() {
       }).catch(() => {
         if (user?.coins !== undefined) setCoins(user.coins)
       })
+      // Load the accepted-friends list so we can show "already friends" on the
+      // partner pill instead of the add-friend (+) button.
+      axios.get('/api/friends').then(({ data }) => {
+        friendIdsRef.current = new Set((data.friends || []).map((f) => String(f.friend?._id)))
+      }).catch(() => {})
     }
   }, []) // eslint-disable-line
 
@@ -870,6 +877,8 @@ export default function ChatPage() {
         setGiftPopup(null) // belt-and-braces: never carry an old popup into a new match
         setFriendReqPopup(null) // clear any stale incoming-request popup too
         setFriendReqSent(false)
+        // Is this new partner already a friend? Drives the pill: friend tick vs + button.
+        setPartnerIsFriend(!!partnerUserId && friendIdsRef.current.has(String(partnerUserId)))
         setMatchFlash(true)
         clearTimeout(matchFlashTimer.current)
         matchFlashTimer.current = setTimeout(() => setMatchFlash(false), 1200)
@@ -1040,6 +1049,15 @@ export default function ChatPage() {
         if (!mounted) return
         setTipFeedback({ type: 'success', msg: `${by?.username || 'They'} accepted your friend request! 🎉` })
         setTimeout(() => setTipFeedback(null), 3000)
+        const byId = by?.id ? String(by.id) : null
+        if (byId) {
+          friendIdsRef.current.add(byId)
+          if (byId === String(partnerUidRef.current)) setPartnerIsFriend(true)
+        } else if (partnerUidRef.current) {
+          // No id sent — assume it's the current partner who accepted.
+          friendIdsRef.current.add(String(partnerUidRef.current))
+          setPartnerIsFriend(true)
+        }
       })
     }
 
@@ -1226,6 +1244,13 @@ export default function ChatPage() {
       await axios.post(`/api/friends/respond/${friendReqPopup.friendshipId}`, { action: 'accept' })
       setTipFeedback({ type: 'success', msg: `You're now friends with ${friendReqPopup.from?.username || 'them'}! 🎉` })
       setTimeout(() => setTipFeedback(null), 3000)
+      // Record the friendship so the pill shows the friend tick. If the
+      // requester is the person we're chatting with, flip the pill now.
+      const reqId = friendReqPopup.from?.id ? String(friendReqPopup.from.id) : null
+      if (reqId) {
+        friendIdsRef.current.add(reqId)
+        if (reqId === String(partnerUidRef.current)) setPartnerIsFriend(true)
+      }
       setFriendReqPopup(null)
     } catch (err) {
       setTipFeedback({ type: 'error', msg: err.response?.data?.error || 'Could not accept request' })
@@ -1724,7 +1749,7 @@ export default function ChatPage() {
                     isVip={!!partnerIsVip}
                     isPremium={!!partnerIsPremium}
                     country={partnerCountry}
-                    friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
+                    friendStatus={(!user || !partnerUid) ? 'self' : partnerIsFriend ? 'friends' : friendReqSent ? 'pending' : 'none'}
                     onAddFriend={handleAddFriend}
                   />
                 </div>
@@ -2012,7 +2037,7 @@ export default function ChatPage() {
                   isVip={!!partnerIsVip}
                   isPremium={!!partnerIsPremium}
                   country={partnerCountry}
-                  friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
+                  friendStatus={(!user || !partnerUid) ? 'self' : partnerIsFriend ? 'friends' : friendReqSent ? 'pending' : 'none'}
                   onAddFriend={handleAddFriend}
                 />
                 {giftedBySocket[partnerSock] > 0 && (
@@ -2209,7 +2234,7 @@ export default function ChatPage() {
                       isVip={!!partnerIsVip}
                       isPremium={!!partnerIsPremium}
                       country={partnerCountry}
-                      friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
+                      friendStatus={(!user || !partnerUid) ? 'self' : partnerIsFriend ? 'friends' : friendReqSent ? 'pending' : 'none'}
                       onAddFriend={handleAddFriend}
                     />
                     {giftedBySocket[opponentSocketIds[0]] > 0 && (
@@ -2392,7 +2417,7 @@ export default function ChatPage() {
                                   isVerified={isFirst ? !!partnerEmailVerified : false}
                                   isVip={isFirst ? !!partnerIsVip : false}
                                   country={isFirst ? partnerCountry : undefined}
-                                  friendStatus={isFirst && user && partnerUid ? (friendReqSent ? 'pending' : 'none') : 'self'}
+                                  friendStatus={isFirst && user && partnerUid ? (partnerIsFriend ? 'friends' : friendReqSent ? 'pending' : 'none') : 'self'}
                                   onAddFriend={isFirst ? handleAddFriend : undefined}
                                 />
                                 {giftedBySocket[sid] > 0 && (
@@ -2425,7 +2450,7 @@ export default function ChatPage() {
                         isVip={!!partnerIsVip}
                         isPremium={!!partnerIsPremium}
                         country={partnerCountry}
-                        friendStatus={(!user || !partnerUid) ? 'self' : friendReqSent ? 'pending' : 'none'}
+                        friendStatus={(!user || !partnerUid) ? 'self' : partnerIsFriend ? 'friends' : friendReqSent ? 'pending' : 'none'}
                         onAddFriend={handleAddFriend}
                       />
                       {giftedBySocket[partnerSock] > 0 && (
