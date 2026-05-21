@@ -1593,24 +1593,40 @@ export default function ChatPage() {
         {/* ── MOBILE: Fullscreen immersive camera ── */}
         <div ref={pipContainerRef} className="lg:hidden fixed inset-0 z-[1] overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
 
-          {/* Fullscreen background: stranger video OR searching state */}
+          {/* Fullscreen background: stranger video OR searching state.
+              Top half is locked to 50vh — content has to fit inside it, so the
+              globe scales with available height (min(180, 26vh)) and overflow
+              is clipped at the edges. Earlier the globe was a fixed 240px box
+              that pushed past the top of the screen on shorter phones, and the
+              25-second "it's quiet" paragraph spilled over the bottom into the
+              camera half. */}
           {status === 'searching' ? (
-            <div className="absolute flex flex-col items-center justify-center px-6" style={{ top: 0, left: 0, right: 0, height: '50%', gap: 16, background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)' }}>
-              {/* Globe — fixed container so rings stay within bounds */}
-              <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 240, height: 240 }}>
-                <motion.div className="absolute rounded-full" style={{ width: 232, height: 232, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
-                <motion.div className="absolute rounded-full" style={{ width: 210, height: 210, border: '1px solid rgba(0,212,255,0.4)' }} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
-                <VybeGlobe size={180} />
+            <div
+              className="absolute flex flex-col items-center justify-center px-4"
+              style={{
+                top: 0, left: 0, right: 0, height: '50%',
+                gap: 10,
+                paddingTop: 'max(env(safe-area-inset-top, 0px), 12px)',
+                paddingBottom: 12,
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1020 50%, #080d18 100%)',
+              }}>
+              {/* Smaller mobile globe so it fits in 50vh even on shorter phones
+                  (iPhone SE = 284px usable, content needs ~270px max). */}
+              <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 188, height: 188 }}>
+                <motion.div className="absolute rounded-full" style={{ width: 188, height: 188, border: '1.5px solid #00D4FF' }} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
+                <motion.div className="absolute rounded-full" style={{ width: 168, height: 168, border: '1px solid rgba(0,212,255,0.4)' }} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }} />
+                <VybeGlobe size={140} />
               </div>
-              <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 10 }}>
+              <div className="text-center relative z-10 flex flex-col items-center" style={{ gap: 6, minHeight: 0 }}>
                 <AnimatePresence mode="wait">
-                  <motion.p key={searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-lg" style={{ color: '#00D4FF', fontWeight: 600, letterSpacing: '-0.01em' }}>
+                  <motion.p key={searchTextIdx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.3 }} className="text-base" style={{ color: '#00D4FF', fontWeight: 600, letterSpacing: '-0.01em', margin: 0 }}>
                     {SEARCH_TEXTS[searchTextIdx]}
                     <AnimatedDots />
                   </motion.p>
                 </AnimatePresence>
                 <AnimatePresence mode="wait">
-                  <motion.p key={tipIdx} initial={{ opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: 0.4 }} className="text-[11px]" style={{ color: '#555566' }}>
+                  <motion.p key={tipIdx} initial={{ opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: 0.4 }} className="text-[10.5px]" style={{ color: '#555566', margin: 0 }}>
                     {TIPS[tipIdx % TIPS.length]}
                   </motion.p>
                 </AnimatePresence>
@@ -1619,10 +1635,10 @@ export default function ChatPage() {
                     <motion.p
                       initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="text-[11px] leading-relaxed max-w-[260px] mt-1"
-                      style={{ color: '#7a7a8c' }}
+                      className="text-[10px] leading-snug max-w-[240px]"
+                      style={{ color: '#7a7a8c', margin: 0 }}
                     >
-                      It's quiet right now — we'll connect you the moment someone joins. Vybe gets busiest on evenings &amp; weekends.
+                      It&apos;s quiet right now — we&apos;ll connect you when someone joins.
                     </motion.p>
                   )}
                 </AnimatePresence>
