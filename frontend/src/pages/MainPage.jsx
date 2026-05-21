@@ -821,6 +821,46 @@ export default function MainPage() {
           Start Without Camera
         </motion.button>
 
+        {/* Mobile VIP trial banner — placed right under the Start CTAs so it's
+            visible without scrolling past the whole Match Settings card. */}
+        {!user?.isVip && !user?.isPremium && !user?.trialUsed && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.35 }}
+            style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, background: 'linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(124,58,237,0.05) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', padding: '16px' }}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ marginBottom: 8 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'white', background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', borderRadius: 20, padding: '3px 10px', display: 'inline-block' }}>LIMITED OFFER</span>
+              </div>
+              <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Try VIP Free for 7 Days</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginBottom: 12 }}>
+                {['Gender filter', 'Country filter', 'VIP profile badge'].map(f => (
+                  <span key={f} style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ color: '#00D4FF', fontWeight: 700 }}>✓</span>{f}
+                  </span>
+                ))}
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={async () => {
+                  if (!user) { navigate('/auth'); return }
+                  try {
+                    const { default: axios } = await import('axios')
+                    const token = localStorage.getItem('vybe_token')
+                    const res = await axios.post('/api/subscription/trial', {}, { headers: { Authorization: `Bearer ${token}` } })
+                    if (res.data.url) window.location.href = res.data.url
+                  } catch (e) {
+                    const msg = e?.response?.data?.error || e?.response?.data?.message || e?.message || 'Could not start trial. Try again.'
+                    alert(msg)
+                  }
+                }}
+                style={{ width: '100%', padding: '13px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
+                Start Free Trial →
+              </motion.button>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 8, marginBottom: 0 }}>🔒 Secured by Stripe · Cancel before day 7 to avoid £12.99/mo · Cancelling ends VIP access immediately</p>
+            </div>
+          </motion.div>
+        )}
+
         {/* â”€â”€ Match Settings â”€â”€ */}
         <div className="rounded-2xl p-4 space-y-4" style={{ background: 'rgba(13,13,24,0.92)', backdropFilter: 'blur(20px) saturate(1.4)', border: '1px solid rgba(30,30,46,0.8)', boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,212,255,0.05) inset' }}>
 
@@ -1024,45 +1064,6 @@ export default function MainPage() {
           </AnimatePresence>
 
         </div>
-
-        {/* Mobile VIP trial banner */}
-        {!user?.isVip && !user?.isPremium && !user?.trialUsed && (
-          <motion.div
-            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.35 }}
-            style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, background: 'linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(124,58,237,0.05) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(0,212,255,0.2)', padding: '16px' }}>
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <div style={{ marginBottom: 8 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: 'white', background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', borderRadius: 20, padding: '3px 10px', display: 'inline-block' }}>LIMITED OFFER</span>
-              </div>
-              <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Try VIP Free for 7 Days</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginBottom: 12 }}>
-                {['Gender filter', 'Country filter', 'VIP profile badge'].map(f => (
-                  <span key={f} style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ color: '#00D4FF', fontWeight: 700 }}>✓</span>{f}
-                  </span>
-                ))}
-              </div>
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={async () => {
-                  if (!user) { navigate('/auth'); return }
-                  try {
-                    const { default: axios } = await import('axios')
-                    const token = localStorage.getItem('vybe_token')
-                    const res = await axios.post('/api/subscription/trial', {}, { headers: { Authorization: `Bearer ${token}` } })
-                    if (res.data.url) window.location.href = res.data.url
-                  } catch (e) {
-                    const msg = e?.response?.data?.error || e?.response?.data?.message || e?.message || 'Could not start trial. Try again.'
-                    alert(msg)
-                  }
-                }}
-                style={{ width: '100%', padding: '13px', borderRadius: 12, background: 'linear-gradient(135deg, #00D4FF, #00B8E0)', color: 'white', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
-                Start Free Trial →
-              </motion.button>
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 8, marginBottom: 0 }}>🔒 Secured by Stripe · Cancel before day 7 to avoid £12.99/mo · Cancelling ends VIP access immediately</p>
-            </div>
-          </motion.div>
-        )}
 
         {/* Country dropdown portal — closes on scroll, anchored */}
         {showCountryDrop && createPortal(
