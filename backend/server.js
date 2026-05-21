@@ -3247,7 +3247,7 @@ function findSquadMatch(squadId, myFG, myFC, myMembers) {
   return null;
 }
 
-function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds) {
+async function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds) {
   for (const sid of allSocketIds) {
     const others     = allSocketIds.filter(x => x !== sid);
     const peers      = others.map(peerId => ({ socketId: peerId, isInitiator: sid > peerId }));
@@ -3257,6 +3257,26 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
     if (squadMates.length > 0) liveSquadPairs.set(sid, squadMates);
     const partnerSid = peers.find(p => !squadMates.includes(p.socketId))?.socketId ?? null;
     const partnerData = partnerSid ? onlineUsers.get(partnerSid) : null;
+
+    // Authoritative "already friends?" check from the DB so the partner pill
+    // shows the friend icon instead of the + button — no reliance on the
+    // client's cached friends list (which had timing/cache issues).
+    let partnerIsFriend = false;
+    const myUserId = onlineUsers.get(sid)?.userId;
+    const partnerUserId = partnerData?.userId;
+    if (myUserId && partnerUserId && dbConnected) {
+      try {
+        const f = await Friendship.findOne({
+          status: 'accepted',
+          $or: [
+            { requester: myUserId, recipient: partnerUserId },
+            { requester: partnerUserId, recipient: myUserId },
+          ],
+        }).select('_id');
+        partnerIsFriend = !!f;
+      } catch {}
+    }
+
     io.to(sid).emit('match-found', {
       room, peers, squadMates,
       isInitiator: peers[0]?.isInitiator ?? true,
@@ -3268,6 +3288,7 @@ function emitMatchFound(allSocketIds, room, mySquadSocketIds, opponentSocketIds)
       partnerIsVip: partnerData?.isVip || false,
       partnerEmailVerified: partnerData?.emailVerified || false,
       partnerCountry: partnerData?.country || null,
+      partnerIsFriend,
     });
   }
 }
@@ -3297,7 +3318,7 @@ setInterval(() => {
       const oppSocketIds = match.socketIds || [match.socketId];
       const allSocketIds = [...mySocketIds, ...oppSocketIds];
       for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter(x => x !== sid)); }
-      emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds);
+      emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds).catch(() => {});
       i--; // we removed `a`, adjust index
     }
   } catch (err) { console.error('[match] sweep error:', err.message); }
@@ -3333,7 +3354,7 @@ function processSquadBuf(squadId) {
     const allSocketIds = [...mySocketIds, ...opponentSocketIds];
     const room = `room_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter((x) => x !== sid)); }
-    emitMatchFound(allSocketIds, room, mySocketIds, opponentSocketIds);
+    emitMatchFound(allSocketIds, room, mySocketIds, opponentSocketIds).catch(() => {});
   } else {
     const existing = waitingQueue.findIndex((e) => e.squadId === squadId);
     if (existing !== -1) waitingQueue.splice(existing, 1);
@@ -3600,7 +3621,7 @@ io.on('connection', (socket) => {
       const oppSocketIds = match.socketIds || [match.socketId];
       const allSocketIds = [...mySocketIds, ...oppSocketIds];
       for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter(x => x !== sid)); }
-      emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds);
+      emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds).catch(() => {});
     } else {
       const userData = onlineUsers.get(socket.id) || {};
       const isBoosted = userData.boostedUntil && userData.boostedUntil > new Date();
