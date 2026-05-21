@@ -166,6 +166,8 @@ export default function MainPage() {
   const [squad,        setSquad]        = useState(null)
   const [squadLoading, setSquadLoading] = useState(false)
   const [squadError,   setSquadError]   = useState('')
+  const [joinCode,     setJoinCode]     = useState('')    // a friend's room code typed in to join directly
+  const [joiningCode,  setJoiningCode]  = useState(false)
   const [timeLeft,     setTimeLeft]     = useState(null)
   const [copied,       setCopied]       = useState(false)
 
@@ -409,6 +411,24 @@ export default function MainPage() {
     }, 8000)
     socket.once('squad-created', () => clearTimeout(timeout))
     socket.once('squad-error',   () => clearTimeout(timeout))
+  }
+
+  // Join a friend's room directly by typing their code (e.g. "VY-5LVV").
+  // Accepts the code with or without the "VY-" prefix and any casing.
+  const joinByCode = () => {
+    if (!socket || !isConnected) { setSquadError('Not connected. Please wait…'); return }
+    let c = joinCode.trim().toUpperCase().replace(/\s+/g, '')
+    if (!c) return
+    if (!c.startsWith('VY-')) c = 'VY-' + c.replace(/^VY-?/, '')
+    setJoiningCode(true); setSquadError('')
+    socket.emit('join-squad', { code: c, username: user?.username || 'Guest' })
+    const timeout = setTimeout(() => {
+      setJoiningCode((still) => { if (still) setSquadError('Could not join — check the code and try again.'); return false })
+    }, 8000)
+    // squad-joined is already handled globally (sets the squad); these just
+    // clear the local loading state / reset the input.
+    socket.once('squad-joined', () => { clearTimeout(timeout); setJoiningCode(false); setJoinCode('') })
+    socket.once('squad-error',  () => { clearTimeout(timeout); setJoiningCode(false) })
   }
 
   const kickMember = (targetSocketId) => {
@@ -942,6 +962,31 @@ export default function MainPage() {
                           <span className="text-[7px] font-bold" style={{ color: copied ? '#4ade80' : 'rgba(255,255,255,0.5)' }}>{copied ? 'Copied!' : 'Copy'}</span>
                         </motion.button>
                       </div>
+                      {/* Or join a friend's room by code */}
+                      <div style={{ marginBottom: 12 }}>
+                        <div className="flex items-center gap-2" style={{ marginBottom: 7 }}>
+                          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+                          <span className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(160,170,190,0.5)' }}>or join a room</span>
+                          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+                        </div>
+                        <div className="flex gap-1.5">
+                          <input
+                            value={joinCode}
+                            onChange={(e) => setJoinCode(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') joinByCode() }}
+                            placeholder="VY-5LVV"
+                            maxLength={8}
+                            className="flex-1 px-3 py-2 rounded-xl text-[13px] font-mono tracking-[0.14em] uppercase outline-none focus-visible:border-cyan-400/60 min-w-0"
+                            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,212,255,0.18)', color: '#cfeaff', fontFamily: 'ui-monospace, monospace' }}
+                          />
+                          <motion.button onClick={joinByCode} disabled={joiningCode || !joinCode.trim()} whileTap={{ scale: 0.93 }}
+                            className="px-4 py-2 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 flex-shrink-0"
+                            style={{ background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.35)', color: '#00D4FF', cursor: (joiningCode || !joinCode.trim()) ? 'default' : 'pointer', opacity: (joiningCode || !joinCode.trim()) ? 0.4 : 1 }}>
+                            {joiningCode ? <Loader2 size={12} className="animate-spin" /> : 'Join'}
+                          </motion.button>
+                        </div>
+                      </div>
+
                       <AnimatePresence mode="wait">
                         {!squad ? (
                           <motion.div key="setup" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -1551,6 +1596,26 @@ export default function MainPage() {
                             style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 20, border: 'none', cursor: 'pointer', ...(copied ? { background: 'rgba(34,197,94,0.2)' } : { background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }) }}>
                             {copied ? <Check size={11} style={{ color: '#4ade80' }} /> : <Copy size={11} style={{ color: 'rgba(255,255,255,0.6)' }} />}
                             <span style={{ color: copied ? '#4ade80' : 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 700 }}>{copied ? 'Copied!' : 'Copy Link'}</span>
+                          </motion.button>
+                        </div>
+                        {/* Or join a friend's room by code */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, zIndex: 1, width: '100%', maxWidth: 240 }}>
+                          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+                          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(160,170,190,0.5)' }}>or join</span>
+                          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 6, zIndex: 1, width: '100%', maxWidth: 240 }}>
+                          <input
+                            value={joinCode}
+                            onChange={(e) => setJoinCode(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') joinByCode() }}
+                            placeholder="VY-5LVV"
+                            maxLength={8}
+                            style={{ flex: 1, minWidth: 0, padding: '7px 10px', borderRadius: 12, fontSize: 12, fontFamily: 'ui-monospace, monospace', letterSpacing: '0.12em', textTransform: 'uppercase', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,212,255,0.18)', color: '#cfeaff', outline: 'none' }}
+                          />
+                          <motion.button onClick={joinByCode} disabled={joiningCode || !joinCode.trim()} whileTap={{ scale: 0.93 }}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '7px 14px', borderRadius: 12, fontSize: 12, fontWeight: 700, background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.35)', color: '#00D4FF', cursor: (joiningCode || !joinCode.trim()) ? 'default' : 'pointer', flexShrink: 0, opacity: (joiningCode || !joinCode.trim()) ? 0.4 : 1 }}>
+                            {joiningCode ? <Loader2 size={12} className="animate-spin" /> : 'Join'}
                           </motion.button>
                         </div>
                         {/* Waiting indicator */}
