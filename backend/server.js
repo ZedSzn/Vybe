@@ -3315,7 +3315,9 @@ function processSquadBuf(squadId) {
 
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 io.on('connection', (socket) => {
-  console.log(`🔌 ${socket.id}`);
+  console.log(`🔌 ${socket.id} — transport: ${socket.conn.transport.name}`);
+  // Log if/when the connection upgrades from polling → websocket.
+  socket.conn.on('upgrade', (t) => console.log(`⬆️  ${socket.id} upgraded to ${t.name}`));
 
   // User dismissed their warning modal — mark all their warnings read
   // so they don't reappear on the next login.
@@ -3741,9 +3743,15 @@ io.on('connection', (socket) => {
     socket.emit('search-cancelled');
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (reason) => {
     cancelBotTimer(socket.id);
-    console.log(`❌ ${socket.id}`);
+    // Log the disconnect REASON so we can see why sockets drop:
+    //   'ping timeout'        → heartbeat lost (proxy stalling pongs)
+    //   'transport close'     → TCP/WS connection dropped
+    //   'transport error'     → transport-level failure
+    //   'client namespace disconnect' → client called .disconnect()
+    //   'server namespace disconnect' → we disconnected them
+    console.log(`❌ ${socket.id} — reason: ${reason} — was in queue: ${waitingQueue.some(e => e.socketId === socket.id || e.socketIds?.includes(socket.id))}`);
     onlineUsers.delete(socket.id);
     for (let i = waitingQueue.length - 1; i >= 0; i--) {
       const e = waitingQueue[i];
