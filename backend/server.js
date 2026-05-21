@@ -3376,6 +3376,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('register', async (data) => {
+    // Diagnostic: how long from the user tapping Start Chatting (chat screen
+    // mount) to this socket connecting. Big number here = the socket connection
+    // is the slow part. Small number = the delay is page-load/login BEFORE chat.
+    if (data?.msSinceEnter != null) {
+      console.log(`⏱️  ${socket.id} registered ${data.msSinceEnter}ms after entering chat (transport: ${socket.conn.transport.name})`);
+    }
     let boostedUntil = null;
     // Verify JWT token if provided — prevents identity spoofing
     let verifiedUserId = null;
