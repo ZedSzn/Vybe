@@ -3541,12 +3541,14 @@ io.on('connection', (socket) => {
       const allSocketIds = [...mySocketIds, ...oppSocketIds];
       for (const sid of allSocketIds) { io.sockets.sockets.get(sid)?.join(room); activePairs.set(sid, allSocketIds.filter(x => x !== sid)); }
       emitMatchFound(allSocketIds, room, mySocketIds, oppSocketIds);
+      console.log(`[match] ✓ paired ${socket.id} with ${oppSocketIds.join(',')} (queue depth before=${waitingQueue.length})`);
     } else {
       const userData = onlineUsers.get(socket.id) || {};
       const isBoosted = userData.boostedUntil && userData.boostedUntil > new Date();
       const queueEntry = { type: 'solo', socketId: socket.id, socketIds: [socket.id], gender: userData.gender || 'other', country: userData.country || '', mode: prefs.mode || 'solo', filterGender: prefs.filterGender || null, filterCountry: prefs.filterCountry || '' };
       if (isBoosted) waitingQueue.unshift(queueEntry); else waitingQueue.push(queueEntry);
       socket.emit('waiting');
+      console.log(`[match] · queued ${socket.id} (userId=${userData.userId || 'guest'} gender=${queueEntry.gender} country=${queueEntry.country || '—'} mode=${queueEntry.mode} fG=${queueEntry.filterGender || '—'} fC=${queueEntry.filterCountry || '—'}) — queue now [${waitingQueue.map(e => e.socketId).join(', ')}]`);
       // The duo-test bot opts out so the server's dev bot can't hijack its stranger.
       if (!prefs.noDevBot) spawnBotMatch(socket, prefs.mode);
     }
